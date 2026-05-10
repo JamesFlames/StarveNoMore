@@ -50,7 +50,7 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 - `scripts/generate_card_atlases.py` — Renders card atlas PNGs from CSV data in `content/`
 - `scripts/generate_assets.py` — Renders tokens, boards, player boards, legends via Pillow
 - `scripts/generate_comfyui_assets.py` — Queues 23 illustration prompts to local ComfyUI (Flux Dev)
-- Card data CSVs: `content/phase1_cards.csv` through `content/trophies.csv`
+- Card data CSVs: `content/cards_phase1.csv` … `cards_phase4.csv`, plus `cards_market.csv`, `cards_recipes.csv`, `cards_threats.csv`, `cards_visitors.csv`, `cards_trophies.csv`, `cards_scenarios.csv`, and `locations.csv`, `resources.csv`, `tooltips.csv`
 - Output images: `art/decks/`, `art/tokens/`, `art/icons/`, `art/board/`, `art/characters/`, `art/legend/`
 
 ## File Structure
@@ -58,40 +58,50 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 ```
 StarveNoMore/
 ├── lua/
-│   ├── global.lua              # Game state, lifecycle, onLoad/onSave
 │   ├── helpers.lua             # Utility functions (safecall, getters)
+│   ├── global.lua              # gameState table, lifecycle, onLoad/onSave
+│   ├── setup.lua               # Bare gameplay setup (deals/shuffles/places)
 │   ├── day_loop.lua            # Day advance, turn management, Dawn/Day/Dusk/Night
-│   ├── actions.lua             # Player actions (move, gather, cook, trade, etc.)
+│   ├── effects/
+│   │   └── dawn_effects.lua    # Dawn card effect dispatch table
 │   ├── combat.lua              # Combat resolution, boss fights
+│   ├── crafting.lua            # Market craft + Crockpot cook handlers
+│   ├── night.lua               # Night-phase resolver (threat draw, Charlie, sleep)
 │   ├── tick_victory.lua        # Tick decay, victory/defeat conditions
-│   ├── ui_actionbar.lua        # Action bar button handlers
+│   ├── actions.lua             # Player actions (move, gather, fight, rest, cleanse)
+│   ├── ui_banner.lua           # Top-of-screen Phase Banner (day/phase/doom/active/next)
+│   ├── ui_actionbar.lua        # Per-board action bar buttons + cube animation
 │   ├── ui_controls.lua         # Host controls, confirm dialogs, tooltips
-│   ├── ui_hud.lua              # HUD panels (stats, doom, day display)
-│   ├── ui_notebook.lua         # In-game notebook / log
 │   ├── ui_setup.lua            # Guided setup walkthrough, character briefing
-│   ├── ui_help.lua             # Help panel, "What now?" contextual hints
-│   ├── ui_mood.lua             # Lighting presets, safety-net confirms, camera nudges
+│   ├── ui_help.lua             # Help panel tabs, "What now?" contextual hints
+│   ├── ui_mood.lua             # Phase lighting presets, safety-net confirms, camera nudges
 │   ├── audit.lua               # Performance audit, tooltip audit, first-load checks
-│   └── effects/
-│       ├── dawn_effects.lua    # 40 Dawn card effect dispatch table
-│       ├── threat_effects.lua  # Threat card resolution
-│       └── market_effects.lua  # Market item effects
+│   └── assets.lua              # ASSETS table — single source of truth for image URLs
+│                               # (NOTE: not in LUA_LOAD_ORDER; concatenated separately)
 ├── xml/
 │   └── global_ui.xml           # All UI panel definitions
 ├── content/
-│   ├── phase1_cards.csv        # Dawn cards per phase (1–4)
-│   ├── phase2_cards.csv
-│   ├── phase3_cards.csv
-│   ├── phase4_cards.csv
-│   ├── market_cards.csv
-│   ├── recipes.csv
-│   ├── threats.csv
-│   ├── visitors.csv
-│   └── trophies.csv
+│   ├── cards_phase1.csv        # Dawn cards per phase (1–4)
+│   ├── cards_phase2.csv
+│   ├── cards_phase3.csv
+│   ├── cards_phase4.csv
+│   ├── cards_market.csv
+│   ├── cards_recipes.csv
+│   ├── cards_threats.csv
+│   ├── cards_visitors.csv
+│   ├── cards_trophies.csv
+│   ├── cards_scenarios.csv
+│   ├── locations.csv
+│   ├── resources.csv
+│   ├── tooltips.csv
+│   ├── iconography.md
+│   ├── asset_manifest.md
+│   ├── notebook/               # Quickstart + Full rules + Character reference
+│   └── help/                   # Glossary + Character briefings + What-now hints
 ├── art/                        # Generated image assets
-├── saves/                      # Built TTS save JSON
+├── saves/                      # Built TTS save JSON (StarveNoMore.json + .pretty.json)
 ├── scripts/                    # Build + asset generation scripts
-└── docs/                       # Design documents
+└── docs/                       # Design reference docs
 ```
 
 ## Game Design Quick Reference
@@ -118,10 +128,10 @@ JamesHouse, RaymanHouse, EllieLucaHouse, BasketballCourt, BadmintonCourt
 Dawn → Day (player turns, 3 actions each) → Dusk → Night → Tick (stat decay)
 
 ### Doom Track
-0–30. Thresholds at 5 (warning), 10 (camera nudge), 15, 20, 25. Doom 30 = defeat.
+0–30. Thresholds at 10 (night threats +1), 15 (Market refresh 1/day), 20 (−1 Sanity at Tick), 25 (bosses can appear in any phase), 30 = defeat. Cleanse action (1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink) reduces Doom by 2.
 
 ### Win Condition
-Survive all 7 days with at least one character standing.
+Survive all 7 days with Doom < 30 and at least one character not Down. Bonus achievements: **Pristine** (all 5 alive), **Truth** (3 Clue cards), **Hero** (all 4 bosses defeated).
 
 ## Key Conventions
 
