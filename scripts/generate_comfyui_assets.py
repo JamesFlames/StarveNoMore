@@ -1,42 +1,90 @@
 """
 ComfyUI batch generator for Starve No More illustration assets.
 
-Generates the 23 images that need AI illustration (not data-driven):
+Generates:
   - 5 location scene tiles (1024x1024)
+  - 2 path decoration variants (1024x1024)
   - 10 character standees (512x1024) — front + back per character
   - 8 boss/creature standees (512x1024)
+  - ~150 card illustrations (1024x1024) — one per row of content/cards_*.csv
 
 Usage:
   1. Start ComfyUI (default: http://127.0.0.1:8000)
-  2. Run: python scripts/generate_comfyui_assets.py
+  2. Run: python scripts/generate_comfyui_assets.py [options]
   3. Images save to ComfyUI output/ with prefixed filenames
-  4. Copy final images into art/ subfolders and re-run build_save.py
+  4. python scripts/sync_comfyui_output.py   # copies outputs into repo art/
+  5. python scripts/generate_card_atlases.py  # composites cards
+  6. python scripts/build_save.py             # packages the TTS save
+
+Options:
+  --cards-only         Queue only card illustrations
+  --no-cards           Queue only the board assets (tiles, paths, chars, bosses)
+  --deck NAME          Limit cards to one deck (phase1..4, market, recipes,
+                       threats, visitors, trophies). May be repeated.
+  --only ID            Queue only one card by exact id (e.g. P1_QUIET_EVENING)
+  --skip-existing      Skip any prompt whose ComfyUI output PNG already exists
+  [substring]          Backward-compatible positional filter (e.g. snm_boss)
 
 Requires: ComfyUI running with flux1-dev-Q8_0.gguf, clip_l, t5xxl_fp16, ae.safetensors
 """
 
+import argparse
+import csv
+import glob
 import json
-import urllib.request
+import os
 import random
 import sys
-import os
+import urllib.request
 
 COMFYUI_URL = "http://127.0.0.1:8000"
+COMFYUI_OUTPUT_DIR = r"c:\Users\GGPC\Documents\ComfyUI\output"
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+CONTENT_DIR = os.path.join(REPO_ROOT, "content")
 
 # --------------------------------------------------------------------------
-# Style prefix — Tim Burton / Edward Gorey aesthetic for the whole game
+# Locked art direction — Don't Starve Together aesthetic with a modern,
+# urban (North American suburban) twist. Applies to EVERY image this
+# script generates. Keep this in sync with agents.md "ComfyUI Workflow".
 # --------------------------------------------------------------------------
 STYLE = (
-    "dark whimsical illustration, Tim Burton meets Edward Gorey style, "
-    "ink crosshatching, muted desaturated palette with warm amber highlights, "
-    "slightly exaggerated proportions, eerie cozy atmosphere, "
-    "board game art, high detail, no text, no watermark"
+    "Don't Starve Together aesthetic, Tim Burton meets Edward Gorey, "
+    "hand-drawn ink-line gothic cartoon, scratchy crosshatch shading, "
+    "muted desaturated palette with warm amber highlights and one saturated red for danger, "
+    "silhouette-distinct shapes, spindly limbs, slightly exaggerated proportions, "
+    "eerie cozy atmosphere — but transplanted into a modern North American suburb: "
+    "contemporary clothing and props, smartphones, energy drink cans, gaming PCs, "
+    "basketball hoops, badminton nets, suburban houses and streetlights — "
+    "all rendered in the same hand-drawn DST style (no photoreal, no 3D), "
+    "board game illustration, high detail, no text, no watermark, no UI"
 )
 
 NEGATIVE = (
     "blurry, low quality, watermark, text, deformed, photorealistic, "
     "3d render, anime, cartoon, chibi, neon colors, oversaturated"
 )
+
+# Card-specific qualifier appended after the per-deck prefix and art_notes.
+CARD_QUALIFIER = (
+    "full-bleed square card illustration, no text, no border, no UI, "
+    "single coherent scene"
+)
+
+# Per-deck visual framing. Combined with the row's art_notes column.
+# Each prefix carries the scene + lighting context for that deck. The shared
+# style (DST aesthetic, ink linework, modern-urban twist) lives in STYLE.
+CARD_DECK_PREFIXES = {
+    "phase1":   "an ominous suburban scene at dawn, warm amber streetlights against deep blue sky, atmospheric, calm-before-storm",
+    "phase2":   "a tense suburban scene as things grow strange, warm amber light spilling onto cracked pavement, deep blue dusk, eerie",
+    "phase3":   "a frightening suburban scene at long night, cold deep blue night with scattered warm amber light sources, long shadows",
+    "phase4":   "an apocalyptic suburban scene in the final hours, broken amber streetlights, deep navy sky with sickly red horizon, urban decay",
+    "market":   "a single object portrait on a moody desaturated backdrop, soft warm side-light, props from a modern suburban home",
+    "recipes":  "food in or beside a crockpot, warm overhead kitchen light, steam rising, modern suburban kitchen",
+    "threats":  "a creature portrait, dramatic chiaroscuro, eerie, single saturated red accent",
+    "visitors": "a character portrait, three-quarter view, soft warm side-light, modern suburban teenager",
+    "trophies": "a single trophy artifact on display, ceremonial low warm light, museum-style backdrop",
+}
 
 # --------------------------------------------------------------------------
 # Asset definitions: (filename_prefix, width, height, prompt)
@@ -180,6 +228,83 @@ ASSETS = [
 ]
 
 
+# --------------------------------------------------------------------------
+# Card illustration loading — reads content/cards_*.csv and builds
+# (filename_prefix, w, h, prompt) tuples in the same shape as ASSETS.
+# --------------------------------------------------------------------------
+
+# Order matters only for log readability.
+CARD_DECK_FILES = [
+    ("phase1",   "cards_phase1.csv"),
+    ("phase2",   "cards_phase2.csv"),
+    ("phase3",   "cards_phase3.csv"),
+    ("phase4",   "cards_phase4.csv"),
+    ("market",   "cards_market.csv"),
+    ("recipes",  "cards_recipes.csv"),
+    ("threats",  "cards_threats.csv"),
+    ("visitors", "cards_visitors.csv"),
+    ("trophies", "cards_trophies.csv"),
+]
+
+
+def _row_subject(deck, row):
+    """Per-row subject line — usually art_notes; falls back per deck."""
+    notes = (row.get("art_notes") or "").strip()
+    if notes:
+        return notes
+    if deck == "visitors":
+        # No art_notes column today.
+        char = row.get("character", "an unknown visitor")
+        trig = row.get("trigger", "")
+        return f"a portrait of {char}, {trig}".strip(", ")
+    name = row.get("title") or row.get("name") or row.get("id") or "unknown"
+    return name
+
+
+def build_card_prompt(deck, row):
+    """Compose a full prompt for one card row."""
+    parts = [
+        CARD_DECK_PREFIXES.get(deck, ""),
+        _row_subject(deck, row),
+        CARD_QUALIFIER,
+        STYLE,
+    ]
+    return ", ".join(p for p in parts if p)
+
+
+def load_card_assets(deck_filter=None, only_id=None):
+    """Yield (filename_prefix, w, h, prompt, deck, card_id) tuples.
+
+    deck_filter: optional iterable of deck names to include (e.g. {"phase1"}).
+    only_id: optional exact card id (e.g. "P1_QUIET_EVENING").
+    """
+    out = []
+    for deck, fname in CARD_DECK_FILES:
+        if deck_filter and deck not in deck_filter:
+            continue
+        path = os.path.join(CONTENT_DIR, fname)
+        if not os.path.isfile(path):
+            print(f"  warn: missing {path}")
+            continue
+        with open(path, "r", encoding="utf-8", newline="") as f:
+            for row in csv.DictReader(f):
+                card_id = (row.get("id") or "").strip()
+                if not card_id:
+                    continue
+                if only_id and card_id != only_id:
+                    continue
+                prefix = f"snm_card_{card_id}"
+                prompt = build_card_prompt(deck, row)
+                out.append((prefix, 1024, 1024, prompt, deck, card_id))
+    return out
+
+
+def output_already_exists(filename_prefix):
+    """True if ComfyUI has already written <prefix>_*.png to its output dir."""
+    pattern = os.path.join(COMFYUI_OUTPUT_DIR, f"{filename_prefix}_*.png")
+    return bool(glob.glob(pattern))
+
+
 def build_workflow(positive_prompt, negative_prompt, width, height, filename_prefix):
     """Build a single-pass Flux Dev workflow (no ControlNet, no upscale)."""
     seed = random.randint(1, 2**53)
@@ -209,8 +334,8 @@ def build_workflow(positive_prompt, negative_prompt, width, height, filename_pre
                 "model": ["1", 0],
                 "clip": ["2", 0],
                 "lora_name": "flux\\c4r1mj34.safetensors",
-                "strength_model": 0.65,
-                "strength_clip": 0.65
+                "strength_model": 0.85,
+                "strength_clip": 0.85
             }
         },
         # CLIPTextEncode (positive)
@@ -293,23 +418,58 @@ def queue_prompt(workflow):
 
 
 def main():
-    # Optional: filter by prefix
-    filter_prefix = None
-    if len(sys.argv) > 1:
-        filter_prefix = sys.argv[1]
-        print(f"Filtering assets matching: {filter_prefix}")
+    parser = argparse.ArgumentParser(
+        description="Queue Starve No More illustration prompts to ComfyUI."
+    )
+    parser.add_argument("filter", nargs="?", default=None,
+                        help="Backward-compatible substring filter on filename "
+                             "(e.g. 'snm_boss').")
+    parser.add_argument("--cards-only", action="store_true",
+                        help="Queue only card illustrations (skip board assets).")
+    parser.add_argument("--no-cards", action="store_true",
+                        help="Queue only the board assets (skip card illustrations).")
+    parser.add_argument("--deck", action="append", default=[],
+                        choices=[d for d, _ in CARD_DECK_FILES],
+                        help="Limit cards to one deck. May be repeated.")
+    parser.add_argument("--only", default=None,
+                        help="Queue only one card by exact id (e.g. P1_QUIET_EVENING).")
+    parser.add_argument("--skip-existing", action="store_true",
+                        help="Skip prompts whose ComfyUI output PNG already exists.")
+    args = parser.parse_args()
 
-    assets = ASSETS
-    if filter_prefix:
-        assets = [a for a in ASSETS if filter_prefix in a[0]]
+    if args.cards_only and args.no_cards:
+        parser.error("--cards-only and --no-cards are mutually exclusive")
+
+    # ---- Assemble the prompt list ----
+    assets = []  # list of (prefix, w, h, prompt) — stripped of card-only fields
+
+    if not args.cards_only:
+        for tup in ASSETS:
+            assets.append(tup)
+
+    if not args.no_cards:
+        deck_filter = set(args.deck) if args.deck else None
+        for prefix, w, h, prompt, _deck, _cid in load_card_assets(deck_filter, args.only):
+            assets.append((prefix, w, h, prompt))
+
+    if args.filter:
+        assets = [a for a in assets if args.filter in a[0]]
+        print(f"Filtering assets matching: {args.filter}")
+
+    if args.skip_existing:
+        before = len(assets)
+        assets = [a for a in assets if not output_already_exists(a[0])]
+        skipped = before - len(assets)
+        if skipped:
+            print(f"Skipping {skipped} prompts whose output already exists.")
 
     if not assets:
-        print("No matching assets found.")
-        sys.exit(1)
+        print("No matching assets to queue.")
+        sys.exit(0 if args.skip_existing else 1)
 
     print(f"Starve No More — queueing {len(assets)} assets to ComfyUI at {COMFYUI_URL}")
-    print(f"Style: Tim Burton / Edward Gorey illustration")
-    print(f"Model: Flux Dev Q8 + c4r1mj34 LoRA (0.65)")
+    print(f"Style: Don't Starve Together aesthetic + modern urban (suburban) twist")
+    print(f"Model: Flux Dev Q8 + c4r1mj34 LoRA (0.85)")
     print()
 
     success = 0
@@ -326,13 +486,10 @@ def main():
     print()
     print(f"Done: {success}/{len(assets)} queued.")
     print()
-    print("After generation, copy outputs to the StarveNoMore art/ folders:")
-    print("  Location tiles   -> art/tiles/")
-    print("  Character fronts -> art/characters/")
-    print("  Character backs  -> art/characters/")
-    print("  Boss standees    -> art/bosses/")
-    print()
-    print("Then re-run: python scripts/build_save.py")
+    print("Wait for ComfyUI to finish, then:")
+    print("  python scripts/sync_comfyui_output.py    # copy outputs into repo art/")
+    print("  python scripts/generate_card_atlases.py  # composite card faces")
+    print("  python scripts/build_save.py             # rebuild the TTS save")
 
 
 if __name__ == "__main__":

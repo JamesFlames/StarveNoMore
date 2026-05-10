@@ -1,20 +1,35 @@
 """
 Generate card atlas images for Starve No More from CSV data.
 Produces face atlases (grid of individual cards) and back images for every deck.
+
+Each card face = top art region (full-bleed illustration) + bottom text panel.
+Illustrations come from `art/decks/illustrations/<card_id>.png`, populated by:
+  1. python scripts/generate_comfyui_assets.py
+  2. python scripts/sync_comfyui_output.py
+
+If an illustration is missing, the art region falls back to a flat colored
+rectangle so partial generations don't break the atlas build.
+
 Run: python scripts/generate_card_atlases.py
 Output: art/decks/*.png
 """
 
-import csv, os, textwrap, math
+import csv, os
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONTENT = os.path.join(ROOT, "content")
 OUT = os.path.join(ROOT, "art", "decks")
+ILLUSTRATIONS_DIR = os.path.join(OUT, "illustrations")
 
 # Card dimensions (TTS standard for custom decks)
 CARD_W = 408
 CARD_H = 585
+
+# Layout split: top region holds the illustration, bottom holds the text panel.
+ART_H = 380
+TEXT_Y = ART_H              # text panel starts here
+TEXT_H = CARD_H - ART_H     # 205
 
 # ---------------------------------------------------------------------------
 # Color palette — Tim Burton / Edward Gorey muted earth tones
@@ -50,7 +65,6 @@ PALETTE = {
 def load_font(size, bold=False):
     """Try to load a readable font. Falls back to Pillow default."""
     candidates = [
-        # Windows
         "C:/Windows/Fonts/segoeui.ttf",
         "C:/Windows/Fonts/segoeuib.ttf",
         "C:/Windows/Fonts/arial.ttf",
@@ -58,12 +72,10 @@ def load_font(size, bold=False):
         "C:/Windows/Fonts/consola.ttf",
     ]
     if bold:
-        # Prefer bold variants first
         candidates = [
             "C:/Windows/Fonts/segoeuib.ttf",
             "C:/Windows/Fonts/arialbd.ttf",
         ] + candidates
-
     for path in candidates:
         if os.path.isfile(path):
             try:
@@ -72,27 +84,23 @@ def load_font(size, bold=False):
                 continue
     return ImageFont.load_default()
 
-FONT_TITLE = load_font(22, bold=True)
-FONT_BODY = load_font(15)
-FONT_SMALL = load_font(12)
-FONT_SEVERITY = load_font(18, bold=True)
-FONT_LABEL = load_font(11)
+FONT_TITLE   = load_font(24, bold=True)
+FONT_BODY    = load_font(16)
+FONT_SMALL   = load_font(13)
+FONT_LABEL   = load_font(12)
 
 # ---------------------------------------------------------------------------
 # Drawing helpers
 # ---------------------------------------------------------------------------
 def draw_rounded_rect(draw, xy, radius, fill, outline=None):
-    """Draw a rounded rectangle."""
-    x0, y0, x1, y1 = xy
     draw.rounded_rectangle(xy, radius=radius, fill=fill, outline=outline)
 
-def draw_severity_dots(draw, x, y, severity, max_dots=5):
-    """Draw severity dots (filled=red, empty=grey)."""
+def draw_severity_dots(draw, x, y, severity, max_dots=5, size=10, gap=14):
+    """Draw severity dots (filled=red, empty=grey) horizontally."""
     for i in range(max_dots):
-        cx = x + i * 18
-        cy = y
+        cx = x + i * gap
         color = PALETTE["severity_on"] if i < severity else PALETTE["severity_off"]
-        draw.ellipse([cx, cy, cx + 12, cy + 12], fill=color)
+        draw.ellipse([cx, y, cx + size, y + size], fill=color)
 
 def wrap_text(text, font, max_width, draw):
     """Word-wrap text to fit within max_width pixels."""
@@ -113,309 +121,285 @@ def wrap_text(text, font, max_width, draw):
     return lines
 
 def draw_wrapped_text(draw, x, y, text, font, color, max_width, max_lines=None):
-    """Draw word-wrapped text, return final y position."""
     lines = wrap_text(text, font, max_width, draw)
     if max_lines and len(lines) > max_lines:
         lines = lines[:max_lines]
         lines[-1] = lines[-1][:max(0, len(lines[-1])-3)] + "..."
-    line_height = font.size + 4
+    line_height = font.size + 3
     for line in lines:
         draw.text((x, y), line, fill=color, font=font)
         y += line_height
     return y
 
 # ---------------------------------------------------------------------------
-# Card renderers — one per deck type
+# Layout primitives — illustration paste + text panel chrome
 # ---------------------------------------------------------------------------
+def paste_card_art(img, card_id, accent_color):
+    """Paste illustrations/<card_id>.png cover-cropped to (CARD_W, ART_H).
 
+    Falls back to a flat colored rectangle if the illustration is missing.
+    Returns True if a real illustration was used, False on fallback.
+    """
+    path = os.path.join(ILLUSTRATIONS_DIR, f"{card_id}.png")
+    if os.path.isfile(path):
+        try:
+            art = Image.open(path).convert("RGB")
+            # Cover-crop: scale so the shorter dimension fills, then center-crop.
+            target_ratio = CARD_W / ART_H
+            src_ratio = art.size[0] / art.size[1]
+            if src_ratio > target_ratio:
+                # Source is wider; scale by height, then crop sides.
+                new_h = ART_H
+                new_w = int(round(art.size[0] * (ART_H / art.size[1])))
+                art = art.resize((new_w, new_h), Image.LANCZOS)
+                left = (new_w - CARD_W) // 2
+                art = art.crop((left, 0, left + CARD_W, ART_H))
+            else:
+                # Source is taller; scale by width, then crop top/bottom.
+                new_w = CARD_W
+                new_h = int(round(art.size[1] * (CARD_W / art.size[0])))
+                art = art.resize((new_w, new_h), Image.LANCZOS)
+                top = (new_h - ART_H) // 2
+                art = art.crop((0, top, CARD_W, top + ART_H))
+            img.paste(art, (0, 0))
+            return True
+        except Exception as e:
+            print(f"  warn: failed to load {path}: {e}")
+    # Fallback: flat colored rectangle in the deck's accent color.
+    fallback = Image.new("RGB", (CARD_W, ART_H), accent_color)
+    img.paste(fallback, (0, 0))
+    return False
+
+def draw_text_panel(img, draw, accent_color):
+    """Paint the bottom text-panel background and a divider line."""
+    draw.rectangle([0, TEXT_Y, CARD_W, CARD_H], fill=PALETTE["bg"])
+    # Accent divider line where art meets panel.
+    draw.line([0, TEXT_Y, CARD_W, TEXT_Y], fill=accent_color, width=2)
+
+def draw_title_row(draw, title, accent_color, severity=None):
+    """Title at left of panel, optional severity dots at right. Returns next y."""
+    # Title text
+    draw.text((12, TEXT_Y + 8), title, fill=PALETTE["title_text"], font=FONT_TITLE)
+    # Severity dots, top-right of panel
+    if severity is not None:
+        draw_severity_dots(draw, CARD_W - 90, TEXT_Y + 14, severity)
+    return TEXT_Y + 36  # next available y for sub-label or content
+
+def draw_kicker(draw, text, color, y):
+    """Small uppercase 'kicker' label like RECIPE / VISITOR / SOFT THREAT."""
+    draw.text((12, y), text.upper(), fill=color, font=FONT_SMALL)
+    return y + 16
+
+def draw_card_id_footer(draw, card_id):
+    """Footer card ID at bottom-left of card."""
+    draw.text((12, CARD_H - 16), card_id, fill=PALETTE["border"], font=FONT_LABEL)
+
+# ---------------------------------------------------------------------------
+# Card renderers — one per deck type. Each:
+#   1. Creates a blank card.
+#   2. Pastes art on top.
+#   3. Draws the text panel below.
+# ---------------------------------------------------------------------------
 def render_phase_card(row, phase_num):
-    """Render a single Phase/Dawn card."""
     img = Image.new("RGB", (CARD_W, CARD_H), PALETTE["bg"])
     draw = ImageDraw.Draw(img)
+    accent = PALETTE.get(f"phase{phase_num}", PALETTE["border"])
+    card_id = row.get("id", "")
 
-    phase_color = PALETTE.get(f"phase{phase_num}", PALETTE["border"])
+    paste_card_art(img, card_id, accent)
+    draw_text_panel(img, draw, accent)
 
-    # Border
-    draw.rectangle([0, 0, CARD_W-1, CARD_H-1], outline=phase_color, width=3)
-
-    # Title bar
-    draw_rounded_rect(draw, [8, 8, CARD_W-8, 52], 6, fill=PALETTE["title_bg"], outline=phase_color)
-
-    # Phase label
-    phase_names = {1: "PHASE I", 2: "PHASE II", 3: "PHASE III", 4: "PHASE IV"}
-    draw.text((16, 12), phase_names.get(phase_num, "DAWN"), fill=phase_color, font=FONT_SMALL)
-
-    # Title
+    sev = int(row.get("severity") or 1)
     title = row.get("title", "Unknown")
-    draw.text((16, 28), title, fill=PALETTE["title_text"], font=FONT_TITLE)
+    y = draw_title_row(draw, title, accent, severity=sev)
+    y = draw_kicker(draw, f"PHASE {phase_num} • DAWN", accent, y)
 
-    # Severity dots (top right)
-    sev = int(row.get("severity", 1))
-    draw_severity_dots(draw, CARD_W - 108, 16, sev)
-
-    # Divider line
-    draw.line([16, 58, CARD_W-16, 58], fill=phase_color, width=1)
-
-    # Immediate effect
-    y = 70
-    imm = row.get("immediate", "")
+    # Combine immediate + ongoing text, separated.
+    imm = (row.get("immediate") or "").strip()
+    ong = (row.get("ongoing") or "").strip()
+    body_x = 12
+    body_w = CARD_W - 24
+    body_y = y + 4
     if imm:
-        draw.text((16, y), "IMMEDIATE:", fill=PALETTE["accent_red"], font=FONT_SMALL)
-        y += 18
-        y = draw_wrapped_text(draw, 16, y, imm, FONT_BODY, PALETTE["text"], CARD_W - 32, max_lines=8)
-        y += 8
+        body_y = draw_wrapped_text(draw, body_x, body_y, imm,
+                                   FONT_BODY, PALETTE["text"], body_w, max_lines=4)
+    if ong:
+        body_y += 2
+        body_y = draw_wrapped_text(draw, body_x, body_y, "↻ " + ong,
+                                   FONT_BODY, PALETTE["cost_text"], body_w, max_lines=3)
 
-    # Ongoing effect
-    ongoing = row.get("ongoing", "")
-    if ongoing:
-        draw.line([16, y, CARD_W-16, y], fill=PALETTE["border"], width=1)
-        y += 8
-        draw.text((16, y), "ONGOING:", fill=PALETTE["accent_gold"], font=FONT_SMALL)
-        y += 18
-        y = draw_wrapped_text(draw, 16, y, ongoing, FONT_BODY, PALETTE["cost_text"], CARD_W - 32, max_lines=6)
-
-    # Card ID at bottom
-    draw.text((16, CARD_H - 24), row.get("id", ""), fill=PALETTE["border"], font=FONT_LABEL)
-
+    draw_card_id_footer(draw, card_id)
     return img
 
 def render_market_card(row):
-    """Render a single Market card."""
     img = Image.new("RGB", (CARD_W, CARD_H), PALETTE["bg"])
     draw = ImageDraw.Draw(img)
-    color = PALETTE["market"]
+    accent = PALETTE["market"]
+    card_id = row.get("id", "")
 
-    draw.rectangle([0, 0, CARD_W-1, CARD_H-1], outline=color, width=3)
+    paste_card_art(img, card_id, accent)
+    draw_text_panel(img, draw, accent)
 
-    # Title bar
-    draw_rounded_rect(draw, [8, 8, CARD_W-8, 52], 6, fill=PALETTE["title_bg"], outline=color)
+    name = row.get("name", "?")
+    y = draw_title_row(draw, name, accent)
 
-    # Category label
-    cat = row.get("category", "Item")
-    draw.text((16, 12), cat.upper(), fill=color, font=FONT_SMALL)
+    cat = (row.get("category") or "Item").upper()
+    persistent = (row.get("persistent") or "").upper() == "Y"
+    sub = f"{cat} • PERSIST" if persistent else cat
+    y = draw_kicker(draw, sub, accent, y)
 
-    # Name
-    draw.text((16, 28), row.get("name", "?"), fill=PALETTE["title_text"], font=FONT_TITLE)
-
-    # Persistent badge
-    if row.get("persistent", "").upper() == "Y":
-        badge_x = CARD_W - 80
-        draw_rounded_rect(draw, [badge_x, 14, CARD_W-12, 34], 4, fill=PALETTE["accent_blue"])
-        draw.text((badge_x + 4, 16), "PERSIST", fill=(200, 220, 255), font=FONT_LABEL)
-
-    draw.line([16, 58, CARD_W-16, 58], fill=color, width=1)
-
-    # Cost
-    y = 68
-    cost = row.get("cost", "")
+    cost = (row.get("cost") or "").strip()
     if cost:
-        draw.text((16, y), "COST:", fill=PALETTE["accent_gold"], font=FONT_SMALL)
-        draw.text((60, y), cost, fill=PALETTE["cost_text"], font=FONT_BODY)
-        y += 24
+        draw.text((12, y), "Cost:", fill=PALETTE["accent_gold"], font=FONT_SMALL)
+        draw.text((46, y - 1), cost, fill=PALETTE["cost_text"], font=FONT_BODY)
+        y += 16
 
-    # Divider
-    draw.line([16, y, CARD_W-16, y], fill=PALETTE["border"], width=1)
-    y += 10
-
-    # Effect
-    effect = row.get("effect", "")
+    effect = (row.get("effect") or "").strip()
     if effect:
-        y = draw_wrapped_text(draw, 16, y, effect, FONT_BODY, PALETTE["text"], CARD_W - 32, max_lines=10)
+        draw_wrapped_text(draw, 12, y, effect,
+                          FONT_BODY, PALETTE["text"], CARD_W - 24, max_lines=5)
 
-    # Tooltip at bottom (smaller, dimmer)
-    tooltip = row.get("tooltip", "")
-    if tooltip:
-        draw.line([16, CARD_H - 60, CARD_W-16, CARD_H - 60], fill=PALETTE["border"], width=1)
-        draw_wrapped_text(draw, 16, CARD_H - 52, tooltip, FONT_LABEL, PALETTE["border"], CARD_W - 32, max_lines=3)
-
-    draw.text((16, CARD_H - 24), row.get("id", ""), fill=PALETTE["border"], font=FONT_LABEL)
+    draw_card_id_footer(draw, card_id)
     return img
 
 def render_recipe_card(row):
-    """Render a single Recipe card."""
     img = Image.new("RGB", (CARD_W, CARD_H), PALETTE["bg"])
     draw = ImageDraw.Draw(img)
-    color = PALETTE["recipe"]
+    accent = PALETTE["recipe"]
+    card_id = row.get("id", "")
 
-    draw.rectangle([0, 0, CARD_W-1, CARD_H-1], outline=color, width=3)
-    draw_rounded_rect(draw, [8, 8, CARD_W-8, 52], 6, fill=PALETTE["title_bg"], outline=color)
+    paste_card_art(img, card_id, accent)
+    draw_text_panel(img, draw, accent)
 
-    draw.text((16, 12), "RECIPE", fill=color, font=FONT_SMALL)
-    draw.text((16, 28), row.get("name", "?"), fill=PALETTE["title_text"], font=FONT_TITLE)
+    y = draw_title_row(draw, row.get("name", "?"), accent)
+    y = draw_kicker(draw, "RECIPE", accent, y)
 
-    draw.line([16, 58, CARD_W-16, 58], fill=color, width=1)
+    ing = (row.get("ingredients") or "").strip()
+    if ing:
+        draw.text((12, y), "Ingredients:", fill=PALETTE["accent_gold"], font=FONT_SMALL)
+        y += 14
+        y = draw_wrapped_text(draw, 12, y, ing,
+                              FONT_BODY, PALETTE["cost_text"], CARD_W - 24, max_lines=2)
+        y += 2
 
-    y = 68
-
-    # Ingredients
-    ingredients = row.get("ingredients", "")
-    if ingredients:
-        draw.text((16, y), "INGREDIENTS:", fill=PALETTE["accent_gold"], font=FONT_SMALL)
-        y += 18
-        y = draw_wrapped_text(draw, 16, y, ingredients, FONT_BODY, PALETTE["cost_text"], CARD_W - 32, max_lines=3)
-        y += 6
-
-    # Cost (action/health)
-    cost = row.get("cost", "")
+    cost = (row.get("cost") or "").strip()
     if cost:
-        draw.text((16, y), "COST:", fill=PALETTE["accent_red"], font=FONT_SMALL)
-        draw.text((60, y), cost, fill=PALETTE["text"], font=FONT_BODY)
-        y += 24
+        draw.text((12, y), "Cost:", fill=PALETTE["accent_red"], font=FONT_SMALL)
+        draw.text((46, y - 1), cost, fill=PALETTE["text"], font=FONT_BODY)
+        y += 16
 
-    draw.line([16, y, CARD_W-16, y], fill=PALETTE["border"], width=1)
-    y += 10
-
-    # Effect
-    effect = row.get("effect", "")
+    effect = (row.get("effect") or "").strip()
     if effect:
-        y = draw_wrapped_text(draw, 16, y, effect, FONT_BODY, PALETTE["text"], CARD_W - 32, max_lines=10)
+        draw_wrapped_text(draw, 12, y, effect,
+                          FONT_BODY, PALETTE["text"], CARD_W - 24, max_lines=4)
 
-    draw.text((16, CARD_H - 24), row.get("id", ""), fill=PALETTE["border"], font=FONT_LABEL)
+    draw_card_id_footer(draw, card_id)
     return img
 
 def render_threat_card(row):
-    """Render a single Threat card."""
     img = Image.new("RGB", (CARD_W, CARD_H), PALETTE["bg"])
     draw = ImageDraw.Draw(img)
-    color = PALETTE["threat"]
+    accent = PALETTE["threat"]
+    card_id = row.get("id", "")
 
-    draw.rectangle([0, 0, CARD_W-1, CARD_H-1], outline=color, width=3)
-    draw_rounded_rect(draw, [8, 8, CARD_W-8, 52], 6, fill=PALETTE["title_bg"], outline=color)
+    paste_card_art(img, card_id, accent)
+    draw_text_panel(img, draw, accent)
 
-    # Type label
-    ttype = row.get("type", "Hard")
-    draw.text((16, 12), ttype.upper(), fill=color, font=FONT_SMALL)
+    sev = int(row.get("severity") or 2)
+    y = draw_title_row(draw, row.get("name", "?"), accent, severity=sev)
 
-    draw.text((16, 28), row.get("name", "?"), fill=PALETTE["title_text"], font=FONT_TITLE)
+    ttype = (row.get("type") or "Hard").upper()
+    hp = (row.get("hp") or "0").strip()
+    atk = (row.get("attack") or "0").strip()
+    sub = ttype
+    if hp != "0" or atk != "0":
+        sub += f"  •  HP {hp}  •  ATK {atk}"
+    y = draw_kicker(draw, sub, accent, y)
 
-    # Severity dots
-    sev = int(row.get("severity", 2))
-    draw_severity_dots(draw, CARD_W - 108, 16, sev)
-
-    draw.line([16, 58, CARD_W-16, 58], fill=color, width=1)
-
-    y = 68
-
-    # Stats bar (HP / Attack)
-    hp = row.get("hp", "0")
-    atk = row.get("attack", "0")
-    if int(hp) > 0:
-        draw_rounded_rect(draw, [16, y, 120, y + 28], 4, fill=(60, 30, 30))
-        draw.text((24, y + 4), f"HP: {hp}", fill=(255, 100, 100), font=FONT_BODY)
-        draw_rounded_rect(draw, [130, y, 250, y + 28], 4, fill=(60, 30, 30))
-        draw.text((138, y + 4), f"ATK: {atk} dice", fill=(255, 150, 100), font=FONT_BODY)
-        y += 38
-
-    # Special
-    special = row.get("special", "")
+    special = (row.get("special") or "").strip()
     if special:
-        draw.text((16, y), "SPECIAL:", fill=PALETTE["accent_gold"], font=FONT_SMALL)
-        y += 18
-        y = draw_wrapped_text(draw, 16, y, special, FONT_BODY, PALETTE["text"], CARD_W - 32, max_lines=10)
+        draw_wrapped_text(draw, 12, y, special,
+                          FONT_BODY, PALETTE["text"], CARD_W - 24, max_lines=6)
 
-    draw.text((16, CARD_H - 24), row.get("id", ""), fill=PALETTE["border"], font=FONT_LABEL)
+    draw_card_id_footer(draw, card_id)
     return img
 
 def render_visitor_card(row):
-    """Render a single Visitor card."""
     img = Image.new("RGB", (CARD_W, CARD_H), PALETTE["bg"])
     draw = ImageDraw.Draw(img)
-    color = PALETTE["visitor"]
+    accent = PALETTE["visitor"]
+    card_id = row.get("id", "")
 
-    draw.rectangle([0, 0, CARD_W-1, CARD_H-1], outline=color, width=3)
-    draw_rounded_rect(draw, [8, 8, CARD_W-8, 52], 6, fill=PALETTE["title_bg"], outline=color)
+    paste_card_art(img, card_id, accent)
+    draw_text_panel(img, draw, accent)
 
-    draw.text((16, 12), "VISITOR", fill=color, font=FONT_SMALL)
-    draw.text((16, 28), row.get("character", "?"), fill=PALETTE["title_text"], font=FONT_TITLE)
+    y = draw_title_row(draw, row.get("character", "?"), accent)
+    y = draw_kicker(draw, "VISITOR", accent, y)
 
-    draw.line([16, 58, CARD_W-16, 58], fill=color, width=1)
+    trig = (row.get("trigger") or "").strip()
+    if trig:
+        y = draw_wrapped_text(draw, 12, y, "Trigger: " + trig,
+                              FONT_BODY, PALETTE["text"], CARD_W - 24, max_lines=2)
+        y += 2
 
-    y = 68
-
-    # Trigger
-    trigger = row.get("trigger", "")
-    if trigger:
-        draw.text((16, y), "TRIGGER:", fill=color, font=FONT_SMALL)
-        y += 18
-        y = draw_wrapped_text(draw, 16, y, trigger, FONT_BODY, PALETTE["text"], CARD_W - 32, max_lines=2)
-        y += 8
-
-    # Immediate
-    imm = row.get("immediate", "")
+    imm = (row.get("immediate") or "").strip()
     if imm:
-        draw.text((16, y), "IMMEDIATE:", fill=PALETTE["accent_green"], font=FONT_SMALL)
-        y += 18
-        y = draw_wrapped_text(draw, 16, y, imm, FONT_BODY, PALETTE["text"], CARD_W - 32, max_lines=6)
-        y += 8
+        y = draw_wrapped_text(draw, 12, y, imm,
+                              FONT_BODY, PALETTE["accent_green"], CARD_W - 24, max_lines=3)
+        y += 2
 
-    # Departure
-    dep = row.get("departure", "")
+    dep = (row.get("departure") or "").strip()
     if dep:
-        draw.line([16, y, CARD_W-16, y], fill=PALETTE["border"], width=1)
-        y += 8
-        draw.text((16, y), "DEPARTURE:", fill=PALETTE["accent_red"], font=FONT_SMALL)
-        y += 18
-        y = draw_wrapped_text(draw, 16, y, dep, FONT_BODY, PALETTE["text"], CARD_W - 32, max_lines=4)
+        draw_wrapped_text(draw, 12, y, "Leaves: " + dep,
+                          FONT_BODY, PALETTE["cost_text"], CARD_W - 24, max_lines=2)
 
-    draw.text((16, CARD_H - 24), row.get("id", ""), fill=PALETTE["border"], font=FONT_LABEL)
+    draw_card_id_footer(draw, card_id)
     return img
 
 def render_trophy_card(row):
-    """Render a single Trophy card."""
     img = Image.new("RGB", (CARD_W, CARD_H), PALETTE["bg"])
     draw = ImageDraw.Draw(img)
-    color = PALETTE["trophy"]
+    accent = PALETTE["trophy"]
+    card_id = row.get("id", "")
 
-    draw.rectangle([0, 0, CARD_W-1, CARD_H-1], outline=color, width=3)
-    draw_rounded_rect(draw, [8, 8, CARD_W-8, 52], 6, fill=PALETTE["title_bg"], outline=color)
+    paste_card_art(img, card_id, accent)
+    draw_text_panel(img, draw, accent)
 
-    draw.text((16, 12), "TROPHY", fill=color, font=FONT_SMALL)
-    draw.text((16, 28), row.get("boss", "?"), fill=PALETTE["title_text"], font=FONT_TITLE)
+    y = draw_title_row(draw, row.get("boss", "?"), accent)
+    y = draw_kicker(draw, "TROPHY", accent, y)
 
-    draw.line([16, 58, CARD_W-16, 58], fill=color, width=1)
-
-    y = 80
-    bonus = row.get("bonus", "")
+    bonus = (row.get("bonus") or "").strip()
     if bonus:
-        draw.text((16, y), "BONUS:", fill=PALETTE["accent_gold"], font=FONT_SMALL)
-        y += 18
-        y = draw_wrapped_text(draw, 16, y, bonus, FONT_BODY, PALETTE["text"], CARD_W - 32, max_lines=10)
+        draw_wrapped_text(draw, 12, y, bonus,
+                          FONT_BODY, PALETTE["text"], CARD_W - 24, max_lines=6)
 
-    draw.text((16, CARD_H - 24), row.get("id", ""), fill=PALETTE["border"], font=FONT_LABEL)
+    draw_card_id_footer(draw, card_id)
     return img
 
 # ---------------------------------------------------------------------------
-# Card back renderers
+# Card back renderers — unchanged; cards still have a deck-themed back.
 # ---------------------------------------------------------------------------
 def render_card_back(label, color_key):
-    """Render a generic card back."""
     img = Image.new("RGB", (CARD_W, CARD_H), PALETTE["bg"])
     draw = ImageDraw.Draw(img)
     color = PALETTE.get(color_key, PALETTE["border"])
 
-    # Outer border
     draw.rectangle([0, 0, CARD_W-1, CARD_H-1], outline=color, width=4)
-
-    # Inner decorative border
     draw.rectangle([12, 12, CARD_W-12, CARD_H-12], outline=PALETTE["border"], width=2)
 
-    # Diagonal cross pattern
     for offset in range(-CARD_H, CARD_W, 30):
         draw.line([offset, 0, offset + CARD_H, CARD_H], fill=(40, 38, 35), width=1)
 
-    # Center label panel
     cx, cy = CARD_W // 2, CARD_H // 2
     panel_w, panel_h = 200, 80
     draw_rounded_rect(draw,
         [cx - panel_w//2, cy - panel_h//2, cx + panel_w//2, cy + panel_h//2],
         10, fill=PALETTE["title_bg"], outline=color)
 
-    # Label text (centered)
     bbox = draw.textbbox((0, 0), label, font=FONT_TITLE)
     tw = bbox[2] - bbox[0]
     draw.text((cx - tw//2, cy - 18), label, fill=PALETTE["title_text"], font=FONT_TITLE)
 
-    # Sub-label
     sub = "STARVE NO MORE"
     bbox2 = draw.textbbox((0, 0), sub, font=FONT_SMALL)
     tw2 = bbox2[2] - bbox2[0]
@@ -427,7 +411,6 @@ def render_card_back(label, color_key):
 # Atlas builder
 # ---------------------------------------------------------------------------
 def build_atlas(cards, num_w, num_h):
-    """Stitch individual card images into an atlas grid."""
     atlas = Image.new("RGB", (num_w * CARD_W, num_h * CARD_H), (20, 18, 16))
     for i, card_img in enumerate(cards):
         col = i % num_w
@@ -450,69 +433,76 @@ def read_csv(filename):
 # ---------------------------------------------------------------------------
 def main():
     os.makedirs(OUT, exist_ok=True)
+    os.makedirs(ILLUSTRATIONS_DIR, exist_ok=True)
+
+    art_present = 0
+    art_missing = 0
+
+    def render_with_count(render_fn, rows, *args):
+        nonlocal art_present, art_missing
+        out = []
+        for r in rows:
+            cid = r.get("id", "")
+            if cid and os.path.isfile(os.path.join(ILLUSTRATIONS_DIR, f"{cid}.png")):
+                art_present += 1
+            else:
+                art_missing += 1
+            out.append(render_fn(r, *args))
+        return out
 
     # --- Phase decks (4 x 4x3 grid) ---
     for phase_num in range(1, 5):
         rows = read_csv(f"cards_phase{phase_num}.csv")
-        cards = [render_phase_card(r, phase_num) for r in rows]
+        cards = render_with_count(render_phase_card, rows, phase_num)
         atlas = build_atlas(cards, 4, 3)
         atlas.save(os.path.join(OUT, f"phase{phase_num}_face.png"))
         print(f"Phase {phase_num} face: {len(rows)} cards -> 4x3 atlas ({atlas.size[0]}x{atlas.size[1]})")
-
-        back = render_card_back(f"PHASE {phase_num}", f"phase{phase_num}")
-        back.save(os.path.join(OUT, f"phase{phase_num}_back.png"))
+        render_card_back(f"PHASE {phase_num}", f"phase{phase_num}").save(
+            os.path.join(OUT, f"phase{phase_num}_back.png"))
 
     # --- Market deck (7x8 grid) ---
     rows = read_csv("cards_market.csv")
-    cards = [render_market_card(r) for r in rows]
+    cards = render_with_count(render_market_card, rows)
     atlas = build_atlas(cards, 7, 8)
     atlas.save(os.path.join(OUT, "market_face.png"))
     print(f"Market face: {len(rows)} cards -> 7x8 atlas ({atlas.size[0]}x{atlas.size[1]})")
-
-    back = render_card_back("MARKET", "market")
-    back.save(os.path.join(OUT, "market_back.png"))
+    render_card_back("MARKET", "market").save(os.path.join(OUT, "market_back.png"))
 
     # --- Recipe deck (5x4 grid) ---
     rows = read_csv("cards_recipes.csv")
-    cards = [render_recipe_card(r) for r in rows]
+    cards = render_with_count(render_recipe_card, rows)
     atlas = build_atlas(cards, 5, 4)
     atlas.save(os.path.join(OUT, "recipe_face.png"))
     print(f"Recipe face: {len(rows)} cards -> 5x4 atlas ({atlas.size[0]}x{atlas.size[1]})")
-
-    back = render_card_back("RECIPE", "recipe")
-    back.save(os.path.join(OUT, "recipe_back.png"))
+    render_card_back("RECIPE", "recipe").save(os.path.join(OUT, "recipe_back.png"))
 
     # --- Threat deck (6x5 grid) ---
     rows = read_csv("cards_threats.csv")
-    cards = [render_threat_card(r) for r in rows]
+    cards = render_with_count(render_threat_card, rows)
     atlas = build_atlas(cards, 6, 5)
     atlas.save(os.path.join(OUT, "threat_face.png"))
     print(f"Threat face: {len(rows)} cards -> 6x5 atlas ({atlas.size[0]}x{atlas.size[1]})")
-
-    back = render_card_back("THREAT", "threat")
-    back.save(os.path.join(OUT, "threat_back.png"))
+    render_card_back("THREAT", "threat").save(os.path.join(OUT, "threat_back.png"))
 
     # --- Visitor deck (3x2 grid) ---
     rows = read_csv("cards_visitors.csv")
-    cards = [render_visitor_card(r) for r in rows]
+    cards = render_with_count(render_visitor_card, rows)
     atlas = build_atlas(cards, 3, 2)
     atlas.save(os.path.join(OUT, "visitor_face.png"))
     print(f"Visitor face: {len(rows)} cards -> 3x2 atlas ({atlas.size[0]}x{atlas.size[1]})")
-
-    back = render_card_back("VISITOR", "visitor")
-    back.save(os.path.join(OUT, "visitor_back.png"))
+    render_card_back("VISITOR", "visitor").save(os.path.join(OUT, "visitor_back.png"))
 
     # --- Trophy deck (2x2 grid) ---
     rows = read_csv("cards_trophies.csv")
-    cards = [render_trophy_card(r) for r in rows]
+    cards = render_with_count(render_trophy_card, rows)
     atlas = build_atlas(cards, 2, 2)
     atlas.save(os.path.join(OUT, "trophy_face.png"))
     print(f"Trophy face: {len(rows)} cards -> 2x2 atlas ({atlas.size[0]}x{atlas.size[1]})")
+    render_card_back("TROPHY", "trophy").save(os.path.join(OUT, "trophy_back.png"))
 
-    back = render_card_back("TROPHY", "trophy")
-    back.save(os.path.join(OUT, "trophy_back.png"))
-
-    print(f"\nAll atlases written to: {OUT}")
+    print()
+    print(f"Illustrations: {art_present} present, {art_missing} missing (using fallback rectangles)")
+    print(f"All atlases written to: {OUT}")
     print(f"Total: 9 face atlases + 9 back images = 18 files")
 
 if __name__ == "__main__":
