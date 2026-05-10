@@ -1,0 +1,7 @@
+id,name,color,icon,tag,sources,uses
+R_WOOD,Wood,#8B6230,wood,Resource:Wood,Basketball Court|Badminton Court,Crafting weapons/structures; fuel for Crockpot
+R_METAL,Metal,#9A9A9A,metal,Resource:Metal,Basketball Court|Rayman's House,Weapon upgrades; Repair; advanced crafting
+R_CLOTH,Cloth,#F0F0E8,cloth,Resource:Cloth,All|esp. Ellie & Luca's|Badminton,Bandages; Insulation; Bedrolls
+R_FOOD,Food,#D04030,food,Resource:Food,All|esp. Ellie & Luca's|James's,Restore Hunger; cook Recipes
+R_ENERGY,Energy Drink,#FAD030,energy,Resource:EnergyDrink,James's House,Restore 2 Sanity; James's daily addiction
+R_BATTERY,Battery,#3060B0,battery,Resource:Battery,James's House|Rayman's House,Powers Flashlights; Radios; Cameras

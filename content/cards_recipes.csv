@@ -1,0 +1,21 @@
+id,name,ingredients,cost,effect,art_notes
+R_HOT_STEW,Hot Stew,2 Food + 1 Wood,1 Action,All at this tile +4 Hunger and +2 Sanity.,Bowl of stew with steam
+R_ENERGY_COCKTAIL,Energy Drink Cocktail,2 Energy Drink + 1 Food,1 Action,All at this tile +5 Sanity and +2 Hunger.,Bright bubbling glass
+R_COMFORT_SOUP,Comfort Soup,3 Food + 1 Cloth,1 Action,All at this tile +3 Hunger and +3 Sanity.,Soup with napkin
+R_BATTERY_ACID_SOUP,Battery Acid Soup,1 Battery + 2 Food,1 Action,All at this tile +6 Hunger but lose 2 Health.,Glowing green broth
+R_BREAKFAST_BURRITO,Breakfast Burrito,1 Food + 1 Cloth + 1 Wood,1 Action,Cook +5 Hunger to themselves only.,Foil-wrapped burrito
+R_GRILLED_CHEESE,Grilled Cheese,1 Food + 1 Wood,1 Action,Cook +3 Hunger to themselves; +1 Hunger to one ally at the tile.,Two triangle halves
+R_PORRIDGE,Porridge,2 Food,1 Action,All at tile +3 Hunger.,Bowl with single berry
+R_CASSEROLE,Casserole,3 Food + 1 Wood + 1 Cloth,1 Action,All at tile +5 Hunger and +2 Sanity. Restore 1 Health.,Casserole dish
+R_TELLTALE_HEART,Telltale Heart,1 Cloth + 1 Battery + 1 Food,1 Action; cook pays 2 Health,Yields 1 Telltale Heart token (max 5 in supply). Used to revive a Down character.,Glowing red heart-shape
+R_ICE_TEA,Iced Tea,1 Food + 1 Cloth,1 Action,Cook +1 Sanity. Adjacent allies +1 Sanity.,Iced glass with lemon
+R_BIRTHDAY_CAKE,Birthday Cake,3 Food + 2 Cloth + 1 Energy Drink,2 Actions,All at tile +4 Hunger AND +4 Sanity. (Once per game.),Slice with candles
+R_LEFTOVERS,Leftovers,1 Food,1 Action,Cook +2 Hunger.,Tupperware
+R_HOT_CHOCOLATE,Hot Chocolate,1 Food + 1 Wood,1 Action,Cook +1 Hunger and +2 Sanity.,Mug with marshmallows
+R_FAILED_RECIPE,Burnt Mess,2 Food + 1 Wood,1 Action,Cook +1 Hunger. Cook loses 1 Sanity. (Use only when desperate.),Charred pan
+R_VEGETABLE_STIR_FRY,Vegetable Stir-Fry,3 Food + 1 Cloth,1 Action,All at tile +4 Hunger and +1 Sanity.,Wok with vegetables
+R_SOUL_FOOD,Soul Food,3 Food + 1 Energy Drink,1 Action,All at tile +5 Sanity. Cook +2 Sanity.,Hearty plate
+R_GRANDMAS_RECIPE,Grandma's Recipe,2 Food + 1 Cloth + 1 Wood,1 Action,All at tile +4 Hunger and +3 Sanity. (Once per game.),Recipe card on counter
+R_MIDNIGHT_SNACK,Midnight Snack,1 Food + 1 Energy Drink,1 Action,Cook +2 Hunger and +2 Sanity. (Can be cooked at Night.),Sandwich on a plate
+R_TRAIL_MIX,Trail Mix,2 Food,1 Action,Yields 2 Energy Bar Items (placed at cook's hand).,Bowl of nuts and dried fruit
+R_GUMBO,Gumbo,3 Food + 1 Wood + 1 Cloth,1 Action,All at tile +5 Hunger and +3 Sanity. (Requires non-empty Crockpot tile.),Cajun stew

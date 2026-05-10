@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(ls*)",
+      "Bash(dir*)",
+      "Bash(cat*)",
+      "Bash(type*)",
+      "Bash(find*)",
+      "Bash(grep*)",
+      "Bash(rg*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(npm*)",
+      "Bash(pnpm*)",
+      "Bash(yarn*)",
+      "Bash(dotnet*)",
+      "Bash(python*)",
+      "Bash(py*)",
+      "Bash(pip*)",
+      "Bash(code*)",
+      "Bash(wc *)"
+    ]
+  }
+}

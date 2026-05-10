@@ -1,0 +1,16 @@
+id,title,severity,immediate,ongoing,art_notes
+P4_FINAL_HOURS,The Final Hours Begin,4,All players lose 2 Sanity. Doom +2.,Doom rate is now +3 per day.,Clock with hands spinning backward
+P4_SOURCE_NEAR,Something Worse Approaches,5,Pre-warning. The Source arrives at next Dawn.,,A swelling shape just beyond the streetlight
+P4_SOURCE_ARRIVES,The Source Arrives,5,Place the Source at the center of the map. Doom +3.,The Source is the final boss. The team must defeat it before Day 7 ends OR survive Day 7 with Doom < 30.,A Burtonesque mass with no clear shape
+P4_DESPAIR,Despair,4,Each player rolls Sanity d8: lose Sanity equal to (face value / 2 round up).,Until next Dawn: Rest restores no Sanity.,Heads in hands at a kitchen table
+P4_SACRIFICE_OPTION,A Way Out,3,Any one player may immediately become Down to reduce Doom by 5. (Optional.),,An open doorway with light
+P4_LAST_LIGHTS,The Last Lights Go Out,4,All players lose 1 Sanity. All Battery tokens lose 1 charge (if a charge system exists; otherwise discard 1 Battery per player).,Until next Dawn: Only Fire is a light source.,Flashlight beam dimming
+P4_HOPE_REMAINS,Hope Remains,3,All players gain +1 Sanity. Doom advance is reduced by 1 this Dawn only.,,A single candle still burning
+P4_THE_TRUTH,The Truth Is Worse Than You Imagined,4,If the team has all 3 Clue cards: place a Truth Trophy. Otherwise: all players lose 2 Sanity.,,Pages of a book burning into glyphs
+P4_ALL_TOGETHER,All Together,2,Move all standees to the same tile (player vote).,Until next Dawn: All players gain +1 Sanity at Tick if at the same tile as another player.,Five silhouettes huddled around one chair
+P4_DAWN_BREAKS,Dawn Breaks,2,Doom does not advance this Dawn.,If this is Day 7: continue to the final Tick. Survival check.,Faint pink light over rooftops
+P4_GROUND_SPLITS,The Ground Splits Open,4,A random location tile is destroyed (removed from the map). Players there must flee to adjacent tiles. Resources there are lost.,,A suburban street cracking apart with light pouring from below
+P4_LAST_MEAL,The Last Meal,3,All Food at every location is destroyed. Recipes cooked this day restore +2 extra Hunger.,,An empty pantry with the door hanging off its hinges
+P4_VOICES_RETURN,The Voices Come Back,4,Every player rolls Sanity d8. Lose that much Sanity. Players at the same tile as an ally halve the result (round down).,,Dozens of mouths opening in the sky
+P4_BARGAIN,The Source Offers a Bargain,5,Choose one player to negotiate: they roll d6. On 4+: Doom -3. On 1-3: that player goes Down immediately.,,A tendril of darkness extending a hand with too many joints
+P4_MEMORY_FLOOD,A Flood of Memories,3,Each player gains +2 Sanity. Then each player loses 1 Health. (The memories are sharp.),Until next Dawn: players at their own home gain +2 Sanity at sleep instead of +1.,A wave of polaroids and journal pages washing down a hallway

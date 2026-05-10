@@ -1,0 +1,50 @@
+id,name,category,cost,effect,persistent,tooltip,art_notes
+M_FLASHLIGHT,Flashlight,Tool,1 Metal + 1 Battery,Counts as a light source for Charlie checks.,Y,Persistent. Cancels Charlie attacks at night.,Yellow plastic torch
+M_CROWBAR,Crowbar,Tool/Weapon,2 Metal + 1 Wood,+1 Attack die in combat. Pry: free action to open sealed Threats/containers.,Y,Persistent equipment. Solid in combat.,Bent steel crowbar
+M_FIRST_AID,First Aid Kit,Tool,1 Cloth + 1 Metal,Single-use. Restore 4 Health to any player at your location.,N,Heals one ally up to 4 Health.,White box with red cross
+M_BANDAGE,Bandage,Tool,1 Cloth,Single-use. Restore 2 Health.,N,A quick patch.,Roll of cloth strip
+M_BAT,Improvised Bat,Weapon,1 Wood + 1 Cloth,+1 Attack die. Breaks on natural 1.,Y,Cheap melee weapon. Fragile.,Wrapped wooden bat
+M_SHARPENED_SPOON,Sharpened Spoon,Weapon,1 Metal,+1 Attack die. No fumble penalty.,Y,Crude but reliable. Good against Down threats.,Spoon with edge ground
+M_SLINGSHOT,Slingshot,Weapon,1 Wood + 1 Cloth,Range. Attack a Threat at an adjacent location.,Y,Reach over the fence.,Y-shaped wood with elastic
+M_TOY_BOW,Toy Bow,Weapon,1 Wood + 2 Cloth,Range. +1 Attack die at range.,Y,Better than nothing.,Plastic bow and suction-arrow
+M_STUFFED_ANIMAL,Stuffed Animal,Comfort,1 Cloth + 1 Food,Sleep with this: +2 Sanity at Tick.,Y,Single-charge per night.,Worn teddy bear
+M_PHOTO_ALBUM,Photo Album,Comfort,2 Cloth,Storytelling: +1 Sanity to all at your location.,Y,Triggers in Night phase only.,Leather-bound photo album
+M_MUSIC_PLAYER,Music Player,Comfort,1 Metal + 1 Battery,Storytelling: +2 Sanity to all at your location once per Night.,Y,Needs Battery to use.,Old portable cassette player
+M_WARM_BLANKET,Warm Blanket,Comfort,2 Cloth,Sleep: +1 Sanity. Negates 1 Charlie damage.,Y,A small barrier against the dark.,Quilted blanket
+M_ENERGY_BAR,Energy Bar,Food,1 Food,Single-use. Restore 3 Hunger.,N,Cooked-equivalent for solo eating.,Foil-wrapped bar
+M_HOT_COCOA,Hot Cocoa,Food,1 Food + 1 Wood,Single-use. Restore 2 Hunger and 1 Sanity.,N,Cozy.,Steaming mug
+M_BACKPACK,Backpack,Tool,2 Cloth + 1 Metal,Persistent. Gather drawn at +1 (gather 2 instead of 1).,Y,Hand limit +2 Resources.,Patched canvas backpack
+M_CIRCLE_OF_SALT,Circle of Salt,Special,1 Food (salt) + 1 Cloth,Single-use. Place at your location: bosses cannot enter for 1 Night.,N,Good for one night only.,A loop of white granules
+M_CLUE_TAPE,Clue: A Cassette,Special/Clue,1 Battery,Truth card 1 of 3. Listen at your location: read the next Phase deck top card.,N,Clue. Drives the Truth Run.,Cassette tape labeled in marker
+M_CLUE_NOTE,Clue: A Burned Note,Special/Clue,1 Cloth,Truth card 2 of 3. At Night: reveals a Threat deck top card.,N,Clue. Drives the Truth Run.,Charred paper fragment
+M_CLUE_PHOTO,Clue: A Polaroid,Special/Clue,1 Battery,Truth card 3 of 3. Photograph reveals a Source weakness on Day 7 (-2 Source HP at Day 7 reveal).,N,Clue. Drives the Truth Run.,Polaroid with black smear
+M_RADIO,Radio,Tool,1 Metal + 1 Battery + 1 Cloth,Storytelling: gather players around. Adjacent allies +1 Sanity at Night.,Y,A familiar voice in the static.,Old AM radio
+M_HEADPHONES,Headphones,Comfort,1 Metal + 1 Cloth,Persistent. Negates 1 Sanity loss per Day.,Y,Drown out the wrongness.,Over-ear headphones
+M_CAMERA,Camera,Tool,1 Metal + 1 Battery,Single-use. Look at top 3 Threat cards then put back in any order.,N,A flash in the dark.,Old film camera
+M_LANTERN,Lantern,Tool,2 Metal + 1 Wood,Counts as Fire. Persistent.,Y,Fire is more reliable than electric.,Hurricane lantern
+M_FIRE_KIT,Fire Starter Kit,Tool,1 Wood + 1 Cloth + 1 Metal,Free action: light a Fire at your location for 1 Night (counts as Fire).,Y,Reusable. Needs 1 Wood per use.,Match and dry tinder
+M_TOOLBOX,Toolbox,Tool,2 Metal + 1 Wood,Persistent. Crafting actions cost 1 fewer resource (minimum 1).,Y,Master tool.,Red metal toolbox
+M_DUCT_TAPE,Duct Tape,Tool,1 Cloth,Repair a broken Item or stabilize a Down character (1 Health).,N,Universal solvent.,Roll of grey tape
+M_SPORTS_DRINK,Sports Drink,Food,1 Energy Drink,Single-use. Restore 2 Hunger and 1 Sanity.,N,Better than raw energy.,Plastic bottle with bright liquid
+M_PROTEIN_BAR,Protein Bar,Food,2 Food,Single-use. Restore 4 Hunger.,N,Industrial calories.,Square wrapper
+M_PORTABLE_CROCKPOT,Portable Crockpot,Special,2 Metal + 2 Wood + 1 Cloth,Persistent. Allows cooking at any tile (not just kitchen).,Y,Heavy. Worth it.,Battered slow cooker with cord
+M_WHISTLE,Whistle,Tool,1 Metal,Single-use. Move all players at adjacent tiles to your location.,N,Useful at Dusk.,Coach's whistle
+M_KEYS,House Keys,Tool,Free at start (drawn by James),Persistent. Lock your house against entering Threats for 1 Night.,Y,Doesn't help against the Source.,Brass keychain
+M_PEPPER_SPRAY,Pepper Spray,Weapon,1 Cloth + 1 Metal,Single-use. Force a Threat to retreat to an adjacent tile.,N,Buys you time.,Red plastic canister
+M_FIRST_GENERATION_PHONE,Old Cellphone,Tool,1 Metal + 1 Battery,Single-use. Look at the top of any deck.,N,One bar.,Flip phone
+M_DOG_LEASH,Dog Leash,Tool,1 Cloth + 1 Metal,Persistent. Once per Day: pull an adjacent ally to your tile.,Y,There used to be a dog.,Frayed nylon leash
+M_HAIRSPRAY,Hairspray + Lighter,Weapon,1 Metal + 1 Energy Drink,Single-use. +2 Attack dice this combat. Counts as Fire.,N,Improvised flamethrower.,Aerosol can with red glow
+M_CHAINSAW,Chainsaw,Weapon,3 Metal + 1 Wood + 1 Battery,+2 Attack dice. Loud (draws +1 Threat next Night).,Y,Last resort.,Orange chainsaw
+M_REINFORCED_DOOR,Reinforced Door,Structure,2 Wood + 2 Metal,Persistent. Place at a house tile. That tile gets +2 defense.,Y,One per tile.,Boarded-up front door
+M_BARRICADE,Barricade,Structure,2 Wood + 1 Metal,Persistent. Place at a sport court. +1 defense at that tile.,Y,Plywood and nails.,Stacked plywood and chairs
+M_CAMPFIRE,Campfire,Structure,2 Wood + 1 Cloth,Persistent. Place at any tile. Counts as Fire for all there.,Y,Smokes a little.,Stones around fire
+M_WATCHTOWER,Watchtower,Structure,3 Wood + 2 Metal,Persistent. From this tile see top of Threat deck.,Y,A high vantage.,Wooden tower platform
+M_RABBIT_FOOT,Rabbit's Foot,Comfort/Special,1 Cloth + 1 Food,Persistent. Once per game: reroll any 1 die.,Y,Lucky.,Furry keychain
+M_THERMOS,Thermos,Tool,1 Metal + 1 Cloth,Persistent. Carry 1 cooked Recipe for later use.,Y,Stays warm.,Stainless thermos
+M_ENERGY_DRINK_CASE,Case of Energy Drinks,Food,2 Energy Drink + 1 Cloth,Persistent. Provides 1 Energy Drink per Dawn (use or lose).,Y,Renewable Sanity.,Cardboard 6-pack
+M_SCHOOL_BELL,School Bell,Special,1 Metal,Single-use. Move the Doom marker -1.,N,A small ritual.,Brass hand-bell
+M_LOCKPICK,Lockpick Set,Tool,1 Metal + 1 Cloth,Persistent. Pry: free action to open sealed/locked things.,Y,Same as Crowbar pry without the +1 attack.,Tension wrench and pick
+M_FRIENDSHIP_BRACELET,Friendship Bracelet,Comfort,1 Cloth,Single-use. Give to any ally: they gain +2 Sanity.,N,Made it together.,Woven thread
+M_NOTEBOOK,Notebook & Pen,Tool,1 Cloth + 1 Wood,Persistent. Track ongoing effects (also a flavorful prop). Once per game peek any deck.,Y,Mostly for the player.,Leather notebook
+M_PRY_BAR,Pry Bar,Tool,1 Metal,Persistent. Pry only (no combat bonus).,Y,Cheaper than a Crowbar.,Short metal pry bar
+M_BICYCLE,Bicycle,Tool,2 Metal + 1 Wood + 1 Cloth,Persistent. Move actions cost 0 Hunger.,Y,Roll faster than the dark.,Old bike with a basket

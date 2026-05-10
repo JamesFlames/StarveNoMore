@@ -1,0 +1,7 @@
+id,character,trigger,immediate,departure
+V_JAMES,James Arrives,Drawn at Dawn,Place James standee at James's House. He may use his Pattern Recognition perk once for the team this Day.,Departs at next Dawn unless adopted (see Design §9.5).
+V_COCO,Coco Arrives,Drawn at Dawn,Place Coco standee at Ellie & Luca's House. Heal one Down ally to 1 Health regardless of distance.,Departs at next Dawn unless adopted.
+V_RAYMAN,Rayman Arrives,Drawn at Dawn,Place Rayman standee at Rayman's House. The team gains 1 free Defend action at any tile.,Departs at next Dawn unless adopted.
+V_ELLIE,Ellie Arrives,Drawn at Dawn,Place Ellie standee at Ellie & Luca's House. The team may immediately cook 1 Recipe for free at the Crockpot.,Departs at next Dawn unless adopted.
+V_LUCA,Luca Arrives,Drawn at Dawn,Place Luca standee at Ellie & Luca's House. All players gain +1 Sanity from a Pep Talk.,Departs at next Dawn unless adopted.
+V_STRANGER,A Helpful Stranger,Drawn at Dawn (rare),A nameless adult arrives. Choose any one: heal 3 Health to all OR resupply 3 Food OR remove 1 Persistent Threat.,Departs immediately. Cannot be adopted.

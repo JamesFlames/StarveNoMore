@@ -1,0 +1,49 @@
+id,name,type,hp,attack,severity,special,art_notes
+T_SHADOW_STALKER,Shadow Stalker,Hard,4,2,3,While in play: all players at this tile lose +1 Sanity at Tick.,Tall thin figure ink-blotted
+T_HOLLOW_SPECTATOR,Hollow Spectator,Hard,3,1,2,On entry: all here lose 1 Sanity.,Faceless humanoid
+T_TERROR_BEAK,Terror Beak,Hard,2,2,2,Spawned from Eye of Terror split. Removed if Eye is restored.,Beaked bird-thing
+T_SPIDER_THING,Spider Thing,Hard,3,1,2,Multi-attack. Rolls 2 dice.,Many-legged dark form
+T_ROOMMATE,Your Roommate (Wrong),Hard,5,2,3,Sanity costs to fight: 1 Sanity per attack die rolled.,A familiar shape with too many teeth
+T_THE_NEIGHBOR,The Neighbor,Hard,6,2,4,Cannot be attacked at range.,Suburban man in a robe with a cleaver
+T_HOWLING,A Howling Outside,Soft,0,0,2,Atmospheric. All players lose 1 Sanity. Discard.,Open mouth blackness
+T_POWER_FLICKER,The Power Flickers,Soft,0,0,2,All Battery-powered Items disabled this Night. Discard.,Wall socket sparking
+T_RUNG_DOORBELL,The Doorbell Rang,Soft,0,0,2,The player at the front-most house tile loses 2 Sanity.,A doorbell button glowing
+T_FOOD_GONE_WRONG,Food Gone Wrong,Soft,0,0,2,Discard 1 Food at this tile (if any).,Maggot-spotted apple
+T_WHISPERS,Whispers Behind the Walls,Soft,0,0,2,Each player at this tile loses 1 Sanity.,Wall with mouths
+T_LOST_MEMORIES,Lost Memories,Soft,0,0,3,The player here discards a random Item card. Discard.,Polaroid blurring
+T_THE_GRUE,The Grue (Charlie),Hard,0,0,4,Cannot be fought. Resolves Charlie attack at this tile (1d8 Sanity 1d6 Health). Discard after.,Pure black silhouette with claws
+T_LURKER,Lurker,Persistent,3,1,3,Persistent: stays on the tile until cleared.,Crouched form
+T_HUNGRY_DOG,Hungry Dog,Persistent,2,1,2,Persistent: each Tick eats 1 Food at this tile.,Mangy dog
+T_CRACKED_FLOOR,Cracked Floor,Persistent,0,0,2,Persistent: Move actions out of this tile cost 1 extra Hunger.,Spreading cracks in linoleum
+T_BUZZING,A Buzzing in Your Head,Soft,0,0,2,All players roll Sanity d8 / 4 round up Sanity loss.,Distorted screen lines
+T_LIGHTS_OUT,The Lights Cut Out,Soft,0,0,2,All Flashlights disabled this Night.,Black screen with single dot
+T_VOICES,Voices Calling Names,Soft,0,0,2,Each player loses 1 Sanity per ally at a different tile.,Mouths in shadow
+T_BREATHING,Breathing in the Wall,Soft,0,0,2,Player at this tile loses 2 Sanity.,Wall with subtle expanding shape
+T_PHONE_RINGS,A Phone Rings,Soft,0,0,1,No effect. Discard. (You couldn't bring yourself to answer.),Old phone with no caller ID
+T_ROACHES,Roaches in the Pantry,Soft,0,0,2,Discard 1 Food per player at Ellie & Luca's House.,Cluster of roaches
+T_THE_DOOR,The Door at the Back,Hard,0,0,3,Sealed. Pry to remove (1 action + Crowbar/Lockpick). On removal: gain a free Item from Market.,Closed wooden door with light beneath
+T_CHILD_SHADOW,A Child's Shadow,Hard,2,1,3,Players who attack lose 1 Sanity per attack.,Small silhouette
+T_CRAWLING_HAND,Crawling Hand,Hard,1,1,2,Fast. Attacks the Down player first if any.,Detached hand
+T_BLACK_DOG,Black Dog,Hard,3,2,3,Hunters in pairs. When defeated draw another Threat card.,Wolfish dog
+T_SPIRAL,A Stairway Spiraling Down,Persistent,0,0,3,Persistent. Players at this tile may take a Risk action: roll Sanity d8 — 6+ gain a Clue; 1-5 lose 2 Sanity.,Endless stairs
+T_THE_TWIN,A Twin Walks Past You,Soft,0,0,3,The player here loses 3 Sanity. (You don't have a twin.),Two of the same character standee
+T_FRIEND_BLOOD,A Friend Bleeding,Soft,0,0,3,Choose: lose 2 Health to ignore or 4 Sanity to walk past.,Hand on a doorframe
+T_FIRE_OUT,A Fire That Won't Take,Soft,0,0,2,All Fire light sources disabled this Night.,Flint sparks failing
+T_FOG_BANK,Fog Bank,Persistent,0,0,3,Persistent: Movement actions at this tile cost +1 action. Visibility zero.,Thick grey fog swallowing a street corner
+T_NEST,The Nest,Persistent,0,0,4,Persistent: At each Night spawns 1 additional Hard threat at this tile. Destroy with 2 actions + 1 Wood (burn it).,A pulsing mass of web and bone in a corner
+T_CONTAMINATED,Contaminated Water,Persistent,0,0,3,Persistent: No Food can be gathered at this tile. Eating raw food here costs 2 Sanity instead of 1.,Dark liquid pooling from a cracked pipe
+T_LOCKED_ROOM,The Locked Room,Persistent,0,0,2,Persistent: One player's Item card is sealed inside. Spend 1 action + Crowbar to recover it. Otherwise lost.,A door with seven deadbolts from the inside
+T_MIMIC,The Mimic,Hard,3,2,3,Disguised as a resource token. On reveal: attacks the player who gathered here last. Cannot be attacked at range.,A resource token with teeth and one blinking eye
+T_SWARM,Rat Swarm,Hard,2,1,2,Splits on hit: when reduced to 1 HP it becomes two 1-HP Crawling Hands at adjacent tiles.,A tide of tiny dark shapes pouring from a grate
+T_SCARECROW,The Scarecrow,Hard,4,1,3,Immune to ranged attacks. While in play: Gather actions at this tile cost +1 Sanity.,A straw figure nailed to a fence post with burlap head
+T_CEILING_DRIP,Something Dripping from Above,Soft,0,0,2,Player at this tile loses 1 Health. Discard. (You don't look up.),A dark stain spreading across a ceiling
+T_DOPPELGANGER,The Doppelganger,Hard,4,2,4,Takes the form of a random player's character. Players must roll Sanity d8 before attacking (5+ = can act; 1-4 = hesitate and lose 1 Sanity).,Two identical silhouettes facing each other
+T_WALL_CRAWLER,Wall Crawler,Hard,2,2,2,Fast: attacks before players can react. Deals damage immediately on draw then fights normally.,Something flat moving along the wall like a stain
+T_GLASS_CHILD,The Glass Child,Hard,3,1,3,Cannot be attacked with weapons. Must be calmed: spend 1 Comfort item or 2 Sanity to remove. Otherwise deals 2 Sanity damage per Night.,A translucent child shape with cracks spreading from its chest
+T_FURNACE,The Furnace Woke Up,Soft,0,0,2,All players at house tiles lose 1 Health from heat. Discard.,A basement furnace door glowing orange
+T_CLOCK_STOPS,Every Clock Stopped,Soft,0,0,2,Day phase ends 1 action early for all players tomorrow.,Until next Dawn: all players get -1 action.,A row of clocks all showing different wrong times
+T_ROOTS,Roots Through the Floor,Persistent,0,0,3,Persistent: This tile cannot be barricaded. Rest actions here restore nothing.,Thick black roots cracking through linoleum and floorboards
+T_ECHO,The Echo,Soft,0,0,2,Repeat the effect of the last Soft threat that was discarded. If none: lose 1 Sanity.,A ripple in the air shaped like a mouth
+T_MOTH_CLOUD,Moth Cloud,Soft,0,0,2,All light sources at this tile are disabled for the rest of this Night. Discard.,A choking cloud of pale moths around a light bulb
+T_THING_IN_ATTIC,The Thing in the Attic,Hard,5,1,3,Can only be fought at house tiles. Retreats to attic between attacks — must spend 1 action to find it before each Fight.,A trapdoor in a ceiling with something peering out
+T_WATCHER,The Watcher,Persistent,0,0,2,Persistent: While in play all players at this tile cannot trade. It watches. It remembers.,A single unblinking eye mounted in a wall like a painting

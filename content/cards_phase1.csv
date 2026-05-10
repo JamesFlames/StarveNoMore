@@ -1,0 +1,16 @@
+id,title,severity,immediate,ongoing,art_notes
+P1_QUIET_EVENING,A Quiet Evening,1,No effect — flavor only.,,Suburban dusk through a window
+P1_LIGHTS_FLICKER,The Lights Flicker,1,All players lose 1 Sanity.,,Streetlight flickering on cul-de-sac
+P1_PHONES_DEAD,Phones Have No Signal,2,All players discard any 1 Battery (if held).,,Hand holding phone with x bars
+P1_SOMETHING_WATCHED,You Were Being Watched,2,The player with the lowest Sanity loses 1 more Sanity.,,Eyes peering from a hedge
+P1_FRESH_FOOD,A Fresh Delivery,1,Add 2 Food to the Resource Bag at Ellie & Luca's House.,,Open fridge with glow inside
+P1_NEIGHBORHOOD_QUIET,The Neighborhood Is Too Quiet,2,No threats spawn at night tonight at house tiles.,Until next Dawn: Charlie checks ignore the Basketball Court.,Empty street with a single fallen toy
+P1_SCHOOL_CLOSED,School Is Closed,2,Move all standees at the Basketball Court to an adjacent tile.,,Padlocked school gate
+P1_OLD_FRIEND_VISIT,An Old Friend Calls,1,Choose one player. They gain +2 Sanity.,,Phone ringing in a dim kitchen
+P1_BREEZE,A Cool Breeze,1,Each player at a sport court loses 1 Hunger.,,Curtains lifting in an open window
+P1_RUMOR,A Rumor on the Street,2,Reveal the next Dawn card. Place it back on top.,,Whispering kid silhouettes
+P1_STRAY_CAT,A Stray Cat Arrives,1,A cat follows the player with the highest Sanity. That player gains +1 Sanity at Tick while the cat stays.,Until next Dawn: the cat stays. If that player takes damage the cat flees.,A scraggly cat sitting on a fence post at dusk
+P1_BIKE_FOUND,Someone Left a Bicycle,1,One player at a sport court may take the Bicycle token (free item: Move costs 0 Hunger).,,A rusted bicycle leaning against a chain-link fence
+P1_GARDEN_GROWS,The Garden Still Grows,1,Add 1 Food to every house tile's resource area.,,Tomatoes ripening in an overgrown backyard plot
+P1_STRANGE_RADIO,A Strange Radio Signal,2,All players roll d6. On a 6: gain a Clue card hint (peek at Market deck for Clue). On a 1: lose 1 Sanity.,,A crackling radio with green light in a dark room
+P1_PHOTO_FOUND,An Old Photograph,1,Choose one player. They gain +1 Sanity and may peek at the top Threat card.,,A polaroid of five kids standing in front of a house

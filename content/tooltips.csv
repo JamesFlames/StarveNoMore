@@ -1,0 +1,27 @@
+tag,tooltip
+Resource:Wood,Wood — found at the Basketball and Badminton Courts. Used in crafting and as Crockpot fuel.
+Resource:Metal,Metal — found at the Basketball Court and Rayman's House. Crafts weapons and repairs.
+Resource:Cloth,Cloth — found everywhere; abundant at Ellie & Luca's and Badminton. Bandages and comfort items.
+Resource:Food,Food — found everywhere; abundant at the kitchen and James's House. Eat raw or cook for more.
+Resource:EnergyDrink,Energy Drink — only at James's House. +2 Sanity. James MUST drink one per day or lose Sanity.
+Resource:Battery,Battery — at James's and Rayman's Houses. Powers electronics; needed for Flashlights.
+DoomMarker,The Doom marker. Hover to see current step and the next threshold.
+DayCounter,The Day Counter. Advances at each Dawn. Game ends after Day 7.
+SeverityLegend,Severity dot legend — see how punishing a Dawn or Threat card is at a glance.
+SanityD8,The Sanity d8. Rolled when an event causes variable Sanity loss.
+PhaseDeck:1,Phase 1 Dawn deck — Dusk of the Week. Calm days. Mild events.
+PhaseDeck:2,Phase 2 Dawn deck — Strange Days. Threats appear. Pressure rises.
+PhaseDeck:3,Phase 3 Dawn deck — Long Nights. Boss night. Heavy disruption.
+PhaseDeck:4,Phase 4 Dawn deck — Final Hours. Survival sprint. Doom races.
+MarketDeck,The Market deck. Spend resources to claim Items from the 5-card display.
+ThreatDeck,The Threat deck. Drawn at Night based on each location's threat rate.
+RecipeCard,A Recipe. Cook at the Crockpot to feed and revive the team.
+TelltaleHeartSupply,The Telltale Heart supply. Cooked from 1 Cloth + 1 Battery + 1 Food + 2 cook's Health. Used to revive a Down character.
+PlayerBoard,Your character's board. Stats on the left; perks in the middle; Action Bar at the bottom.
+Standee,A character standee. The active player's standee bobs gently.
+Boss,A boss. Larger than character standees. Disrupts rules while present.
+Location:JamesHouse,James's House. The Den (free trade once per day). James gains +1 Sanity sleeping here.
+Location:RaymansHouse,Rayman's House. The Garage (Rest +1 Health). Rayman gains +1 Health sleeping here. +1 defense.
+Location:EllieLucaHouse,Ellie & Luca's House. The Kitchen (permanent Crockpot). Ellie/Luca gain +1 Sanity sleeping here. +1 Sanity at Tick.
+Location:BasketballCourt,The School's Basketball Court. Echoes: each gather rolls a d6 with bonus or penalty. -1 Sanity at Tick. -1 defense.
+Location:BadmintonCourt,The Badminton Court. The Net: +1 defense die. -1 Sanity at Tick. Highest threat draw rate at Night.

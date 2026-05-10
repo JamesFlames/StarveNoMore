@@ -1,0 +1,315 @@
+-- ui_setup.lua  (H.1 Setup walkthrough + H.2 Character briefing + H.6 Welcome)
+
+-----------------------------------------------------------------------
+-- H.1 — Guided Setup Walkthrough (4 steps)
+-----------------------------------------------------------------------
+-- State tracking for the walkthrough
+local setupState = {
+    step = 0,             -- 0=not started, 1=path pick, 2=char pick, 3=briefing, 4=done
+    hostColor = nil,
+    pickedPath = nil,
+    charPicks = {},       -- { [color] = charName }
+    pendingColors = {},   -- colors still needing to pick
+}
+
+function startGuidedSetup(hostColor)
+    setupState.step = 1
+    setupState.hostColor = hostColor
+    setupState.pickedPath = nil
+    setupState.charPicks = {}
+    setupState.pendingColors = {}
+
+    -- Gather seated players
+    local seated = getActivePlayerColors()
+    for _, c in ipairs(seated) do
+        table.insert(setupState.pendingColors, c)
+    end
+
+    broadcastEvent("phase", "Starting guided setup...")
+
+    -- Step 1: Show path pick to host
+    UI.show("setupStep1")
+end
+
+-----------------------------------------------------------------------
+-- Step 1: Path graph pick
+-----------------------------------------------------------------------
+function onPickPath(player, value, id)
+    local variant
+    if id == "pickCompact" then variant = "Compact"
+    elseif id == "pickSprawl" then variant = "Sprawl"
+    elseif id == "pickLinear" then variant = "Linear"
+    elseif id == "pickRing" then variant = "Ring"
+    elseif id == "pickStar" then variant = "Star"
+    else return end
+
+    setupState.pickedPath = variant
+    gameState.pathVariant = variant
+    broadcastEvent("proc", "Path layout: " .. variant)
+
+    UI.hide("setupStep1")
+
+    -- Advance to step 2
+    setupState.step = 2
+    showCharPickForNextPlayer()
+end
+
+-----------------------------------------------------------------------
+-- Step 2: Character pick (one player at a time)
+-----------------------------------------------------------------------
+local CHAR_BUTTON_MAP = {
+    pickJames  = "James",
+    pickCoco   = "Coco",
+    pickRayman = "Rayman",
+    pickEllie  = "Ellie",
+    pickLuca   = "Luca",
+}
+
+function showCharPickForNextPlayer()
+    if #setupState.pendingColors == 0 then
+        -- All players picked — finalize setup
+        finalizeGuidedSetup()
+        return
+    end
+
+    local color = setupState.pendingColors[1]
+    UI.setAttribute("step2Title", "text", "Step 2 — " .. color .. " Player: Pick Your Character")
+    UI.setAttribute("step2Subtitle", "text", "Choose a character. Taken characters are greyed out.")
+
+    -- Grey out already-picked characters
+    local taken = {}
+    for _, name in pairs(setupState.charPicks) do
+        taken[name] = true
+    end
+
+    for btnId, charName in pairs(CHAR_BUTTON_MAP) do
+        if taken[charName] then
+            UI.setAttribute(btnId, "interactable", "false")
+            UI.setAttribute(btnId, "color", "rgba(20,20,20,0.5)")
+        else
+            UI.setAttribute(btnId, "interactable", "true")
+            -- Restore original colors
+            local colors = {
+                pickJames  = "rgba(40,40,50,0.9)",
+                pickCoco   = "rgba(50,30,30,0.9)",
+                pickRayman = "rgba(50,50,30,0.9)",
+                pickEllie  = "rgba(30,50,30,0.9)",
+                pickLuca   = "rgba(30,30,50,0.9)",
+            }
+            UI.setAttribute(btnId, "color", colors[btnId])
+        end
+    end
+
+    UI.show("setupStep2")
+end
+
+function onPickChar(player, value, id)
+    local charName = CHAR_BUTTON_MAP[id]
+    if not charName then return end
+
+    -- Verify this character isn't taken
+    for _, name in pairs(setupState.charPicks) do
+        if name == charName then
+            broadcastToColor(charName .. " is already taken.", player.color, BROADCAST_COLORS.damage)
+            return
+        end
+    end
+
+    local color = setupState.pendingColors[1]
+
+    -- Allow the correct player OR the host to pick
+    if player.color ~= color and player.color ~= setupState.hostColor then
+        broadcastToColor("It's " .. color .. "'s turn to pick.", player.color, BROADCAST_COLORS.damage)
+        return
+    end
+
+    setupState.charPicks[color] = charName
+    table.remove(setupState.pendingColors, 1)
+    broadcastEvent("proc", charName .. " assigned to " .. color .. ".")
+
+    UI.hide("setupStep2")
+
+    -- Show briefing for this player (Step 3 interleaved)
+    showCharBriefing(color, charName)
+end
+
+-----------------------------------------------------------------------
+-- H.2 — Character Briefing Popup (Step 3, one per player)
+-----------------------------------------------------------------------
+CHAR_BRIEFINGS = {
+    James = "You are James, the Gamer.\n\nYou know patterns. You see things before they happen.\n\nStrengths:\n- Gaming Reflexes: once per turn, reroll one die.\n- Pattern Recognition: once per day, peek any deck top.\n\nConstraint:\n- Wired: consume 1 Energy Drink per day or lose 2 Sanity at night.\n\nStarting hand: Energy Drink x2, Pocketknife, Flashlight, Headphones.\n\nFirst move: Gather an Energy Drink, then use Pattern Recognition to peek at the Phase deck.",
+    Coco = "You are Coco, the Angel.\n\nYou are calm when the world isn't. You're visiting — no house of your own.\n\nStrengths:\n- Calming Presence: allies at your tile lose 1 less Sanity at Tick.\n- Touch of Hope (once per game): heal any character +4 Health.\n- Light in the Dark: never triggers Charlie attacks.\n- Wanderer's Gift: gain +1 Sanity each time you move to a new location.\n\nConstraint:\n- No Home: alone at a non-house tile at night = -3 Sanity.\n\nStarting hand: First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Battery, Friendship Bracelet.\n\nFirst move: Keep moving — your Gift rewards travel. Stick with allies at night.",
+    Rayman = "You are Rayman, the Basketball Player.\n\nFastest and toughest. You hit hard. You also eat a lot.\n\nStrengths:\n- Speed: Move 2 tiles per Move action.\n- Court Master: +1 attack die at the Basketball Court.\n- Backboard Block: Defend action shields adjacent allies.\n\nConstraints:\n- Big Appetite: lose 2 Hunger per Tick (others lose 1).\n- Loud: moving to a new tile = +1 Threat draw at Night.\n\nStarting hand: Basketball, Sports Drink x2, Athletic Tape, Whistle.\n\nFirst move: Head to the Basketball Court for Wood. Watch your Hunger.",
+    Ellie = "You are Ellie, the Cook.\n\nThe kitchen is your domain. You feed the team.\n\nStrengths:\n- Crockpot Master: recipes need 1 fewer ingredient (min 1).\n- Comfort Food: shared meals give +1 extra Hunger and Sanity.\n- Knows the Pantry: at your house, pick a specific resource.\n\nConstraint:\n- Particular Eater: cannot eat raw food. Must cook first.\n\nStarting hand: Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.\n\nFirst move: Gather Food with Knows the Pantry, then cook Hot Stew for the team.",
+    Luca = "You are Luca, the Orator.\n\nYour words hold Sanity together when everything else falls apart.\n\nStrengths:\n- Rally: once per turn, give an adjacent ally a free action.\n- Calm Words: on Sanity-loss events at your tile, d6 — 4+ negates it.\n- Storyteller: allies at your tile gain +1 Sanity at Night.\n\nConstraint:\n- Needs an Audience: Sanity doesn't regen when alone.\n\nStarting hand: Notebook, Loud Whistle, Pep Talk, Reading Lamp, Toolbox.\n\nFirst move: Use Rally to give Ellie a free action. Stay with allies.",
+}
+
+function showCharBriefing(color, charName)
+    setupState.step = 3
+    setupState.briefingColor = color
+
+    local text = CHAR_BRIEFINGS[charName] or ("You are " .. charName .. ".")
+    UI.setAttribute("briefTitle", "text", "You are " .. charName)
+    UI.setAttribute("briefBody", "text", text)
+    UI.show("charBriefing")
+end
+
+function onBriefDismiss(player, value, id)
+    UI.hide("charBriefing")
+
+    -- Mark as briefed
+    local color = setupState.briefingColor
+    if color and gameState.activeChars[color] then
+        gameState.activeChars[color].briefed = true
+    end
+
+    -- Continue to next player's character pick or finalize
+    if #setupState.pendingColors > 0 then
+        setupState.step = 2
+        showCharPickForNextPlayer()
+    else
+        finalizeGuidedSetup()
+    end
+end
+
+-----------------------------------------------------------------------
+-- Finalize setup after all players have picked and been briefed
+-----------------------------------------------------------------------
+function finalizeGuidedSetup()
+    setupState.step = 4
+
+    -- Run the actual Setup logic with the picked characters
+    broadcastEvent("phase", "Setting up Starve No More...")
+
+    -- 1. Path variant already set
+    broadcastEvent("proc", "Path layout: " .. (gameState.pathVariant or "Compact"))
+
+    -- 2. Shuffle Phase decks
+    for p = 1, 4 do
+        local deck = getPhaseDeck(p)
+        if deck then deck.shuffle() end
+    end
+
+    -- 3. Market
+    local marketDeck = getMarketDeck()
+    if marketDeck then
+        marketDeck.shuffle()
+        Wait.time(function()
+            local slots = getMarketSlots()
+            for i, slot in ipairs(slots) do
+                if marketDeck and marketDeck.getQuantity() > 0 then
+                    marketDeck.takeObject({
+                        position = slot.getPosition() + Vector(0, 1, 0),
+                        rotation = {0, 180, 0},
+                        smooth = true,
+                    })
+                end
+            end
+        end, 0.5)
+    end
+
+    -- 4. Threat deck
+    local threatDeck = getThreatDeck()
+    if threatDeck then threatDeck.shuffle() end
+
+    -- 5. Assign characters per picks
+    local seated = {}
+    for color, _ in pairs(setupState.charPicks) do
+        table.insert(seated, color)
+    end
+    gameState.playerCount = #seated
+    gameState.turnOrder = seated
+    gameState.turnIndex = 0
+
+    for color, charName in pairs(setupState.charPicks) do
+        local stats = CHARACTER_STATS[charName]
+        local home = CHARACTER_HOMES[charName] or "EllieLucaHouse"
+        gameState.activeChars[color] = {
+            name       = charName,
+            health     = stats.health,
+            maxHealth  = stats.health,
+            hunger     = stats.hunger,
+            maxHunger  = stats.hunger,
+            sanity     = stats.sanity,
+            maxSanity  = stats.sanity,
+            actionsLeft = ACTIONS_PER_TURN,
+            down       = false,
+            briefed    = true,
+            location   = home,
+        }
+
+        local standee = getCharacterStandee(charName)
+        local tile = getLocationTile(home)
+        if standee and tile then
+            standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
+        end
+
+        broadcastEvent("proc", charName .. " assigned to " .. color .. ".")
+    end
+
+    -- 6. Day=1, Doom=0
+    gameState.day = 1
+    gameState.doom = 0
+    gameState.phase = 1
+    gameState.subPhase = "Dawn"
+    gameState.dayLog = {}
+
+    local counter = getDayCounter()
+    if counter then counter.setValue(1) end
+    moveDoomMarker(0)
+
+    -- 7. Started
+    gameState.started = true
+
+    broadcastEvent("phase", "Setup complete! Day 1 begins. Click 'Begin Day' to reveal the first Dawn card.")
+
+    -- Refresh UI
+    Wait.time(function()
+        refreshPhaseBanner()
+        updateActivePlayerIndicator()
+        applyTooltips()
+        refreshDynamicTooltips()
+        safecall(function() lockdownCriticalObjects() end, "Lockdown")
+    end, 1.0)
+end
+
+-----------------------------------------------------------------------
+-- H.6 — Welcome sequence on first load
+-----------------------------------------------------------------------
+function showWelcomeSequence()
+    if gameState.started or gameState.welcomed then return end
+
+    broadcastToAll("Welcome to Starve No More.", {0.9, 0.7, 0.3})
+    broadcastToAll("Click 'Setup Game' on the Host Controls panel (top-left), or hover anything to see what it does.", {0.9, 0.7, 0.3})
+    broadcastToAll("Press '?' anytime for help. Press 'What now?' if you're stuck.", {0.7, 0.8, 0.6})
+
+    -- Camera tween to the main board for all players
+    local board = getMainBoard()
+    if board then
+        local pos = board.getPosition()
+        for _, p in ipairs(Player.getPlayers()) do
+            if p.seated then
+                p.lookAt({
+                    position = pos,
+                    distance = 30,
+                    pitch    = 60,
+                })
+            end
+        end
+    end
+
+    gameState.welcomed = true
+end
+
+-----------------------------------------------------------------------
+-- Override the host Setup button to use guided flow
+-----------------------------------------------------------------------
+-- This replaces the onHostSetup from ui_controls.lua
+-- The original is kept as a fallback; this version is called from XML
+function onHostSetupGuided(player, value, id)
+    if gameState.started then
+        broadcastToColor("Game already started. Click Restart first.", player.color, BROADCAST_COLORS.damage)
+        return
+    end
+    startGuidedSetup(player.color)
+end
