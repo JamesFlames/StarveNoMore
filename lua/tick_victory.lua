@@ -150,6 +150,7 @@ function checkDownState(color)
     local char = gameState.activeChars[color]
     if not char or char.down then return end
 
+    local wentDown = false
     if char.health <= 0 then
         char.down = true
         char.health = 0
@@ -159,7 +160,7 @@ function checkDownState(color)
         end
         broadcastEvent("damage", char.name .. " is DOWN. Flip standee to ghost side.")
         broadcastEvent("proc", char.name .. " cannot act, cannot gather, cannot fight. Ghost drifts 1 free move/round.")
-        checkDefeat()
+        wentDown = true
     elseif char.sanity <= 0 then
         char.down = true
         char.sanity = 0
@@ -169,6 +170,18 @@ function checkDownState(color)
         end
         broadcastEvent("damage", char.name .. " is LOST. Flip standee to ghost side.")
         broadcastEvent("proc", char.name .. " cannot act. Ghost drifts. One whispered word per round.")
+        wentDown = true
+    end
+
+    if wentDown then
+        safecall(function() Audio.playDeath() end, "Audio")
+        -- Auto-broadcast revival hint to the team (once per character per day).
+        gameState.dailyAlerts = gameState.dailyAlerts or {}
+        gameState.dailyAlerts[color] = gameState.dailyAlerts[color] or {}
+        if not gameState.dailyAlerts[color].downHint then
+            gameState.dailyAlerts[color].downHint = true
+            broadcastEvent("warn", "To revive " .. char.name .. ": cook a Telltale Heart at a Crockpot (1 Cloth + 1 Battery + 1 Food + 2 cook Health), then use it at " .. char.name .. "'s tile.")
+        end
         checkDefeat()
     end
 end

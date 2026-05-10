@@ -1,6 +1,174 @@
 -- ui_actionbar.lua  (G.3 Action Bar handlers + G.4 Cube animation + G.5 Stat display)
 
 -----------------------------------------------------------------------
+-- Default Compact path graph for Move-target highlights.
+-- The design supports 3 path variants (Compact/Sprawl/Linear) plus a
+-- scenarioFlags.shortcutPath edge between JamesHouse and BadmintonCourt;
+-- those modifiers are applied dynamically below.
+-----------------------------------------------------------------------
+LOCATION_ADJACENCY = {
+    JamesHouse      = {"EllieLucaHouse"},
+    RaymanHouse     = {"EllieLucaHouse"},
+    EllieLucaHouse  = {"JamesHouse", "RaymanHouse", "BasketballCourt", "BadmintonCourt"},
+    BasketballCourt = {"EllieLucaHouse"},
+    BadmintonCourt = {"EllieLucaHouse"},
+}
+
+local function _adjacentLocations(loc)
+    local out = {}
+    for _, n in ipairs(LOCATION_ADJACENCY[loc] or {}) do
+        out[#out+1] = n
+    end
+    -- Shortcut scenario: JamesHouse <-> BadmintonCourt edge
+    local sFlags = gameState.scenarioFlags or {}
+    if sFlags.shortcutPath then
+        if loc == "JamesHouse" then out[#out+1] = "BadmintonCourt"
+        elseif loc == "BadmintonCourt" then out[#out+1] = "JamesHouse" end
+    end
+    return out
+end
+
+-----------------------------------------------------------------------
+-- Highlight helpers — flash legal targets when an action is selected.
+-- Uses TTS's per-object highlightOn(color, duration) so it doesn't compete
+-- with the global Phase Banner CTA pulse on XML elements.
+-----------------------------------------------------------------------
+local HIGHLIGHT_DURATION = 8  -- seconds
+
+-----------------------------------------------------------------------
+-- Market affordability: count Resource:* tokens near a player's board
+-- and compare against the per-card costs in MARKET_COSTS (auto-loaded
+-- from content/cards_market.csv via scripts/generate_market_data.py).
+-----------------------------------------------------------------------
+local RESOURCE_TYPES = {"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}
+
+function getPlayerResources(color)
+    local counts = {}
+    for _, r in ipairs(RESOURCE_TYPES) do counts[r] = 0 end
+
+    local charName = colorToCharacter(color)
+    if not charName then return counts end
+    local board = getPlayerBoard(charName)
+    if not board then return counts end
+
+    -- Build a generous bounding box around the player board so resources
+    -- placed alongside the board still count.
+    local pos = board.getPosition()
+    local b = board.getBoundsNormalized()
+    local pad = 1.5
+    local minX = pos.x - b.size.x * 0.5 - pad
+    local maxX = pos.x + b.size.x * 0.5 + pad
+    local minZ = pos.z - b.size.z * 0.5 - pad
+    local maxZ = pos.z + b.size.z * 0.5 + pad
+
+    for _, obj in ipairs(findAllByTag("Resource")) do
+        local p = obj.getPosition()
+        if p.x >= minX and p.x <= maxX and p.z >= minZ and p.z <= maxZ then
+            for _, tag in ipairs(obj.getTags()) do
+                local resType = tag:match("^Resource:(.+)$")
+                if resType and counts[resType] ~= nil then
+                    counts[resType] = counts[resType] + 1
+                    break
+                end
+            end
+        end
+    end
+    return counts
+end
+
+local function _cardIdFromTags(card)
+    if not card or not card.getTags then return nil end
+    for _, tag in ipairs(card.getTags()) do
+        if tag:match("^M_") then return tag end
+    end
+    return nil
+end
+
+function canAfford(color, cardId)
+    if not cardId or not MARKET_COSTS then return true end
+    local cost = MARKET_COSTS[cardId]
+    if not cost or next(cost) == nil then return true end  -- free or unknown
+    local res = getPlayerResources(color)
+    for r, qty in pairs(cost) do
+        if (res[r] or 0) < qty then return false end
+    end
+    return true
+end
+
+local function _highlightMoveTargets(color)
+    local char = gameState.activeChars[color]
+    if not char or not char.location then return end
+    local neighbours = _adjacentLocations(char.location)
+    -- Rayman's Speed perk: 2 tiles per Move action, so chain-add second-step neighbours.
+    if char.name == "Rayman" then
+        local seen = {}
+        for _, n in ipairs(neighbours) do seen[n] = true end
+        for _, n in ipairs(neighbours) do
+            for _, n2 in ipairs(_adjacentLocations(n)) do
+                if n2 ~= char.location and not seen[n2] then
+                    seen[n2] = true
+                    neighbours[#neighbours+1] = n2
+                end
+            end
+        end
+    end
+    for _, locName in ipairs(neighbours) do
+        local tile = getLocationTile(locName)
+        if tile then tile.highlightOn("Green", HIGHLIGHT_DURATION) end
+    end
+end
+
+local function _highlightCraftTargets(color)
+    local deck = getMarketDeck()
+    if deck then deck.highlightOn("Yellow", HIGHLIGHT_DURATION) end
+    -- Empty market slots — neutral hint that this is where cards go
+    for _, slot in ipairs(getMarketSlots()) do
+        slot.highlightOn("Yellow", HIGHLIGHT_DURATION)
+    end
+    -- Per-card affordability: each individual MarketCard (those that have
+    -- been dealt out of the deck) gets Green if the active player can
+    -- afford it, Yellow otherwise.
+    local affordableCount = 0
+    for _, card in ipairs(findAllByTag("MarketCard")) do
+        if card.type == "Card" then
+            local cardId = _cardIdFromTags(card)
+            if color and cardId and canAfford(color, cardId) then
+                card.highlightOn("Green", HIGHLIGHT_DURATION)
+                affordableCount = affordableCount + 1
+            else
+                card.highlightOn("Yellow", HIGHLIGHT_DURATION)
+            end
+        end
+    end
+    if color then
+        local res = getPlayerResources(color)
+        local resStr = string.format("Wood %d / Metal %d / Cloth %d / Food %d / Energy %d / Battery %d",
+            res.Wood or 0, res.Metal or 0, res.Cloth or 0, res.Food or 0,
+            res.EnergyDrink or 0, res.Battery or 0)
+        printToColor("Affordable Market cards highlighted Green (" .. affordableCount .. "). Your bag: " .. resStr,
+                     color, {0.7, 1.0, 0.7})
+    end
+end
+
+local function _highlightCookTargets()
+    -- Recipe cards live on a reference rack; tag is "RecipeCard".
+    for _, card in ipairs(findAllByTag("RecipeCard")) do
+        card.highlightOn("Orange", HIGHLIGHT_DURATION)
+    end
+    -- Crockpot is at EllieLucaHouse; highlight that tile too.
+    local tile = getLocationTile("EllieLucaHouse")
+    if tile then tile.highlightOn("Orange", HIGHLIGHT_DURATION) end
+end
+
+local function _highlightCleanseTargets()
+    -- Cleanse cost: 1 each of Wood, Cloth, Battery, Energy Drink.
+    for _, resType in ipairs({"Wood", "Cloth", "Battery", "EnergyDrink"}) do
+        local bag = getResourceBag(resType)
+        if bag then bag.highlightOn("White", HIGHLIGHT_DURATION) end
+    end
+end
+
+-----------------------------------------------------------------------
 -- G.3 — Action Bar button handlers (called from XML onClick)
 -----------------------------------------------------------------------
 function onActMove(player, value, id)
@@ -9,6 +177,7 @@ function onActMove(player, value, id)
     -- Move requires target selection; broadcast instruction
     broadcastToColor("Click a location tile to move there.", color, BROADCAST_COLORS.proc)
     gameState.pendingAction = { type = "move", color = color }
+    safecall(function() _highlightMoveTargets(color) end, "MoveHighlight")
     -- The actual move is completed when the player clicks a tile (see onObjectClick handler)
 end
 
@@ -25,6 +194,7 @@ function onActCraft(player, value, id)
     if not validateActivePlayer(color) then return end
     broadcastToColor("Click a Market card to craft it.", color, BROADCAST_COLORS.proc)
     gameState.pendingAction = { type = "craft", color = color }
+    safecall(function() _highlightCraftTargets(color) end, "CraftHighlight")
 end
 
 function onActCook(player, value, id)
@@ -43,6 +213,7 @@ function onActCook(player, value, id)
     end
     broadcastToColor("Click a Recipe card to cook it.", color, BROADCAST_COLORS.proc)
     gameState.pendingAction = { type = "cook", color = color }
+    safecall(function() _highlightCookTargets() end, "CookHighlight")
 end
 
 function onActFight(player, value, id)
@@ -85,6 +256,8 @@ end
 function onActCleanse(player, value, id)
     local color = player.color
     if not validateActivePlayer(color) then return end
+    -- Highlight the resource bags being consumed so the player can see the cost.
+    safecall(function() _highlightCleanseTargets() end, "CleanseHighlight")
     -- Show confirm dialog
     showConfirm(
         "Cleanse the Doom Track?",
@@ -122,6 +295,8 @@ function validateActivePlayer(color)
         broadcastToColor("You are Down and cannot act.", color, BROADCAST_COLORS.damage)
         return false
     end
+    -- Reset idle timer whenever the active player interacts.
+    if noteInteraction then noteInteraction() end
     return true
 end
 

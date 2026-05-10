@@ -23,6 +23,16 @@ gameState = {
         -- Populated at setup: [color] = {name, health, maxHealth, hunger, maxHunger,
         --   sanity, maxSanity, actionsLeft, down, briefed, location}
     },
+
+    -- One-fire-per-day flags so urgent auto-broadcasts (Down, stat-below-3,
+    -- James-no-Energy-Drink) don't spam the chat. Cleared in BeginDay() at Dawn.
+    dailyAlerts = {
+        -- [color] = { downHint = true, low_hunger = true, ... }
+    },
+
+    -- Idle-detection nudge state (see day_loop.lua).
+    lastInteractionAt    = 0,
+    idleNudgedThisTurn   = false,
 }
 
 -----------------------------------------------------------------------

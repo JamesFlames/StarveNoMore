@@ -264,6 +264,188 @@
 </Panel>
 
 <!-- ================================================================== -->
+<!-- CHAR ROSTER — all 5 characters' stats at a glance (right side)     -->
+<!-- Design §10.2: any player can glance at any character's state.      -->
+<!-- Updated dynamically by refreshCharRoster() in ui_banner.lua.       -->
+<!-- ================================================================== -->
+<Panel id="charRoster"
+       rectAlignment="MiddleRight"
+       offsetXY="-10 0"
+       width="190" height="360"
+       color="rgba(0,0,0,0.7)"
+       outline="rgba(150,150,150,0.3)"
+       outlineSize="1"
+       active="false">
+  <VerticalLayout spacing="3" padding="6 6 4 4"
+                  childForceExpandHeight="false">
+
+    <Text fontSize="12" fontStyle="Bold" color="#CCCCCC"
+          text="Party" preferredHeight="16" />
+
+    <!-- James -->
+    <Panel id="rosterRow_James" preferredHeight="56" color="rgba(20,20,20,0.5)">
+      <VerticalLayout spacing="1" padding="4 4 2 2">
+        <Text id="rosterName_James" fontSize="12" fontStyle="Bold"
+              color="#FFFFFF" text="James" preferredHeight="14" />
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10" />
+          <ProgressBar id="rosterHealth_James" percentage="100"
+                       color="#FF4444" backgroundColor="rgba(80,20,20,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterHealthVal_James" fontSize="9" color="#FF8888"
+                text="8/8" preferredWidth="38" />
+        </HorizontalLayout>
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10" />
+          <ProgressBar id="rosterHunger_James" percentage="100"
+                       color="#FFAA22" backgroundColor="rgba(80,50,10,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterHungerVal_James" fontSize="9" color="#FFCC66"
+                text="6/6" preferredWidth="38" />
+        </HorizontalLayout>
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10" />
+          <ProgressBar id="rosterSanity_James" percentage="100"
+                       color="#4488FF" backgroundColor="rgba(20,30,80,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterSanityVal_James" fontSize="9" color="#88CCFF"
+                text="10/10" preferredWidth="38" />
+        </HorizontalLayout>
+      </VerticalLayout>
+    </Panel>
+
+    <!-- Coco -->
+    <Panel id="rosterRow_Coco" preferredHeight="56" color="rgba(20,20,20,0.5)">
+      <VerticalLayout spacing="1" padding="4 4 2 2">
+        <Text id="rosterName_Coco" fontSize="12" fontStyle="Bold"
+              color="#EB5252" text="Coco" preferredHeight="14" />
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10" />
+          <ProgressBar id="rosterHealth_Coco" percentage="100"
+                       color="#FF4444" backgroundColor="rgba(80,20,20,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterHealthVal_Coco" fontSize="9" color="#FF8888"
+                text="6/6" preferredWidth="38" />
+        </HorizontalLayout>
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10" />
+          <ProgressBar id="rosterHunger_Coco" percentage="100"
+                       color="#FFAA22" backgroundColor="rgba(80,50,10,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterHungerVal_Coco" fontSize="9" color="#FFCC66"
+                text="8/8" preferredWidth="38" />
+        </HorizontalLayout>
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10" />
+          <ProgressBar id="rosterSanity_Coco" percentage="100"
+                       color="#4488FF" backgroundColor="rgba(20,30,80,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterSanityVal_Coco" fontSize="9" color="#88CCFF"
+                text="12/12" preferredWidth="38" />
+        </HorizontalLayout>
+      </VerticalLayout>
+    </Panel>
+
+    <!-- Rayman -->
+    <Panel id="rosterRow_Rayman" preferredHeight="56" color="rgba(20,20,20,0.5)">
+      <VerticalLayout spacing="1" padding="4 4 2 2">
+        <Text id="rosterName_Rayman" fontSize="12" fontStyle="Bold"
+              color="#5AC766" text="Rayman" preferredHeight="14" />
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10" />
+          <ProgressBar id="rosterHealth_Rayman" percentage="100"
+                       color="#FF4444" backgroundColor="rgba(80,20,20,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterHealthVal_Rayman" fontSize="9" color="#FF8888"
+                text="12/12" preferredWidth="38" />
+        </HorizontalLayout>
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10" />
+          <ProgressBar id="rosterHunger_Rayman" percentage="100"
+                       color="#FFAA22" backgroundColor="rgba(80,50,10,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterHungerVal_Rayman" fontSize="9" color="#FFCC66"
+                text="10/10" preferredWidth="38" />
+        </HorizontalLayout>
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10" />
+          <ProgressBar id="rosterSanity_Rayman" percentage="100"
+                       color="#4488FF" backgroundColor="rgba(20,30,80,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterSanityVal_Rayman" fontSize="9" color="#88CCFF"
+                text="6/6" preferredWidth="38" />
+        </HorizontalLayout>
+      </VerticalLayout>
+    </Panel>
+
+    <!-- Ellie -->
+    <Panel id="rosterRow_Ellie" preferredHeight="56" color="rgba(20,20,20,0.5)">
+      <VerticalLayout spacing="1" padding="4 4 2 2">
+        <Text id="rosterName_Ellie" fontSize="12" fontStyle="Bold"
+              color="#9ED1F2" text="Ellie" preferredHeight="14" />
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10" />
+          <ProgressBar id="rosterHealth_Ellie" percentage="100"
+                       color="#FF4444" backgroundColor="rgba(80,20,20,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterHealthVal_Ellie" fontSize="9" color="#FF8888"
+                text="8/8" preferredWidth="38" />
+        </HorizontalLayout>
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10" />
+          <ProgressBar id="rosterHunger_Ellie" percentage="100"
+                       color="#FFAA22" backgroundColor="rgba(80,50,10,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterHungerVal_Ellie" fontSize="9" color="#FFCC66"
+                text="10/10" preferredWidth="38" />
+        </HorizontalLayout>
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10" />
+          <ProgressBar id="rosterSanity_Ellie" percentage="100"
+                       color="#4488FF" backgroundColor="rgba(20,30,80,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterSanityVal_Ellie" fontSize="9" color="#88CCFF"
+                text="8/8" preferredWidth="38" />
+        </HorizontalLayout>
+      </VerticalLayout>
+    </Panel>
+
+    <!-- Luca -->
+    <Panel id="rosterRow_Luca" preferredHeight="56" color="rgba(20,20,20,0.5)">
+      <VerticalLayout spacing="1" padding="4 4 2 2">
+        <Text id="rosterName_Luca" fontSize="12" fontStyle="Bold"
+              color="#FF9933" text="Luca" preferredHeight="14" />
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10" />
+          <ProgressBar id="rosterHealth_Luca" percentage="100"
+                       color="#FF4444" backgroundColor="rgba(80,20,20,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterHealthVal_Luca" fontSize="9" color="#FF8888"
+                text="7/7" preferredWidth="38" />
+        </HorizontalLayout>
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10" />
+          <ProgressBar id="rosterHunger_Luca" percentage="100"
+                       color="#FFAA22" backgroundColor="rgba(80,50,10,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterHungerVal_Luca" fontSize="9" color="#FFCC66"
+                text="8/8" preferredWidth="38" />
+        </HorizontalLayout>
+        <HorizontalLayout spacing="2" preferredHeight="12">
+          <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10" />
+          <ProgressBar id="rosterSanity_Luca" percentage="100"
+                       color="#4488FF" backgroundColor="rgba(20,30,80,0.5)"
+                       preferredWidth="80" />
+          <Text id="rosterSanityVal_Luca" fontSize="9" color="#88CCFF"
+                text="10/10" preferredWidth="38" />
+        </HorizontalLayout>
+      </VerticalLayout>
+    </Panel>
+
+  </VerticalLayout>
+</Panel>
+
+<!-- ================================================================== -->
 <!-- G.6  CONFIRM DIALOG — modal for resource-spending actions          -->
 <!-- Design §18.14: costs visible before commitment                     -->
 <!-- ================================================================== -->

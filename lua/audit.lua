@@ -102,46 +102,60 @@ end
 -- Walks through every sub-phase and verifies a hint exists.
 -----------------------------------------------------------------------
 function auditHintCoverage()
-    local subPhases = {"PreGame", "Dawn", "Day", "Dusk", "Night", "Tick", "GameOver"}
+    -- WHATNOW_HINTS is auto-generated from content/help/whatnow_hints.md.
+    -- Group keys: PreGame, Dawn, Day, Dusk, Night, Tick, PostGame,
+    --             Stats, James, Coco, Rayman, Ellie, Luca,
+    --             Location, Strategic.
     local missing = {}
     local covered = 0
 
-    for _, sp in ipairs(subPhases) do
-        local hints = WHATNOW_HINTS[sp]
+    local subPhaseGroups = {"PreGame", "Dawn", "Day", "Dusk", "Night", "Tick", "PostGame"}
+    for _, g in ipairs(subPhaseGroups) do
+        local hints = WHATNOW_HINTS[g]
         if hints and hints.default and hints.default ~= "" then
             covered = covered + 1
         else
-            table.insert(missing, sp)
+            table.insert(missing, "Sub-phase: " .. g)
         end
     end
 
-    -- Check character-specific hints exist for all 5 characters
     local chars = {"James", "Coco", "Rayman", "Ellie", "Luca"}
     for _, name in ipairs(chars) do
-        if not WHATNOW_CHAR_HINTS[name] then
-            table.insert(missing, "Character hints: " .. name)
-        else
+        local h = WHATNOW_HINTS[name]
+        if h and next(h) then
             covered = covered + 1
+        else
+            table.insert(missing, "Character group: " .. name)
         end
     end
 
-    -- Check stat hints
-    local statHints = {"low_hunger", "low_sanity", "low_health"}
-    for _, key in ipairs(statHints) do
-        if WHATNOW_STAT_HINTS[key] and WHATNOW_STAT_HINTS[key] ~= "" then
+    local statKeys = {"low_hunger", "low_sanity", "low_health"}
+    local stats = WHATNOW_HINTS.Stats or {}
+    for _, key in ipairs(statKeys) do
+        if stats[key] and stats[key] ~= "" then
             covered = covered + 1
         else
-            table.insert(missing, "Stat hint: " .. key)
+            table.insert(missing, "Stat: " .. key)
         end
     end
 
-    -- Check strategic hints
-    local stratHints = {"doom_high", "ally_down", "no_light"}
-    for _, key in ipairs(stratHints) do
-        if WHATNOW_STRATEGIC_HINTS[key] and WHATNOW_STRATEGIC_HINTS[key] ~= "" then
+    local stratKeys = {"doom_high", "ally_down", "no_light_source"}
+    local strat = WHATNOW_HINTS.Strategic or {}
+    for _, key in ipairs(stratKeys) do
+        if strat[key] and strat[key] ~= "" then
             covered = covered + 1
         else
-            table.insert(missing, "Strategic hint: " .. key)
+            table.insert(missing, "Strategic: " .. key)
+        end
+    end
+
+    local locKeys = {"at_own_house", "at_kitchen_not_ellie", "at_basketball_court", "at_badminton_court"}
+    local locs = WHATNOW_HINTS.Location or {}
+    for _, key in ipairs(locKeys) do
+        if locs[key] and locs[key] ~= "" then
+            covered = covered + 1
+        else
+            table.insert(missing, "Location: " .. key)
         end
     end
 

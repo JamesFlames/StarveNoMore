@@ -1,9 +1,45 @@
 -- day_loop.lua  (F.4 — Day Advance / BeginDay + turn management)
 
+-----------------------------------------------------------------------
+-- Idle-detection nudge: if the active player hasn't taken an action in
+-- IDLE_THRESHOLD seconds, surface a "click What now?" prompt once per
+-- turn. Watcher only runs during Day sub-phase.
+-----------------------------------------------------------------------
+local IDLE_THRESHOLD = 45  -- seconds
+local _idleWatcher = nil
+
+function noteInteraction()
+    gameState.lastInteractionAt = os.time()
+end
+
+function _checkIdle()
+    if gameState.subPhase ~= "Day" then return end
+    local active = gameState.activeColor
+    if not active then return end
+    if gameState.idleNudgedThisTurn then return end
+    local last = gameState.lastInteractionAt or 0
+    local elapsed = os.time() - last
+    if elapsed >= IDLE_THRESHOLD then
+        gameState.idleNudgedThisTurn = true
+        printToColor("Idle for " .. elapsed .. "s. Click '?' or 'What now?' on the Phase Banner for a context hint.",
+                     active, {1, 0.85, 0.4})
+    end
+end
+
+function startIdleWatcher()
+    if _idleWatcher then Wait.stop(_idleWatcher) end
+    _idleWatcher = Wait.time(_checkIdle, 10, -1)
+end
+
+function stopIdleWatcher()
+    if _idleWatcher then Wait.stop(_idleWatcher); _idleWatcher = nil end
+end
+
 function BeginDay()
     -- Phase 1: Dawn
     gameState.subPhase = "Dawn"
     gameState.dayLog = {}
+    gameState.dailyAlerts = {}  -- reset one-per-day urgent-hint flags
     safecall(function() setPhaseMood("Dawn") end, "Mood")
     safecall(function() Audio.startDayAmbience() end, "Audio")
 
@@ -112,6 +148,8 @@ function beginDayPhase()
     gameState.subPhase = "Day"
     gameState.turnIndex = 1
     safecall(function() setPhaseMood("Day") end, "Mood")
+    noteInteraction()
+    startIdleWatcher()
 
     -- Reset all players' actions and trade counters
     gameState.tradesThisTurn = {}
@@ -128,6 +166,9 @@ function beginDayPhase()
 end
 
 function advanceToNextPlayer()
+    -- New turn: reset idle tracking
+    gameState.idleNudgedThisTurn = false
+    noteInteraction()
     -- Find next non-down player
     local startIdx = gameState.turnIndex
     while gameState.turnIndex <= #gameState.turnOrder do
@@ -147,6 +188,7 @@ function advanceToNextPlayer()
 
     -- All players done — advance to Dusk
     gameState.activeColor = nil
+    stopIdleWatcher()
     broadcastEvent("phase", "All players have finished. Advancing to Dusk.")
     refreshPhaseBanner()
     updateActivePlayerIndicator()
@@ -217,6 +259,58 @@ function beginDusk()
                 " | Threat draws: " .. baseRate .. " (" .. risk .. ")" .. barricadeNote)
         end
     end
+
+    -- James end-of-Day reminder: if his Energy Drink is still unconsumed,
+    -- the Wired constraint will hit him at Tick. Surface this once per day.
+    do
+        local jamesColor, jamesChar = nil, nil
+        for c, ch in pairs(gameState.activeChars) do
+            if ch.name == "James" and not ch.down then jamesColor, jamesChar = c, ch; break end
+        end
+        if jamesChar and not gameState.jamesEnergyDrinkUsed then
+            gameState.dailyAlerts = gameState.dailyAlerts or {}
+            gameState.dailyAlerts[jamesColor] = gameState.dailyAlerts[jamesColor] or {}
+            if not gameState.dailyAlerts[jamesColor].jamesEnergy then
+                gameState.dailyAlerts[jamesColor].jamesEnergy = true
+                printToColor("Reminder: you haven't drunk an Energy Drink today. Wired triggers at Tick: −2 Sanity tonight unless one is consumed first.",
+                             jamesColor, {1, 0.85, 0.4})
+            end
+        end
+    end
+
+    -- Per-player Dusk warnings: advisory printToColor messages. Players
+    -- can't move during Dusk, but the warning surfaces consequences in case
+    -- they need to use a held item or accept the risk.
+    for color, char in pairs(gameState.activeChars) do
+        if not char.down then
+            local loc = char.location
+            local othersHere = 0
+            for c2, ch2 in pairs(gameState.activeChars) do
+                if c2 ~= color and not ch2.down and ch2.location == loc then
+                    othersHere = othersHere + 1
+                end
+            end
+
+            -- Alone at a sport court
+            if (loc == "BasketballCourt" or loc == "BadmintonCourt") and othersHere == 0 then
+                printToColor("Warning: alone at " .. loc .. " — +1 Threat draw and no sleep regen tonight.",
+                             color, {1, 0.85, 0.4})
+            end
+
+            -- Coco alone at non-house tile
+            if char.name == "Coco" and othersHere == 0 then
+                local isHouse = (loc == "JamesHouse" or loc == "RaymanHouse" or loc == "EllieLucaHouse")
+                if not isHouse then
+                    printToColor("Warning: Coco alone at non-house tile — −3 Sanity (No Home constraint).",
+                                 color, {1, 0.85, 0.4})
+                end
+            end
+        end
+    end
+
+    -- Public no-light reminder (item tracking is private to each hand zone,
+    -- so we broadcast a generic prompt rather than naming who lacks a light).
+    broadcastEvent("warn", "Reminder: anyone without a Flashlight (Battery), Lantern, or Fire suffers a Charlie attack tonight (1d8 Sanity + 1d6 Health). Coco is immune.")
 
     Wait.time(function()
         beginNight()

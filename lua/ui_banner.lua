@@ -74,6 +74,90 @@ function refreshPhaseBanner()
     -- Refresh stat display and action bar
     refreshStatDisplay()
     refreshActionBar()
+    refreshCharRoster()
+    refreshStandeeTooltips()
+
+    -- Pulse the next clickable thing so it's not just text-described
+    highlightCTA(getNextCTA())
+end
+
+-----------------------------------------------------------------------
+-- All-characters roster panel (Design §10.2 — "any player can glance
+-- at any other player's board and see their stats"). Always-visible
+-- once the game is started; dims down characters; hides rows for
+-- inactive characters (3- or 4-player games).
+-----------------------------------------------------------------------
+local ROSTER_NAMES = {"James", "Coco", "Rayman", "Ellie", "Luca"}
+
+local function _pct(num, den)
+    if not den or den <= 0 then return "0" end
+    return tostring(math.floor(math.max(0, num) / den * 100))
+end
+
+function refreshCharRoster()
+    if not UI then return end
+    if not gameState.started then
+        UI.hide("charRoster")
+        return
+    end
+    UI.show("charRoster")
+
+    -- Build a name -> color lookup for the current game.
+    local nameToColor = {}
+    for color, ch in pairs(gameState.activeChars or {}) do
+        if ch and ch.name then nameToColor[ch.name] = color end
+    end
+
+    for _, name in ipairs(ROSTER_NAMES) do
+        local color = nameToColor[name]
+        local char = color and gameState.activeChars[color]
+        local rowId = "rosterRow_" .. name
+        if not char then
+            -- Character is not in this game — hide their row entirely.
+            UI.setAttribute(rowId, "active", "false")
+        else
+            UI.setAttribute(rowId, "active", "true")
+            -- Dim the row if Down.
+            if char.down then
+                UI.setAttribute(rowId, "color", "rgba(40,10,10,0.6)")
+                UI.setAttribute("rosterName_" .. name, "text", name .. " ✗")
+            else
+                UI.setAttribute(rowId, "color", "rgba(20,20,20,0.5)")
+                UI.setAttribute("rosterName_" .. name, "text", name)
+            end
+            UI.setAttribute("rosterHealth_" .. name, "percentage", _pct(char.health, char.maxHealth))
+            UI.setAttribute("rosterHealthVal_" .. name, "text", char.health .. "/" .. char.maxHealth)
+            UI.setAttribute("rosterHunger_" .. name, "percentage", _pct(char.hunger, char.maxHunger))
+            UI.setAttribute("rosterHungerVal_" .. name, "text", char.hunger .. "/" .. char.maxHunger)
+            UI.setAttribute("rosterSanity_" .. name, "percentage", _pct(char.sanity, char.maxSanity))
+            UI.setAttribute("rosterSanityVal_" .. name, "text", char.sanity .. "/" .. char.maxSanity)
+        end
+    end
+end
+
+-----------------------------------------------------------------------
+-- Live standee tooltips (Option C): hovering a character standee in
+-- the world shows that character's CURRENT Health/Hunger/Sanity, not
+-- the starting values baked at build time.
+-----------------------------------------------------------------------
+function refreshStandeeTooltips()
+    for color, char in pairs(gameState.activeChars or {}) do
+        local standee = getCharacterStandee(char.name)
+        if standee then
+            local desc
+            if char.down then
+                desc = char.name .. " — DOWN (ghost). Use a Telltale Heart at this tile to revive."
+            else
+                desc = string.format("%s — Health %d/%d • Hunger %d/%d • Sanity %d/%d • At %s",
+                    char.name,
+                    char.health, char.maxHealth,
+                    char.hunger, char.maxHunger,
+                    char.sanity, char.maxSanity,
+                    char.location or "?")
+            end
+            standee.setDescription(desc)
+        end
+    end
 end
 
 function getNextDoomThreshold()
@@ -209,6 +293,86 @@ function stopStandeeBob()
             standee.setRotationSmooth({r.x, r.y, 0}, false, false)
         end
     end
+end
+
+-----------------------------------------------------------------------
+-- "Always-obvious next step": pulse the recommended CTA (Phase Banner I.x)
+--
+-- Toggles outlineSize between 0 and 4 with a warm accent color every 0.6s
+-- on the XML element(s) the active player should click next. Mapping is in
+-- getNextCTA() and is driven by gameState.subPhase + actionsLeft.
+-----------------------------------------------------------------------
+local _highlightHandle = nil
+local _highlightIds = {}
+local _highlightOn = false
+
+function clearHighlight()
+    if _highlightHandle then
+        Wait.stop(_highlightHandle)
+        _highlightHandle = nil
+    end
+    for _, id in ipairs(_highlightIds) do
+        if UI then
+            UI.setAttribute(id, "outlineSize", "0")
+        end
+    end
+    _highlightIds = {}
+    _highlightOn = false
+end
+
+function highlightCTA(ids)
+    -- If the caller asked for the same set we're already pulsing, no-op.
+    if ids and _highlightIds and #ids == #_highlightIds then
+        local same = true
+        for i, v in ipairs(ids) do
+            if _highlightIds[i] ~= v then same = false; break end
+        end
+        if same then return end
+    end
+
+    clearHighlight()
+    if not ids or #ids == 0 then return end
+
+    _highlightIds = ids
+    _highlightOn = false
+
+    local function pulseStep()
+        _highlightOn = not _highlightOn
+        local size = _highlightOn and "4" or "0"
+        for _, id in ipairs(_highlightIds) do
+            if UI then
+                UI.setAttribute(id, "outline", "#ffd966")
+                UI.setAttribute(id, "outlineSize", size)
+            end
+        end
+    end
+
+    pulseStep()
+    _highlightHandle = Wait.time(pulseStep, 0.6, -1)
+end
+
+function getNextCTA()
+    local sp = gameState.subPhase or "PreGame"
+
+    if sp == "PreGame" then
+        return {"btnSetup"}
+    elseif sp == "Day" then
+        if gameState.activeColor then
+            local char = gameState.activeChars and gameState.activeChars[gameState.activeColor]
+            if char and (char.actionsLeft or 0) <= 0 then
+                return {"actPass"}
+            end
+        end
+        return {"actionBar"}
+    elseif sp == "Tick" then
+        return {"btnBeginDay"}
+    elseif sp == "Night" then
+        return {"btnResolveNight"}
+    elseif sp == "GameOver" then
+        return {"btnRestart"}
+    end
+    -- Dawn auto-resolves through the dispatch; Dusk has no manual click.
+    return {}
 end
 
 -----------------------------------------------------------------------

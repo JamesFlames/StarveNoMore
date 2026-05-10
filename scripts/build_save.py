@@ -701,6 +701,19 @@ characters = [
     ("Luca",  "Blue",   6, -16, {"health": 7, "hunger": 8, "sanity": 10}),
 ]
 
+# Per-character standee tint applied to the figurine's card holder / base
+# (TTS Figurine_Custom uses ColorDiffuse for the stand and as a multiply on
+# the cardboard image; transparent-background character art ensures the
+# standee silhouette stays close to the source while the holder picks up
+# this colour).
+STANDEE_COLORS = {
+    "James":  {"r": 1.00, "g": 1.00, "b": 1.00},   # White
+    "Coco":   {"r": 0.92, "g": 0.32, "b": 0.32},   # Red
+    "Rayman": {"r": 0.35, "g": 0.78, "b": 0.40},   # Green
+    "Ellie":  {"r": 0.62, "g": 0.82, "b": 0.95},   # Light Blue
+    "Luca":   {"r": 1.00, "g": 0.60, "b": 0.20},   # Orange
+}
+
 for char_name, color, bx, bz, stats in characters:
     # Standee
     standee = base_obj("Figurine_Custom",
@@ -724,6 +737,9 @@ for char_name, color, bx, bz, stats in characters:
         "WidthScale": 0,
         "CustomFigurine": {"Type": 0}  # default figurine
     }
+    # Per-character standee holder color
+    if char_name in STANDEE_COLORS:
+        standee["ColorDiffuse"] = STANDEE_COLORS[char_name]
     objects.append(standee)
 
     # Player board
@@ -938,6 +954,8 @@ LUA_LOAD_ORDER = [
     "global.lua",
     "audio_manifest.lua",   # auto-gen by scripts/generate_audio_manifest.py — defines AUDIO
     "audio.lua",            # defines Audio.* (depends on AUDIO)
+    "whatnow_hints.lua",    # auto-gen by scripts/generate_whatnow_hints.py — defines WHATNOW_HINTS
+    "market_data.lua",      # auto-gen by scripts/generate_market_data.py — defines MARKET_COSTS
     "setup.lua",
     "day_loop.lua",
     "effects/dawn_effects.lua",

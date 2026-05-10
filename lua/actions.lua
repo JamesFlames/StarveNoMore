@@ -101,6 +101,20 @@ function doMove(color, targetLocation)
         standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
     end
 
+    -- Audio cues: walk SFX always; meet SFX if another character is already
+    -- at the destination (greet on arrival).
+    local othersAtTarget = false
+    for c2, ch2 in pairs(gameState.activeChars) do
+        if c2 ~= color and not ch2.down and ch2.location == targetLocation then
+            othersAtTarget = true; break
+        end
+    end
+    if othersAtTarget then
+        safecall(function() Audio.playMeet() end, "Audio")
+    else
+        safecall(function() Audio.playWalk() end, "Audio")
+    end
+
     -- Coco's perk: Wanderer's Gift — +1 Sanity when moving to a new location
     if char.name == "Coco" then
         char.sanity = math.min(char.maxSanity, char.sanity + 1)
@@ -133,6 +147,18 @@ function doRaymanBonusMove(color, targetLocation)
     local tile = getLocationTile(targetLocation)
     if standee and tile then
         standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
+    end
+
+    local othersAtTarget = false
+    for c2, ch2 in pairs(gameState.activeChars) do
+        if c2 ~= color and not ch2.down and ch2.location == targetLocation then
+            othersAtTarget = true; break
+        end
+    end
+    if othersAtTarget then
+        safecall(function() Audio.playMeet() end, "Audio")
+    else
+        safecall(function() Audio.playWalk() end, "Audio")
     end
 end
 
@@ -257,6 +283,7 @@ function doTrade(color, targetColor)
 
     broadcastEvent("proc", "Players at " .. (char.location or "?") ..
         " may exchange resources and items now.")
+    safecall(function() Audio.playTradeChat() end, "Audio")
 end
 
 -----------------------------------------------------------------------

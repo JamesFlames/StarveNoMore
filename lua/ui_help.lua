@@ -206,111 +206,66 @@ end
 
 -----------------------------------------------------------------------
 -- H.5 — "What now?" context-aware hint system
+--
+-- The WHATNOW_HINTS table itself is auto-generated from
+-- content/help/whatnow_hints.md by scripts/generate_whatnow_hints.py.
+-- The dispatch below picks the right entries based on game state.
+--
+-- Group keys (in WHATNOW_HINTS):
+--   PreGame, Dawn, Day, Dusk, Night, Tick, PostGame   (sub-phase bases)
+--   Stats                                              (low_hunger / sanity / health / critical_any)
+--   James | Coco | Rayman | Ellie | Luca               (per-character)
+--   Location                                           (at_own_house / at_kitchen_not_ellie / at_basketball_court / at_badminton_court)
+--   Strategic                                          (doom_high / ally_down / no_light_source / market_good_item / enemy_at_location)
 -----------------------------------------------------------------------
-WHATNOW_HINTS = {
-    -- Pre-Game
-    PreGame = {
-        default = "Click 'Setup Game' on the Host Controls panel to begin. Hover anything to see what it does. Press '?' for help.",
-    },
-    -- Dawn
-    Dawn = {
-        default = "A new Dawn card has been revealed. Read the effect. When ready, the host clicks Begin Day.",
-    },
-    -- Day
-    Day = {
-        default = "It's your turn, {name}. You have {actionsLeft} action(s) left. Choose: Move, Gather, Craft, Cook, Fight, Rest, or Cleanse.",
-        no_actions = "You've used all 3 actions. Click Pass to end your turn.",
-    },
-    -- Dusk
-    Dusk = {
-        default = "Declare where you'll sleep tonight. Characters sleep at their current tile. Sleeping at your own house is safest.",
-    },
-    -- Night
-    Night = {
-        default = "Night is resolving. Threats are drawn at each location. The host clicks Resolve Night.",
-    },
-    -- Tick
-    Tick = {
-        default = "End-of-round Tick. Everyone loses 1 Hunger and 1 Sanity. Check your stats.",
-    },
-    -- GameOver
-    GameOver = {
-        default = "Game over. Click Restart to play again.",
-    },
-}
 
--- Character-specific hints
-WHATNOW_CHAR_HINTS = {
-    James = {
-        energy = "James, you haven't consumed an Energy Drink today. If you don't by end of day, you'll lose 2 Sanity tonight.",
-        peek = "James, use Pattern Recognition to peek at any deck top. The Threat deck is usually the best target.",
-    },
-    Coco = {
-        alone = "Coco, you're alone. Ending Night alone at a non-house tile = -3 Sanity. Move toward an ally.",
-        touch = "Coco, your Touch of Hope is still available (once per game). Save it for a real emergency.",
-    },
-    Rayman = {
-        hungry = "Rayman, your Hunger is low. You lose 2 Hunger per Tick. Get to the Kitchen or eat what you have.",
-        court = "Rayman, you're at the Basketball Court. Court Master gives +1 attack die here. Fight if there's a Threat.",
-    },
-    Ellie = {
-        kitchen = "Ellie, you're at the Kitchen. Cook with 1 fewer ingredient. Hot Stew feeds everyone here.",
-        nofood = "Ellie, you can't eat raw food (Particular Eater). Gather at your house or trade for ingredients.",
-    },
-    Luca = {
-        alone = "Luca, you're alone. Your Sanity won't regen without company. Move toward an ally.",
-        rally = "Luca, use Rally to give a nearby ally a free action. It's one of the most powerful moves.",
-    },
-}
-
--- Stat warning hints
-WHATNOW_STAT_HINTS = {
-    low_hunger  = "{name}, Hunger at {hunger} (below 3). Can't Fight. Eat, Rest, or trade for Food.",
-    low_sanity  = "{name}, Sanity at {sanity} (below 3). You'll hallucinate at Dawn. Use Comfort items or get near Coco/Luca.",
-    low_health  = "{name}, Health at {health} (below 3). Movement costs +1 action. Use a Bandage or rest at your own house.",
-}
-
--- Strategic hints
-WHATNOW_STRATEGIC_HINTS = {
-    doom_high   = "Doom is at {doom}. Consider Cleansing: 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink -> Doom -2.",
-    ally_down   = "A teammate is Down. Cook a Telltale Heart (1 Cloth + 1 Battery + 1 Food + 2 Health) to revive them.",
-    no_light    = "{name}, you have no light source. Charlie will attack tonight. Get a Flashlight, Lantern, or Fire.",
-}
+local function _appendHint(hint, line, char)
+    if not line or line == "" then return hint end
+    local rendered = substitutePlaceholders(line, char)
+    if hint == "" then return rendered end
+    return hint .. "\n" .. rendered
+end
 
 function onWhatNowClick(player, value, id)
     local color = player.color
     local char = gameState.activeChars[color]
     local sp = gameState.subPhase or "PreGame"
+    -- The Lua subPhase uses "GameOver"; the markdown groups it under "PostGame".
+    local groupKey = (sp == "GameOver") and "PostGame" or sp
 
-    -- Start with the phase-appropriate base hint
-    local phaseHints = WHATNOW_HINTS[sp] or WHATNOW_HINTS["PreGame"]
-    local hint = phaseHints.default or ""
+    -- 1) Phase-base hint
+    local phaseHints = WHATNOW_HINTS[groupKey] or WHATNOW_HINTS.PreGame or {}
+    local base = phaseHints.default or ""
 
-    -- Check for no-actions state during Day
-    if sp == "Day" and char and char.actionsLeft <= 0 then
-        hint = phaseHints.no_actions or hint
+    -- Day no-actions override
+    if sp == "Day" and char and (char.actionsLeft or 0) <= 0 then
+        base = phaseHints.no_actions or base
     end
 
-    -- Substitute placeholders
-    if char then
-        hint = substitutePlaceholders(hint, char)
+    local hint = ""
+    hint = _appendHint(hint, base, char)
 
-        -- Add character-specific hints
-        local charHints = WHATNOW_CHAR_HINTS[char.name]
-        if charHints and sp == "Day" then
-            -- James energy drink check
+    if char then
+        -- 2) Character-specific Day hints
+        if sp == "Day" then
+            local charHints = WHATNOW_HINTS[char.name] or {}
+
             if char.name == "James" and not gameState.jamesEnergyDrinkUsed then
-                hint = hint .. "\n" .. charHints.energy
+                hint = _appendHint(hint, charHints.james_no_energy_drink, char)
             end
-            -- Rayman at court
+
             if char.name == "Rayman" and (char.location or ""):find("Basketball") then
-                hint = hint .. "\n" .. charHints.court
+                hint = _appendHint(hint, charHints.rayman_at_court, char)
             end
-            -- Ellie at kitchen
+            if char.name == "Rayman" and char.hunger > 0 and char.hunger < 4 then
+                hint = _appendHint(hint, charHints.rayman_hungry, char)
+            end
+
             if char.name == "Ellie" and char.location == "EllieLucaHouse" then
-                hint = hint .. "\n" .. charHints.kitchen
+                hint = _appendHint(hint, charHints.ellie_at_kitchen, char)
             end
-            -- Luca/Coco alone check
+
+            -- Coco / Luca alone check
             if char.name == "Coco" or char.name == "Luca" then
                 local othersHere = 0
                 for c2, ch2 in pairs(gameState.activeChars) do
@@ -319,39 +274,57 @@ function onWhatNowClick(player, value, id)
                     end
                 end
                 if othersHere == 0 then
-                    hint = hint .. "\n" .. (charHints.alone or "")
+                    if char.name == "Coco" then
+                        hint = _appendHint(hint, charHints.coco_alone, char)
+                    else
+                        hint = _appendHint(hint, charHints.luca_alone, char)
+                    end
                 end
             end
         end
 
-        -- Add stat warnings
-        if char.hunger < 3 and char.hunger > 0 then
-            hint = hint .. "\n" .. substitutePlaceholders(WHATNOW_STAT_HINTS.low_hunger, char)
+        -- 3) Stat warnings (Stats group)
+        local stats = WHATNOW_HINTS.Stats or {}
+        if char.hunger > 0 and char.hunger < 3 then
+            hint = _appendHint(hint, stats.low_hunger, char)
         end
-        if char.sanity < 3 and char.sanity > 0 then
-            hint = hint .. "\n" .. substitutePlaceholders(WHATNOW_STAT_HINTS.low_sanity, char)
+        if char.sanity > 0 and char.sanity < 3 then
+            hint = _appendHint(hint, stats.low_sanity, char)
         end
-        if char.health < 3 and char.health > 0 then
-            hint = hint .. "\n" .. substitutePlaceholders(WHATNOW_STAT_HINTS.low_health, char)
+        if char.health > 0 and char.health < 3 then
+            hint = _appendHint(hint, stats.low_health, char)
         end
 
-        -- Strategic hints
+        -- 4) Strategic
+        local strat = WHATNOW_HINTS.Strategic or {}
         if gameState.doom >= 20 then
-            hint = hint .. "\n" .. substitutePlaceholders(WHATNOW_STRATEGIC_HINTS.doom_high, char)
+            hint = _appendHint(hint, strat.doom_high, char)
         end
-
-        -- Ally down check
         for c2, ch2 in pairs(gameState.activeChars) do
             if ch2.down then
-                hint = hint .. "\n" .. substitutePlaceholders(WHATNOW_STRATEGIC_HINTS.ally_down, char)
+                hint = _appendHint(hint, strat.ally_down, char)
                 break
             end
         end
-    else
-        hint = substitutePlaceholders(hint, nil)
+
+        -- 5) Location (only during Day; Dusk/Night have their own bases)
+        if sp == "Day" and char.location then
+            local locHints = WHATNOW_HINTS.Location or {}
+            local home = CHARACTER_HOMES and CHARACTER_HOMES[char.name]
+            if home and home == char.location then
+                hint = _appendHint(hint, locHints.at_own_house, char)
+            end
+            if char.location == "EllieLucaHouse" and char.name ~= "Ellie" then
+                hint = _appendHint(hint, locHints.at_kitchen_not_ellie, char)
+            end
+            if char.location == "BasketballCourt" then
+                hint = _appendHint(hint, locHints.at_basketball_court, char)
+            elseif char.location == "BadmintonCourt" then
+                hint = _appendHint(hint, locHints.at_badminton_court, char)
+            end
+        end
     end
 
-    -- Display to the requesting player
     broadcastToColor(hint, color, BROADCAST_COLORS.gain)
 end
 

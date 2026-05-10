@@ -10,17 +10,20 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 
 ### Top-level
 
-- [StarveNoMoreRequirements.md](StarveNoMoreRequirements.md) — original commission brief (characters, locations, source-game influences). Frozen.
-- [StarveNoMoreDesignConcept.md](StarveNoMoreDesignConcept.md) — **the canonical design doc** (~1300 lines). Pitch, pillars, character/location/deck specs, turn structure, combat, Doom track, victory conditions, TTS implementation plan, and the UX program (§18.10–18.18) that makes the game playable without reading rules. Open this for any rules or design question.
-- [Checklist_For_TTS_Implementation.md](Checklist_For_TTS_Implementation.md) — phased build plan (Phases A–K) from design lock through Workshop publish. Use to find which phase a given task belongs to and its acceptance criteria.
+- [StarveNoMoreDesignConcept.md](StarveNoMoreDesignConcept.md) — **the canonical design doc** (~1300 lines). Pitch, pillars, character/location/deck specs, turn structure, combat, Doom track, victory conditions, TTS implementation plan, and the UX program that makes the game playable without reading rules. Open this for any rules or design question.
+- [README.md](README.md) — short orientation for the GitHub landing page.
 - agents.md — this file.
 
-### docs/ — reference material (read for context, not authoritative for the game itself)
+### Archive/ — superseded reference material, kept for context
 
-- [docs/HowToCreateGamesInTabletopSimulator.md](docs/HowToCreateGamesInTabletopSimulator.md) — TTS API quick-reference: save JSON schema, object types, Lua callbacks, XML UI, common pitfalls. Open when scripting or building components.
-- [docs/PrinciplesOfGoodBoardGames.md](docs/PrinciplesOfGoodBoardGames.md) — general board game design theory (MDA, elegance, replayability, pacing, common pitfalls).
-- [docs/DontStarveVideoGamePrinciples.md](docs/DontStarveVideoGamePrinciples.md) — DST design pillars and how each translates to tabletop. Source for tone and the three-stat trade-off economy.
-- [docs/InterestingGames.md](docs/InterestingGames.md) — mechanical tear-downs of Hogwarts Battle, Catan, and Cthulhu Wars. Source for the Dawn-deck "world acts first" pattern, modular map, and asymmetric factions.
+These files were the input/scaffolding for the design but are no longer
+consulted by the build pipeline or by everyday work. Treat them as read-only
+historical references; do not link to them from new documentation.
+
+- `Archive/StarveNoMoreRequirements.md` — original commission brief.
+- `Archive/Checklist_For_TTS_Implementation.md` — phased build plan that drove the early implementation.
+- `Archive/HowToCreateGamesInTabletopSimulator.md` — TTS API notes used to scaffold the Lua/XML.
+- `Archive/PrinciplesOfGoodBoardGames.md`, `DontStarveVideoGamePrinciples.md`, `InterestingGames.md` — design-theory sources.
 
 ### content/ — in-game text and asset specs (loaded into the mod at build/runtime)
 
@@ -41,51 +44,54 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 - **Save format**: Single JSON file with embedded Lua + XML
 
 ### Build Pipeline
-- `scripts/build_save.py` — Concatenates 17 Lua files + XML into the TTS save JSON
-- Lua load order is defined in `LUA_LOAD_ORDER` inside build_save.py
-- All Lua files live in `lua/` and its subdirectories
-- UI XML lives in `xml/global_ui.xml`
+- `scripts/build_save.py` — Concatenates the Lua files in `LUA_LOAD_ORDER` + `xml/global_ui.xml` into the TTS save JSON.
+- Three of the Lua files in that list are **auto-generated** and should never be edited by hand:
+  - `lua/audio_manifest.lua`  — built by `scripts/generate_audio_manifest.py` from the `sounds/` tree
+  - `lua/whatnow_hints.lua`   — built by `scripts/generate_whatnow_hints.py` from `content/help/whatnow_hints.md`
+  - `lua/market_data.lua`     — built by `scripts/generate_market_data.py` from `content/cards_market.csv`
+- Run those three generators after editing the corresponding source, then `python scripts/build_save.py`.
 
 ### Asset Pipeline
-- `scripts/generate_card_atlases.py` — Renders card atlas PNGs from CSV data in `content/`
+- `scripts/generate_card_atlases.py` — Composites card faces from per-card illustrations + text panel; writes deck atlases to `art/decks/*.png`
 - `scripts/generate_assets.py` — Renders tokens, boards, player boards, legends via Pillow
-- `scripts/generate_comfyui_assets.py` — Queues 23 illustration prompts to local ComfyUI (Flux Dev)
+- `scripts/generate_comfyui_assets.py` — Queues board + per-card illustration prompts to local ComfyUI (Flux Dev). Character standees are intentionally excluded (hand-drawn).
+- `scripts/sync_comfyui_output.py` — Copies ComfyUI's `output/snm_*_00001_.png` into the matching `art/<subdir>/<base>.png` (idempotent)
 - Card data CSVs: `content/cards_phase1.csv` … `cards_phase4.csv`, plus `cards_market.csv`, `cards_recipes.csv`, `cards_threats.csv`, `cards_visitors.csv`, `cards_trophies.csv`, `cards_scenarios.csv`, and `locations.csv`, `resources.csv`, `tooltips.csv`
-- Output images: `art/decks/`, `art/tokens/`, `art/icons/`, `art/board/`, `art/characters/`, `art/legend/`
+- Output images: `art/decks/`, `art/decks/illustrations/`, `art/tokens/`, `art/icons/`, `art/board/`, `art/characters/`, `art/legend/`, `art/tiles/`, `art/bosses/`, `art/ui/`
 
 ## File Structure
 
 ```
 StarveNoMore/
 ├── lua/
-│   ├── helpers.lua             # Utility functions (safecall, getters)
-│   ├── global.lua              # gameState table, lifecycle, onLoad/onSave
+│   ├── helpers.lua             # Utility functions (safecall, tag-based getters)
+│   ├── global.lua              # gameState, lifecycle, onLoad/onSave, dailyAlerts
+│   ├── audio_manifest.lua      # AUTO-GENERATED — track URLs + durations (AUDIO table)
+│   ├── audio.lua               # Audio.startDayAmbience / playBossLoop / playChime / playWalk / playMeet / playTradeChat / playDeath / playSFX
+│   ├── whatnow_hints.lua       # AUTO-GENERATED — WHATNOW_HINTS table from markdown
+│   ├── market_data.lua         # AUTO-GENERATED — MARKET_COSTS table from cards_market.csv
 │   ├── setup.lua               # Bare gameplay setup (deals/shuffles/places)
-│   ├── day_loop.lua            # Day advance, turn management, Dawn/Day/Dusk/Night
+│   ├── day_loop.lua            # Day/Dusk/Night advance, turn management, idle nudge
 │   ├── effects/
-│   │   └── dawn_effects.lua    # Dawn card effect dispatch table
-│   ├── combat.lua              # Combat resolution, boss fights
+│   │   └── dawn_effects.lua    # Dawn card effect dispatch table (incl. boss arrivals)
+│   ├── combat.lua              # Combat resolution; calls Audio.stopBossLoop on defeat
 │   ├── crafting.lua            # Market craft + Crockpot cook handlers
 │   ├── night.lua               # Night-phase resolver (threat draw, Charlie, sleep)
-│   ├── tick_victory.lua        # Tick decay, victory/defeat conditions
+│   ├── tick_victory.lua        # Tick decay, victory/defeat, Down state + revival hint
 │   ├── actions.lua             # Player actions (move, gather, fight, rest, cleanse)
-│   ├── ui_banner.lua           # Top-of-screen Phase Banner (day/phase/doom/active/next)
-│   ├── ui_actionbar.lua        # Per-board action bar buttons + cube animation
+│   ├── ui_banner.lua           # Phase Banner + recommendNext + CTA pulse + active-player indicator
+│   ├── ui_actionbar.lua        # Action Bar + target highlights + market affordability
 │   ├── ui_controls.lua         # Host controls, confirm dialogs, tooltips
-│   ├── ui_setup.lua            # Guided setup walkthrough, character briefing
-│   ├── ui_help.lua             # Help panel tabs, "What now?" contextual hints
+│   ├── ui_setup.lua            # Guided 4-step setup walkthrough + welcome
+│   ├── ui_help.lua             # Help panel tabs + What-now dispatch
 │   ├── ui_mood.lua             # Phase lighting presets, safety-net confirms, camera nudges
-│   ├── audit.lua               # Performance audit, tooltip audit, first-load checks
-│   └── assets.lua              # ASSETS table — single source of truth for image URLs
-│                               # (NOTE: not in LUA_LOAD_ORDER; concatenated separately)
+│   ├── audit.lua               # auditTooltips / auditHintCoverage / auditFirstLoad
+│   └── assets.lua              # ASSETS table — image URL constants (LOCAL_DEV switch)
 ├── xml/
-│   └── global_ui.xml           # All UI panel definitions
+│   └── global_ui.xml           # All UI panel definitions (Phase Banner, Action Bar, dialogs)
 ├── content/
-│   ├── cards_phase1.csv        # Dawn cards per phase (1–4)
-│   ├── cards_phase2.csv
-│   ├── cards_phase3.csv
-│   ├── cards_phase4.csv
-│   ├── cards_market.csv
+│   ├── cards_phase1.csv ... cards_phase4.csv   # Dawn cards per phase
+│   ├── cards_market.csv        # Source of truth for MARKET_COSTS
 │   ├── cards_recipes.csv
 │   ├── cards_threats.csv
 │   ├── cards_visitors.csv
@@ -97,11 +103,20 @@ StarveNoMore/
 │   ├── iconography.md
 │   ├── asset_manifest.md
 │   ├── notebook/               # Quickstart + Full rules + Character reference
-│   └── help/                   # Glossary + Character briefings + What-now hints
-├── art/                        # Generated image assets
+│   └── help/
+│       ├── glossary.md         # Icon and keyword glossary (Help-menu tab)
+│       ├── character_briefings.md  # Per-character one-time setup popup text
+│       └── whatnow_hints.md    # Source of truth for WHATNOW_HINTS
+├── art/
+│   ├── board/  tiles/  characters/  bosses/  decks/  icons/  ui/  legend/  tokens/
+│   └── decks/illustrations/    # Per-card art from ComfyUI (sync target)
+├── sounds/
+│   ├── ambient/{suburban,varied}/   # Day-music tracks
+│   ├── creatures/{bearger,deerclops,eye_of_terror,treeguard}/   # Boss roar libraries
+│   └── sfx/tick_chime.wav      # Synthesized two-note bell
 ├── saves/                      # Built TTS save JSON (StarveNoMore.json + .pretty.json)
-├── scripts/                    # Build + asset generation scripts
-└── docs/                       # Design reference docs
+├── scripts/                    # Build + asset/data generation (Python)
+└── Archive/                    # Superseded reference docs (frozen — no live links)
 ```
 
 ## Game Design Quick Reference
@@ -245,8 +260,17 @@ sounds/
 │   ├── eye_of_terror/  <-- 13 sounds (Phase 3 boss)
 │   └── treeguard/  <-- 26 sounds (forward-looking; not yet spawned in code)
 └── sfx/
-    └── tick_chime.wav  <-- synthesized two-note bell (G5+C6) for end-of-day Tick
+    ├── tick_chime.wav             <-- synthesized two-note bell (G5+C6) for end-of-day Tick
+    ├── Character_Walk_Sound.mp3   <-- played on Move into an empty location
+    ├── Character_Meet_Sound.mp3   <-- played on Move into a location occupied by another character
+    ├── Character_TalkTrade_Sound.mp3  <-- played on Trade
+    └── Character_Death_Sound.mp3  <-- played when a character flips to Down
 ```
+
+Any audio file dropped into `sounds/sfx/` is auto-discovered by
+`scripts/generate_audio_manifest.py` and exposed as `AUDIO.SFX.<key>`, where
+`<key>` is the filename stem lowercased with a trailing `_sound` stripped
+(e.g. `Character_Walk_Sound.mp3` → `character_walk`).
 
 The Source has no audio folder; `Audio.playBossLoop("the_source")` no-ops
 silently and ambient continues.
@@ -266,10 +290,16 @@ silently and ambient continues.
   resumes ambient at whichever phase (suburban-first or varied) it had reached.
 - **Tick (end of day):** `Audio.playChime()` briefly takes over MusicPlayer for
   the chime, then resumes ambient/boss audio.
+- **Character SFX (one-shots):**
+  - `Audio.playWalk()` on `doMove` / `doRaymanBonusMove` when the destination is empty.
+  - `Audio.playMeet()` on the same handlers when the destination already has another non-Down character.
+  - `Audio.playTradeChat()` at the end of `doTrade`.
+  - `Audio.playDeath()` from `checkDownState` when a character flips to Down.
+  - All four go through `Audio.playSFX(<key>)`, which uses the same brief-interrupt-then-resume machinery as `playChime()`.
 
 Single-channel constraint: TTS has only one global `MusicPlayer`. One-shots
-(chime, boss roar) interrupt the ambient track for their duration; the next
-ambient track is rescheduled fresh after.
+(chime, character SFX, boss roar) interrupt the ambient track for their
+duration; the next ambient track is rescheduled fresh after.
 
 ### Pipeline
 
@@ -285,6 +315,59 @@ ambient track is rescheduled fresh after.
 5. **Hand-add new bosses:** drop sound files in `sounds/creatures/<name>/` and
    extend `Audio.threatNameToBossKey()` if the threat-card name doesn't
    contain `<name>` as a substring.
+
+## Always-obvious next step
+
+The design's stated UX goal (§18.10) is "playable on first sit-down without
+reading the rulebook." The implementation layers six signals so the active
+player never has to ask "what now?":
+
+### 1. Phase Banner — text + pulse
+- `lua/ui_banner.lua` `recommendNext()` writes a one-line "next thing to do" string into the banner every state change.
+- `highlightCTA(ids)` pulses an outline around the actual XML control to click. Mapping (`getNextCTA()`):
+  - PreGame → `btnSetup`
+  - Day, has actions → `actionBar` panel
+  - Day, no actions → `actPass`
+  - Tick → `btnBeginDay`
+  - Night → `btnResolveNight`
+  - GameOver → `btnRestart`
+
+### 1b. Always-visible character roster + live standee tooltips
+- `xml/global_ui.xml` `charRoster` panel (MiddleRight) shows every character's current Health / Hunger / Sanity as compact bars + numeric values. Each name uses that character's standee color (white / red / green / light blue / orange).
+- `lua/ui_banner.lua` `refreshCharRoster()` (called from `refreshPhaseBanner`) updates the bars, dims rows for Down characters, and hides rows for characters not in the current game.
+- `lua/ui_banner.lua` `refreshStandeeTooltips()` rewrites each character standee's `Description` on every state change so hovering a standee shows live `Health/Hunger/Sanity • At <Location>` (or the revival hint if Down).
+- `scripts/build_save.py` `STANDEE_COLORS` tints each character's `Figurine_Custom` `ColorDiffuse` so the card holders match the roster naming (James white, Coco red, Rayman green, Ellie light blue, Luca orange).
+
+### 2. What-now hints — auto-loaded from markdown
+- `content/help/whatnow_hints.md` is the **source of truth**. `scripts/generate_whatnow_hints.py` parses it into `lua/whatnow_hints.lua` (the `WHATNOW_HINTS` table).
+- Group keys: `PreGame`, `Dawn`, `Day`, `Dusk`, `Night`, `Tick`, `PostGame`, `Stats`, `James`, `Coco`, `Rayman`, `Ellie`, `Luca`, `Location`, `Strategic`.
+- Dispatch in `lua/ui_help.lua` `onWhatNowClick()` composes a multi-line hint by stacking: phase-base + char-specific + stat warnings + strategic + location.
+- Adding a hint: edit the markdown, run `python scripts/generate_whatnow_hints.py`, rebuild.
+
+### 3. Action target highlights
+- When the active player clicks an action button, `lua/ui_actionbar.lua` highlights world objects via `obj.highlightOn(color, 8)` for 8 seconds:
+  - **Move** → adjacent location tiles glow Green (uses `LOCATION_ADJACENCY` table; Rayman gets 2-step neighbours via Speed perk).
+  - **Craft** → Market deck + slots glow Yellow; **affordable** cards glow **Green** (see §4 below).
+  - **Cook** → Recipe cards + EllieLucaHouse tile glow Orange.
+  - **Cleanse** → required resource bags (Wood, Cloth, Battery, Energy Drink) glow White.
+- Targets re-highlight on each click; no manual cleanup needed.
+
+### 4. Market affordability
+- `lua/market_data.lua` (auto-loaded) defines `MARKET_COSTS[<id>] = {Wood=2, Metal=1, ...}` for every Market card.
+- `getPlayerResources(color)` in `lua/ui_actionbar.lua` counts `Resource:*` tagged tokens within a padded bounding box around that player's `PlayerBoard:<charName>` object.
+- `canAfford(color, cardId)` compares. Affordable Market cards get a Green highlight when Craft is selected, plus a `printToColor` summary of the player's bag contents.
+
+### 5. Auto-broadcast urgent hints
+- `gameState.dailyAlerts[color]` flags so each urgent broadcast fires only once per character per day; cleared in `BeginDay()`.
+- Triggers:
+  - Character goes Down → `tick_victory.lua` `checkDownState` broadcasts the Telltale-Heart cook recipe.
+  - James end-of-Day with no Energy Drink consumed → `day_loop.lua` `beginDusk` reminds him before Tick.
+  - Dusk per-player warnings (alone at sport court, Coco alone non-house, public Charlie reminder) — also in `beginDusk`.
+
+### 6. Idle nudge
+- `day_loop.lua` runs an idle watcher during the `Day` sub-phase: every 10s it checks `os.time() - gameState.lastInteractionAt`.
+- After 45s of inactivity, the active player is `printToColor`'d a "click What now?" prompt — once per turn (`gameState.idleNudgedThisTurn`).
+- `noteInteraction()` is called from `validateActivePlayer()` so any action click resets the timer.
 
 ## Working With This Project
 
@@ -306,11 +389,28 @@ python scripts/generate_assets.py
 ### To queue illustration generation (requires ComfyUI running):
 ```bash
 python scripts/generate_comfyui_assets.py
-# Optional: filter by prefix
-python scripts/generate_comfyui_assets.py snm_boss
+# Useful flags:
+python scripts/generate_comfyui_assets.py --cards-only --skip-existing
+python scripts/generate_comfyui_assets.py --deck phase1
+python scripts/generate_comfyui_assets.py --only P1_QUIET_EVENING
+python scripts/generate_comfyui_assets.py snm_boss   # backward-compatible substring filter
+```
+
+### To copy ComfyUI outputs into the repo art/ tree:
+```bash
+python scripts/sync_comfyui_output.py            # idempotent
+python scripts/sync_comfyui_output.py --dry-run  # preview
+```
+
+### To regenerate the auto-loaded Lua data tables:
+```bash
+python scripts/generate_audio_manifest.py    # sounds/  → lua/audio_manifest.lua
+python scripts/generate_whatnow_hints.py     # whatnow_hints.md → lua/whatnow_hints.lua
+python scripts/generate_market_data.py       # cards_market.csv → lua/market_data.lua
 ```
 
 ### To test in TTS:
-1. Build the save with `build_save.py`
-2. Copy the output JSON to TTS saves folder
-3. Load in TTS, click "Setup Game"
+1. Run `python scripts/build_save.py`.
+2. Start `scripts/serve_art.bat` so `http://localhost:8080/art/...` and `/sounds/...` resolve.
+3. Copy `saves/StarveNoMore.json` to your TTS saves folder.
+4. Load the save in TTS, click **Setup Game**.

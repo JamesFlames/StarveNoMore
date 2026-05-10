@@ -4,3 +4,14 @@
 # OS
 Thumbs.db
 .DS_Store
+
+# Local sound assets (~955MB — too large for git; keep on disk only)
+# Auto-discovered by scripts/generate_audio_manifest.py at build time
+sounds/
+
+# Python build cache
+__pycache__/
+*.pyc
+
+# Single-card preview extracts produced by ad-hoc cropping
+art/decks/_test_*.png

@@ -6,19 +6,17 @@
 
 ## Document Purpose
 
-This is the design brief for **Starve No More**, a board game commissioned via [StarveNoMoreRequirements.md](StarveNoMoreRequirements.md). It is intended as the single source of truth used to:
+This is the design brief for **Starve No More**. It is intended as the single source of truth used to:
 
 1. Communicate the game's vision, theme, and rules.
 2. Drive prototype playtesting.
 3. Hand off to the Tabletop Simulator implementation phase as a buildable spec.
 
 The document references and is consistent with:
-- [PrinciplesOfGoodBoardGames.md](docs/PrinciplesOfGoodBoardGames.md) — general design theory.
-- [DontStarveVideoGamePrinciples.md](docs/DontStarveVideoGamePrinciples.md) — DST-derived design pillars.
-- [InterestingGames.md](docs/InterestingGames.md) — mechanical patterns from HPHB, Catan, Cthulhu Wars.
-- [HowToCreateGamesInTabletopSimulator.md](docs/HowToCreateGamesInTabletopSimulator.md) — implementation reference.
-
-A companion document, [Checklist_For_TTS_Implementation.md](Checklist_For_TTS_Implementation.md), enumerates the concrete build tasks for the Tabletop Simulator implementation phase.
+- [Archive/PrinciplesOfGoodBoardGames.md](Archive/PrinciplesOfGoodBoardGames.md) — general design theory.
+- [Archive/DontStarveVideoGamePrinciples.md](Archive/DontStarveVideoGamePrinciples.md) — DST-derived design pillars.
+- [Archive/InterestingGames.md](Archive/InterestingGames.md) — mechanical patterns from HPHB, Catan, Cthulhu Wars.
+- [Archive/HowToCreateGamesInTabletopSimulator.md](Archive/HowToCreateGamesInTabletopSimulator.md) — implementation reference (frozen).
 
 ---
 
@@ -75,7 +73,7 @@ What makes Starve No More distinct from a generic co-op survival game:
 
 ### 1.4 The target aesthetic (what players should feel)
 
-Working backwards through the MDA framework ([PrinciplesOfGoodBoardGames.md §1](docs/PrinciplesOfGoodBoardGames.md)) — mechanics produce dynamics produce *aesthetics*. The aesthetics this game targets, ranked by priority:
+Working backwards through the MDA framework ([PrinciplesOfGoodBoardGames.md §1](Archive/PrinciplesOfGoodBoardGames.md)) — mechanics produce dynamics produce *aesthetics*. The aesthetics this game targets, ranked by priority:
 
 1. **Cozy dread.** The single emotion the game is built around. The kitchen with friends, the thing in the basement. If a rule makes the table feel like neither cozy nor dreadful, it's wrong.
 2. **Clever desperation.** Players survive by being smart, not by being lucky. Wins should feel earned, even close ones. Losses should feel like a chain of small visible mistakes — never unfair.
@@ -88,7 +86,7 @@ If a candidate rule does not clearly serve at least one of (1)–(4), it does no
 
 ## 2. Design Pillars
 
-The five non-negotiable principles that all rules decisions must serve. Drawn from the Don't Starve translation work in [DontStarveVideoGamePrinciples.md](docs/DontStarveVideoGamePrinciples.md) and the design theory in [PrinciplesOfGoodBoardGames.md](docs/PrinciplesOfGoodBoardGames.md).
+The five non-negotiable principles that all rules decisions must serve. Drawn from the Don't Starve translation work in [DontStarveVideoGamePrinciples.md](Archive/DontStarveVideoGamePrinciples.md) and the design theory in [PrinciplesOfGoodBoardGames.md](Archive/PrinciplesOfGoodBoardGames.md).
 
 1. **Tone over polish.** A coherent gothic-cartoon visual identity matters more than asset volume. Hand-drawn ink art across every component, even if it means fewer components.
 2. **Decisions paid in mismatched currencies.** Every meaningful action costs the player in a stat *adjacent* to the one they want to fill. No free lunches; no pure builders.
@@ -132,7 +130,7 @@ The loop is **unrelenting**: even a perfectly executed day still costs the playe
 
 ## 5. Components List
 
-Every component is sized, type-marked, and TTS-mappable. The "TTS Object" column references object types from [HowToCreateGamesInTabletopSimulator.md §5](docs/HowToCreateGamesInTabletopSimulator.md).
+Every component is sized, type-marked, and TTS-mappable. The "TTS Object" column references object types from [HowToCreateGamesInTabletopSimulator.md §5](Archive/HowToCreateGamesInTabletopSimulator.md).
 
 | # | Component | Quantity | TTS Object | Notes |
 |---|---|---|---|---|
@@ -160,7 +158,7 @@ Every component is sized, type-marked, and TTS-mappable. The "TTS Object" column
 
 ## 6. Characters
 
-Each character is a **mechanical hook + a constraint + a starting hand of 5 cards**. Asymmetry follows the Cthulhu Wars principle (different rules, not just different stats; see [InterestingGames.md §3.3.1](docs/InterestingGames.md)).
+Each character is a **mechanical hook + a constraint + a starting hand of 5 cards**. Asymmetry follows the Cthulhu Wars principle (different rules, not just different stats; see [InterestingGames.md §3.3.1](Archive/InterestingGames.md)).
 
 ### 6.1 James — The Gamer
 
@@ -289,7 +287,7 @@ Ellie & Luca's House is the central node (their kitchen feeds the team). The two
 
 ### 7.6 Map Variability
 
-For replayability without scripting more rules, the path graph is **modular**: at game setup, players may shuffle the path-edge cards (3 standard configurations: "Compact," "Sprawl," "Linear") to slightly vary the movement geometry. This is the lightweight Catan-variability lever from [InterestingGames.md §2.3.1](docs/InterestingGames.md).
+For replayability without scripting more rules, the path graph is **modular**: at game setup, players may shuffle the path-edge cards (3 standard configurations: "Compact," "Sprawl," "Linear") to slightly vary the movement geometry. This is the lightweight Catan-variability lever from [InterestingGames.md §2.3.1](Archive/InterestingGames.md).
 
 ---
 
@@ -312,7 +310,7 @@ A **Gather** action costs 1 of the player's 3 daily actions and yields **1 rando
 
 ### 8.2 Trading
 
-Players in the same location may trade resources, cards, or both **freely on either's turn**, with no action cost. This is the Catan negotiation layer ([InterestingGames.md §2.3.8](docs/InterestingGames.md)) — open, social, deal-driven. The constraint that they must be in the same location is the design lever that makes location-choice a social decision, not just a logistical one.
+Players in the same location may trade resources, cards, or both **freely on either's turn**, with no action cost. This is the Catan negotiation layer ([InterestingGames.md §2.3.8](Archive/InterestingGames.md)) — open, social, deal-driven. The constraint that they must be in the same location is the design lever that makes location-choice a social decision, not just a logistical one.
 
 ### 8.3 Hand Limit
 
@@ -374,7 +372,7 @@ Item categories:
 - **Foods** (Cooked Stew, Energy Bar, Hot Cocoa) — restore Hunger
 - **Special** (Telltale Heart for revival, Circle of Salt for boss combat)
 
-Each item has a craft cost (resources), a use effect, and notes whether it's single-use or persistent. The market refresh creates the same "store rotation" energy as a deckbuilder's market row ([InterestingGames.md §1.3](docs/InterestingGames.md)).
+Each item has a craft cost (resources), a use effect, and notes whether it's single-use or persistent. The market refresh creates the same "store rotation" energy as a deckbuilder's market row ([InterestingGames.md §1.3](Archive/InterestingGames.md)).
 
 ### 9.3 The Recipe Cards
 
@@ -432,7 +430,7 @@ To make the rules above tangible, here are five fully-written sample cards — o
 └──────────────────────────────────────────────┘
 ```
 
-The five-pip **severity dot** is the Catan-probability-dots pattern ([InterestingGames.md §2.3.2](docs/InterestingGames.md)) ported to event cards: at-a-glance signal of how punishing this Dawn will be, so players can read pressure visually without parsing rules text.
+The five-pip **severity dot** is the Catan-probability-dots pattern ([InterestingGames.md §2.3.2](Archive/InterestingGames.md)) ported to event cards: at-a-glance signal of how punishing this Dawn will be, so players can read pressure visually without parsing rules text.
 
 #### Sample Item card (Market deck)
 
@@ -594,7 +592,7 @@ For each location with players in it (in order from least populated to most):
 
 1. **Threat draw.** Draw a number of Threat cards equal to the location's threat rate (0 for safe house tiles, 1 for sport courts, +1 if anyone "called attention" with a noisy action).
 2. **Resolve threats.** Combat rolls happen as needed. Players may use items.
-3. **Charlie check.** Any player whose location has no light source (no Flashlight, no Fire, no Battery-powered item) suffers a "Charlie attack" — 1 d8 Sanity damage and 1 d6 Health damage. (DST night-darkness translation; see [DontStarveVideoGamePrinciples.md §4](docs/DontStarveVideoGamePrinciples.md).)
+3. **Charlie check.** Any player whose location has no light source (no Flashlight, no Fire, no Battery-powered item) suffers a "Charlie attack" — 1 d8 Sanity damage and 1 d6 Health damage. (DST night-darkness translation; see [DontStarveVideoGamePrinciples.md §4](Archive/DontStarveVideoGamePrinciples.md).)
 4. **Storytelling at the campfire.** Players together at a house location may use Comfort/Music/Photo items for collective Sanity gain.
 5. **Sleep.** Each character regenerates per the table below. Coco's, Luca's, and Ellie's location perks resolve in addition.
 
@@ -649,7 +647,7 @@ This is the rhythm of the game: a round is rarely catastrophic and rarely free. 
 
 ## 12. Combat
 
-Combat is **fast and dice-based** ([InterestingGames.md §3.3.6](docs/InterestingGames.md)). It has to be — combat happens often.
+Combat is **fast and dice-based** ([InterestingGames.md §3.3.6](Archive/InterestingGames.md)). It has to be — combat happens often.
 
 ### 12.1 The roll
 
@@ -701,7 +699,7 @@ Telltale Hearts are not Market items and are not part of any starting hand. They
 Recipe — **Telltale Heart**:
 - Cook at: Crockpot.
 - Ingredients: 1 Cloth + 1 Battery + 1 Food.
-- Cost: the cook pays 2 Health from their own track (the heart is *literally* part of them — the DST sacrifice mechanic, [DontStarveVideoGamePrinciples.md §7](docs/DontStarveVideoGamePrinciples.md)).
+- Cost: the cook pays 2 Health from their own track (the heart is *literally* part of them — the DST sacrifice mechanic, [DontStarveVideoGamePrinciples.md §7](Archive/DontStarveVideoGamePrinciples.md)).
 - Yield: 1 Telltale Heart token, placed at the cook's location.
 
 Telltale Hearts are the only way to revive a Down character (see §16.4). Carrying them is a strategic choice: they fill a tight inventory slot but they are the team's life insurance.
@@ -710,7 +708,7 @@ Telltale Hearts are the only way to revive a Down character (see §16.4). Carryi
 
 ## 14. The Week Arc and Pacing
 
-Seven in-game days, divided into four narrative phases. This is the DST season structure ported to a tighter session length ([DontStarveVideoGamePrinciples.md §3](docs/DontStarveVideoGamePrinciples.md)), explicitly mapped to the **Jo-Ha-Kyu** dramatic arc ([PrinciplesOfGoodBoardGames.md §7](docs/PrinciplesOfGoodBoardGames.md)).
+Seven in-game days, divided into four narrative phases. This is the DST season structure ported to a tighter session length ([DontStarveVideoGamePrinciples.md §3](Archive/DontStarveVideoGamePrinciples.md)), explicitly mapped to the **Jo-Ha-Kyu** dramatic arc ([PrinciplesOfGoodBoardGames.md §7](Archive/PrinciplesOfGoodBoardGames.md)).
 
 | Phase | Days | Jo-Ha-Kyu beat | Tone | Doom/Day | Phase Boss |
 |---|---|---|---|---|---|
@@ -719,7 +717,7 @@ Seven in-game days, divided into four narrative phases. This is the DST season s
 | 3 — Long Nights | 5 | **Ha → Kyu** (pivot) | Boss night. Major disruption. | +2 | The Eye of Terror (heavy boss) |
 | 4 — Final Hours | 6–7 | **Kyu** (rapid climax) | Survival sprint. Doom races. | +3 | The Source (final boss; Day 7 ending if not stopped) |
 
-The pacing math is deliberate: roughly half the campaign is *Jo*-style exploration where players learn and plan, but the second half compresses sharply. This produces the felt arc players describe as "having a story," not just "having a session." Mid-game compression is the cure for the runaway-leader and dead-turn problems ([PrinciplesOfGoodBoardGames.md §10](docs/PrinciplesOfGoodBoardGames.md)) — late-game decisions matter more than early ones, so a perfect early game cannot win the game alone.
+The pacing math is deliberate: roughly half the campaign is *Jo*-style exploration where players learn and plan, but the second half compresses sharply. This produces the felt arc players describe as "having a story," not just "having a session." Mid-game compression is the cure for the runaway-leader and dead-turn problems ([PrinciplesOfGoodBoardGames.md §10](Archive/PrinciplesOfGoodBoardGames.md)) — late-game decisions matter more than early ones, so a perfect early game cannot win the game alone.
 
 ### 14.1 Phase boss arrivals
 
@@ -735,7 +733,7 @@ Bosses are placed on a specific location determined by the Dawn card. The team m
 
 ## 15. The Doom Track and Scheduled Threats
 
-The Doom track is the main visible loss timer, lifted directly from Cthulhu Wars ([InterestingGames.md §3.3.5](docs/InterestingGames.md)) but inverted (it ticks against the players, like HPHB's location track).
+The Doom track is the main visible loss timer, lifted directly from Cthulhu Wars ([InterestingGames.md §3.3.5](Archive/InterestingGames.md)) but inverted (it ticks against the players, like HPHB's location track).
 
 ### 15.1 The track
 
@@ -764,11 +762,11 @@ Players can spend an action and a specific resource bundle (typically: 1 of each
 
 ### 15.4 Charlie attacks
 
-Echoing DST's Charlie ([DontStarveVideoGamePrinciples.md §4](docs/DontStarveVideoGamePrinciples.md)): any character at night without a light source suffers a Charlie attack. Coco is immune. Some boss-phase rules disable certain light sources.
+Echoing DST's Charlie ([DontStarveVideoGamePrinciples.md §4](Archive/DontStarveVideoGamePrinciples.md)): any character at night without a light source suffers a Charlie attack. Coco is immune. Some boss-phase rules disable certain light sources.
 
 ### 15.5 Severity scaffolding (the dot system)
 
-Borrowed from Catan's probability dots ([InterestingGames.md §2.3.2](docs/InterestingGames.md)): Dawn cards and Threat cards print a **severity rating** as 1–5 dots in the top corner. The dots are not used in any rule — they are pure information design.
+Borrowed from Catan's probability dots ([InterestingGames.md §2.3.2](Archive/InterestingGames.md)): Dawn cards and Threat cards print a **severity rating** as 1–5 dots in the top corner. The dots are not used in any rule — they are pure information design.
 
 - ●○○○○ — atmospheric flavor only.
 - ●●○○○ — minor stat hit (1 of one stat).
@@ -788,7 +786,7 @@ The +1 / +1 / +2 / +3 doom-per-day rate is balanced for the 4-player baseline. P
 | 4 (default) | +1 | +1 | +2 | +3 |
 | 5 | +1 | +2 | +2 | +3 |
 
-Rationale: 3-player teams have less action economy, so doom advances slower; 5-player teams move more total resources per round, so doom keeps pace. This is a **negative feedback knob** ([PrinciplesOfGoodBoardGames.md §9](docs/PrinciplesOfGoodBoardGames.md)) on group capability — it equalizes pressure across player counts without rewriting any other rules.
+Rationale: 3-player teams have less action economy, so doom advances slower; 5-player teams move more total resources per round, so doom keeps pace. This is a **negative feedback knob** ([PrinciplesOfGoodBoardGames.md §9](Archive/PrinciplesOfGoodBoardGames.md)) on group capability — it equalizes pressure across player counts without rewriting any other rules.
 
 ---
 
@@ -829,7 +827,7 @@ To **revive** a Down character:
 - Spend a **Telltale Heart** token (cooked per the §13.4 recipe).
 - The revived character returns at half their starting maximums (e.g., James returns at 4 Health, 3 Hunger, 5 Sanity).
 
-This is the DST soft permadeath ([DontStarveVideoGamePrinciples.md §7](docs/DontStarveVideoGamePrinciples.md)) — death is meaningful but not eliminating.
+This is the DST soft permadeath ([DontStarveVideoGamePrinciples.md §7](Archive/DontStarveVideoGamePrinciples.md)) — death is meaningful but not eliminating.
 
 ---
 
@@ -859,7 +857,7 @@ This is the DST soft permadeath ([DontStarveVideoGamePrinciples.md §7](docs/Don
 
 ## 18. Tabletop Simulator Implementation
 
-Sanity-checked against [HowToCreateGamesInTabletopSimulator.md](docs/HowToCreateGamesInTabletopSimulator.md). Every component below maps to a documented TTS object type.
+Sanity-checked against [HowToCreateGamesInTabletopSimulator.md](Archive/HowToCreateGamesInTabletopSimulator.md). Every component below maps to a documented TTS object type.
 
 ### 18.1 Component-to-TTS mapping
 
@@ -909,7 +907,7 @@ The game does **not** require Lua to be playable — players can run rules manua
 
 ### 18.4 Performance considerations
 
-Per [HowToCreateGamesInTabletopSimulator.md §11](docs/HowToCreateGamesInTabletopSimulator.md):
+Per [HowToCreateGamesInTabletopSimulator.md §11](Archive/HowToCreateGamesInTabletopSimulator.md):
 
 - Total active object count target: <500 (well under the 1500 ceiling). Resource tokens are the biggest concern; using `Infinite_Bag` per resource keeps the active token count low.
 - Card atlases: Each deck (~50 cards max) fits one 10×7 atlas at 408×585 per cell.
@@ -918,11 +916,11 @@ Per [HowToCreateGamesInTabletopSimulator.md §11](docs/HowToCreateGamesInTableto
 
 ### 18.5 Asset hosting
 
-All custom assets (card faces, board image, location tiles, standee art) must be hosted on a stable HTTPS source. Recommended: Steam Workshop upload (cached automatically) or a dedicated CDN. Local file URLs (`file:///`) are acceptable during prototyping but must be replaced before publication. ([HowToCreateGamesInTabletopSimulator.md §3](docs/HowToCreateGamesInTabletopSimulator.md).)
+All custom assets (card faces, board image, location tiles, standee art) must be hosted on a stable HTTPS source. Recommended: Steam Workshop upload (cached automatically) or a dedicated CDN. Local file URLs (`file:///`) are acceptable during prototyping but must be replaced before publication. ([HowToCreateGamesInTabletopSimulator.md §3](Archive/HowToCreateGamesInTabletopSimulator.md).)
 
 ### 18.6 Tagging convention
 
-Per [HowToCreateGamesInTabletopSimulator.md §16.4](docs/HowToCreateGamesInTabletopSimulator.md), prefer tags over GUIDs:
+Per [HowToCreateGamesInTabletopSimulator.md §16.4](Archive/HowToCreateGamesInTabletopSimulator.md), prefer tags over GUIDs:
 
 - Tag every card with its deck (`PhaseCard`, `MarketCard`, `ThreatCard`, `RecipeCard`, `VisitorCard`, `TrophyCard`).
 - Tag every standee with `Character` or `Boss`.
@@ -951,7 +949,7 @@ When a player first loads the mod, the host should see:
 
 ### 18.9 Information hierarchy (what's hidden, what's public)
 
-Per [HowToCreateGamesInTabletopSimulator.md §2](docs/HowToCreateGamesInTabletopSimulator.md), step 3, the **information model** is the design decision most expensive to fix late. For Starve No More:
+Per [HowToCreateGamesInTabletopSimulator.md §2](Archive/HowToCreateGamesInTabletopSimulator.md), step 3, the **information model** is the design decision most expensive to fix late. For Starve No More:
 
 | Element | Visibility | TTS realization |
 |---|---|---|
@@ -1202,27 +1200,27 @@ The system is not stopping bad plays — it is ensuring the player meant it.
 
 This is not a list of polish items to ship in a v2 patch. **Every item in §18.10–18.18 is part of the v1 design**, because the design's stated player-experience goal is *playable on the table without a rulebook* (§1.4). A TTS implementation that omits these is not an implementation of *this* game — it is a different, harder-to-onboard game wearing the same components.
 
-The full build plan, including which UX tasks are critical-path vs. polish, is in [Checklist_For_TTS_Implementation.md](Checklist_For_TTS_Implementation.md).
+The original build plan that walked the implementation through Phases A–K is preserved in `Archive/Checklist_For_TTS_Implementation.md`; current build status lives in `agents.md` and `README.md`.
 
 ---
 
 ## 19. Design Rationale Cross-Reference
 
-For traceability, every major design decision is tagged with its inspiration source. A second subsection (§19.5) self-audits against the Designer's Checklist from [PrinciplesOfGoodBoardGames.md](docs/PrinciplesOfGoodBoardGames.md).
+For traceability, every major design decision is tagged with its inspiration source. A second subsection (§19.5) self-audits against the Designer's Checklist from [PrinciplesOfGoodBoardGames.md](Archive/PrinciplesOfGoodBoardGames.md).
 
 | Decision | Source | Rationale |
 |---|---|---|
-| Three-stat trade-off economy | DST §2 ([DontStarveVideoGamePrinciples.md](docs/DontStarveVideoGamePrinciples.md)) | The heart of DST's decision-making. Mismatched currencies force interesting choices. |
+| Three-stat trade-off economy | DST §2 ([DontStarveVideoGamePrinciples.md](Archive/DontStarveVideoGamePrinciples.md)) | The heart of DST's decision-making. Mismatched currencies force interesting choices. |
 | Day/night cycle with forced retreat | DST §4 | Built-in pacing rhythm; creates the campfire moment. |
 | Phase-based week arc with bosses | DST §3, §10 | Game arc; rising tension; climactic punctuation. |
 | Soft permadeath via ghost state | DST §7 | Death is meaningful but doesn't eliminate the player. |
-| Asymmetric characters with hooks + constraints | DST §6, Cthulhu Wars §3.3.1 ([InterestingGames.md](docs/InterestingGames.md)) | Each character plays a different game; cooperation requires complementary roles. |
+| Asymmetric characters with hooks + constraints | DST §6, Cthulhu Wars §3.3.1 ([InterestingGames.md](Archive/InterestingGames.md)) | Each character plays a different game; cooperation requires complementary roles. |
 | 5 unique location tiles with special actions | DST §1, Catan §2.3.1 | Suburban map as DST world; tiles as Catan-style modular geography. |
 | Doom track | Cthulhu Wars §3.3.5 + HPHB §1.3.5 | Visible loss timer; the game's main dramatic arc. |
 | Market deck of craftable items | HPHB §1.3, Cthulhu Wars (spellbook unlocks) | Engine-building progression; encourages varied strategies. |
 | Crockpot recipes | DST §2 + Catan trading | Cooking is a social magnet; encourages co-location. |
 | Open negotiation / trading | Catan §2.3.8 | The replayability engine: other humans are infinite content. |
-| Multiple paths to victory (Pristine, Truth, Hero) | Catan §2.3.9 + general design theory ([PrinciplesOfGoodBoardGames.md §11](docs/PrinciplesOfGoodBoardGames.md)) | Replayability through varied goals. |
+| Multiple paths to victory (Pristine, Truth, Hero) | Catan §2.3.9 + general design theory ([PrinciplesOfGoodBoardGames.md §11](Archive/PrinciplesOfGoodBoardGames.md)) | Replayability through varied goals. |
 | Dawn card "world acts first" | HPHB §1.3.3 | No turn is safe; pressure is constant. |
 | One-action-then-pass rotation (in Day phase) | Cthulhu Wars §3.2 | Fast pacing; reduces alpha-player problem. |
 | Visible component scale (boss standees larger) | Cthulhu Wars §3.4 | Information design through physical hierarchy. |
@@ -1231,7 +1229,7 @@ For traceability, every major design decision is tagged with its inspiration sou
 
 ### 19.5 Anti-alpha-player design
 
-In a co-op game with public boards, the most common failure mode is the **alpha player problem**: one experienced player optimizes every decision for the table while everyone else watches. Starve No More fights this on five fronts ([DontStarveVideoGamePrinciples.md §9](docs/DontStarveVideoGamePrinciples.md), [PrinciplesOfGoodBoardGames.md §8](docs/PrinciplesOfGoodBoardGames.md)):
+In a co-op game with public boards, the most common failure mode is the **alpha player problem**: one experienced player optimizes every decision for the table while everyone else watches. Starve No More fights this on five fronts ([DontStarveVideoGamePrinciples.md §9](Archive/DontStarveVideoGamePrinciples.md), [PrinciplesOfGoodBoardGames.md §8](Archive/PrinciplesOfGoodBoardGames.md)):
 
 1. **Private item hands.** Every character's Item cards are face-down in their hand zone. Other players can suggest plays but cannot read the actual options. The owner has a private creative space.
 2. **Asymmetric perks and constraints.** A James player and an Ellie player are good at *different* things. The optimal play for one is rarely the optimal play for another, so a single brain cannot drive everyone correctly.
@@ -1243,7 +1241,7 @@ The design does *not* hide the global game state. Resources, the Doom track, and
 
 ### 19.6 Designer's Checklist self-audit
 
-[PrinciplesOfGoodBoardGames.md](docs/PrinciplesOfGoodBoardGames.md) closes with a 10-item Designer's Checklist. Running this design against it:
+[PrinciplesOfGoodBoardGames.md](Archive/PrinciplesOfGoodBoardGames.md) closes with a 10-item Designer's Checklist. Running this design against it:
 
 | # | Check | Status |
 |---|---|---|
@@ -1284,13 +1282,13 @@ Two ❌ marks are acceptable at v1 (this document is the brief, not a finished g
 
 - **More characters.** A Year 2 box adds 5 new survivors (e.g., a Musician, a Mechanic, a Dog).
 - **More locations.** Extend the map to 8 locations: Library, Convenience Store, the Park.
-- **The Source's Backstory** (campaign mode). A 5-game arc where decisions persist between sessions: which characters survived, which clues were found, what the Source actually was. (Borrowing HPHB's box-progression idea, [InterestingGames.md §1.3.6](docs/InterestingGames.md).)
+- **The Source's Backstory** (campaign mode). A 5-game arc where decisions persist between sessions: which characters survived, which clues were found, what the Source actually was. (Borrowing HPHB's box-progression idea, [InterestingGames.md §1.3.6](Archive/InterestingGames.md).)
 - **Co-op vs. Traitor variant.** One player secretly serves the Source. Raises the game's social-deduction layer.
 - **Solo mode.** Single player controls 2–3 characters as a personal cast.
 
 ### 20.4 What's deliberately not in the design
 
-In line with [PrinciplesOfGoodBoardGames.md §3](docs/PrinciplesOfGoodBoardGames.md) (cut, fuse, generalize):
+In line with [PrinciplesOfGoodBoardGames.md §3](Archive/PrinciplesOfGoodBoardGames.md) (cut, fuse, generalize):
 
 - **No tech tree beyond the Market.** A second tech progression would bloat the rules; the Market deck handles "tier" via card costs.
 - **No weather system.** Already implemented via Dawn cards; a separate die or chart would duplicate.
@@ -1313,15 +1311,14 @@ Next steps:
 2. Run two solo playtests to debug the core loop.
 3. Run a 3-player teach-and-play.
 4. Refine, then begin asset production for the TTS implementation.
-5. Once art and components are stable, build the TTS save per [HowToCreateGamesInTabletopSimulator.md §9](docs/HowToCreateGamesInTabletopSimulator.md).
+5. Once art and components are stable, build the TTS save per [HowToCreateGamesInTabletopSimulator.md §9](Archive/HowToCreateGamesInTabletopSimulator.md).
 
 The game succeeds when: a group of three friends plays through a seven-day campaign, loses on Day 6 to the Eye of Terror, immediately resets, and starts over with different characters. That is the test. Everything in this document is in service of that outcome.
 
 ---
 
-*Reference documents:*
-- [PrinciplesOfGoodBoardGames.md](docs/PrinciplesOfGoodBoardGames.md) — design theory.
-- [DontStarveVideoGamePrinciples.md](docs/DontStarveVideoGamePrinciples.md) — DST translation.
-- [InterestingGames.md](docs/InterestingGames.md) — patterns from HPHB, Catan, Cthulhu Wars.
-- [HowToCreateGamesInTabletopSimulator.md](docs/HowToCreateGamesInTabletopSimulator.md) — TTS implementation guide.
-- [StarveNoMoreRequirements.md](StarveNoMoreRequirements.md) — original commission.
+*Reference documents (archived; preserved for traceability):*
+- [Archive/PrinciplesOfGoodBoardGames.md](Archive/PrinciplesOfGoodBoardGames.md) — design theory.
+- [Archive/DontStarveVideoGamePrinciples.md](Archive/DontStarveVideoGamePrinciples.md) — DST translation.
+- [Archive/InterestingGames.md](Archive/InterestingGames.md) — patterns from HPHB, Catan, Cthulhu Wars.
+- [Archive/HowToCreateGamesInTabletopSimulator.md](Archive/HowToCreateGamesInTabletopSimulator.md) — TTS implementation guide.
