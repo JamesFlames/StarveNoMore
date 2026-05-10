@@ -8,6 +8,7 @@
 function resolveTick()
     gameState.subPhase = "Tick"
     safecall(function() setPhaseMood("Tick") end, "Mood")
+    safecall(function() Audio.playChime() end, "Audio")
     broadcastEvent("phase", "--- TICK (End of Day " .. gameState.day .. ") ---")
 
     for color, char in pairs(gameState.activeChars) do

@@ -259,12 +259,14 @@ DAWN_EFFECTS["P2_DEERCLOPS_ARRIVES"] = {
         gameState.ongoingDawnEffects.deerclopsActive = true
         broadcastEvent("warn", "ONGOING: While Deerclops is on the map, all Sanity costs are doubled.")
         safecall(function() nudgeCameraToBoss("Deerclops", "BasketballCourt") end, "CameraNudge")
+        safecall(function() Audio.playBossLoop("deerclops") end, "Audio")
     end,
     onCleanup = function()
         -- Deerclops stays until defeated; cleanup only removes if defeated flag set
         if gameState.ongoingDawnEffects.deerclopsDefeated then
             gameState.ongoingDawnEffects.deerclopsActive = nil
             gameState.ongoingDawnEffects.deerclopsDefeated = nil
+            safecall(function() Audio.stopBossLoop("deerclops") end, "Audio")
         end
     end,
 }
@@ -415,11 +417,13 @@ DAWN_EFFECTS["P3_EYE_ARRIVES"] = {
         gameState.ongoingDawnEffects.eyeActive = true
         broadcastEvent("warn", "ONGOING: Each Dawn, draw 1 extra Threat at the Eye's location.")
         safecall(function() nudgeCameraToBoss("EyeOfTerror", "EllieLucaHouse") end, "CameraNudge")
+        safecall(function() Audio.playBossLoop("eye_of_terror") end, "Audio")
     end,
     onCleanup = function()
         if gameState.ongoingDawnEffects.eyeDefeated then
             gameState.ongoingDawnEffects.eyeActive = nil
             gameState.ongoingDawnEffects.eyeDefeated = nil
+            safecall(function() Audio.stopBossLoop("eye_of_terror") end, "Audio")
         end
     end,
 }
@@ -565,6 +569,9 @@ DAWN_EFFECTS["P4_SOURCE_ARRIVES"] = {
         gameState.ongoingDawnEffects.sourceActive = true
         broadcastEvent("warn", "ONGOING: The Source is the final boss. Defeat it before Day 7 ends OR survive with Doom < 30.")
         safecall(function() nudgeCameraToBoss("TheSource", "EllieLucaHouse") end, "CameraNudge")
+        -- No audio folder for "the_source" yet — Audio.playBossLoop no-ops
+        -- when CREATURES[name] is missing, so ambient continues normally.
+        safecall(function() Audio.playBossLoop("the_source") end, "Audio")
     end,
 }
 

@@ -130,60 +130,11 @@ ASSETS = [
      "five locations at star points connected by paths through a central crossroads, "
      "streetlights and fences along walkways, board game path overlay, " + STYLE),
 
-    # ---- Character standees — FRONT (512x1024 portrait) ----
-    ("snm_char_james_front", 512, 1024,
-     "full body portrait of a teenage boy gamer, 16 years old, messy dark hair, "
-     "hoodie with headphones around neck, holding a pocketknife and flashlight, "
-     "confident smirk, standing pose facing viewer, transparent background, " + STYLE),
-
-    ("snm_char_coco_front", 512, 1024,
-     "full body portrait of a gentle teenage girl, 15 years old, long light hair, "
-     "wearing a comfort blanket as a shawl, holding a first aid kit, "
-     "serene calm expression, soft inner glow, standing pose facing viewer, "
-     "transparent background, " + STYLE),
-
-    ("snm_char_rayman_front", 512, 1024,
-     "full body portrait of a tall athletic teenage boy, 17 years old, "
-     "basketball jersey, holding a basketball under one arm, sports drink in other hand, "
-     "determined expression, strong build, standing pose facing viewer, "
-     "transparent background, " + STYLE),
-
-    ("snm_char_ellie_front", 512, 1024,
-     "full body portrait of a teenage girl cook, 16 years old, apron over casual clothes, "
-     "holding a cooking knife and soup ladle, hair tied back, "
-     "warm confident smile, standing pose facing viewer, transparent background, " + STYLE),
-
-    ("snm_char_luca_front", 512, 1024,
-     "full body portrait of a teenage boy orator, 15 years old, neat casual clothes, "
-     "holding a notebook and pencil, expressive hand gesture, "
-     "earnest inspiring expression, standing pose facing viewer, "
-     "transparent background, " + STYLE),
-
-    # ---- Character standees — BACK (512x1024) ----
-    ("snm_char_james_back", 512, 1024,
-     "back view of a teenage boy gamer, messy dark hair, hoodie with headphones, "
-     "backpack with gaming stickers, standing pose from behind, "
-     "transparent background, " + STYLE),
-
-    ("snm_char_coco_back", 512, 1024,
-     "back view of a gentle teenage girl, long light flowing hair, "
-     "comfort blanket draped over shoulders, standing pose from behind, "
-     "transparent background, " + STYLE),
-
-    ("snm_char_rayman_back", 512, 1024,
-     "back view of a tall athletic teenage boy in basketball jersey, "
-     "number on back, basketball under arm, standing pose from behind, "
-     "transparent background, " + STYLE),
-
-    ("snm_char_ellie_back", 512, 1024,
-     "back view of a teenage girl in apron, hair tied back, "
-     "cooking utensils in apron pocket, standing pose from behind, "
-     "transparent background, " + STYLE),
-
-    ("snm_char_luca_back", 512, 1024,
-     "back view of a teenage boy, neat casual clothes, "
-     "notebook tucked under arm, standing pose from behind, "
-     "transparent background, " + STYLE),
+    # ---- Character standees ----
+    # Character standee art (snm_char_*) is HAND-DRAWN by the project owner —
+    # do NOT auto-generate or replace these. Existing files in art/characters/
+    # are authoritative. If a regen is ever needed, add the prompts back here
+    # explicitly and commit that change deliberately.
 
     # ---- Boss / creature standees (512x1024) ----
     ("snm_boss_deerclops", 512, 1024,

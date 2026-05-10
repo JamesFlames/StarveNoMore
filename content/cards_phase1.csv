@@ -1,5 +1,5 @@
 id,title,severity,immediate,ongoing,art_notes
-P1_QUIET_EVENING,A Quiet Evening,1,No effect — flavor only.,,Suburban dusk through a window
+P1_QUIET_EVENING,A Quiet Evening,1,,,Suburban dusk through a window
 P1_LIGHTS_FLICKER,The Lights Flicker,1,All players lose 1 Sanity.,,Streetlight flickering on cul-de-sac
 P1_PHONES_DEAD,Phones Have No Signal,2,All players discard any 1 Battery (if held).,,Hand holding phone with x bars
 P1_SOMETHING_WATCHED,You Were Being Watched,2,The player with the lowest Sanity loses 1 more Sanity.,,Eyes peering from a hedge

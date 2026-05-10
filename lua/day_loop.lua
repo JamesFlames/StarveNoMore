@@ -5,6 +5,7 @@ function BeginDay()
     gameState.subPhase = "Dawn"
     gameState.dayLog = {}
     safecall(function() setPhaseMood("Dawn") end, "Mood")
+    safecall(function() Audio.startDayAmbience() end, "Audio")
 
     -- QoL: Snapshot start-of-day stats for end-of-day comparison
     gameState.dayStartStats = {}
@@ -228,6 +229,7 @@ end
 function beginNight()
     gameState.subPhase = "Night"
     safecall(function() setPhaseMood("Night") end, "Mood")
+    safecall(function() Audio.stopAmbience() end, "Audio")
     refreshPhaseBanner()
     broadcastEvent("phase", "NIGHT — Resolving threats and sleep.")
     safecall(function() ResolveNight() end, "Night")

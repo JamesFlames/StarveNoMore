@@ -100,6 +100,11 @@ function resolveCombat(color, threatData)
         char.sanity = math.min(char.maxSanity, char.sanity + 1)
         broadcastEvent("gain", attackerName .. " gains +1 Sanity from victory.")
         checkDownState(color)
+        -- Boss audio: stop the loop if this defeated threat is one of the bosses with sounds.
+        local bossKey = Audio and Audio.threatNameToBossKey and Audio.threatNameToBossKey(threatName)
+        if bossKey then
+            safecall(function() Audio.stopBossLoop(bossKey) end, "Audio")
+        end
         return { defeated = true, remainingHP = 0 }
     end
 
@@ -196,6 +201,10 @@ function resolveGroupCombat(colors, threatData)
             p.char.sanity = math.min(p.char.maxSanity, p.char.sanity + 1)
             broadcastEvent("gain", p.char.name .. " gains +1 Sanity from victory.")
             checkDownState(p.color)
+        end
+        local bossKey = Audio and Audio.threatNameToBossKey and Audio.threatNameToBossKey(threatName)
+        if bossKey then
+            safecall(function() Audio.stopBossLoop(bossKey) end, "Audio")
         end
         return { defeated = true, remainingHP = 0 }
     end

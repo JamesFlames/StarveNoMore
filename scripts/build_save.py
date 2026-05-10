@@ -936,6 +936,8 @@ save = {
 LUA_LOAD_ORDER = [
     "helpers.lua",
     "global.lua",
+    "audio_manifest.lua",   # auto-gen by scripts/generate_audio_manifest.py — defines AUDIO
+    "audio.lua",            # defines Audio.* (depends on AUDIO)
     "setup.lua",
     "day_loop.lua",
     "effects/dawn_effects.lua",

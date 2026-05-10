@@ -142,6 +142,150 @@ Survive all 7 days with Doom < 30 and at least one character not Down. Bonus ach
 - UI panels are shown/hidden via `UI.show(id)` / `UI.hide(id)` targeting XML element IDs
 - The build script is the single source of truth for what gets packaged into the TTS save
 
+## ComfyUI Workflow
+
+All artwork in this project is generated locally via ComfyUI — no paid image-API
+calls. The pipeline is fire-and-forget: queue prompts → wait for ComfyUI to
+finish → sync output into `art/` → run the atlas builder.
+
+### Locked art direction
+
+**Don't Starve Together aesthetic with a modern, urban (North American suburban)
+twist.** Hand-drawn ink-line gothic cartoon (Tim Burton / Edward Gorey / Laika
+lineage), with contemporary suburban props — smartphones, gaming PCs, energy
+drink cans, basketball hoops, badminton nets — rendered *inside* that style,
+not as photoreal interjections. This applies to every asset: cards, location
+tiles, character standees, bosses, path tiles. The canonical `STYLE` prompt
+prefix lives at the top of `scripts/generate_comfyui_assets.py` — keep that
+single source of truth in sync if the direction is ever revised.
+
+### Install
+
+- **Path:** `c:\Users\GGPC\Documents\ComfyUI` (Python venv at `.venv/`)
+- **Server URL** the scripts assume: `http://127.0.0.1:8000`
+- **Models in use:**
+  - Diffusion: `models/diffusion_models/flux1-dev-Q8_0.gguf` (loaded via `UnetLoaderGGUF`)
+  - VAE: `models/vae/ae.safetensors`
+  - CLIP: `models/clip/clip_l.safetensors` + `models/clip/t5xxl_fp16.safetensors`
+  - LoRA: `models/loras/flux/c4r1mj34.safetensors` at strength 0.65 (model + clip)
+- **Sampler:** `euler`, 30 steps, CFG 4.0, scheduler `normal`, denoise 1.0
+
+### File-naming convention
+
+ComfyUI writes `<prefix>_00001_.png` to `ComfyUI/output/`. Categories used by
+the scripts:
+
+| Prefix | Maps to | Sync destination |
+|---|---|---|
+| `snm_loc_<base>`  | Location tile scenes (1024×1024) | `art/tiles/<base>.png` |
+| `snm_path_<base>` | Path-edge variants (1024×1024)   | `art/board/<base>.png` |
+| `snm_char_<base>` | **Hand-drawn — never auto-generate.** | `art/characters/<base>.png` is authoritative; the generator and sync script both skip this prefix. |
+| `snm_boss_<base>` | Boss / creature standees (512×1024) | `art/bosses/<base>.png` |
+| `snm_card_<id>`   | Card illustrations (1024×1024)   | `art/decks/illustrations/<id>.png` |
+
+`<id>` for cards is the `id` column from `content/cards_*.csv`
+(e.g. `P1_QUIET_EVENING`, `M_FLASHLIGHT`).
+
+### End-to-end card-art workflow
+
+1. **Start ComfyUI.** From `c:\Users\GGPC\Documents\ComfyUI`, run the venv's
+   ComfyUI entrypoint and confirm `http://127.0.0.1:8000` is reachable.
+2. **Queue prompts:**
+   ```bash
+   python scripts/generate_comfyui_assets.py
+   ```
+   By default queues every board asset *and* every card. Useful flags:
+   - `--cards-only` — only the ~150 card illustrations
+   - `--no-cards` — only the original 23 board assets
+   - `--deck phase1` (repeatable) — limit cards to one deck
+   - `--only P1_QUIET_EVENING` — single card by id
+   - `--skip-existing` — skip prompts whose `ComfyUI/output/<prefix>_*.png` already exists (ideal for incremental reruns)
+3. **Wait** for ComfyUI to drain its queue (watch its console or `output/` mtime). Roughly 30s/image at 1024×1024 on the current rig.
+4. **Sync output into the repo:**
+   ```bash
+   python scripts/sync_comfyui_output.py
+   ```
+   Idempotent; renames `<prefix>_00001_.png` → `<base>.png` in the right `art/` subdir.
+5. **Build card atlases:**
+   ```bash
+   python scripts/generate_card_atlases.py
+   ```
+   Composites `art/decks/illustrations/<id>.png` into the top region of each card and renders the text panel beneath. Missing illustrations fall back to a flat accent rectangle — partial generations don't break the build.
+6. **Build the TTS save:**
+   ```bash
+   python scripts/build_save.py
+   ```
+
+### Iteration tip
+
+To regenerate a single card with a tweaked prompt:
+
+1. Edit the `art_notes` column for that row in `content/cards_*.csv`.
+2. Delete `c:\Users\GGPC\Documents\ComfyUI\output\snm_card_<id>_00001_.png`.
+3. Run `python scripts/generate_comfyui_assets.py --only <id> --skip-existing`.
+4. Rerun the sync + atlas builder.
+
+## Audio
+
+Game audio is local-asset-driven, no AI generation. Files under `sounds/` are
+served by `scripts/serve_art.bat` (which now serves the repo root, so both
+`art/` and `sounds/` are reachable at `http://localhost:8080/...`) and
+referenced in `lua/audio_manifest.lua` (auto-generated).
+
+### Asset layout
+
+```
+sounds/
+├── ambient/
+│   ├── suburban/   <-- 20 tracks: random pick plays first when each day starts
+│   └── varied/     <-- 39 tracks: chained one-after-another for the rest of the day
+├── creatures/
+│   ├── bearger/    <-- 8 sounds (canonical name; folder was renamed from "beager")
+│   ├── deerclops/  <-- 12 sounds (Phase 2 boss)
+│   ├── eye_of_terror/  <-- 13 sounds (Phase 3 boss)
+│   └── treeguard/  <-- 26 sounds (forward-looking; not yet spawned in code)
+└── sfx/
+    └── tick_chime.wav  <-- synthesized two-note bell (G5+C6) for end-of-day Tick
+```
+
+The Source has no audio folder; `Audio.playBossLoop("the_source")` no-ops
+silently and ambient continues.
+
+### In-game behaviour
+
+- **Day start (Dawn):** `Audio.startDayAmbience()` picks a random suburban
+  track. When it ends, varied tracks play one after another for the rest of
+  the day.
+- **Night start:** `Audio.stopAmbience()` pauses MusicPlayer. No music at night.
+- **Boss arrives:** `Audio.playBossLoop(<key>)` suspends ambient and plays a
+  random sound from `sounds/creatures/<key>/`. After the sound ends + 10s, if
+  the boss is still alive, another random sound from the same folder plays.
+  Loops until `Audio.stopBossLoop(<key>)` is called.
+- **Boss defeated:** combat.lua maps the threat name to a boss key
+  (`Audio.threatNameToBossKey`) and calls `Audio.stopBossLoop(<key>)`, which
+  resumes ambient at whichever phase (suburban-first or varied) it had reached.
+- **Tick (end of day):** `Audio.playChime()` briefly takes over MusicPlayer for
+  the chime, then resumes ambient/boss audio.
+
+Single-channel constraint: TTS has only one global `MusicPlayer`. One-shots
+(chime, boss roar) interrupt the ambient track for their duration; the next
+ambient track is rescheduled fresh after.
+
+### Pipeline
+
+1. **Edit/add sound files** under `sounds/...`.
+2. **Regenerate the manifest:** `python scripts/generate_audio_manifest.py` —
+   walks the tree, computes durations (precise for `.wav`, file-size-estimated
+   for `.mp3`), writes `lua/audio_manifest.lua`.
+3. **Build the save:** `python scripts/build_save.py` — `audio_manifest.lua`
+   and `audio.lua` are concatenated early in `LUA_LOAD_ORDER` so all gameplay
+   files can reference `Audio.*`.
+4. **Run the local server:** `scripts/serve_art.bat` (serves repo root over
+   `:8080`) so TTS can reach the WAV/MP3 files at the URLs in the manifest.
+5. **Hand-add new bosses:** drop sound files in `sounds/creatures/<name>/` and
+   extend `Audio.threatNameToBossKey()` if the threat-card name doesn't
+   contain `<name>` as a substring.
+
 ## Working With This Project
 
 ### To build the TTS save:

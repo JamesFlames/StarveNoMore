@@ -6,7 +6,10 @@
 -- TTS has no require() — this file is concatenated into the global script.
 -- ASSETS is a global table referenced by all other modules.
 
-local _BASE = "http://localhost:8080"
+-- The local dev server (scripts/serve_art.bat) now serves the repo root,
+-- so paths under art/ go via the /art prefix. Sound URLs go through
+-- audio_manifest.lua which uses its own /sounds prefix.
+local _BASE = "http://localhost:8080/art"
 local function _url(path) return _BASE .. "/" .. path end
 
 ASSETS = {

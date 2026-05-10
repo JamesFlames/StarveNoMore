@@ -30,9 +30,12 @@ CATEGORY_DIRS = {
     "snm_card_":  os.path.join(REPO_ROOT, "art", "decks", "illustrations"),
     "snm_loc_":   os.path.join(REPO_ROOT, "art", "tiles"),
     "snm_path_":  os.path.join(REPO_ROOT, "art", "board"),
-    "snm_char_":  os.path.join(REPO_ROOT, "art", "characters"),
     "snm_boss_":  os.path.join(REPO_ROOT, "art", "bosses"),
 }
+
+# Character standees are hand-drawn — never overwrite art/characters/* from
+# ComfyUI output. Files matching this prefix are skipped with a note.
+SKIP_PREFIXES = ("snm_char_",)
 
 # ComfyUI's SaveImage tail: "<prefix>_<5-digit>_.png"
 SUFFIX_RE = re.compile(r"_\d{5}_(?:\.png)$")
@@ -76,10 +79,14 @@ def main():
     copied = 0
     skipped_uptodate = 0
     skipped_unknown = 0
+    skipped_handdrawn = 0
     by_category = {}
 
     for src in sources:
         fname = os.path.basename(src)
+        if any(fname.startswith(p) for p in SKIP_PREFIXES):
+            skipped_handdrawn += 1
+            continue
         dest_dir, dest_name = categorize(fname)
         if dest_dir is None:
             skipped_unknown += 1
@@ -105,6 +112,8 @@ def main():
     print()
     print(f"Copied: {copied}")
     print(f"Skipped (up to date): {skipped_uptodate}")
+    if skipped_handdrawn:
+        print(f"Skipped (hand-drawn — characters): {skipped_handdrawn}")
     if skipped_unknown:
         print(f"Skipped (unknown prefix): {skipped_unknown}")
     if by_category:
