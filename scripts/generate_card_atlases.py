@@ -450,13 +450,13 @@ def main():
             out.append(render_fn(r, *args))
         return out
 
-    # --- Phase decks (4 x 4x3 grid) ---
+    # --- Phase decks (4 x 4x4 grid) ---
     for phase_num in range(1, 5):
         rows = read_csv(f"cards_phase{phase_num}.csv")
         cards = render_with_count(render_phase_card, rows, phase_num)
-        atlas = build_atlas(cards, 4, 3)
+        atlas = build_atlas(cards, 4, 4)
         atlas.save(os.path.join(OUT, f"phase{phase_num}_face.png"))
-        print(f"Phase {phase_num} face: {len(rows)} cards -> 4x3 atlas ({atlas.size[0]}x{atlas.size[1]})")
+        print(f"Phase {phase_num} face: {len(rows)} cards -> 4x4 atlas ({atlas.size[0]}x{atlas.size[1]})")
         render_card_back(f"PHASE {phase_num}", f"phase{phase_num}").save(
             os.path.join(OUT, f"phase{phase_num}_back.png"))
 
@@ -476,12 +476,12 @@ def main():
     print(f"Recipe face: {len(rows)} cards -> 5x4 atlas ({atlas.size[0]}x{atlas.size[1]})")
     render_card_back("RECIPE", "recipe").save(os.path.join(OUT, "recipe_back.png"))
 
-    # --- Threat deck (6x5 grid) ---
+    # --- Threat deck (6x8 grid) ---
     rows = read_csv("cards_threats.csv")
     cards = render_with_count(render_threat_card, rows)
-    atlas = build_atlas(cards, 6, 5)
+    atlas = build_atlas(cards, 6, 8)
     atlas.save(os.path.join(OUT, "threat_face.png"))
-    print(f"Threat face: {len(rows)} cards -> 6x5 atlas ({atlas.size[0]}x{atlas.size[1]})")
+    print(f"Threat face: {len(rows)} cards -> 6x8 atlas ({atlas.size[0]}x{atlas.size[1]})")
     render_card_back("THREAT", "threat").save(os.path.join(OUT, "threat_back.png"))
 
     # --- Visitor deck (3x2 grid) ---

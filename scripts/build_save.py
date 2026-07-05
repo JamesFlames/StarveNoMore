@@ -486,10 +486,10 @@ objects.append(day_counter)
 # ---------------------------------------------------------------------------
 
 phase_decks = [
-    (1, phase1, "Phase 1: Dusk of the Week", 4, 3),
-    (2, phase2, "Phase 2: Strange Days", 4, 3),
-    (3, phase3, "Phase 3: Long Nights", 4, 3),
-    (4, phase4, "Phase 4: Final Hours", 4, 3),
+    (1, phase1, "Phase 1: Dusk of the Week", 4, 4),
+    (2, phase2, "Phase 2: Strange Days", 4, 4),
+    (3, phase3, "Phase 3: Long Nights", 4, 4),
+    (4, phase4, "Phase 4: Final Hours", 4, 4),
 ]
 
 for pi, (deck_num, cards, name, nw, nh) in enumerate(phase_decks):
@@ -568,7 +568,7 @@ threat_deck = make_deck(
     deck_id=30,
     face_url=ph("threat_face"),
     back_url=ph("threat_back"),
-    num_w=6, num_h=5,
+    num_w=6, num_h=8,
     cards_data=threats,
     id_field="id", name_field="name",
     desc_func=threat_desc,

@@ -43,19 +43,19 @@ All visual assets the mod references. Each row gives the asset ID (used in `lua/
 
 | Asset ID | Local path | Final URL | Grid |
 |---|---|---|---|
-| `DECK_PHASE1_FACE` | `art/decks/phase1_face.png` | placeholder | 4x3 |
+| `DECK_PHASE1_FACE` | `art/decks/phase1_face.png` | placeholder | 4x4 |
 | `DECK_PHASE1_BACK` | `art/decks/phase1_back.png` | placeholder | 1x1 |
-| `DECK_PHASE2_FACE` | `art/decks/phase2_face.png` | placeholder | 4x3 |
+| `DECK_PHASE2_FACE` | `art/decks/phase2_face.png` | placeholder | 4x4 |
 | `DECK_PHASE2_BACK` | `art/decks/phase2_back.png` | placeholder | 1x1 |
-| `DECK_PHASE3_FACE` | `art/decks/phase3_face.png` | placeholder | 4x3 |
+| `DECK_PHASE3_FACE` | `art/decks/phase3_face.png` | placeholder | 4x4 |
 | `DECK_PHASE3_BACK` | `art/decks/phase3_back.png` | placeholder | 1x1 |
-| `DECK_PHASE4_FACE` | `art/decks/phase4_face.png` | placeholder | 4x3 |
+| `DECK_PHASE4_FACE` | `art/decks/phase4_face.png` | placeholder | 4x4 |
 | `DECK_PHASE4_BACK` | `art/decks/phase4_back.png` | placeholder | 1x1 |
 | `DECK_MARKET_FACE` | `art/decks/market_face.png` | placeholder | 7x8 |
 | `DECK_MARKET_BACK` | `art/decks/market_back.png` | placeholder | 1x1 |
 | `DECK_RECIPE_FACE` | `art/decks/recipe_face.png` | placeholder | 5x4 |
 | `DECK_RECIPE_BACK` | `art/decks/recipe_back.png` | placeholder | 1x1 |
-| `DECK_THREAT_FACE` | `art/decks/threat_face.png` | placeholder | 6x5 |
+| `DECK_THREAT_FACE` | `art/decks/threat_face.png` | placeholder | 6x8 |
 | `DECK_THREAT_BACK` | `art/decks/threat_back.png` | placeholder | 1x1 |
 | `DECK_VISITOR_FACE` | `art/decks/visitor_face.png` | placeholder | 3x2 |
 | `DECK_VISITOR_BACK` | `art/decks/visitor_back.png` | placeholder | 1x1 |
