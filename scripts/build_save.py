@@ -9,6 +9,8 @@ import csv
 import os
 import glob
 
+from generate_notebook import md_to_text   # shared md→text for the Quick Start notecard
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONTENT = os.path.join(ROOT, "content")
 SAVES = os.path.join(ROOT, "saves")
@@ -912,26 +914,14 @@ objects.append(legend)
 # E.20  Rules Quick-Start notecard
 # ---------------------------------------------------------------------------
 
-quickstart_text = """STARVE NO MORE — QUICK START
-
-GOAL: Survive 7 nights. Doom < 30. Don't all go Down.
-
-EACH DAY:
-1. Dawn — flip a Dawn card. Read it. Doom advances.
-2. Day — 3 actions each: Move, Gather, Craft, Cook, Fight, Rest, Cleanse. Trade is free.
-3. Dusk — declare where you sleep.
-4. Night — threats drawn. Fight or suffer. Charlie attacks the lightless.
-5. Tick — lose 1 Hunger, 1 Sanity. Day advances.
-
-STATS: Health 0 = Down. Hunger 0 = starve. Sanity 0 = Lost.
-Below 3 in any stat = Bad Things Happen.
-
-HOVER anything for its rule. Press ? for Help. Click "What now?" if stuck.
-"""
+# The notecard body is content/notebook/quickstart.md — the same single
+# source the Notebook tab and Help panel render (see generate_notebook.py).
+with open(os.path.join(CONTENT, "notebook", "quickstart.md"), "r", encoding="utf-8") as _f:
+    quickstart_text = md_to_text(_f.read())
 
 notecard = base_obj("Notecard", tf(12, 1.2, -14),
                     nickname="Quick Start",
-                    desc=quickstart_text.strip(),
+                    desc=quickstart_text,
                     tags=["QuickStart"])
 objects.append(notecard)
 
@@ -1002,6 +992,7 @@ LUA_LOAD_ORDER = [
     "market_data.lua",      # auto-gen by scripts/generate_market_data.py — defines MARKET_COSTS
     "threat_types.lua",     # auto-gen by scripts/generate_threat_types.py — defines THREAT_TYPE_BY_NAME + SEALED_REWARDS
     "recipe_data.lua",      # auto-gen by scripts/generate_recipe_data.py — defines RECIPE_DATA
+    "notebook_data.lua",    # auto-gen by scripts/generate_notebook.py — Notebook/Help text from content/*.md
     "setup.lua",
     "day_loop.lua",
     "effects/dawn_effects.lua",

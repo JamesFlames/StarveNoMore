@@ -11,8 +11,10 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 ### Top-level
 
 - [StarveNoMoreDesignConcept.md](StarveNoMoreDesignConcept.md) — **the canonical design doc** (~1300 lines). Pitch, pillars, character/location/deck specs, turn structure, combat, Doom track, victory conditions, TTS implementation plan, and the UX program that makes the game playable without reading rules. Open this for any rules or design question.
-- [README.md](README.md) — short orientation for the GitHub landing page.
-- [playtest/facilitator_script.md](playtest/facilitator_script.md) + [playtest/feedback_form.md](playtest/feedback_form.md) — the blind-playtest protocol and per-player form (batch 4 W4). Session data comes from the Week in Review panel's **Copy Session Log** button.
+- [README.md](README.md) — short orientation for the GitHub landing page, dev quickstart, and the script-by-script build table.
+- [CHANGELOG.md](CHANGELOG.md) — the rule-change history, one entry per design batch. The retired planning docs (improvements.md, design_batch1–4.md, frameworkimprovements.md) live on as these entries + git history.
+- [SYMBOLS.md](SYMBOLS.md) — AUTO-GENERATED index of every Lua global (function/constant → file:line). Regenerate with `scripts/generate_symbol_index.py`.
+- [playtest/facilitator_script.md](playtest/facilitator_script.md) + [playtest/feedback_form.md](playtest/feedback_form.md) — the blind-playtest protocol and per-player form (batch 4 W4). Session data comes from the Week in Review panel's **Copy Session Log** button; logs collect in [playtest/sessions/](playtest/sessions/README.md) and aggregate via `scripts/analyze_sessions.py`.
 - agents.md — this file.
 
 ### Archive/ — superseded reference material, kept for context
@@ -48,12 +50,13 @@ historical references; do not link to them from new documentation.
 
 ### Build Pipeline
 - `scripts/build_save.py` — Concatenates the Lua files in `LUA_LOAD_ORDER` + `xml/global_ui.xml` into the TTS save JSON. Deck `NumWidth/NumHeight` come from `art/decks/atlas_manifest.json` (written by the atlas generator; a card-count mismatch is a hard stop — rerun the atlas generator).
-- Five of the Lua files in that list are **auto-generated** and should never be edited by hand:
+- Six of the Lua files in that list are **auto-generated** and should never be edited by hand:
   - `lua/audio_manifest.lua`  — built by `scripts/generate_audio_manifest.py` from the `sounds/` tree
   - `lua/whatnow_hints.lua`   — built by `scripts/generate_whatnow_hints.py` from `content/help/whatnow_hints.md`
   - `lua/market_data.lua`     — built by `scripts/generate_market_data.py` from `content/cards_market.csv`
   - `lua/threat_types.lua`    — built by `scripts/generate_threat_types.py` from `content/cards_threats.csv` (`THREAT_TYPE_BY_NAME` for the Night Sounds peek + `SEALED_REWARDS` from the `pry_reward` column)
   - `lua/recipe_data.lua`     — built by `scripts/generate_recipe_data.py` from `content/cards_recipes.csv` (`RECIPE_DATA` from the structured `script` column)
+  - `lua/notebook_data.lua`   — built by `scripts/generate_notebook.py` from `content/notebook/*.md` + `content/help/glossary.md` (the in-game Notebook tabs and Help-panel text; build_save.py reuses its `md_to_text` for the Quick Start notecard)
 - Two repo-root files are also generated: `SYMBOLS.md` + `.luacheckrc` — built by `scripts/generate_symbol_index.py` from `lua/` (rerun after any Lua change).
 - Run those generators after editing the corresponding source, then `python scripts/build_save.py`. All generators are idempotent and order-independent; `tests/test_generated_freshness.py` fails if any output is stale.
 
@@ -79,6 +82,7 @@ StarveNoMore/
 │   ├── market_data.lua         # AUTO-GENERATED — MARKET_COSTS table from cards_market.csv
 │   ├── threat_types.lua        # AUTO-GENERATED — THREAT_TYPE_BY_NAME + SEALED_REWARDS from cards_threats.csv
 │   ├── recipe_data.lua         # AUTO-GENERATED — RECIPE_DATA from cards_recipes.csv (script column)
+│   ├── notebook_data.lua       # AUTO-GENERATED — Notebook/Help text from content/notebook/*.md + glossary.md
 │   ├── setup.lua               # Bare gameplay setup (deals/shuffles/places)
 │   ├── day_loop.lua            # Day/Dusk/Night advance, turn management, idle nudge
 │   ├── effects/
@@ -578,6 +582,7 @@ python scripts/generate_whatnow_hints.py     # whatnow_hints.md → lua/whatnow_
 python scripts/generate_market_data.py       # cards_market.csv → lua/market_data.lua
 python scripts/generate_threat_types.py      # cards_threats.csv → lua/threat_types.lua (types + sealed rewards)
 python scripts/generate_recipe_data.py       # cards_recipes.csv → lua/recipe_data.lua
+python scripts/generate_notebook.py          # notebook/help markdown → lua/notebook_data.lua
 python scripts/generate_symbol_index.py      # lua/ → SYMBOLS.md + .luacheckrc
 ```
 

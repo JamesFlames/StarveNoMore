@@ -142,10 +142,10 @@ Every component is sized, type-marked, and TTS-mappable. The "TTS Object" column
 | 6 | **Day Counter** | 1 | `Counter` | World clock, advances each round. |
 | 7 | **Doom Track Marker** | 1 | `Custom_Token` | Slides along the Doom track on the main board. |
 | 8 | **Phase Decks (Dawn cards)** | 4 decks of ~12 cards each | `DeckCustom` | One deck per phase: Dusk-of-Week, Strange Days, Long Nights, Final Hours. |
-| 9 | **Item Cards (the Market)** | ~50 unique cards | `DeckCustom` | The shared "Hogwarts Deck" of craftable items. |
+| 9 | **Item Cards (the Market)** | 49 unique cards | `DeckCustom` | The shared "Hogwarts Deck" of craftable items. |
 | 10 | **Recipe Cards** | ~20 unique cards | `DeckCustom` | Crockpot recipes; reference cards more than draw deck. |
 | 11 | **Resource Tokens** | ~120 in 6 types | `Custom_Token` (small) or `Infinite_Bag` | Wood, Metal, Cloth, Food, Energy Drink, Battery. |
-| 12 | **Threat Cards** | ~30 cards | `DeckCustom` | Enemies and hazards drawn during night phase or by Dawn cards. |
+| 12 | **Threat Cards** | 51 cards | `DeckCustom` | Enemies and hazards drawn during night phase or by Dawn cards (incl. sealed things — §13.5). |
 | 13 | **Combat Dice (d6)** | 6 standard | `Die_6` | Rolled in handfuls during combat. |
 | 14 | **Sanity d8 (custom)** | 1 | `Custom_Dice` (8 faces) | For sanity-loss events with variable severity. |
 | 15 | **Boss Standees** | 4 | `Figurine_Custom` | One per phase boss. Larger silhouettes than characters (DST scale principle). |
@@ -376,10 +376,10 @@ The game has five distinct decks. All are listed in §5; this section covers the
 
 Four decks, played in order across the seven-day campaign:
 
-- **Phase 1: Dusk of the Week** (~10 cards) — Days 1–2. Mild events: minor sanity blips, lost items, weather.
-- **Phase 2: Strange Days** (~10 cards) — Days 3–4. Escalating threats: monsters glimpsed, food spoils.
-- **Phase 3: Long Nights** (~10 cards) — Day 5. Boss event. Heavy disruption.
-- **Phase 4: Final Hours** (~10 cards) — Days 6–7. Survival sprint. Doom advances faster.
+- **Phase 1: Dusk of the Week** (15 cards) — Days 1–2. Mild events: minor sanity blips, lost items, weather — several carrying optional Dares.
+- **Phase 2: Strange Days** (16 cards) — Days 3–4. Escalating threats: monsters glimpsed, food spoils, the Wrongness.
+- **Phase 3: Long Nights** (16 cards) — Day 5. Boss event. Heavy disruption.
+- **Phase 4: Final Hours** (15 cards) — Day 6 only draws from it; Day 7 is the fixed Last Dawn (§15.7). Survival sprint.
 
 Each Dawn card has:
 - A **flavor headline** ("The streetlights flicker. Something on the porch.")
@@ -391,7 +391,7 @@ The Phase deck order is fixed, but card draw within a deck is shuffled — same 
 
 ### 9.2 The Market Deck (Item cards, "the Hogwarts deck")
 
-A face-up market of 5 cards (a "shop" displayed on the table) drawn from a shuffled deck of ~50 unique items. Players spend resources on their turn to **craft** an item — claim it from the market into their hand. A new card is drawn from the deck to refill the market slot.
+A face-up market of 5 cards (a "shop" displayed on the table) drawn from a shuffled deck of 49 unique items. Players spend resources on their turn to **craft** an item — claim it from the market into their hand. A new card is drawn from the deck to refill the market slot.
 
 Item categories:
 
@@ -416,7 +416,7 @@ Recipes embody the **mismatched-currency** principle: cooking costs raw ingredie
 
 ### 9.4 The Threat Deck
 
-~30 cards, drawn during the Night phase based on each location's threat rate. Threat cards include:
+51 cards, drawn during the Night phase based on each location's threat rate. Threat cards include:
 
 - **Enemies** that fight: "Shadow Stalker (HP 4, Atk 2)" — must be defeated.
 - **Hazards**: "The Power Cuts. Lose 1 Battery if you have any; otherwise lose 1 Sanity."

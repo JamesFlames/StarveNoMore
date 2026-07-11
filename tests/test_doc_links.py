@@ -27,6 +27,21 @@ def live_markdown_files():
     return out
 
 
+def test_every_root_doc_is_in_the_agents_map():
+    """agents.md's Documentation Map is the index a newcomer (human or agent)
+    navigates by — a root-level doc it doesn't mention is invisible. Guard
+    the map against rot: every root *.md must be named in agents.md."""
+    with open(os.path.join(ROOT, "agents.md"), "r", encoding="utf-8") as f:
+        agents = f.read()
+    missing = []
+    for fn in sorted(os.listdir(ROOT)):
+        if fn.endswith(".md") and fn != "agents.md" and fn not in agents:
+            missing.append(fn)
+    assert not missing, (
+        f"root-level docs absent from agents.md's Documentation Map: {missing} — "
+        "add an entry (or retire the doc into CHANGELOG.md + git history)")
+
+
 @pytest.mark.parametrize("md_path", live_markdown_files(),
                          ids=lambda p: os.path.relpath(p, ROOT).replace("\\", "/"))
 def test_relative_links_resolve(md_path):

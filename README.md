@@ -2,7 +2,7 @@
 
 A cooperative survival board game for 3–5 players, built as a [Tabletop Simulator](https://store.steampowered.com/app/286160/Tabletop_Simulator/) mod. Suburban friends caught when something cosmic descends on their neighborhood must scavenge, cook, fight, and hold their sanity together for seven nights. Tone modeled on *Don't Starve Together*; mechanical DNA drawn from DST, *Hogwarts Battle*, *Catan*, and *Cthulhu Wars*.
 
-> **Status:** pre-playtest. The design is locked in [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md); the Lua/XML scaffold (gameplay loop, UX, audio, atlas pipeline) is in place; card-art generation runs against a local ComfyUI instance. Not yet blind-tested with a fresh group.
+> **Status:** playtest-ready. The design is locked in [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md); all four design batches are implemented (combat excitement, the finale, mid-week texture, validation & hardening — see [`CHANGELOG.md`](CHANGELOG.md)); Standard difficulty is sim-calibrated to the 40–50% target; sessions self-instrument via a one-click telemetry export; the blind-playtest kit lives in [`playtest/`](playtest/facilitator_script.md). What remains is human: the blind playtests themselves.
 
 ## Dev quickstart
 
@@ -29,18 +29,21 @@ Everything else — pipelines, conventions, the file map — is in [`agents.md`]
 ```
 StarveNoMore/
 ├── lua/         TTS Lua scripts (concatenated by build_save.py into the save JSON).
-│                Includes auto-generated audio_manifest.lua, whatnow_hints.lua,
-│                and market_data.lua — all built from sources under content/ + sounds/.
+│                Six are auto-generated from content/ + sounds/: audio_manifest,
+│                whatnow_hints, market_data, threat_types, recipe_data, notebook_data.
 ├── xml/         TTS UI XML — Phase Banner, Action Bar, Help panel, modal dialogs.
 ├── content/     Card CSVs (cards_*.csv), in-game text (notebook/, help/),
 │                iconography, asset manifest. The CSV + Markdown files here are
-│                the source of truth for cards, hints, and audio metadata.
+│                the source of truth for cards, rules text, hints, and audio metadata.
 ├── art/         Image assets — boards, tiles, decks, tokens, characters, bosses.
-│                Card illustrations live under art/decks/illustrations/.
-├── sounds/      Local sound assets — ambient/{suburban,varied}, creatures/<boss>/,
-│                sfx/. Served by scripts/serve_art.bat over :8080 during dev.
-├── scripts/     Build + asset-generation Python scripts.
-├── saves/       Built TTS save (StarveNoMore.json + pretty-printed copy).
+│                Card illustrations live under art/decks/illustrations/;
+│                atlas_manifest.json records each deck's rendered grid.
+├── sounds/      Local sound assets — ambient/{suburban,varied,night}, creatures/<boss>/,
+│                sfx/. Served by scripts/serve_art.bat over :8080 during play.
+├── scripts/     Build + asset/data generation + balance sim + telemetry analyzer.
+├── playtest/    Blind-playtest kit: facilitator script, feedback form, sessions/ logs.
+├── saves/       Built TTS save (+ fixtures/ frozen mid-game save for compat tests).
+├── tests/       pytest suite (~260 tests) — runs the real Lua bundle headlessly.
 └── Archive/     Superseded design / reference docs (frozen, no live links).
 ```
 
@@ -48,7 +51,10 @@ See [`agents.md`](agents.md) for the file-by-file breakdown.
 
 ## What's implemented
 
-- **Gameplay loop** — Setup walkthrough (with optional variants: Rotation turns, random Scenario), Day/Dusk/Night/Tick state machine, combat resolution with **Press the Attack** (pay Sanity to keep rolling), **boss rewards** (Doom rebates, loot showers, build-around Trophies), crafting/cooking, doom track + threshold effects, victory/defeat conditions (The Source is mandatory), Down/ghost state, an end-of-game **Week in Review** chronicle, save/load persistence.
+- **Gameplay loop** — Setup walkthrough (with optional variants: Rotation turns, random Scenario, and a **difficulty selector**: Long Weekend / Standard / Nightmare), Day/Dusk/Night/Tick state machine, combat resolution with **Press the Attack** (pay Sanity to keep rolling), **boss rewards** (Doom rebates, loot showers, build-around Trophies), crafting/cooking, doom track + threshold effects, victory/defeat conditions (The Source is mandatory), Down/ghost state, an end-of-game **Week in Review** chronicle, save/load persistence with schema migration.
+- **The climax & character identity (batch 2)** — **Nothing Left to Lose** (Doom 25 flips from pure penalty to a last-stand buff: +1 attack die for all, Rest heals anywhere), a once-per-game **Signature Move** for every character (All-Nighter / Touch of Hope / Posterize / The Feast / The Speech, each with its own button and confirm), the **Source's phase beat** (script-tracked boss HP; at 5 HP two Terror Beaks split off), and the fixed **Last Dawn** on the final day.
+- **Mid-week texture & dread (batch 3)** — **Night Sounds** (a low growl at Dusk when the top Threat card is Hard — deliberately unexplained), **Dawn Dares** (optional temptations on early-week cards, offered never imposed), the coded **Pry** verb with sealed threats and the always-present **Sealed Basement** destination, and the **Wrongness token** (a face-down unresolved threat the table argues about visiting).
+- **Validation & instrumentation (batch 4)** — session telemetry (setup, per-turn seconds, which designed beats actually fired) with a one-click **Copy Session Log** JSON export, aggregated by `scripts/analyze_sessions.py`; 3-player relief knobs for Rayman pending a table A/B; the blind-playtest facilitator script and feedback form under `playtest/`.
 - **Picture-dominant card faces** — every card is `408×585 px` with a top art region (~65%) and a text panel below. Illustrations are produced by ComfyUI (Flux Dev + a Tim-Burton/Edward-Gorey LoRA), composited by `scripts/generate_card_atlases.py`. See [`agents.md`](agents.md) "ComfyUI Workflow" for the full pipeline.
 - **Audio** — random suburban-ambient track at Day start chains into varied tracks until Night; per-boss roar loops while a boss is alive; soft chime at Tick; per-character SFX on walk / meet / trade / death. Single-channel via TTS `MusicPlayer`. Sounds under `sounds/`; manifest auto-generated from the filesystem.
 - **"Always obvious next step" UX** — Phase Banner with dynamic next-action text and a pulsing-outline highlight on whichever XML control should be clicked next; a **day-cycle strip** (Dawn ▸ Day ▸ Dusk ▸ Night ▸ Tick, current step lit); a persistent **"Rules in effect" panel** mirroring every rule currently modifying play (Doom thresholds crossed, ongoing Dawn-card effects, loose bosses, per-character statuses like Haunted / Wired / Loud); an always-visible **character roster** showing every party member's live Health / Hunger / Sanity in their character color (plus live standee tooltips on hover); per-deck What-now hints (sub-phase × character × stats × strategic × location) auto-loaded from `content/help/whatnow_hints.md`; auto-broadcasts on critical events (character down, James-no-Energy-Drink, Dusk-alone-at-court, etc.); per-action target highlights with **click-to-complete buttons** (Move → MOVE HERE on adjacent tiles, Craft → CRAFT on Market cards, Cook → COOK on recipes, plus a Trade partner picker and one-step Undo); Market-card affordability glow (Green = you can craft this, Yellow = you can't yet); automated night light checks (Flashlight/Lantern/Fire Kit in hand or by your board, Campfire covers the whole tile); 45-second idle nudge on Day phase.
@@ -62,7 +68,12 @@ Requires Python 3 with `Pillow`. Card illustrations and board scenes need a loca
 
 | Script | Reads | Writes | Purpose |
 |---|---|---|---|
-| `scripts/build_save.py` | every file listed in `LUA_LOAD_ORDER`, plus `xml/global_ui.xml` | `saves/StarveNoMore.json` + `saves/StarveNoMore.pretty.json` | The final assembly step. Concatenates the 21 Lua files and the XML into one TTS save JSON, spawns the table objects (board, decks, tokens, player boards, character standees with per-character holder colors, etc.), and pretty-prints a copy for diffing. Run this last after any change to Lua, XML, or auto-generated data tables. |
+| `scripts/build_save.py` | every file listed in `LUA_LOAD_ORDER`, `xml/global_ui.xml`, `art/decks/atlas_manifest.json` | `saves/StarveNoMore.json` + `saves/StarveNoMore.pretty.json` | The final assembly step. Concatenates the Lua bundle (29 files today) and the XML into one TTS save JSON, spawns the table objects (board, decks, tokens, player boards, character standees with per-character holder colors, the Sealed Basement, etc.), reading deck grid dimensions from the atlas manifest (hard-stops if atlases are stale), and pretty-prints a copy for diffing. Run this last after any change to Lua, XML, or auto-generated data tables. |
+| `scripts/generate_threat_types.py` | `content/cards_threats.csv` | `lua/threat_types.lua` | Emits `THREAT_TYPE_BY_NAME` (nickname → Hard/Soft/Persistent, used by the Night Sounds dusk peek — a face-down deck only exposes nicknames) and `SEALED_REWARDS` (from the structured `pry_reward` column, consumed by `doPry`). Re-run after editing the threats CSV. |
+| `scripts/generate_recipe_data.py` | `content/cards_recipes.csv` | `lua/recipe_data.lua` | Emits `RECIPE_DATA` from the structured `script` column (`allAtTile=hunger:4+sanity:2\|cookPenalty=health:2\|...`), so the card face text and what `doCook` actually does can never drift apart. Re-run after editing recipes. |
+| `scripts/generate_notebook.py` | `content/notebook/*.md`, `content/help/glossary.md` | `lua/notebook_data.lua` | Converts the player-doc markdown to plain text and emits the in-game Notebook tabs (Quick Start / Full Rules / Characters) and Help-panel Quick Start + Glossary constants. `build_save.py` imports its `md_to_text` for the physical Quick Start notecard — one source, every surface. |
+| `scripts/generate_symbol_index.py` | `lua/*.lua` (in `LUA_LOAD_ORDER` order) | `SYMBOLS.md`, `.luacheckrc` | The Lua bundle's table of contents: every global function/constant with file and line, plus a luacheck config whose globals list is generated from the bundle itself. Re-run after any Lua change (a freshness test enforces it). |
+| `scripts/analyze_sessions.py` | `playtest/sessions/*.json` (Copy Session Log exports) | console report | Aggregates playtest telemetry into the tables the validation gates need: win rate by difficulty/player count, loss-day histogram, median turn seconds by turn style (the Rotation A/B verdict), and how often the designed beats (presses, Signatures, the Source split, dares) actually fire at real tables. |
 | `scripts/generate_audio_manifest.py` | `sounds/ambient/{suburban,varied}/`, `sounds/creatures/<boss>/`, `sounds/sfx/` | `lua/audio_manifest.lua` | Walks the `sounds/` tree, computes each track's duration (precise for `.wav` via the stdlib `wave` module; estimated from filesize for `.mp3`), and emits a Lua table with `{url, duration, name}` entries grouped under `AUDIO.AMBIENT_SUBURBAN / AMBIENT_VARIED / CREATURES.<boss> / SFX.<key>`. Re-run after adding or removing any sound file. |
 | `scripts/generate_whatnow_hints.py` | `content/help/whatnow_hints.md` | `lua/whatnow_hints.lua` | Parses the markdown source-of-truth for context-aware hints into a single `WHATNOW_HINTS` Lua table with 15 groups (PreGame, Dawn, Day, Stats, James, Coco, Rayman, Ellie, Luca, Location, Strategic, Dusk, Night, Tick, PostGame). Re-run after editing the markdown. |
 | `scripts/generate_market_data.py` | `content/cards_market.csv` | `lua/market_data.lua` | Tokenises each Market card's `cost` column ("2 Metal + 1 Wood", "Energy Drink", etc.) into a Lua sub-table — `MARKET_COSTS[<id>] = {Metal=2, Wood=1, ...}`. Drives the in-game affordability glow on the Market display. Body-cost terms (Health, Sanity) are intentionally omitted. Re-run after editing market costs. |
@@ -82,6 +93,7 @@ python scripts/generate_whatnow_hints.py
 python scripts/generate_market_data.py
 python scripts/generate_threat_types.py
 python scripts/generate_recipe_data.py
+python scripts/generate_notebook.py       # in-game Notebook/Help text from content/*.md
 python scripts/generate_symbol_index.py   # after any lua/ change (SYMBOLS.md + .luacheckrc)
 
 # 2. After adding new card illustrations to ComfyUI: queue, wait, sync.

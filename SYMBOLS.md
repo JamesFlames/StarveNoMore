@@ -111,6 +111,16 @@
 |---|---|---|
 | 10 | table | `RECIPE_DATA` |
 
+## lua/notebook_data.lua (5 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 9 | value | `NOTEBOOK_QUICKSTART` |
+| 45 | value | `NOTEBOOK_FULL_RULES` |
+| 155 | value | `NOTEBOOK_CHARACTERS` |
+| 206 | value | `HELP_QUICKSTART` |
+| 242 | value | `HELP_GLOSSARY` |
+
 ## lua/setup.lua (7 symbols)
 
 | line | kind | symbol |
@@ -393,27 +403,22 @@
 | 365 | function | `showWelcomeSequence` |
 | 395 | function | `onHostSetupGuided` |
 
-## lua/ui_help.lua (17 symbols)
+## lua/ui_help.lua (12 symbols)
 
 | line | kind | symbol |
 |---|---|---|
-| 8 | value | `HELP_QUICKSTART` |
-| 29 | value | `HELP_GLOSSARY` |
-| 69 | function | `getHelpCharContent` |
-| 93 | function | `getHelpDawnContent` |
-| 116 | function | `getHelpDoomContent` |
-| 153 | function | `onHelpClick` |
-| 163 | function | `onHelpClose` |
-| 167 | function | `onHelpTab` |
-| 178 | function | `refreshHelpPanel` |
-| 238 | function | `onWhatNowClick` |
-| 360 | function | `substitutePlaceholders` |
-| 377 | function | `refreshActionButtonReasons` |
-| 421 | function | `setActionTooltip` |
-| 428 | value | `NOTEBOOK_QUICKSTART` |
-| 444 | value | `NOTEBOOK_FULL_RULES` |
-| 461 | value | `NOTEBOOK_CHARACTERS` |
-| 483 | function | `populateNotebook` |
+| 13 | function | `getHelpCharContent` |
+| 37 | function | `getHelpDawnContent` |
+| 60 | function | `getHelpDoomContent` |
+| 97 | function | `onHelpClick` |
+| 107 | function | `onHelpClose` |
+| 111 | function | `onHelpTab` |
+| 122 | function | `refreshHelpPanel` |
+| 182 | function | `onWhatNowClick` |
+| 304 | function | `substitutePlaceholders` |
+| 321 | function | `refreshActionButtonReasons` |
+| 365 | function | `setActionTooltip` |
+| 373 | function | `populateNotebook` |
 
 ## lua/ui_rules.lua (9 symbols)
 
@@ -501,16 +506,16 @@
 | `DOOM_THRESHOLD_RULES` | lua/ui_rules.lua | 25 |
 | `EFFECT_RULES` | lua/ui_rules.lua | 37 |
 | `EFFECT_RULE_ORDER` | lua/ui_rules.lua | 68 |
-| `HELP_GLOSSARY` | lua/ui_help.lua | 29 |
-| `HELP_QUICKSTART` | lua/ui_help.lua | 8 |
+| `HELP_GLOSSARY` | lua/notebook_data.lua | 242 |
+| `HELP_QUICKSTART` | lua/notebook_data.lua | 206 |
 | `LIGHTING_PRESETS` | lua/ui_mood.lua | 9 |
 | `LIGHT_SOURCES` | lua/night.lua | 263 |
 | `LOCATION_ADJACENCY` | lua/ui_actionbar.lua | 9 |
 | `LOCATION_THREAT_RATE` | lua/night.lua | 12 |
 | `MARKET_COSTS` | lua/market_data.lua | 9 |
-| `NOTEBOOK_CHARACTERS` | lua/ui_help.lua | 461 |
-| `NOTEBOOK_FULL_RULES` | lua/ui_help.lua | 444 |
-| `NOTEBOOK_QUICKSTART` | lua/ui_help.lua | 428 |
+| `NOTEBOOK_CHARACTERS` | lua/notebook_data.lua | 155 |
+| `NOTEBOOK_FULL_RULES` | lua/notebook_data.lua | 45 |
+| `NOTEBOOK_QUICKSTART` | lua/notebook_data.lua | 9 |
 | `PHASE_NAMES` | lua/ui_banner.lua | 6 |
 | `PRY_TOOLS` | lua/actions.lua | 562 |
 | `RECIPE_DATA` | lua/recipe_data.lua | 10 |
@@ -617,9 +622,9 @@
 | `getDoomRate` | lua/global.lua | 155 |
 | `getHandZone` | lua/helpers.lua | 60 |
 | `getHeartSupply` | lua/helpers.lua | 40 |
-| `getHelpCharContent` | lua/ui_help.lua | 69 |
-| `getHelpDawnContent` | lua/ui_help.lua | 93 |
-| `getHelpDoomContent` | lua/ui_help.lua | 116 |
+| `getHelpCharContent` | lua/ui_help.lua | 13 |
+| `getHelpDawnContent` | lua/ui_help.lua | 37 |
+| `getHelpDoomContent` | lua/ui_help.lua | 60 |
 | `getLocationTile` | lua/helpers.lua | 48 |
 | `getMainBoard` | lua/helpers.lua | 33 |
 | `getMarketDeck` | lua/helpers.lua | 36 |
@@ -675,9 +680,9 @@
 | `onDuskMoveClick` | lua/ui_actionbar.lua | 719 |
 | `onDuskReadyClick` | lua/ui_actionbar.lua | 714 |
 | `onFinishCombat` | lua/ui_actionbar.lua | 632 |
-| `onHelpClick` | lua/ui_help.lua | 153 |
-| `onHelpClose` | lua/ui_help.lua | 163 |
-| `onHelpTab` | lua/ui_help.lua | 167 |
+| `onHelpClick` | lua/ui_help.lua | 97 |
+| `onHelpClose` | lua/ui_help.lua | 107 |
+| `onHelpTab` | lua/ui_help.lua | 111 |
 | `onHostBeginDay` | lua/ui_controls.lua | 44 |
 | `onHostEndTurn` | lua/ui_controls.lua | 69 |
 | `onHostResolveNight` | lua/ui_controls.lua | 56 |
@@ -711,9 +716,9 @@
 | `onTradeTargetClick` | lua/ui_actionbar.lua | 681 |
 | `onVariantsContinue` | lua/ui_setup.lua | 103 |
 | `onWeekReviewClose` | lua/ui_controls.lua | 346 |
-| `onWhatNowClick` | lua/ui_help.lua | 238 |
+| `onWhatNowClick` | lua/ui_help.lua | 182 |
 | `playerPryTool` | lua/actions.lua | 581 |
-| `populateNotebook` | lua/ui_help.lua | 483 |
+| `populateNotebook` | lua/ui_help.lua | 373 |
 | `pressAttack` | lua/combat.lua | 417 |
 | `pulseHandZone` | lua/ui_banner.lua | 394 |
 | `raymanLoudTonight` | lua/night.lua | 25 |
@@ -727,7 +732,7 @@
 | `recordTurnEnd` | lua/telemetry.lua | 58 |
 | `refillMarketSlot` | lua/crafting.lua | 60 |
 | `refreshActionBar` | lua/ui_actionbar.lua | 756 |
-| `refreshActionButtonReasons` | lua/ui_help.lua | 377 |
+| `refreshActionButtonReasons` | lua/ui_help.lua | 321 |
 | `refreshActionButtonStates` | lua/ui_actionbar.lua | 797 |
 | `refreshCharRoster` | lua/ui_banner.lua | 104 |
 | `refreshCombatPanel` | lua/ui_actionbar.lua | 598 |
@@ -735,7 +740,7 @@
 | `refreshDawnChecklist` | lua/ui_rules.lua | 256 |
 | `refreshDuskReadyLabel` | lua/day_loop.lua | 582 |
 | `refreshDynamicTooltips` | lua/ui_controls.lua | 400 |
-| `refreshHelpPanel` | lua/ui_help.lua | 178 |
+| `refreshHelpPanel` | lua/ui_help.lua | 122 |
 | `refreshPhaseBanner` | lua/ui_banner.lua | 29 |
 | `refreshRulesPanel` | lua/ui_rules.lua | 196 |
 | `refreshStandeeTooltips` | lua/ui_banner.lua | 150 |
@@ -756,7 +761,7 @@
 | `safecall` | lua/helpers.lua | 116 |
 | `setActionCubes` | lua/ui_actionbar.lua | 783 |
 | `setActionEnabled` | lua/ui_actionbar.lua | 862 |
-| `setActionTooltip` | lua/ui_help.lua | 421 |
+| `setActionTooltip` | lua/ui_help.lua | 365 |
 | `setPhaseMood` | lua/ui_mood.lua | 38 |
 | `showCharBriefing` | lua/ui_setup.lua | 213 |
 | `showCharPickForNextPlayer` | lua/ui_setup.lua | 134 |
@@ -775,7 +780,7 @@
 | `stopIdleWatcher` | lua/day_loop.lua | 34 |
 | `stopStandeeBob` | lua/ui_banner.lua | 294 |
 | `stringToColorTint` | lua/ui_banner.lua | 258 |
-| `substitutePlaceholders` | lua/ui_help.lua | 360 |
+| `substitutePlaceholders` | lua/ui_help.lua | 304 |
 | `syncSourceHP` | lua/combat.lua | 91 |
 | `toggleDuskReady` | lua/day_loop.lua | 593 |
 | `treeguardDefeated` | lua/treeguard.lua | 63 |

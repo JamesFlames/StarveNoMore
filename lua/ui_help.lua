@@ -2,68 +2,12 @@
 
 -----------------------------------------------------------------------
 -- H.3 — Help Panel Content (5 tabs)
+--
+-- The static text (HELP_QUICKSTART, HELP_GLOSSARY, NOTEBOOK_*) lives in
+-- lua/notebook_data.lua, AUTO-GENERATED from content/notebook/*.md and
+-- content/help/glossary.md — the player docs are single-sourced. Edit the
+-- markdown, run scripts/generate_notebook.py, rebuild.
 -----------------------------------------------------------------------
-
--- Static content loaded as Lua strings (from content/ markdown files)
-HELP_QUICKSTART = [[GOAL: Survive 7 nights. Doom < 30. Don't all go Down. And when The Source arrives (Days 6-7), destroy it — outlasting it is not enough.
-
-EACH DAY:
-1. Dawn - flip a Dawn card. Read it. Doom advances (+1 per threat left on the map, +2 per boss!).
-2. Day - 3 actions each: Move, Gather, Craft, Cook, Fight, Rest, Cleanse. Trade is free.
-3. Dusk - last chance: scramble 1 tile (1 Hunger) or stay. You sleep where you stand.
-4. Night - threats drawn. Fight or suffer. Charlie attacks the lightless.
-5. Tick - lose 1 Hunger, 1 Sanity. Day advances.
-
-THREE STATS:
-- Health 0 = Down (ghost).
-- Hunger 0 = starve (lose Health each Tick).
-- Sanity 0 = Lost (also Down).
-Below 3 in any stat: Bad Things Happen.
-
-TRADE freely at the same tile - no action cost.
-
-LIGHT: No light source at night = Charlie attack (2 Sanity + 1 Health, worse each consecutive dark night).
-
-Hover anything for its rule. Click "?" for this menu. Click "What now?" if stuck.]]
-
-HELP_GLOSSARY = [[STATS:
-- Health: damage. 0 = Down.
-- Hunger: depletes 1/day. 0 = starve.
-- Sanity: darkness, events. 0 = Lost.
-Below 3 = Bad Things Happen.
-
-RESOURCES: Wood, Metal, Cloth, Food, Energy Drink, Battery.
-Hand limit: 5 Items + 8 Resources.
-
-LIGHT: Flashlight (Battery), Lantern/Campfire (Fire).
-No light at night = Charlie: 2 Sanity + 1 Health, +1 each per consecutive dark night.
-
-PHASES:
-1 (Days 1-2) Dusk of the Week
-2 (Days 3-4) Strange Days + Deerclops
-3 (Day 5) Long Nights + Eye of Terror
-4 (Days 6-7) Final Hours + The Source
-
-ACTIONS: Move(1), Gather(1), Craft(1), Cook(1), Fight(1), Rest(1), Cleanse(1), Trade(free).
-
-COMBAT: 5-6 = hit. Landed a hit? PRESS THE ATTACK: 1 Sanity per bonus die until you miss (press dice never fumble; the enemy waits until you stop). Boss kills: Deerclops Doom -2, Eye Doom -3, +3 resources, + Trophy.
-
-VARIANTS (optional, set at setup): Rotation turns - 1 action per visit, cycling; pass after acting banks the rest. Scenario - a week-long twist (see Rules in effect panel).
-
-SEVERITY: 1=flavor, 2=minor, 3=combat, 4=phase-shift, 5=boss.
-
-DOWN: Ghost. Can't act. Drift 1 tile/round. 1 word/round. Going Down feeds Doom +1.
-Revive: Telltale Heart + 2 Health from reviver. Returns at half max.
-
-DOOM: 0-30 track. Advances each Dawn by phase rate, +1 per threat left on the map (max +3), +2 per boss / +1 Treeguard (no cap), +1 whenever someone goes Down.
-Thresholds: 10(threats+1), 15(crafts +1 resource), 20(-1 Sanity Tick), 25(bosses any), 30(defeat).
-Cleanse: 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink -> Doom -2.
-
-SLEEP: Houses sleep 2 comfortably. Extra sleepers get the floor: no regen.
-Survive a night at a sport court: salvage 2 resources at Dawn.
-
-WIN: Survive Day 7, Doom < 30, and The Source destroyed (if it still stands at the end of Day 7, you lose).
-Bonus: Pristine (all 5 alive), Truth (3 Clues), Hero (all 3 phase bosses).]]
 
 -- Dynamic content generators
 function getHelpCharContent(player)
@@ -423,63 +367,9 @@ function setActionTooltip(buttonId, text)
 end
 
 -----------------------------------------------------------------------
--- H.8 — Notebook tab population
+-- H.8 — Notebook tab population. Tab bodies (NOTEBOOK_*) come from
+-- lua/notebook_data.lua (generated from content/notebook/*.md).
 -----------------------------------------------------------------------
-NOTEBOOK_QUICKSTART = [[STARVE NO MORE — QUICK START
-
-GOAL: Survive 7 nights. Doom < 30. Don't all go Down.
-
-EACH DAY:
-1. Dawn — flip a Dawn card. Read it. Doom advances (+1 per threat left on the map).
-2. Day — 3 actions each: Move, Gather, Craft, Cook, Fight, Rest, Cleanse. Trade is free.
-3. Dusk — last chance: scramble 1 tile (1 Hunger) or stay. You sleep where you stand.
-4. Night — threats drawn. Fight or suffer. Charlie attacks the lightless.
-5. Tick — lose 1 Hunger, 1 Sanity. Day advances.
-
-STATS: Health 0 = Down. Hunger 0 = starve. Sanity 0 = Lost.
-Below 3 in any stat = Bad Things Happen.
-
-HOVER anything for its rule. Press ? for Help. Click "What now?" if stuck.]]
-
-NOTEBOOK_FULL_RULES = [[STARVE NO MORE — FULL RULES (ABRIDGED)
-
-SETUP:
-1. Click Setup Game. Pick a path graph. Pick characters. Read your briefing.
-
-TURN STRUCTURE:
-Dawn: Day Counter advances. Doom advances (phase rate + 1 per festering threat, max +3; bosses +2 each, Treeguard +1, no cap). Court survivors salvage 2 resources. Reveal Phase deck card.
-Day: 3 actions each — Move(1), Gather(1), Craft(1), Cook(1), Fight(1), Rest(1), Cleanse(1), Trade(free).
-Dusk: Scramble 1 tile (1 Hunger, optional, once). You sleep where you stand.
-Night: Threat draws per tile. Combat. Charlie check (2 Sanity + 1 Health, escalating). Storytelling. Sleep — houses sleep 2; extras get the floor (no regen).
-Tick: -1 Hunger, -1 Sanity. Check victory/defeat.
-
-COMBAT: Roll d6s. 5-6 = hit. 1 = fumble only on a total whiff. Hit? Press the Attack: 1 Sanity per bonus die until you miss; then the enemy counters. Boss kills rebate Doom (-2/-3) and drop spoils.
-DEATH: Health 0 or Sanity 0 = Down (ghost). Doom +1. Revive with Telltale Heart.
-DOOM: 0-30. Thresholds at 10/15/20/25/30. Cleanse: Doom -2.
-VICTORY: Survive Day 7, Doom < 30, and The Source destroyed if it arrived.]]
-
-NOTEBOOK_CHARACTERS = [[CHARACTER REFERENCE
-
-JAMES (White) — HP 8 / HU 6 / SA 10
-Perks: Gaming Reflexes (reroll), Pattern Recognition (peek deck)
-Constraint: Wired (Energy Drink/day or -2 Sanity)
-
-COCO (Red) — HP 6 / HU 8 / SA 12
-Perks: Calming Presence (-1 Sanity loss), Touch of Hope (1x +4 HP), Charlie Immune
-Constraint: No Home (alone non-house = -3 Sanity)
-
-RAYMAN (Yellow) — HP 12 / HU 10 / SA 6
-Perks: Speed (+1 move), Court Master (+1 atk at Basketball Court), Defend
-Constraints: Big Appetite (-2 Hunger/Tick), Loud (moved today = +1 Threat at his Night tile)
-
-ELLIE (Green) — HP 8 / HU 10 / SA 8
-Perks: Crockpot Master (-1 ingredient), Comfort Food (+1 shared), Knows Pantry
-Constraint: Particular Eater (no raw food)
-
-LUCA (Blue) — HP 7 / HU 8 / SA 10
-Perks: Rally (free ally action), Calm Words (d6 negate Sanity loss), Storyteller (+1 Sanity Night)
-Constraint: Needs Audience (no solo Sanity regen)]]
-
 function populateNotebook()
     if not Notes then return end
 
