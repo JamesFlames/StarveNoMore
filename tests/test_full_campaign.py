@@ -1,0 +1,181 @@
+"""Full-campaign integration: a trivial bot plays whole games headlessly.
+
+The unit tests exercise systems in isolation; this file is the net for
+cross-feature breakage (F in frameworkimprovements.md) — the "two features,
+each tested, broken together" class. Assertions are invariants only:
+
+  * no hard Lua error ever escapes a public entry point,
+  * stats stay within 0..max, Doom stays sane,
+  * every campaign reaches a verdict (GameOver) within its day budget.
+
+A seeded fuzz variant slams random public verbs (with wrong colors, wrong
+phases, wrong targets included) to check the guard rails hold.
+"""
+import random
+
+import pytest
+
+try:
+    import lupa.lua52 as lua52
+except ImportError:  # pragma: no cover
+    lua52 = None
+
+from test_lua_runtime import make_env, populate_full_world, flush, lua_to_py
+
+pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
+
+SEATS = ("White", "Red", "Yellow")   # James, Coco, Rayman — exercises the 3p reliefs
+LOCATIONS = ["JamesHouse", "RaymanHouse", "EllieLucaHouse", "BasketballCourt", "BadmintonCourt"]
+
+
+def start_game(env, difficulty="standard"):
+    populate_full_world(env)
+    env.globals().onLoad("")
+    flush(env)
+    env.execute("TTS.seated = {%s}" % ", ".join(f'"{c}"' for c in SEATS))
+    if difficulty != "standard":
+        env.execute(f'gameState.difficulty = "{difficulty}"')
+    env.globals().Setup("White")
+    flush(env)
+    assert env.eval("gameState.started") is True
+    assert env.eval("gameState.playerCount") == len(SEATS)
+
+
+def subphase(env):
+    return env.eval("gameState.subPhase")
+
+
+def assert_invariants(env, context):
+    chars = lua_to_py(env.eval("gameState.activeChars")) or {}
+    for color, c in chars.items():
+        for stat, cap in (("health", "maxHealth"), ("hunger", "maxHunger"), ("sanity", "maxSanity")):
+            v, m = c[stat], c[cap]
+            assert 0 <= v <= m, f"{context}: {c['name']} {stat}={v} outside 0..{m}"
+        if not c.get("down"):
+            assert c["health"] > 0 and c["sanity"] > 0, (
+                f"{context}: {c['name']} standing at health={c['health']} sanity={c['sanity']}")
+    doom = env.eval("gameState.doom")
+    limit = env.globals().getDoomLimit()
+    assert 0 <= doom <= limit + 10, f"{context}: doom {doom} far outside 0..{limit}"
+
+
+def simple_bot_turn(env, color):
+    """Gather when steady, rest when shaky, then pass — the turtle in Lua."""
+    char = lua_to_py(env.eval(f'gameState.activeChars["{color}"]'))
+    if char and not char.get("down"):
+        for _ in range(int(char.get("actionsLeft") or 0)):
+            if char["sanity"] <= 4 or char["health"] <= 3:
+                env.globals().doRest(color, "sanity")
+            else:
+                env.globals().doGather(color)
+    env.globals().doPass(color)
+
+
+def play_day(env, turn_fn):
+    env.globals().BeginDay()
+    flush(env)
+    if subphase(env) == "GameOver":
+        return
+    guard = 0
+    while subphase(env) == "Day" and env.eval("gameState.activeColor"):
+        guard += 1
+        assert guard < 60, "day loop did not hand off to Dusk"
+        turn_fn(env, env.eval("gameState.activeColor"))
+        flush(env)
+    if subphase(env) == "Dusk":
+        env.globals().beginNight()
+        flush(env)   # ResolveNight -> storytelling -> sleep -> resolveTick
+
+
+@pytest.mark.parametrize("difficulty,day_budget", [
+    ("standard", 7), ("weekend", 3), ("nightmare", 7),
+])
+def test_bot_campaign_reaches_a_verdict(difficulty, day_budget):
+    env = make_env()
+    start_game(env, difficulty)
+    for played in range(day_budget + 1):
+        if subphase(env) == "GameOver":
+            break
+        play_day(env, simple_bot_turn)
+        assert_invariants(env, f"{difficulty} after day {played + 1}")
+    assert subphase(env) == "GameOver", (
+        f"{difficulty}: campaign never reached victory or defeat "
+        f"(day={env.eval('gameState.day')}, doom={env.eval('gameState.doom')})")
+    assert env.eval("gameState.gameOverCause") in (
+        "victory", "defeat_doom", "defeat_all_down", "defeat_source")
+
+
+def test_session_log_exports_after_bot_campaign():
+    """The batch-4 telemetry must survive a real full game, not just unit
+    fixtures: the log round-trips through JSON with turns recorded."""
+    import json
+    env = make_env()
+    start_game(env, "weekend")   # shortest full campaign
+    for _ in range(4):
+        if subphase(env) == "GameOver":
+            break
+        play_day(env, simple_bot_turn)
+    log = json.loads(env.globals().exportSessionLog())
+    assert log["setup"]["playerCount"] == len(SEATS)
+    assert log["setup"]["difficulty"] == "weekend"
+    assert len(log["turns"]) >= 3, "turn durations were not recorded"
+    assert log["outcome"]["cause"] in (
+        "victory", "defeat_doom", "defeat_all_down", "defeat_source", None)
+
+
+# ---------------------------------------------------------------------------
+# Fuzz: random public verbs, random (often wrong) colors and targets.
+# Reaching the end without a raised Lua error IS the assertion — every
+# refusal must be a broadcast, never a crash.
+# ---------------------------------------------------------------------------
+
+def _fuzz_verbs(env, rng):
+    g = env.globals()
+    return [
+        lambda c: g.doMove(c, rng.choice(LOCATIONS)),
+        lambda c: g.doGather(c),
+        lambda c: g.doRest(c, rng.choice(["hunger", "sanity"])),
+        lambda c: g.doEatRaw(c),
+        lambda c: g.doEnergyDrink(c),
+        lambda c: g.doFlee(c, rng.choice(LOCATIONS)),
+        lambda c: g.doBarricade(c),
+        lambda c: g.doCleanse(c),
+        lambda c: g.doSignature(c),
+        lambda c: g.doPry(c),
+        lambda c: g.doTrade(c, rng.choice(list(SEATS))),
+        lambda c: g.doCook(c, rng.choice(["R_PORRIDGE", "R_LEFTOVERS", "R_HOT_STEW"])),
+        lambda c: g.doDuskMove(c, rng.choice(LOCATIONS)),
+        lambda c: g.doStabilize(c, rng.choice(list(SEATS))),
+        lambda c: g.pressAttack(c, False),
+        lambda c: g.doUndo(c),
+    ]
+
+
+@pytest.mark.parametrize("seed", [11, 23, 47])
+def test_fuzz_campaign_no_hard_errors(seed):
+    rng = random.Random(seed)
+    env = make_env()
+    start_game(env, "standard")
+    verbs = _fuzz_verbs(env, rng)
+    for _day in range(8):
+        if subphase(env) == "GameOver":
+            break
+        env.globals().BeginDay()
+        flush(env)
+        guard = 0
+        while subphase(env) == "Day" and env.eval("gameState.activeColor") and guard < 40:
+            guard += 1
+            # mostly the active player, sometimes a wrong one (guards must hold)
+            color = env.eval("gameState.activeColor") if rng.random() < 0.8 else rng.choice(list(SEATS))
+            rng.choice(verbs)(color)
+            if rng.random() < 0.30 or guard > 25:
+                active = env.eval("gameState.activeColor")
+                if active:
+                    env.globals().doPass(active)
+            flush(env)
+        if subphase(env) == "Dusk":
+            if rng.random() < 0.5:
+                env.globals().doDuskMove(rng.choice(list(SEATS)), rng.choice(LOCATIONS))
+            env.globals().beginNight()
+            flush(env)
+        assert_invariants(env, f"fuzz seed {seed} day {_day + 1}")

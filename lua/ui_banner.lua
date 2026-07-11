@@ -168,7 +168,9 @@ function refreshStandeeTooltips()
 end
 
 function getNextDoomThreshold()
-    local thresholds = {10, 15, 20, 25, 30}
+    local thresholds = { DOOM_THRESHOLDS.night, DOOM_THRESHOLDS.scarcity,
+                         DOOM_THRESHOLDS.tick, DOOM_THRESHOLDS.anyPhaseBosses,
+                         getDoomLimit() }
     for _, t in ipairs(thresholds) do
         if gameState.doom < t then return t end
     end

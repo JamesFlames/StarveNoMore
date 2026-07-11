@@ -4,7 +4,10 @@ Run: python scripts/build_save.py
 Output: saves/StarveNoMore.json + saves/StarveNoMore.pretty.json
 """
 
-import json, csv, math, os, glob
+import json
+import csv
+import os
+import glob
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONTENT = os.path.join(ROOT, "content")
@@ -176,6 +179,26 @@ recipes = read_csv("cards_recipes.csv")
 threats = read_csv("cards_threats.csv")
 visitors = read_csv("cards_visitors.csv")
 trophies = read_csv("cards_trophies.csv")
+
+# ---------------------------------------------------------------------------
+# Atlas manifest: NumWidth/NumHeight come from what the atlas generator
+# actually rendered (art/decks/atlas_manifest.json), never hand-declared —
+# and a card-count mismatch means the atlases are stale, which is a hard stop.
+# ---------------------------------------------------------------------------
+ATLAS_MANIFEST_PATH = os.path.join(ART_DIR, "decks", "atlas_manifest.json")
+if not os.path.isfile(ATLAS_MANIFEST_PATH):
+    raise SystemExit("art/decks/atlas_manifest.json missing - run scripts/generate_card_atlases.py first")
+with open(ATLAS_MANIFEST_PATH, "r", encoding="utf-8") as _f:
+    ATLAS_MANIFEST = json.load(_f)
+
+def atlas_grid(csv_name, rows):
+    entry = ATLAS_MANIFEST.get(csv_name)
+    if not entry:
+        raise SystemExit(f"atlas_manifest.json has no entry for {csv_name} - rerun scripts/generate_card_atlases.py")
+    if entry["cards"] != len(rows):
+        raise SystemExit(f"{csv_name}: atlas rendered for {entry['cards']} cards but CSV now has "
+                         f"{len(rows)} - rerun scripts/generate_card_atlases.py")
+    return entry["cols"], entry["rows"]
 
 # ---------------------------------------------------------------------------
 # deck builder
@@ -488,13 +511,14 @@ objects.append(day_counter)
 # ---------------------------------------------------------------------------
 
 phase_decks = [
-    (1, phase1, "Phase 1: Dusk of the Week", 4, 4),
-    (2, phase2, "Phase 2: Strange Days", 4, 4),
-    (3, phase3, "Phase 3: Long Nights", 4, 4),
-    (4, phase4, "Phase 4: Final Hours", 4, 4),
+    (1, phase1, "Phase 1: Dusk of the Week"),
+    (2, phase2, "Phase 2: Strange Days"),
+    (3, phase3, "Phase 3: Long Nights"),
+    (4, phase4, "Phase 4: Final Hours"),
 ]
 
-for pi, (deck_num, cards, name, nw, nh) in enumerate(phase_decks):
+for pi, (deck_num, cards, name) in enumerate(phase_decks):
+    nw, nh = atlas_grid(f"cards_phase{deck_num}.csv", cards)
     deck = make_deck(
         deck_id=deck_num,
         face_url=ph(f"phase{deck_num}_face"),
@@ -516,11 +540,12 @@ for pi, (deck_num, cards, name, nw, nh) in enumerate(phase_decks):
 # E.9  Market deck + 5 face-up display slots
 # ---------------------------------------------------------------------------
 
+_mw, _mh = atlas_grid("cards_market.csv", market)
 market_deck = make_deck(
     deck_id=10,
     face_url=ph("market_face"),
     back_url=ph("market_back"),
-    num_w=7, num_h=8,
+    num_w=_mw, num_h=_mh,
     cards_data=market,
     id_field="id", name_field="name",
     desc_func=market_desc,
@@ -544,6 +569,7 @@ for i in range(5):
 # E.10  Recipe cards (face-up reference)
 # ---------------------------------------------------------------------------
 
+_rw, _rh = atlas_grid("cards_recipes.csv", recipes)
 for i, row in enumerate(recipes):
     card = base_obj("Card", tf(-14 + (i % 10) * 1.5, 1.2, -10 - (i // 10) * 2.2, rz=0, ry=180),
                     nickname=row["name"],
@@ -554,7 +580,7 @@ for i, row in enumerate(recipes):
         "20": {
             "FaceURL": ph("recipe_face"),
             "BackURL": ph("recipe_back"),
-            "NumWidth": 5, "NumHeight": 4,
+            "NumWidth": _rw, "NumHeight": _rh,
             "BackIsHidden": True, "UniqueBack": False, "Type": 0
         }
     }
@@ -566,11 +592,12 @@ for i, row in enumerate(recipes):
 # E.11  Threat deck
 # ---------------------------------------------------------------------------
 
+_tw, _th = atlas_grid("cards_threats.csv", threats)
 threat_deck = make_deck(
     deck_id=30,
     face_url=ph("threat_face"),
     back_url=ph("threat_back"),
-    num_w=7, num_h=8,
+    num_w=_tw, num_h=_th,
     cards_data=threats,
     id_field="id", name_field="name",
     desc_func=threat_desc,
@@ -591,11 +618,12 @@ objects.append(threat_deck)
 # E.12  Visitor deck
 # ---------------------------------------------------------------------------
 
+_vw, _vh = atlas_grid("cards_visitors.csv", visitors)
 visitor_deck = make_deck(
     deck_id=40,
     face_url=ph("visitor_face"),
     back_url=ph("visitor_back"),
-    num_w=3, num_h=2,
+    num_w=_vw, num_h=_vh,
     cards_data=visitors,
     id_field="id", name_field="character",
     desc_func=visitor_desc,
@@ -620,7 +648,8 @@ for i, row in enumerate(trophies):
         "50": {
             "FaceURL": ph("trophy_face"),
             "BackURL": ph("trophy_back"),
-            "NumWidth": 2, "NumHeight": 2,
+            "NumWidth": atlas_grid("cards_trophies.csv", trophies)[0],
+            "NumHeight": atlas_grid("cards_trophies.csv", trophies)[1],
             "BackIsHidden": True, "UniqueBack": False, "Type": 0
         }
     }
@@ -971,7 +1000,8 @@ LUA_LOAD_ORDER = [
     "audio.lua",            # defines Audio.* (depends on AUDIO)
     "whatnow_hints.lua",    # auto-gen by scripts/generate_whatnow_hints.py — defines WHATNOW_HINTS
     "market_data.lua",      # auto-gen by scripts/generate_market_data.py — defines MARKET_COSTS
-    "threat_types.lua",     # auto-gen by scripts/generate_threat_types.py — defines THREAT_TYPE_BY_NAME
+    "threat_types.lua",     # auto-gen by scripts/generate_threat_types.py — defines THREAT_TYPE_BY_NAME + SEALED_REWARDS
+    "recipe_data.lua",      # auto-gen by scripts/generate_recipe_data.py — defines RECIPE_DATA
     "setup.lua",
     "day_loop.lua",
     "effects/dawn_effects.lua",
@@ -1075,4 +1105,4 @@ with open(os.path.join(SAVES, "StarveNoMore.pretty.json"), "w", encoding="utf-8"
 total_objects = len(objects)
 contained = sum(len(o.get("ContainedObjects", [])) for o in objects)
 print(f"Save built: {total_objects} top-level objects, {contained} contained objects")
-print(f"Files written: saves/StarveNoMore.json, saves/StarveNoMore.pretty.json")
+print("Files written: saves/StarveNoMore.json, saves/StarveNoMore.pretty.json")

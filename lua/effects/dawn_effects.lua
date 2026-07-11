@@ -158,7 +158,7 @@ DAWN_EFFECTS["P1_STRANGE_RADIO"] = {
         broadcastEvent("proc", "A strange radio signal. All players roll d6.")
         for color, char in pairs(gameState.activeChars) do
             if not char.down then
-                local roll = math.random(1, 6)
+                local roll = gameRoll(1, 6)
                 if roll == 6 then
                     broadcastEvent("gain", char.name .. " rolls 6 — peek at Market deck for a Clue card!")
                 elseif roll == 1 then
@@ -225,7 +225,7 @@ DAWN_EFFECTS["P2_SHADOWS_MOVE"] = {
         broadcastEvent("proc", "Shadows move. Each player rolls Sanity d8, loses half (round up).")
         for color, char in pairs(gameState.activeChars) do
             if not char.down then
-                local roll = math.random(1, 8)
+                local roll = gameRoll(1, 8)
                 local loss = math.ceil(roll / 2)
                 char.sanity = math.max(0, char.sanity - loss)
                 broadcastEvent("damage", char.name .. " rolls " .. roll .. " → loses " .. loss .. " Sanity.")
@@ -663,7 +663,7 @@ DAWN_EFFECTS["P4_DESPAIR"] = {
         broadcastEvent("proc", "Despair. Each player rolls Sanity d8, loses half (round up).")
         for color, char in pairs(gameState.activeChars) do
             if not char.down then
-                local roll = math.random(1, 8)
+                local roll = gameRoll(1, 8)
                 local loss = math.ceil(roll / 2)
                 char.sanity = math.max(0, char.sanity - loss)
                 broadcastEvent("damage", char.name .. " rolls " .. roll .. " → loses " .. loss .. " Sanity.")
@@ -766,7 +766,7 @@ DAWN_EFFECTS["P4_VOICES_RETURN"] = {
         broadcastEvent("proc", "The voices come back. Every player rolls Sanity d8.")
         for color, char in pairs(gameState.activeChars) do
             if not char.down then
-                local roll = math.random(1, 8)
+                local roll = gameRoll(1, 8)
                 -- Check if an ally is at the same tile
                 local hasAlly = false
                 for c2, ch2 in pairs(gameState.activeChars) do

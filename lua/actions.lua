@@ -565,21 +565,13 @@ PRY_TOOLS = {
     { id = "M_PRY_BAR",  label = "Pry Bar" },
 }
 
--- Reward per sealed thing. resources spill at the tile from the supply
--- bags; market = free draws off the Market deck; line = the story beat.
-SEALED_REWARDS = {
-    T_THE_DOOR      = { market = 1,
-        line = "Behind the door: stocked shelves. A free Item from the Market deck." },
-    T_LOCKED_ROOM   = {
-        line = "The seven deadbolts give. Recover the Item card that was sealed inside." },
-    T_SEALED_SHED   = { resources = { Wood = 3 },
-        line = "The shed exhales sawdust: salvage 3 Wood." },
-    T_SEALED_LOCKER = { resources = { Battery = 2, Cloth = 1 },
-        line = "The locker was somebody's kit: 2 Battery and 1 Cloth." },
-    T_SEALED_CAR    = { resources = { EnergyDrink = 2, Metal = 1 },
-        line = "The glovebox and the trunk: 2 Energy Drinks and 1 Metal." },
-    BASEMENT        = { market = 1, resources = { Food = 2, Wood = 1, Battery = 1 },
-        line = "The basement cache, hoarded before the week began: a free Market Item plus 2 Food + 1 Wood + 1 Battery." },
+-- Sealed-card rewards live in SEALED_REWARDS (lua/threat_types.lua,
+-- AUTO-GENERATED from the `pry_reward` column of cards_threats.csv), so the
+-- card face and the delivered reward can never drift apart. The Basement is
+-- a placed object, not a card — its entry is authored here.
+SEALED_REWARDS.BASEMENT = {
+    market = 1, resources = { Food = 2, Wood = 1, Battery = 1 },
+    line = "The basement cache, hoarded before the week began: a free Market Item plus 2 Food + 1 Wood + 1 Battery.",
 }
 
 local PRY_RADIUS = 7   -- same "at this tile" radius as festering / signatures

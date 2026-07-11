@@ -3,7 +3,12 @@
 -----------------------------------------------------------------------
 -- Game State (the single source of truth, persisted via onSave)
 -----------------------------------------------------------------------
+-- Bump when gameState gains fields a restored save must have; the actual
+-- defaults live in ONE place: migrateGameState() below.
+SCHEMA_VERSION = 2
+
 gameState = {
+    schemaVersion = SCHEMA_VERSION,
     day          = 1,
     phase        = 1,         -- 1..4 (Dusk of Week / Strange Days / Long Nights / Final Hours)
     doom         = 0,
@@ -76,6 +81,25 @@ CHARACTER_HOMES = {
 }
 
 ACTIONS_PER_TURN = 3
+
+-----------------------------------------------------------------------
+-- Doom thresholds (Design §15.2). checkDoomThresholds (day_loop.lua) and
+-- getNextDoomThreshold (ui_banner.lua) read this table; the balance sim
+-- mirrors it and tests/test_sim.py enforces the mirror.
+-----------------------------------------------------------------------
+DOOM_THRESHOLDS = {
+    night          = 10,   -- night threat draws +1 everywhere
+    scarcity       = 15,   -- crafts cost +1 extra resource
+    tick           = 20,   -- everyone -1 extra Sanity at Tick
+    anyPhaseBosses = 25,   -- bosses any phase + Nothing Left to Lose
+}
+
+-----------------------------------------------------------------------
+-- Cleanse (Design §15.3): the communal ritual. doCleanse (tick_victory.lua)
+-- and the cleanse highlight (ui_actionbar.lua) read these; sim-mirrored.
+-----------------------------------------------------------------------
+CLEANSE_COST = { Wood = 1, Cloth = 1, Battery = 1, EnergyDrink = 1 }
+CLEANSE_REDUCTION = 2
 
 -----------------------------------------------------------------------
 -- Difficulty modes (Design §17.2, batch 4 W3). gameState.difficulty is
@@ -154,11 +178,44 @@ end
 -----------------------------------------------------------------------
 -- Lifecycle (F.1 + F.14)
 -----------------------------------------------------------------------
+-----------------------------------------------------------------------
+-- Save migration: every field a restored save might be missing gets its
+-- default HERE, in one place, instead of `or {}` scattered per read site.
+-- An old mid-campaign save must load and play through a full day.
+-----------------------------------------------------------------------
+function migrateGameState()
+    local gs = gameState
+    gs.ongoingDawnEffects   = gs.ongoingDawnEffects or {}
+    gs.activeChars          = gs.activeChars or {}
+    gs.dailyAlerts          = gs.dailyAlerts or {}
+    gs.turnOrder            = gs.turnOrder or {}
+    gs.dayLog               = gs.dayLog or {}
+    gs.scenarioFlags        = gs.scenarioFlags or {}
+    gs.bossHP               = gs.bossHP or {}               -- batch 2
+    gs.pendingSanityPenalty = gs.pendingSanityPenalty or {} -- batch 2
+    gs.loudSignature        = gs.loudSignature or {}        -- batch 2
+    gs.turnStyle            = gs.turnStyle or "full"
+    gs.difficulty           = gs.difficulty or "standard"   -- batch 4
+    gs.raymanTilesMovedToday = gs.raymanTilesMovedToday or 0 -- batch 4
+    for _, char in pairs(gs.activeChars) do
+        if char.signatureUsed == nil then char.signatureUsed = false end -- batch 2
+    end
+    -- Chronicle: lazily created; older chronicles gain the telemetry fields.
+    if gs.chronicle then
+        gs.chronicle.setup = gs.chronicle.setup or {}
+        gs.chronicle.turns = gs.chronicle.turns or {}
+        gs.chronicle.beats = gs.chronicle.beats or
+            { pressKills = 0, signaturesUsed = {}, sourceSplit = false, daresTaken = 0 }
+    end
+    gs.schemaVersion = SCHEMA_VERSION
+end
+
 function onLoad(savedState)
     if savedState and savedState ~= "" then
         local decoded = JSON.decode(savedState)
         if decoded then
             gameState = decoded
+            migrateGameState()
         end
     end
 

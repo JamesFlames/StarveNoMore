@@ -1,0 +1,505 @@
+{
+  "actedThisVisit": false,
+  "activeChars": {
+    "Red": {
+      "actionsLeft": 0,
+      "briefed": false,
+      "charlieStreak": 0,
+      "down": false,
+      "health": 6,
+      "hunger": 5,
+      "location": "EllieLucaHouse",
+      "maxHealth": 6,
+      "maxHunger": 8,
+      "maxSanity": 12,
+      "name": "Coco",
+      "sanity": 9,
+      "signatureUsed": false
+    },
+    "White": {
+      "actionsLeft": 0,
+      "briefed": false,
+      "charlieStreak": 0,
+      "down": false,
+      "health": 8,
+      "hunger": 5,
+      "location": "JamesHouse",
+      "maxHealth": 8,
+      "maxHunger": 6,
+      "maxSanity": 10,
+      "name": "James",
+      "sanity": 3,
+      "signatureUsed": false
+    },
+    "Yellow": {
+      "actionsLeft": 0,
+      "briefed": false,
+      "charlieStreak": 0,
+      "down": false,
+      "health": 12,
+      "hunger": 9,
+      "location": "RaymanHouse",
+      "maxHealth": 12,
+      "maxHunger": 10,
+      "maxSanity": 6,
+      "name": "Rayman",
+      "sanity": 5,
+      "signatureUsed": false
+    }
+  },
+  "activeDawn": {
+    "description": "",
+    "id": "P2_TEST_CARD_0",
+    "prevId": "P2_TEST_CARD_0",
+    "title": "P2_TEST_CARD_0"
+  },
+  "barricades": {},
+  "bossHP": {},
+  "chronicle": {
+    "beats": {
+      "daresTaken": 0,
+      "pressKills": 0,
+      "signaturesUsed": {},
+      "sourceSplit": false
+    },
+    "days": [
+      {
+        "damageTonight": 1,
+        "headline": "The team took some knocks and kept moving."
+      },
+      {
+        "damageTonight": 1,
+        "headline": "The team took some knocks and kept moving."
+      },
+      {
+        "damageTonight": 1,
+        "headline": "The team took some knocks and kept moving."
+      }
+    ],
+    "downs": 0,
+    "kills": {},
+    "maxCharlieStreak": {
+      "name": "",
+      "value": 0
+    },
+    "meals": {},
+    "peakDoom": {
+      "day": 3,
+      "value": 3
+    },
+    "revives": 0,
+    "setup": {
+      "difficulty": "standard",
+      "pathVariant": "Compact",
+      "playerCount": 3,
+      "roster": [
+        "James",
+        "Coco",
+        "Rayman"
+      ],
+      "turnStyle": "full"
+    },
+    "turns": [
+      {
+        "day": 1,
+        "name": "James",
+        "seconds": 0
+      },
+      {
+        "day": 1,
+        "name": "Coco",
+        "seconds": 0
+      },
+      {
+        "day": 1,
+        "name": "Rayman",
+        "seconds": 0
+      },
+      {
+        "day": 2,
+        "name": "James",
+        "seconds": 0
+      },
+      {
+        "day": 2,
+        "name": "Coco",
+        "seconds": 0
+      },
+      {
+        "day": 2,
+        "name": "Rayman",
+        "seconds": 0
+      },
+      {
+        "day": 3,
+        "name": "James",
+        "seconds": 0
+      },
+      {
+        "day": 3,
+        "name": "Coco",
+        "seconds": 0
+      },
+      {
+        "day": 3,
+        "name": "Rayman",
+        "seconds": 0
+      }
+    ]
+  },
+  "dailyAlerts": {
+    "White": {
+      "jamesEnergy": true
+    }
+  },
+  "dawnChecklist": {},
+  "day": 4,
+  "dayLog": [
+    {
+      "category": "proc",
+      "message": "(Edge case in Mood \u2014 continuing.) [string \"<python>\"]:8965: attempt to call global 'Color' (a nil value)"
+    },
+    {
+      "category": "phase",
+      "message": "--- Day 3 of 7 --- Phase 2 ---"
+    },
+    {
+      "category": "warn",
+      "message": "Doom advances +1 to 3 / 30."
+    },
+    {
+      "category": "phase",
+      "message": "DAWN: P2_TEST_CARD_0"
+    },
+    {
+      "category": "proc",
+      "message": ""
+    },
+    {
+      "category": "proc",
+      "message": "No scripted effect for Dawn card: P2_TEST_CARD_0"
+    },
+    {
+      "category": "proc",
+      "message": "(Edge case in Mood \u2014 continuing.) [string \"<python>\"]:8965: attempt to call global 'Color' (a nil value)"
+    },
+    {
+      "category": "proc",
+      "message": "James's turn. 3 action(s) remaining."
+    },
+    {
+      "category": "proc",
+      "message": "James uses Gather. (2 left)"
+    },
+    {
+      "category": "proc",
+      "message": "James gathers at JamesHouse."
+    },
+    {
+      "category": "proc",
+      "message": "Draw 1 resource from JamesHouse's resource bag."
+    },
+    {
+      "category": "gain",
+      "message": "The Stash: instead of a random draw, you may take 2 Energy Drinks."
+    },
+    {
+      "category": "proc",
+      "message": "James uses Gather. (1 left)"
+    },
+    {
+      "category": "proc",
+      "message": "James gathers at JamesHouse."
+    },
+    {
+      "category": "proc",
+      "message": "Draw 1 resource from JamesHouse's resource bag."
+    },
+    {
+      "category": "gain",
+      "message": "The Stash: instead of a random draw, you may take 2 Energy Drinks."
+    },
+    {
+      "category": "proc",
+      "message": "James uses Gather. (0 left)"
+    },
+    {
+      "category": "proc",
+      "message": "James gathers at JamesHouse."
+    },
+    {
+      "category": "proc",
+      "message": "Draw 1 resource from JamesHouse's resource bag."
+    },
+    {
+      "category": "gain",
+      "message": "The Stash: instead of a random draw, you may take 2 Energy Drinks."
+    },
+    {
+      "category": "proc",
+      "message": "James passes. Turn over."
+    },
+    {
+      "category": "proc",
+      "message": "Coco's turn. 3 action(s) remaining."
+    },
+    {
+      "category": "proc",
+      "message": "Coco uses Gather. (2 left)"
+    },
+    {
+      "category": "proc",
+      "message": "Coco gathers at EllieLucaHouse."
+    },
+    {
+      "category": "proc",
+      "message": "Draw 1 resource from EllieLucaHouse's resource bag."
+    },
+    {
+      "category": "proc",
+      "message": "Coco uses Gather. (1 left)"
+    },
+    {
+      "category": "proc",
+      "message": "Coco gathers at EllieLucaHouse."
+    },
+    {
+      "category": "proc",
+      "message": "Draw 1 resource from EllieLucaHouse's resource bag."
+    },
+    {
+      "category": "proc",
+      "message": "Coco uses Gather. (0 left)"
+    },
+    {
+      "category": "proc",
+      "message": "Coco gathers at EllieLucaHouse."
+    },
+    {
+      "category": "proc",
+      "message": "Draw 1 resource from EllieLucaHouse's resource bag."
+    },
+    {
+      "category": "proc",
+      "message": "Coco passes. Turn over."
+    },
+    {
+      "category": "proc",
+      "message": "Rayman's turn. 3 action(s) remaining."
+    },
+    {
+      "category": "proc",
+      "message": "Rayman uses Gather. (2 left)"
+    },
+    {
+      "category": "proc",
+      "message": "Rayman gathers at RaymanHouse."
+    },
+    {
+      "category": "proc",
+      "message": "Draw 1 resource from RaymanHouse's resource bag."
+    },
+    {
+      "category": "proc",
+      "message": "Rayman uses Gather. (1 left)"
+    },
+    {
+      "category": "proc",
+      "message": "Rayman gathers at RaymanHouse."
+    },
+    {
+      "category": "proc",
+      "message": "Draw 1 resource from RaymanHouse's resource bag."
+    },
+    {
+      "category": "proc",
+      "message": "Rayman uses Gather. (0 left)"
+    },
+    {
+      "category": "proc",
+      "message": "Rayman gathers at RaymanHouse."
+    },
+    {
+      "category": "proc",
+      "message": "Draw 1 resource from RaymanHouse's resource bag."
+    },
+    {
+      "category": "proc",
+      "message": "Rayman passes. Turn over."
+    },
+    {
+      "category": "phase",
+      "message": "All players have finished. Advancing to Dusk."
+    },
+    {
+      "category": "proc",
+      "message": "(Edge case in Mood \u2014 continuing.) [string \"<python>\"]:8965: attempt to call global 'Color' (a nil value)"
+    },
+    {
+      "category": "phase",
+      "message": "DUSK \u2014 Last chance to move: each character may scramble 1 tile (costs 1 Hunger). You sleep where you stand."
+    },
+    {
+      "category": "proc",
+      "message": "--- THREAT PREVIEW ---"
+    },
+    {
+      "category": "proc",
+      "message": "  JamesHouse: James | Threat draws: 0 (safe)"
+    },
+    {
+      "category": "proc",
+      "message": "  RaymanHouse: Rayman | Threat draws: 0 (safe)"
+    },
+    {
+      "category": "proc",
+      "message": "  EllieLucaHouse: Coco | Threat draws: 0 (safe)"
+    },
+    {
+      "category": "warn",
+      "message": "Reminder: anyone without a Flashlight (Battery), Lantern, or Fire suffers a Charlie attack tonight (2 Sanity + 1 Health, +1 each per consecutive dark night). Coco is immune."
+    },
+    {
+      "category": "proc",
+      "message": "Scramble now if you must (Dusk panel, 1 tile, 1 Hunger each). Click 'Ready for Night' when settled \u2014 Night begins when everyone has. (Host's Resolve Night also works.)"
+    },
+    {
+      "category": "proc",
+      "message": "(Edge case in Mood \u2014 continuing.) [string \"<python>\"]:8965: attempt to call global 'Color' (a nil value)"
+    },
+    {
+      "category": "phase",
+      "message": "NIGHT \u2014 Resolving threats and sleep."
+    },
+    {
+      "category": "phase",
+      "message": "--- NIGHT PHASE ---"
+    },
+    {
+      "category": "phase",
+      "message": "Night at EllieLucaHouse (Coco)"
+    },
+    {
+      "category": "proc",
+      "message": "No threats drawn at EllieLucaHouse."
+    },
+    {
+      "category": "phase",
+      "message": "Night at JamesHouse (James)"
+    },
+    {
+      "category": "proc",
+      "message": "No threats drawn at JamesHouse."
+    },
+    {
+      "category": "phase",
+      "message": "Night at RaymanHouse (Rayman)"
+    },
+    {
+      "category": "proc",
+      "message": "No threats drawn at RaymanHouse."
+    },
+    {
+      "category": "phase",
+      "message": "--- STORYTELLING ---"
+    },
+    {
+      "category": "proc",
+      "message": "Players at house tiles with Comfort/Music/Photo items may use them now for Sanity gains."
+    },
+    {
+      "category": "phase",
+      "message": "--- SLEEP ---"
+    },
+    {
+      "category": "gain",
+      "message": "James sleeps at home: +1 Health, +1 Hunger, +1 Sanity."
+    },
+    {
+      "category": "proc",
+      "message": "Coco sleeps alone at someone else's house. No rest bonus."
+    },
+    {
+      "category": "gain",
+      "message": "Rayman sleeps at home: +1 Health, +1 Hunger, +1 Sanity."
+    },
+    {
+      "category": "proc",
+      "message": "(Edge case in Mood \u2014 continuing.) [string \"<python>\"]:8965: attempt to call global 'Color' (a nil value)"
+    },
+    {
+      "category": "phase",
+      "message": "--- TICK (End of Day 3) ---"
+    },
+    {
+      "category": "proc",
+      "message": "James: -1 Hunger, -1 Sanity. Now H:8 Hu:5 S:5"
+    },
+    {
+      "category": "damage",
+      "message": "James didn't get his Energy Drink \u2014 loses 2 Sanity (Wired)."
+    },
+    {
+      "category": "proc",
+      "message": "Coco: -1 Hunger, -1 Sanity. Now H:6 Hu:5 S:9"
+    },
+    {
+      "category": "proc",
+      "message": "Rayman had a quiet day \u2014 Big Appetite eases to -1 Hunger (3-player relief)."
+    },
+    {
+      "category": "proc",
+      "message": "Rayman: -1 Hunger, -1 Sanity. Now H:12 Hu:9 S:5"
+    },
+    {
+      "category": "phase",
+      "message": "Day 3 complete. Click 'Begin Day' to start Day 4."
+    }
+  ],
+  "dayStartStats": {
+    "Red": {
+      "health": 6,
+      "hunger": 6,
+      "sanity": 10
+    },
+    "White": {
+      "health": 8,
+      "hunger": 5,
+      "sanity": 5
+    },
+    "Yellow": {
+      "health": 12,
+      "hunger": 9,
+      "sanity": 5
+    }
+  },
+  "difficulty": "standard",
+  "doom": 3,
+  "duskMoves": {},
+  "duskReady": {},
+  "idleNudgedThisTurn": false,
+  "jamesEnergyDrinkUsed": false,
+  "lastInteractionAt": 1783752077,
+  "loudSignature": {},
+  "ongoingDawnEffects": {},
+  "pathVariant": "Compact",
+  "pendingSanityPenalty": {},
+  "phase": 2,
+  "playerCount": 3,
+  "raymanFoughtToday": false,
+  "raymanMovedToday": false,
+  "raymanTilesMovedToday": 0,
+  "scenarioFlags": {},
+  "schemaVersion": 2,
+  "started": true,
+  "subPhase": "PreDawn",
+  "tradesThisTurn": {},
+  "turnIndex": 4,
+  "turnOrder": [
+    "White",
+    "Red",
+    "Yellow"
+  ],
+  "turnStyle": "full",
+  "welcomed": true
+}

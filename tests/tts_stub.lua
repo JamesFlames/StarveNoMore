@@ -6,6 +6,34 @@
 -- error — that's a bug we want to catch), but fake *objects* are permissive
 -- (TTS objects have a huge API; unknown methods become recorded no-ops).
 --
+-- ==========================================================================
+-- DIVERGENCE LEDGER — known ways this stub does NOT behave like real TTS.
+-- Read this before trusting a green test that leans on the physical layer.
+--  * Wait.time ignores delays and repetition counts: TTS.flushWaits() runs
+--    every queued callback immediately, in scheduling order, until quiescent.
+--    Timing-dependent behavior (timeouts, delays between locations) is
+--    untestable here.
+--  * takeObject ignores `rotation` and `smooth`; only `position`, `guid`,
+--    and `callback_function` are honored. Face-up/face-down state is not
+--    modeled on taken cards.
+--  * Container getObjects() entries carry `tags` copied from the contained
+--    spec (real TTS also includes them in recent builds) — but entries for
+--    specs without an explicit guid get an index-based one, which real TTS
+--    never does. Give contained specs explicit guids when identity matters.
+--  * Physics, snap points, collisions, and object bounds are fake:
+--    getBoundsNormalized() always reports a 4x1x4 box at the object's
+--    position, so radius/area checks pass more easily than on a real table.
+--  * Player color/seat behavior is minimal: TTS.seated lists seated colors;
+--    every player is admin; hands are plain lists set via TTS.setHand.
+--  * UI.* records attributes/visibility but never lays anything out —
+--    nothing can be asserted about on-screen geometry or wrapping.
+--  * Audio (MusicPlayer) is a silent no-op recorder.
+-- Fixed divergences (previously cost debugging time, now faithful):
+--  * Object GUIDs come from a counter, NOT math.random — stubbed dice
+--    sequences are never consumed by object creation.
+--  * takeObject honors params.guid, matching real TTS.
+-- ==========================================================================
+--
 -- The TTS table is the test-facing control surface:
 --   TTS.addObject{tags={...}, position={x,y,z}, nickname=..., ...} -> obj
 --   TTS.setHand(color, {obj, ...})
@@ -96,13 +124,23 @@ local function makeObject(spec)
     o.getObjects = function()
         local out = {}
         for i, s in ipairs(state.contained) do
-            out[i] = { name = s.nickname or "", nickname = s.nickname or "", guid = tostring(i), index = i - 1 }
+            local tagsCopy = {}
+            for _, t in ipairs(s.tags or {}) do tagsCopy[#tagsCopy + 1] = t end
+            out[i] = { name = s.nickname or "", nickname = s.nickname or "",
+                       guid = s.guid or tostring(i), index = i - 1, tags = tagsCopy }
         end
         return out
     end
     o.takeObject = function(params)
         params = params or {}
-        local spec2 = table.remove(state.contained, 1)
+        -- guid-aware, like real TTS: pull the named object if asked.
+        local idx = 1
+        if params.guid then
+            for i, s in ipairs(state.contained) do
+                if (s.guid or tostring(i)) == params.guid then idx = i; break end
+            end
+        end
+        local spec2 = table.remove(state.contained, idx)
         local taken = makeObject(spec2 or {})
         if params.position then taken.setPosition(params.position) end
         table.insert(TTS.world, taken)
@@ -153,7 +191,9 @@ local function makeObject(spec)
     o.getVar = function() return nil end
     o.call = function(...) record("call", ...); return nil end
     o.clone = function() return makeObject(spec) end
-    o.guid = spec.guid or tostring(math.random(1, 1e9))
+    -- Counter-based GUIDs: never consumes math.random (see divergence ledger).
+    TTS.guidCounter = (TTS.guidCounter or 0) + 1
+    o.guid = spec.guid or ("stub" .. TTS.guidCounter)
     o.type = spec.type or "Card"   -- TTS .type property ("Card", "Deck", ...)
     o.interactable = true
     o.UI = { setAttribute = function() return true end, show = function() return true end, hide = function() return true end }

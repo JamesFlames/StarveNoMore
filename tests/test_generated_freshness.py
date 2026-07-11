@@ -18,7 +18,38 @@ GENERATORS = {
     "whatnow_hints.lua": "generate_whatnow_hints.py",
     "market_data.lua": "generate_market_data.py",
     "threat_types.lua": "generate_threat_types.py",
+    "recipe_data.lua": "generate_recipe_data.py",
 }
+
+
+def test_symbol_index_is_fresh():
+    """SYMBOLS.md and .luacheckrc must match what generate_symbol_index.py
+    produces from the current lua/ tree (E in frameworkimprovements.md)."""
+    targets = [os.path.join(ROOT, "SYMBOLS.md"), os.path.join(ROOT, ".luacheckrc")]
+    committed = {}
+    for t in targets:
+        assert os.path.isfile(t), f"{os.path.basename(t)} missing — run scripts/generate_symbol_index.py"
+        with open(t, "rb") as f:
+            committed[t] = f.read()
+    try:
+        proc = subprocess.run(
+            [sys.executable, os.path.join(SCRIPTS, "generate_symbol_index.py")],
+            capture_output=True, text=True, timeout=120, cwd=ROOT,
+        )
+        assert proc.returncode == 0, f"generator failed:\n{proc.stdout}\n{proc.stderr}"
+        regenerated = {}
+        for t in targets:
+            with open(t, "rb") as f:
+                regenerated[t] = f.read()
+    finally:
+        for t, data in committed.items():
+            with open(t, "wb") as f:
+                f.write(data)
+    for t in targets:
+        a = committed[t].replace(b"\r\n", b"\n")
+        b = regenerated[t].replace(b"\r\n", b"\n")
+        assert a == b, (
+            f"{os.path.basename(t)} is stale — rerun scripts/generate_symbol_index.py")
 
 
 @pytest.mark.parametrize("lua_file", sorted(GENERATORS))

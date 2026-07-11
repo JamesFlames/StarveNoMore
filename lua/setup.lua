@@ -5,7 +5,7 @@ function Setup(hostColor)
 
     -- 1. Pick a random path-edge variant
     local variants = {"Compact", "Sprawl", "Linear"}
-    local pick = variants[math.random(#variants)]
+    local pick = variants[gameRoll(#variants)]
     gameState.pathVariant = pick
     broadcastEvent("proc", "Path layout: " .. pick)
 
@@ -245,7 +245,7 @@ SCENARIOS = {
 function applyRandomScenario()
     local keys = {}
     for k, _ in pairs(SCENARIOS) do table.insert(keys, k) end
-    local pick = keys[math.random(#keys)]
+    local pick = keys[gameRoll(#keys)]
     local scenario = SCENARIOS[pick]
     broadcastEvent("phase", "Drawing Scenario Card: " .. scenario.name)
     broadcastEvent("proc", scenario.description)

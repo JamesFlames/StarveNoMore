@@ -13,7 +13,8 @@ Run: python scripts/generate_assets.py
 Output: art/tokens/, art/icons/, art/legend/, art/characters/, art/board/
 """
 
-import os, math
+import os
+import math
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

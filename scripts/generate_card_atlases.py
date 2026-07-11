@@ -14,7 +14,10 @@ Run: python scripts/generate_card_atlases.py
 Output: art/decks/*.png
 """
 
-import csv, os
+import csv
+import json
+import math
+import os
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -410,6 +413,20 @@ def render_card_back(label, color_key):
 # ---------------------------------------------------------------------------
 # Atlas builder
 # ---------------------------------------------------------------------------
+def grid_for(n):
+    """Smallest near-square grid that holds n cards.
+
+    Derived, never declared: adding a card to a CSV can no longer overflow a
+    hand-maintained grid. TTS CustomDeck constraints: 2..10 columns/rows.
+    build_save.py reads the resulting atlas_manifest.json for NumWidth/NumHeight.
+    """
+    cols = min(10, max(2, math.ceil(math.sqrt(n))))
+    rows = max(2, math.ceil(n / cols))
+    if rows > 10:
+        raise SystemExit(f"deck of {n} cards exceeds a 10x10 TTS atlas — split the deck")
+    return cols, rows
+
+
 def build_atlas(cards, num_w, num_h):
     atlas = Image.new("RGB", (num_w * CARD_W, num_h * CARD_H), (20, 18, 16))
     for i, card_img in enumerate(cards):
@@ -450,60 +467,56 @@ def main():
             out.append(render_fn(r, *args))
         return out
 
-    # --- Phase decks (4 x 4x4 grid) ---
+    # --- All decks: grid derived from card count; manifest records it so
+    # --- build_save.py can never disagree with the rendered atlas.
+    manifest = {}
+
+    def build_deck(csv_name, face_base, label, cards):
+        cols, rows_n = grid_for(len(cards))
+        atlas = build_atlas(cards, cols, rows_n)
+        atlas.save(os.path.join(OUT, f"{face_base}_face.png"))
+        manifest[csv_name] = {"cards": len(cards), "cols": cols, "rows": rows_n,
+                              "face": f"{face_base}_face.png"}
+        print(f"{label} face: {len(cards)} cards -> {cols}x{rows_n} atlas "
+              f"({atlas.size[0]}x{atlas.size[1]})")
+
     for phase_num in range(1, 5):
         rows = read_csv(f"cards_phase{phase_num}.csv")
-        cards = render_with_count(render_phase_card, rows, phase_num)
-        atlas = build_atlas(cards, 4, 4)
-        atlas.save(os.path.join(OUT, f"phase{phase_num}_face.png"))
-        print(f"Phase {phase_num} face: {len(rows)} cards -> 4x4 atlas ({atlas.size[0]}x{atlas.size[1]})")
+        build_deck(f"cards_phase{phase_num}.csv", f"phase{phase_num}", f"Phase {phase_num}",
+                   render_with_count(render_phase_card, rows, phase_num))
         render_card_back(f"PHASE {phase_num}", f"phase{phase_num}").save(
             os.path.join(OUT, f"phase{phase_num}_back.png"))
 
-    # --- Market deck (7x8 grid) ---
-    rows = read_csv("cards_market.csv")
-    cards = render_with_count(render_market_card, rows)
-    atlas = build_atlas(cards, 7, 8)
-    atlas.save(os.path.join(OUT, "market_face.png"))
-    print(f"Market face: {len(rows)} cards -> 7x8 atlas ({atlas.size[0]}x{atlas.size[1]})")
+    build_deck("cards_market.csv", "market", "Market",
+               render_with_count(render_market_card, read_csv("cards_market.csv")))
     render_card_back("MARKET", "market").save(os.path.join(OUT, "market_back.png"))
 
-    # --- Recipe deck (5x4 grid) ---
-    rows = read_csv("cards_recipes.csv")
-    cards = render_with_count(render_recipe_card, rows)
-    atlas = build_atlas(cards, 5, 4)
-    atlas.save(os.path.join(OUT, "recipe_face.png"))
-    print(f"Recipe face: {len(rows)} cards -> 5x4 atlas ({atlas.size[0]}x{atlas.size[1]})")
+    build_deck("cards_recipes.csv", "recipe", "Recipe",
+               render_with_count(render_recipe_card, read_csv("cards_recipes.csv")))
     render_card_back("RECIPE", "recipe").save(os.path.join(OUT, "recipe_back.png"))
 
-    # --- Threat deck (7x8 grid) ---
-    rows = read_csv("cards_threats.csv")
-    cards = render_with_count(render_threat_card, rows)
-    atlas = build_atlas(cards, 7, 8)
-    atlas.save(os.path.join(OUT, "threat_face.png"))
-    print(f"Threat face: {len(rows)} cards -> 7x8 atlas ({atlas.size[0]}x{atlas.size[1]})")
+    build_deck("cards_threats.csv", "threat", "Threat",
+               render_with_count(render_threat_card, read_csv("cards_threats.csv")))
     render_card_back("THREAT", "threat").save(os.path.join(OUT, "threat_back.png"))
 
-    # --- Visitor deck (3x2 grid) ---
-    rows = read_csv("cards_visitors.csv")
-    cards = render_with_count(render_visitor_card, rows)
-    atlas = build_atlas(cards, 3, 2)
-    atlas.save(os.path.join(OUT, "visitor_face.png"))
-    print(f"Visitor face: {len(rows)} cards -> 3x2 atlas ({atlas.size[0]}x{atlas.size[1]})")
+    build_deck("cards_visitors.csv", "visitor", "Visitor",
+               render_with_count(render_visitor_card, read_csv("cards_visitors.csv")))
     render_card_back("VISITOR", "visitor").save(os.path.join(OUT, "visitor_back.png"))
 
-    # --- Trophy deck (2x2 grid) ---
-    rows = read_csv("cards_trophies.csv")
-    cards = render_with_count(render_trophy_card, rows)
-    atlas = build_atlas(cards, 2, 2)
-    atlas.save(os.path.join(OUT, "trophy_face.png"))
-    print(f"Trophy face: {len(rows)} cards -> 2x2 atlas ({atlas.size[0]}x{atlas.size[1]})")
+    build_deck("cards_trophies.csv", "trophy", "Trophy",
+               render_with_count(render_trophy_card, read_csv("cards_trophies.csv")))
     render_card_back("TROPHY", "trophy").save(os.path.join(OUT, "trophy_back.png"))
+
+    manifest_path = os.path.join(OUT, "atlas_manifest.json")
+    with open(manifest_path, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
+        f.write("\n")
+    print(f"Atlas manifest written: {manifest_path}")
 
     print()
     print(f"Illustrations: {art_present} present, {art_missing} missing (using fallback rectangles)")
     print(f"All atlases written to: {OUT}")
-    print(f"Total: 9 face atlases + 9 back images = 18 files")
+    print("Total: 9 face atlases + 9 back images = 18 files")
 
 if __name__ == "__main__":
     main()

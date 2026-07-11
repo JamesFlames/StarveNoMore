@@ -10,7 +10,7 @@
 function rollAttackDice(numDice)
     local result = { hits = 0, fumbles = 0, rolls = {} }
     for i = 1, numDice do
-        local roll = math.random(1, 6)
+        local roll = gameRoll(1, 6)
         table.insert(result.rolls, roll)
         if roll >= 5 then
             result.hits = result.hits + 1
@@ -47,7 +47,7 @@ function dropBossLoot(bossKey)
     local pos = standee and standee.getPosition()
     if not pos then return end
     for i = 1, 3 do
-        local resType = BOSS_LOOT_RESOURCES[math.random(#BOSS_LOOT_RESOURCES)]
+        local resType = BOSS_LOOT_RESOURCES[gameRoll(#BOSS_LOOT_RESOURCES)]
         local bag = getResourceBag and getResourceBag(resType)
         if bag then
             safecall(function()

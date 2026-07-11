@@ -100,6 +100,18 @@ function characterToColor(name)
     return map[name]
 end
 
+-----------------------------------------------------------------------
+-- gameRoll — the RNG seam. ALL gameplay randomness (attack dice, dawn
+-- card rolls, loot picks, lair/scenario draws) goes through this one
+-- function, so tests can script outcomes by redefining gameRoll without
+-- monkeypatching math.random (which the TTS stub and cosmetic systems
+-- like the audio shuffle also use). Same signature as math.random.
+-----------------------------------------------------------------------
+function gameRoll(a, b)
+    if b then return math.random(a, b) end
+    return math.random(a)
+end
+
 -- Safe pcall wrapper (F.15)
 function safecall(fn, context)
     local ok, err = pcall(fn)

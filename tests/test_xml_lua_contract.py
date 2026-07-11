@@ -7,7 +7,6 @@ are out of scope and whitelisted explicitly where they exist).
 """
 import re
 
-import pytest
 
 # UI.* methods whose first literal string argument is an element id
 UI_ID_CALL_RE = re.compile(

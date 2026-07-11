@@ -419,8 +419,8 @@ def main():
         sys.exit(0 if args.skip_existing else 1)
 
     print(f"Starve No More — queueing {len(assets)} assets to ComfyUI at {COMFYUI_URL}")
-    print(f"Style: Don't Starve Together aesthetic + modern urban (suburban) twist")
-    print(f"Model: Flux Dev Q8 + c4r1mj34 LoRA (0.85)")
+    print("Style: Don't Starve Together aesthetic + modern urban (suburban) twist")
+    print("Model: Flux Dev Q8 + c4r1mj34 LoRA (0.85)")
     print()
 
     success = 0

@@ -2,6 +2,8 @@
 
 *Ways to make this project easier to work on — for humans and AI agents — and more robust. Unlike the design batches, this is about the **workshop**, not the game. Every item below is grounded in friction actually hit while building batches 1–4; the "evidence" lines say where. Prioritized shortlist at the end.*
 
+> **Status (2026-07): implemented.** Sections A–J are done, with three deliberate scope calls: A.2 (`rules_constants.json`) deferred — A.1's extended mirror tests cover the drift risk; B's third bullet (structured columns for simple Dawn effects) deferred — handlers are genuinely bespoke and the pairing tests already guard them; H.1 applied as one commit capturing the accumulated batches (retroactive per-batch splitting was impractical) with per-batch history recorded in [CHANGELOG.md](CHANGELOG.md) and the per-batch convention adopted going forward. The luacheck CI job ships soft-fail (`continue-on-error`) until its first run is reviewed.
+
 ---
 
 ## A. One source of truth for rule constants

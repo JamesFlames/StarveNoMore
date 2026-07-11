@@ -16,3 +16,36 @@ jobs:
         run: pip install pytest lupa
       - name: Run test suite
         run: python -m pytest tests
+      - name: Upload built save
+        # The suite's test_build_output rebuilds saves/StarveNoMore.json, so a
+        # green run always has a fresh save — playtest hosts can grab it from
+        # here without a local Python setup.
+        uses: actions/upload-artifact@v4
+        with:
+          name: StarveNoMore-save
+          path: saves/StarveNoMore.json
+
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Lint scripts and tests
+        run: python -m ruff check scripts tests
+
+  luacheck:
+    # Static analysis of the Lua bundle against the generated .luacheckrc
+    # (globals list from scripts/generate_symbol_index.py). Soft-fail until
+    # the first CI run has been reviewed — then flip continue-on-error off.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install luacheck
+        run: sudo apt-get update && sudo apt-get install -y lua-check
+      - name: Lint the Lua bundle
+        run: luacheck lua/

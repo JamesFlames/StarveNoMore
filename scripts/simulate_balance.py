@@ -112,6 +112,13 @@ YIELDS = {
 DOOM_RATES = {3: [1, 1, 1, 1], 4: [1, 1, 1, 2], 5: [1, 1, 2, 2]}
 PHASE_FOR_DAY = {1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 4, 7: 4}
 
+# Mirrors of lua/global.lua and lua/combat.lua — tests/test_sim.py enforces
+# equality, so a rule change on either side turns into a red test.
+DOOM_THRESHOLDS = {"night": 10, "scarcity": 15, "tick": 20, "anyPhaseBosses": 25}
+CLEANSE_COST = {"wood": 1, "cloth": 1, "battery": 1, "energy": 1}
+CLEANSE_REDUCTION = 2
+SOURCE_SPLIT_HP = 5
+
 BOSSES = {  # day -> (name, hp, atk, location fn)
     4: ("Deerclops", 6, 3, lambda rng: "BasketballCourt"),
     5: ("EyeOfTerror", 8, 3, lambda rng: rng.choice(HOUSES)),
@@ -200,7 +207,7 @@ class Game:
         5 HP or below, two Terror Beaks (2/2) peel off at its tile."""
         if self.rules != "new" or threat.name != "TheSource" or self.source_split:
             return
-        if 0 < threat.hp <= 5:
+        if 0 < threat.hp <= SOURCE_SPLIT_HP:
             self.source_split = True
             for _ in range(2):
                 beak = Threat(self.rng)
@@ -225,7 +232,7 @@ class Game:
                 d = 1 + (1 if f.name == "Rayman" else 0) + (1 if f.weapon else 0)
                 if f.name == "Rayman" and f.location == "BasketballCourt":
                     d += 1
-                if self.rules == "new" and self.doom >= 25:
+                if self.rules == "new" and self.doom >= DOOM_THRESHOLDS["anyPhaseBosses"]:
                     d += 1   # Nothing Left to Lose (Doom 25 buff)
                 dice += d
             rolls = [self.rng.randint(1, 6) for _ in range(dice)]
@@ -359,7 +366,7 @@ class Game:
 
     def craft_cost_ok(self, cost):
         """cost: Counter. Scarcity (new rules, doom>=15): +1 any resource."""
-        need = sum(cost.values()) + (1 if (self.rules == "new" and self.doom >= 15) else 0)
+        need = sum(cost.values()) + (1 if (self.rules == "new" and self.doom >= DOOM_THRESHOLDS["scarcity"]) else 0)
         if sum(self.pool.values()) < need:
             return False
         return all(self.pool[k] >= v for k, v in cost.items())
@@ -367,7 +374,7 @@ class Game:
     def craft(self, cost):
         for k, v in cost.items():
             self.pool[k] -= v
-        if self.rules == "new" and self.doom >= 15:
+        if self.rules == "new" and self.doom >= DOOM_THRESHOLDS["scarcity"]:
             extra = max(self.pool, key=lambda k: self.pool[k])
             self.pool[extra] -= 1
 
@@ -497,7 +504,7 @@ class Game:
         for loc in set(c.location for c in self.alive()):
             occupants = self.at(loc)
             rate = 0 if loc in HOUSES else 1
-            if self.doom >= 10:
+            if self.doom >= DOOM_THRESHOLDS["night"]:
                 rate += 1
             if len(occupants) == 1 and loc in COURTS:
                 rate += 1
@@ -579,7 +586,9 @@ class Game:
             if c.name in floor:
                 pass
             elif c.home == loc:
-                c.gain("sanity", 1); c.gain("hunger", 1); c.gain("health", 1)
+                c.gain("sanity", 1)
+                c.gain("hunger", 1)
+                c.gain("health", 1)
             elif loc in HOUSES and len(self.at(loc)) > 1:
                 c.gain("sanity", 1)
             if c.name == "Coco" and loc not in HOUSES and len(self.at(loc)) == 1:
@@ -601,7 +610,7 @@ class Game:
                and not self.rayman_fought and self.rayman_tiles < 2:
                 hunger_loss = 1
             sanity_loss = 1
-            if self.doom >= 20:
+            if self.doom >= DOOM_THRESHOLDS["tick"]:
                 sanity_loss += 1
             if self.deerclops_alive:
                 sanity_loss *= 2
@@ -641,24 +650,29 @@ class Game:
             self.dawn()
             self.trace_state("dawn")
             if self.doom >= 30:
-                self.loss = "doom"; return False
+                self.loss = "doom"
+                return False
             if not self.alive():
-                self.loss = "all_down"; return False
+                self.loss = "all_down"
+                return False
             self.day_actions()
             self.policy.special(self)
             self.trace_state("day")
             self.dusk_and_night()
             self.trace_state("night")
             if self.doom >= 30:
-                self.loss = "doom"; return False
+                self.loss = "doom"
+                return False
             if not self.alive():
-                self.loss = "all_down"; return False
+                self.loss = "all_down"
+                return False
         # New rules (Design §16.3.3): the Source is mandatory. If the final
         # boss still stands at the end of Day 7, survival wasn't enough.
         if self.rules == "new":
             for ts in self.threats.values():
                 if any(t.name == "TheSource" for t in ts):
-                    self.loss = "source"; return False
+                    self.loss = "source"
+                    return False
         return True
 
 
@@ -684,7 +698,9 @@ class Policy:
         for d in g.chars:
             if d.down and d.location == c.location and \
                g.pool["cloth"] >= 1 and g.pool["battery"] >= 1 and g.pool["food"] >= 1:
-                g.pool["cloth"] -= 1; g.pool["battery"] -= 1; g.pool["food"] -= 1
+                g.pool["cloth"] -= 1
+                g.pool["battery"] -= 1
+                g.pool["food"] -= 1
                 c.lose("health", 2)
                 g.check_down(c)
                 if not c.down:
@@ -720,18 +736,18 @@ class Policy:
             g.pool["battery"] += 1
             g.pool[g.rng.choice(["wood", "metal", "cloth", "food"])] += 1
             return 1
-        # cleanse when doom presses
-        bundle = Counter(wood=1, cloth=1, battery=1, energy=1)
+        # cleanse when doom presses (cost/effect are the mirrored constants)
+        bundle = Counter(CLEANSE_COST)
         if g.doom >= 14 and all(g.pool[k] >= v for k, v in bundle.items()):
             for k, v in bundle.items():
                 g.pool[k] -= v
-            g.doom = max(0, g.doom - 2)
+            g.doom = max(0, g.doom - CLEANSE_REDUCTION)
             return 1
         # rest if shaky
         if c.sanity <= 4 or c.health <= 3:
             c.gain("sanity", 2)
             # home bonus — or anywhere under Nothing Left to Lose (Doom 25)
-            if c.home == c.location or (g.rules == "new" and g.doom >= 25):
+            if c.home == c.location or (g.rules == "new" and g.doom >= DOOM_THRESHOLDS["anyPhaseBosses"]):
                 c.gain("health", 1)
             return 1
         # fight festering threats here during the day (1 action = 1 exchange);

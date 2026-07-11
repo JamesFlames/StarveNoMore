@@ -4,6 +4,16 @@ A cooperative survival board game for 3–5 players, built as a [Tabletop Simula
 
 > **Status:** pre-playtest. The design is locked in [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md); the Lua/XML scaffold (gameplay loop, UX, audio, atlas pipeline) is in place; card-art generation runs against a local ComfyUI instance. Not yet blind-tested with a fresh group.
 
+## Dev quickstart
+
+```bash
+pip install pytest lupa Pillow      # lupa runs the real Lua bundle headlessly
+python -m pytest tests              # ~250 tests; green = safe to build
+python scripts/build_save.py        # assemble saves/StarveNoMore.json
+```
+
+Everything else — pipelines, conventions, the file map — is in [`agents.md`](agents.md). Rule-change history: [`CHANGELOG.md`](CHANGELOG.md). Lua symbol lookup: [`SYMBOLS.md`](SYMBOLS.md).
+
 ## Where to start reading
 
 | If you want… | Open |
@@ -11,6 +21,8 @@ A cooperative survival board game for 3–5 players, built as a [Tabletop Simula
 | The 5-minute pitch | [`content/notebook/quickstart.md`](content/notebook/quickstart.md) |
 | A high-level orientation to the repo (file map, pipelines, conventions) | [`agents.md`](agents.md) |
 | The canonical rules and design intent | [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md) |
+| What changed, per design batch | [`CHANGELOG.md`](CHANGELOG.md) |
+| The blind-playtest protocol | [`playtest/facilitator_script.md`](playtest/facilitator_script.md) |
 
 ## Repository layout
 
@@ -68,6 +80,9 @@ Requires Python 3 with `Pillow`. Card illustrations and board scenes need a loca
 python scripts/generate_audio_manifest.py
 python scripts/generate_whatnow_hints.py
 python scripts/generate_market_data.py
+python scripts/generate_threat_types.py
+python scripts/generate_recipe_data.py
+python scripts/generate_symbol_index.py   # after any lua/ change (SYMBOLS.md + .luacheckrc)
 
 # 2. After adding new card illustrations to ComfyUI: queue, wait, sync.
 python scripts/generate_comfyui_assets.py --skip-existing

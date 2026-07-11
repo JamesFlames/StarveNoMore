@@ -3,16 +3,14 @@
 This is where the drift bugs live (e.g. the threat-deck atlas overflow):
 one artifact changes and its mirror doesn't.
 """
+import json as _json
 import os
 import re
-
-import pytest
 
 from conftest import (
     ART_DIR,
     LUA_DIR,
     SCRIPTS,
-    card_ids,
     read_csv_rows,
     read_text,
 )
@@ -120,76 +118,90 @@ def test_effect_rule_order_covers_all_rules():
 
 
 # --------------------------------------------------------------------------
-# Atlas grid capacity vs card counts (regression for the 6x5 -> 6x8 overflow bug)
+# Atlas manifest vs card counts vs built save (regression for the grid-
+# overflow bug class). Grids are DERIVED by generate_card_atlases.py and
+# recorded in art/decks/atlas_manifest.json; build_save.py reads that file,
+# so these tests check the manifest is current and the built save agrees.
 # --------------------------------------------------------------------------
 
-def parse_atlas_grids():
-    """Read the deck-section grids straight out of generate_card_atlases.py main()."""
-    src = read_text(os.path.join(SCRIPTS, "generate_card_atlases.py"))
-    main_src = src[src.index("def main("):]
-    grids = {}
-    # Phase decks: a loop over cards_phase{n}.csv with one build_atlas(cards, W, H)
-    phase_m = re.search(
-        r'read_csv\(f"cards_phase\{phase_num\}\.csv"\).*?build_atlas\(cards,\s*(\d+),\s*(\d+)\)',
-        main_src, re.S)
-    assert phase_m, "could not parse phase-deck grid from generate_card_atlases.py"
-    for n in range(1, 5):
-        grids[f"cards_phase{n}.csv"] = (int(phase_m.group(1)), int(phase_m.group(2)))
-    # Flat decks
-    for csv_name, w, h in re.findall(
-            r'read_csv\("(cards_\w+\.csv)"\).*?build_atlas\(cards,\s*(\d+),\s*(\d+)\)',
-            main_src, re.S):
-        grids[csv_name] = (int(w), int(h))
-    return grids
+DECK_FACES = {
+    "cards_phase1.csv": "phase1_face.png",
+    "cards_phase2.csv": "phase2_face.png",
+    "cards_phase3.csv": "phase3_face.png",
+    "cards_phase4.csv": "phase4_face.png",
+    "cards_market.csv": "market_face.png",
+    "cards_recipes.csv": "recipe_face.png",
+    "cards_threats.csv": "threat_face.png",
+    "cards_visitors.csv": "visitor_face.png",
+    "cards_trophies.csv": "trophy_face.png",
+}
 
 
-def test_atlas_grids_hold_every_card():
-    grids = parse_atlas_grids()
-    expected_decks = {
-        "cards_market.csv", "cards_recipes.csv", "cards_threats.csv",
-        "cards_visitors.csv", "cards_trophies.csv",
-        "cards_phase1.csv", "cards_phase2.csv", "cards_phase3.csv", "cards_phase4.csv",
-    }
-    assert expected_decks <= set(grids), f"grids not parsed for: {expected_decks - set(grids)}"
+def load_atlas_manifest():
+    path = os.path.join(ART_DIR, "decks", "atlas_manifest.json")
+    assert os.path.isfile(path), (
+        "art/decks/atlas_manifest.json missing — run scripts/generate_card_atlases.py")
+    with open(path, "r", encoding="utf-8") as f:
+        return _json.load(f)
+
+
+def test_atlas_manifest_is_current_and_capacious():
+    manifest = load_atlas_manifest()
     problems = []
-    for csv_name, (w, h) in sorted(grids.items()):
+    for csv_name, face in sorted(DECK_FACES.items()):
+        entry = manifest.get(csv_name)
+        if not entry:
+            problems.append(f"{csv_name}: no manifest entry — rerun generate_card_atlases.py")
+            continue
         n = len(read_csv_rows(csv_name))
-        if n > w * h:
+        if entry["cards"] != n:
             problems.append(
-                f"{csv_name}: {n} cards but atlas grid is {w}x{h} = {w*h} "
-                f"(cards beyond capacity are silently dropped)")
+                f"{csv_name}: atlas rendered for {entry['cards']} cards, CSV has {n} — "
+                "stale atlases, rerun generate_card_atlases.py")
+        if entry["cols"] * entry["rows"] < n:
+            problems.append(
+                f"{csv_name}: grid {entry['cols']}x{entry['rows']} cannot hold {n} cards")
+        if entry.get("face") != face:
+            problems.append(f"{csv_name}: manifest face {entry.get('face')!r} != {face!r}")
+        if not os.path.isfile(os.path.join(ART_DIR, "decks", face)):
+            problems.append(f"{face}: atlas image missing on disk")
     assert not problems, "\n".join(problems)
 
 
-def test_build_save_grids_match_atlas_generator():
-    """TTS slices the atlas by NumWidth/NumHeight in build_save.py; those must
-    equal the grid the atlas was rendered with, or cards show wrong faces."""
-    atlas = parse_atlas_grids()
-    src = read_text(os.path.join(SCRIPTS, "build_save.py"))
+def test_built_save_grids_match_manifest():
+    """Every CustomDeck in the built save must slice its atlas with the grid
+    the atlas was actually rendered at, or cards show wrong faces."""
+    from conftest import ROOT
+    save_path = os.path.join(ROOT, "saves", "StarveNoMore.json")
+    assert os.path.isfile(save_path), "saves/StarveNoMore.json missing — run build_save.py"
+    with open(save_path, "r", encoding="utf-8") as f:
+        save = _json.load(f)
 
-    checks = {
-        "cards_market.csv": r'ph\("market_face"\).*?num_w=(\d+),\s*num_h=(\d+)',
-        "cards_threats.csv": r'ph\("threat_face"\).*?num_w=(\d+),\s*num_h=(\d+)',
-        "cards_visitors.csv": r'ph\("visitor_face"\).*?num_w=(\d+),\s*num_h=(\d+)',
-        "cards_recipes.csv": r'ph\("recipe_face"\).*?"NumWidth":\s*(\d+),\s*"NumHeight":\s*(\d+)',
-        "cards_trophies.csv": r'ph\("trophy_face"\).*?"NumWidth":\s*(\d+),\s*"NumHeight":\s*(\d+)',
-    }
+    grids = {}   # face filename -> set of (w, h) seen in the save
+
+    def walk(node):
+        if isinstance(node, dict):
+            if "FaceURL" in node and "NumWidth" in node:
+                face = os.path.basename(node["FaceURL"])
+                grids.setdefault(face, set()).add((node["NumWidth"], node["NumHeight"]))
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    walk(save)
+
+    manifest = load_atlas_manifest()
     problems = []
-    for csv_name, pattern in checks.items():
-        m = re.search(pattern, src, re.S)
-        if not m:
-            problems.append(f"could not find grid for {csv_name} in build_save.py")
-            continue
-        got = (int(m.group(1)), int(m.group(2)))
-        if got != atlas[csv_name]:
-            problems.append(f"{csv_name}: build_save.py grid {got} != atlas grid {atlas[csv_name]}")
-
-    # Phase decks: (deck_num, rows, name, nw, nh) tuples
-    for deck_num, nw, nh in re.findall(r'\(\s*(\d)\s*,\s*phase\d\s*,\s*"[^"]*"\s*,\s*(\d+),\s*(\d+)\)', src):
-        key = f"cards_phase{deck_num}.csv"
-        got = (int(nw), int(nh))
-        if got != atlas[key]:
-            problems.append(f"{key}: build_save.py grid {got} != atlas grid {atlas[key]}")
+    for csv_name, face in sorted(DECK_FACES.items()):
+        entry = manifest[csv_name]
+        expected = (entry["cols"], entry["rows"])
+        seen = grids.get(face)
+        if not seen:
+            problems.append(f"{face}: no CustomDeck in the built save references it")
+        elif seen != {expected}:
+            problems.append(f"{face}: save grids {sorted(seen)} != manifest {expected}")
     assert not problems, "\n".join(problems)
 
 

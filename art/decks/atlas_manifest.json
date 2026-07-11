@@ -1,0 +1,56 @@
+{
+  "cards_market.csv": {
+    "cards": 49,
+    "cols": 7,
+    "face": "market_face.png",
+    "rows": 7
+  },
+  "cards_phase1.csv": {
+    "cards": 15,
+    "cols": 4,
+    "face": "phase1_face.png",
+    "rows": 4
+  },
+  "cards_phase2.csv": {
+    "cards": 16,
+    "cols": 4,
+    "face": "phase2_face.png",
+    "rows": 4
+  },
+  "cards_phase3.csv": {
+    "cards": 16,
+    "cols": 4,
+    "face": "phase3_face.png",
+    "rows": 4
+  },
+  "cards_phase4.csv": {
+    "cards": 15,
+    "cols": 4,
+    "face": "phase4_face.png",
+    "rows": 4
+  },
+  "cards_recipes.csv": {
+    "cards": 20,
+    "cols": 5,
+    "face": "recipe_face.png",
+    "rows": 4
+  },
+  "cards_threats.csv": {
+    "cards": 51,
+    "cols": 8,
+    "face": "threat_face.png",
+    "rows": 7
+  },
+  "cards_trophies.csv": {
+    "cards": 4,
+    "cols": 2,
+    "face": "trophy_face.png",
+    "rows": 2
+  },
+  "cards_visitors.csv": {
+    "cards": 6,
+    "cols": 3,
+    "face": "visitor_face.png",
+    "rows": 2
+  }
+}

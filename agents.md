@@ -47,13 +47,15 @@ historical references; do not link to them from new documentation.
 - **Save format**: Single JSON file with embedded Lua + XML
 
 ### Build Pipeline
-- `scripts/build_save.py` — Concatenates the Lua files in `LUA_LOAD_ORDER` + `xml/global_ui.xml` into the TTS save JSON.
-- Four of the Lua files in that list are **auto-generated** and should never be edited by hand:
+- `scripts/build_save.py` — Concatenates the Lua files in `LUA_LOAD_ORDER` + `xml/global_ui.xml` into the TTS save JSON. Deck `NumWidth/NumHeight` come from `art/decks/atlas_manifest.json` (written by the atlas generator; a card-count mismatch is a hard stop — rerun the atlas generator).
+- Five of the Lua files in that list are **auto-generated** and should never be edited by hand:
   - `lua/audio_manifest.lua`  — built by `scripts/generate_audio_manifest.py` from the `sounds/` tree
   - `lua/whatnow_hints.lua`   — built by `scripts/generate_whatnow_hints.py` from `content/help/whatnow_hints.md`
   - `lua/market_data.lua`     — built by `scripts/generate_market_data.py` from `content/cards_market.csv`
-  - `lua/threat_types.lua`    — built by `scripts/generate_threat_types.py` from `content/cards_threats.csv` (Night Sounds dusk peek)
-- Run those generators after editing the corresponding source, then `python scripts/build_save.py`.
+  - `lua/threat_types.lua`    — built by `scripts/generate_threat_types.py` from `content/cards_threats.csv` (`THREAT_TYPE_BY_NAME` for the Night Sounds peek + `SEALED_REWARDS` from the `pry_reward` column)
+  - `lua/recipe_data.lua`     — built by `scripts/generate_recipe_data.py` from `content/cards_recipes.csv` (`RECIPE_DATA` from the structured `script` column)
+- Two repo-root files are also generated: `SYMBOLS.md` + `.luacheckrc` — built by `scripts/generate_symbol_index.py` from `lua/` (rerun after any Lua change).
+- Run those generators after editing the corresponding source, then `python scripts/build_save.py`. All generators are idempotent and order-independent; `tests/test_generated_freshness.py` fails if any output is stale.
 
 ### Asset Pipeline
 - `scripts/generate_card_atlases.py` — Composites card faces from per-card illustrations + text panel; writes deck atlases to `art/decks/*.png`
@@ -75,7 +77,8 @@ StarveNoMore/
 │   ├── audio.lua               # Audio.startDayAmbience / playBossLoop / playChime / playWalk / playMeet / playTradeChat / playDeath / playSFX
 │   ├── whatnow_hints.lua       # AUTO-GENERATED — WHATNOW_HINTS table from markdown
 │   ├── market_data.lua         # AUTO-GENERATED — MARKET_COSTS table from cards_market.csv
-│   ├── threat_types.lua        # AUTO-GENERATED — THREAT_TYPE_BY_NAME from cards_threats.csv (Night Sounds)
+│   ├── threat_types.lua        # AUTO-GENERATED — THREAT_TYPE_BY_NAME + SEALED_REWARDS from cards_threats.csv
+│   ├── recipe_data.lua         # AUTO-GENERATED — RECIPE_DATA from cards_recipes.csv (script column)
 │   ├── setup.lua               # Bare gameplay setup (deals/shuffles/places)
 │   ├── day_loop.lua            # Day/Dusk/Night advance, turn management, idle nudge
 │   ├── effects/
@@ -126,7 +129,9 @@ StarveNoMore/
 │   ├── creatures/{bearger,deerclops,eye_of_terror,treeguard}/   # Boss roar libraries
 │   └── sfx/tick_chime.wav      # Synthesized two-note bell
 ├── playtest/                   # Blind-playtest protocol (batch 4 W4): facilitator_script.md + feedback_form.md
+│   └── sessions/               # Committed Copy-Session-Log exports; aggregate with scripts/analyze_sessions.py
 ├── saves/                      # Built TTS save JSON (StarveNoMore.json + .pretty.json)
+│   └── fixtures/               # Frozen mid-game save (midgame_v1.json) for the save-compat test
 ├── scripts/                    # Build + asset/data generation (Python) + simulate_balance.py (Monte Carlo balance probe)
 └── Archive/                    # Superseded reference docs (frozen — no live links)
 ```
@@ -192,9 +197,12 @@ Survive all 7 days with Doom < 30 and at least one character not Down — and if
 - All object lookups use `getObjectsWithTag(tag)` — never hardcoded GUIDs
 - `safecall(fn, label)` wraps all non-critical calls for graceful error handling
 - `broadcastEvent(category, message)` for all player-facing messages (logs to dayLog)
-- Game state is a single `gameState` table, persisted via `onSave`/`onLoad` with JSON encoding
+- Game state is a single `gameState` table, persisted via `onSave`/`onLoad` with JSON encoding. Schema changes go through `SCHEMA_VERSION` + `migrateGameState()` (global.lua) — new fields get their defaults THERE, not `or {}` at read sites. `tests/test_save_fixture.py` loads a frozen mid-game save against the current bundle.
+- **All gameplay randomness goes through `gameRoll(a, b)`** (helpers.lua) — never call `math.random` directly in game logic. Tests script dice by redefining `gameRoll`; cosmetic randomness (audio shuffle) stays on `math.random`.
 - UI panels are shown/hidden via `UI.show(id)` / `UI.hide(id)` targeting XML element IDs
 - The build script is the single source of truth for what gets packaged into the TTS save
+- **If a change requires remembering to update a second file, add the test that remembers instead.** The suite already enforces: generated-file freshness, Dawn card↔handler pairing, `ongoingDawnEffects`↔Rules-panel labels, XML↔Lua handler contracts, sim↔lua constant mirrors (stats, Doom rates/thresholds, Cleanse, boss statlines, difficulty params), and atlas-manifest↔CSV↔save grids. Extend that list before relying on memory.
+- Symbol lookup: `SYMBOLS.md` maps every global function/constant to its file and line — one lookup instead of N greps.
 
 ## ComfyUI Workflow
 
@@ -510,7 +518,10 @@ CI runs it on every push (`.github/workflows/tests.yml`). What it covers:
 - **`test_lua_statics.py`** — no global function/constant is defined twice across the concatenated bundle (the later definition would silently win); every lua file is deliberately placed in `LUA_LOAD_ORDER`.
 - **`test_build_output.py`** — rebuilds the save, validates the JSON, and fails if `saves/StarveNoMore.json` is stale relative to the sources (restores committed bytes; run `python scripts/build_save.py` to fix).
 - **`test_lua_runtime.py`** — runs the real concatenated bundle headlessly under Lua 5.2 (`lupa`) with `tests/tts_stub.lua` faking the TTS API: load smoke, `onLoad`/`onSave` round-trip, combat fumble rules, Charlie escalation/reset, Tick decay + Down + victory/defeat, revive, night light checks, and an `apply()`/`expire()` sweep over every Dawn effect. When adding gameplay rules, add a test here; extend the stub in `tts_stub.lua` if the code uses a TTS API it doesn't cover yet.
-- **`test_sim.py`** — enforces the sim maintenance rule mechanically (sim constants must equal `global.lua`'s), asserts per-game invariants over seeded batches, and checks policy win rates stay inside bands around the baseline table above. If you change a rule intentionally: update the sim, rerun the 3000-sim baseline, update the table above **and** the bands in `test_sim.py`.
+- **`test_sim.py`** — enforces the sim maintenance rule mechanically (sim constants must equal `global.lua`'s: stats, homes, Doom rates/thresholds, Cleanse, boss statlines vs build_save + combat.lua, difficulty invariants), asserts per-game invariants over seeded batches, and checks policy win rates stay inside bands around the baseline table above. If you change a rule intentionally: update the sim, rerun the 3000-sim baseline, update the table above **and** the bands in `test_sim.py`.
+- **`test_full_campaign.py`** — a trivial bot plays whole games headlessly at every difficulty (invariants only: no hard error, stats in range, a verdict is reached), plus seeded random-verb fuzz games. The net for cross-feature breakage.
+- **`test_save_fixture.py`** — loads the frozen `saves/fixtures/midgame_v1.json` (and a stripped old-schema variant) into the current bundle and plays a full day. Guards `migrateGameState()`.
+- **`test_analyze_sessions.py`** — the playtest-log aggregator against synthetic and real telemetry exports.
 
 In-TTS checks that can't run headlessly stay in `lua/audit.lua` (`auditFirstLoad()`, `auditTooltips()`, `auditHintCoverage()`, `auditObjectCount()` from the TTS console).
 
@@ -565,7 +576,14 @@ python scripts/sync_comfyui_output.py --dry-run  # preview
 python scripts/generate_audio_manifest.py    # sounds/  → lua/audio_manifest.lua
 python scripts/generate_whatnow_hints.py     # whatnow_hints.md → lua/whatnow_hints.lua
 python scripts/generate_market_data.py       # cards_market.csv → lua/market_data.lua
-python scripts/generate_threat_types.py      # cards_threats.csv → lua/threat_types.lua
+python scripts/generate_threat_types.py      # cards_threats.csv → lua/threat_types.lua (types + sealed rewards)
+python scripts/generate_recipe_data.py       # cards_recipes.csv → lua/recipe_data.lua
+python scripts/generate_symbol_index.py      # lua/ → SYMBOLS.md + .luacheckrc
+```
+
+### To aggregate playtest session logs:
+```bash
+python scripts/analyze_sessions.py           # reads playtest/sessions/*.json
 ```
 
 ### To sanity-check a rule change against the balance sim:

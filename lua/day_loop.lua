@@ -220,23 +220,24 @@ end
 
 function checkDoomThresholds()
     local d = gameState.doom
-    if d >= 10 and not gameState.ongoingDawnEffects.doom10 then
+    local T = DOOM_THRESHOLDS
+    if d >= T.night and not gameState.ongoingDawnEffects.doom10 then
         gameState.ongoingDawnEffects.doom10 = true
-        broadcastEvent("warn", "DOOM THRESHOLD 10: Night threat draws +1 at all locations.")
+        broadcastEvent("warn", "DOOM THRESHOLD " .. T.night .. ": Night threat draws +1 at all locations.")
         safecall(function() nudgeCameraToDoom() end, "CameraNudge")
     end
-    if d >= 15 and not gameState.ongoingDawnEffects.doom15 then
+    if d >= T.scarcity and not gameState.ongoingDawnEffects.doom15 then
         gameState.ongoingDawnEffects.doom15 = true
-        broadcastEvent("warn", "DOOM THRESHOLD 15: Scarcity — every Market craft costs +1 extra resource (any type you hold, your choice).")
+        broadcastEvent("warn", "DOOM THRESHOLD " .. T.scarcity .. ": Scarcity — every Market craft costs +1 extra resource (any type you hold, your choice).")
     end
-    if d >= 20 and not gameState.ongoingDawnEffects.doom20 then
+    if d >= T.tick and not gameState.ongoingDawnEffects.doom20 then
         gameState.ongoingDawnEffects.doom20 = true
-        broadcastEvent("warn", "DOOM THRESHOLD 20: All characters lose +1 Sanity at Tick.")
+        broadcastEvent("warn", "DOOM THRESHOLD " .. T.tick .. ": All characters lose +1 Sanity at Tick.")
     end
-    if d >= 25 and not gameState.ongoingDawnEffects.doom25 then
+    if d >= T.anyPhaseBosses and not gameState.ongoingDawnEffects.doom25 then
         gameState.ongoingDawnEffects.doom25 = true
-        broadcastEvent("warn", "DOOM THRESHOLD 25: Boss-level threats can appear in any phase.")
-        broadcastEvent("gain", "DOOM 25 — Nothing Left to Lose. +1 attack die for everyone; Rest heals +1 Health anywhere. Go down swinging.")
+        broadcastEvent("warn", "DOOM THRESHOLD " .. T.anyPhaseBosses .. ": Boss-level threats can appear in any phase.")
+        broadcastEvent("gain", "DOOM " .. T.anyPhaseBosses .. " — Nothing Left to Lose. +1 attack die for everyone; Rest heals +1 Health anywhere. Go down swinging.")
     end
 end
 

@@ -63,7 +63,7 @@ def test_every_lua_file_made_it_into_the_bundle(built_save):
 
 
 def test_build_emits_no_warnings(built_save):
-    warnings = [l for l in built_save["stdout"].splitlines() if l.startswith("WARNING")]
+    warnings = [line for line in built_save["stdout"].splitlines() if line.startswith("WARNING")]
     assert not warnings, "build_save.py warnings:\n" + "\n".join(warnings)
 
 

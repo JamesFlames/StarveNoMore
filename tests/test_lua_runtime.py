@@ -74,10 +74,12 @@ def broadcasts(rt):
 
 
 def script_dice(rt, rolls):
-    """Make math.random return this exact sequence (asserts if exhausted)."""
+    """Make gameRoll — the gameplay RNG seam (helpers.lua) — return this exact
+    sequence (asserts if exhausted). math.random itself is left alone, so the
+    stub's internals and cosmetic randomness never eat scripted rolls."""
     rt.execute(
         "local seq = {%s}; local i = 0\n"
-        "math.random = function(...) i = i + 1\n"
+        "gameRoll = function(...) i = i + 1\n"
         "  assert(seq[i], 'scripted dice exhausted at roll ' .. i)\n"
         "  return seq[i] end" % ",".join(str(r) for r in rolls)
     )

@@ -13,7 +13,9 @@ import pytest
 
 import simulate_balance as sim  # scripts/ is on sys.path via conftest
 
-from conftest import LUA_DIR, TESTS, read_text
+import re as _re
+
+from conftest import LUA_DIR, SCRIPTS, TESTS, read_text
 
 try:
     import lupa.lua52 as lua52
@@ -64,6 +66,86 @@ def test_phase_for_day_matches(lua_globals):
     for day, phase in sim.PHASE_FOR_DAY.items():
         lua_phase = lua_globals.globals().getPhaseForDay(day)
         assert phase == lua_phase, f"day {day}: sim phase {phase}, lua phase {lua_phase}"
+
+
+def test_doom_thresholds_match(lua_globals):
+    for key, value in sim.DOOM_THRESHOLDS.items():
+        lua_value = lua_globals.eval(f"DOOM_THRESHOLDS.{key}")
+        assert value == lua_value, (
+            f"DOOM_THRESHOLDS.{key}: sim={value} lua={lua_value} — "
+            "simulate_balance.py has drifted from global.lua")
+
+
+# The sim's pool keys vs the lua resource-bag tags.
+_SIM_RESOURCE_NAMES = {"Wood": "wood", "Cloth": "cloth", "Battery": "battery",
+                       "EnergyDrink": "energy", "Metal": "metal", "Food": "food"}
+
+
+def test_cleanse_cost_and_reduction_match(lua_globals):
+    lua_cost = {k: lua_globals.eval(f'CLEANSE_COST["{k}"]')
+                for k in ("Wood", "Cloth", "Battery", "EnergyDrink")}
+    sim_cost = {k: sim.CLEANSE_COST.get(_SIM_RESOURCE_NAMES[k], 0) for k in lua_cost}
+    assert lua_cost == sim_cost, f"Cleanse cost drift: lua={lua_cost} sim={sim_cost}"
+    assert lua_globals.eval("CLEANSE_REDUCTION") == sim.CLEANSE_REDUCTION
+
+
+# ---------------------------------------------------------------------------
+# Boss statlines: sim BOSSES <-> build_save.py standees <-> lua constants.
+# build_save.py executes its whole build on import, so it is parsed, not
+# imported; the lua constants likewise (they live outside global.lua).
+# ---------------------------------------------------------------------------
+
+
+def _build_save_bosses():
+    src = read_text(os.path.join(SCRIPTS, "build_save.py"))
+    m = _re.search(r"bosses = \[(.*?)\]", src, _re.S)
+    assert m, "bosses list not found in build_save.py"
+    return {name: (int(hp), int(atk))
+            for name, hp, atk in _re.findall(r'\("(\w+)",\s*(\d+),\s*(\d+)\)', m.group(1))}
+
+
+def test_boss_stats_match_build_save():
+    standees = _build_save_bosses()
+    for _day, (name, hp, atk, _loc) in sim.BOSSES.items():
+        assert name in standees, f"{name} missing from build_save.py bosses list"
+        assert standees[name] == (hp, atk), (
+            f"{name}: build_save standee {standees[name]} != sim ({hp}, {atk})")
+
+
+def test_source_constants_match_combat_lua():
+    src = read_text(os.path.join(LUA_DIR, "combat.lua"))
+    max_hp = int(_re.search(r"SOURCE_MAX_HP\s*=\s*(\d+)", src).group(1))
+    split_hp = int(_re.search(r"SOURCE_SPLIT_HP\s*=\s*(\d+)", src).group(1))
+    assert max_hp == sim.BOSSES[6][1], (
+        f"Source HP: combat.lua {max_hp} != sim {sim.BOSSES[6][1]}")
+    assert split_hp == sim.SOURCE_SPLIT_HP, (
+        f"Source split threshold: combat.lua {split_hp} != sim {sim.SOURCE_SPLIT_HP}")
+
+
+def test_treeguard_stats_match_build_save():
+    src = read_text(os.path.join(LUA_DIR, "treeguard.lua"))
+    m = _re.search(r"TREEGUARD_STATS\s*=\s*{[^}]*hp\s*=\s*(\d+)[^}]*attack\s*=\s*(\d+)", src)
+    assert m, "TREEGUARD_STATS not parsed from treeguard.lua"
+    assert _build_save_bosses()["Treeguard"] == (int(m.group(1)), int(m.group(2)))
+
+
+def test_difficulty_params_invariants(lua_globals):
+    """DIFFICULTY_PARAMS (global.lua) must stay internally consistent —
+    every mode playable by the same loop code."""
+    modes = ["standard", "weekend", "nightmare"]
+    for mode in modes:
+        days = lua_globals.eval(f"DIFFICULTY_PARAMS.{mode}.days")
+        limit = lua_globals.eval(f"DIFFICULTY_PARAMS.{mode}.doomLimit")
+        assert days and days >= 1, f"{mode}: bad day count {days}"
+        assert limit and limit >= 10, f"{mode}: bad doom limit {limit}"
+        # every playable day maps to a phase 1..4
+        lua_globals.execute(f'gameState.difficulty = "{mode}"')
+        for day in range(1, int(days) + 1):
+            phase = lua_globals.globals().getPhaseForDay(day)
+            assert phase in (1, 2, 3, 4), f"{mode} day {day}: phase {phase}"
+    lua_globals.execute("gameState.difficulty = nil")
+    assert lua_globals.eval("DIFFICULTY_PARAMS.standard.days") == 7
+    assert lua_globals.eval("DIFFICULTY_PARAMS.standard.doomLimit") == 30
 
 
 # ---------------------------------------------------------------------------

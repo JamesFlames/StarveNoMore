@@ -424,8 +424,8 @@ local function _highlightCookTargets()
 end
 
 local function _highlightCleanseTargets()
-    -- Cleanse cost: 1 each of Wood, Cloth, Battery, Energy Drink.
-    for _, resType in ipairs({"Wood", "Cloth", "Battery", "EnergyDrink"}) do
+    -- Cleanse cost bundle (CLEANSE_COST, global.lua).
+    for resType in pairs(CLEANSE_COST) do
         local bag = getResourceBag(resType)
         if bag then bag.highlightOn("White", HIGHLIGHT_DURATION) end
     end

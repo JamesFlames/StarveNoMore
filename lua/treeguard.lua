@@ -16,7 +16,7 @@ function wakeTreeguard()
     if gameState.treeguard then return end  -- already woke this game
 
     local courts = { "BasketballCourt", "BadmintonCourt" }
-    local lair = courts[math.random(#courts)]
+    local lair = courts[gameRoll(#courts)]
     gameState.treeguard = { active = true, location = lair, hp = TREEGUARD_STATS.hp }
 
     broadcastEvent("phase", "THE GROVE WAKES — a TREEGUARD unfolds itself at " .. lair .. "!")

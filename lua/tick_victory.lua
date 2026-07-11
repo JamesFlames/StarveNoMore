@@ -298,15 +298,15 @@ function doCleanse(color)
     if not char then return end
 
     -- Auto-verify and pay the cost; refund the action if the player can't.
-    if not verifyAndPayResources(color, {Wood=1, Cloth=1, Battery=1, EnergyDrink=1}, "Cleanse") then
+    if not verifyAndPayResources(color, CLEANSE_COST, "Cleanse") then
         char.actionsLeft = char.actionsLeft + 1
         return
     end
 
     broadcastEvent("proc", char.name .. " performs a Cleansing ritual!")
-    gameState.doom = math.max(0, gameState.doom - 2)
+    gameState.doom = math.max(0, gameState.doom - CLEANSE_REDUCTION)
     moveDoomMarker(gameState.doom)
-    broadcastEvent("gain", "Doom reduced by 2! Now at " .. gameState.doom .. " / " .. getDoomLimit() .. ".")
+    broadcastEvent("gain", "Doom reduced by " .. CLEANSE_REDUCTION .. "! Now at " .. gameState.doom .. " / " .. getDoomLimit() .. ".")
 end
 
 -----------------------------------------------------------------------
