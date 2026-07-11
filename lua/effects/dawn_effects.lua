@@ -46,8 +46,16 @@ DAWN_EFFECTS["P1_QUIET_EVENING"] = {
 }
 
 DAWN_EFFECTS["P1_LIGHTS_FLICKER"] = {
+    -- Dare (design_batch3.md §2): the court floodlights are on all night.
+    -- Opt in by sleeping at a court: +2 Threats there, 2 Market cards at Dawn
+    -- for survivors (paid out beside Moonlit Salvage in BeginDay).
     onReveal = function(card)
         allPlayersLose("sanity", 1)
+        gameState.ongoingDawnEffects.dareCourtGlow = true
+        broadcastEvent("warn", "DARE: the court floodlights glow all night. Sleep at a sport court — it draws +2 extra Threats, but survivors claim 2 Market cards at Dawn.")
+    end,
+    onCleanup = function()
+        gameState.ongoingDawnEffects.dareCourtGlow = nil
     end,
 }
 
@@ -196,13 +204,19 @@ DAWN_EFFECTS["P1_RUMOR"] = {
 -- Phase 2: Strange Days
 -----------------------------------------------------------------------
 DAWN_EFFECTS["P2_PORCH_LIGHT"] = {
+    -- Dare (design_batch3.md §2): the first Gather at a house today may take
+    -- 3 resources instead of 1 — and pay 2 Sanity for what's seen through
+    -- the window. Offered via a confirm in doGather (actions.lua).
     onReveal = function(card)
         allPlayersLose("sanity", 1)
         gameState.ongoingDawnEffects.flashlightsDisabled = true
         broadcastEvent("warn", "ONGOING: Flashlights disabled tonight — only Fire counts as light.")
+        gameState.ongoingDawnEffects.darePorchLight = true
+        broadcastEvent("warn", "DARE: the first player to Gather at a house today may take 3 resources instead of 1 — and lose 2 Sanity from what they see through the window.")
     end,
     onCleanup = function()
         gameState.ongoingDawnEffects.flashlightsDisabled = nil
+        gameState.ongoingDawnEffects.darePorchLight = nil
     end,
 }
 
@@ -228,11 +242,73 @@ DAWN_EFFECTS["P2_FOOD_SPOILS"] = {
 }
 
 DAWN_EFFECTS["P2_BASKETBALL_BOUNCE"] = {
+    -- The Wrongness token (design_batch3.md §4): a deferred, face-down
+    -- threat at the School. It does NOT resolve now — it resolves when a
+    -- character enters the tile (checkWrongnessEntry) or at the next Dawn
+    -- (BeginDay timeout), whichever comes first. Until then it just sits
+    -- there, and the table argues about who goes to look.
     onReveal = function(card)
-        broadcastEvent("warn", "A basketball bounces in the dark. Spawn a Threat at the Basketball Court.")
-        -- Threat spawning at a specific tile — manual placement in this phase
+        broadcastEvent("warn", "A basketball bounces in the dark. Something is wrong at the School.")
+        local deck = getThreatDeck()
+        local qty = deck and (deck.getQuantity and deck.getQuantity() or 0) or 0
+        if qty <= 0 then
+            broadcastEvent("proc", "The threat deck is empty — the bouncing stops. Nothing comes of it.")
+            return
+        end
+        local tile = getLocationTile("BasketballCourt")
+        local pos = tile and (tile.getPosition() + Vector(2, 1.5, -2)) or Vector(0, 2, 0)
+        deck.takeObject({
+            position = pos,
+            rotation = {0, 180, 180},   -- face-down: unresolved
+            smooth = true,
+            callback_function = function(tcard)
+                gameState.wrongness = { location = "BasketballCourt", guid = tcard.guid,
+                                        placedDay = gameState.day }
+                broadcastEvent("warn", "An unresolved threat lies FACE-DOWN at the Basketball Court. Someone can go look — or it resolves at the next Dawn, where it stands.")
+            end,
+        })
     end,
 }
+
+-----------------------------------------------------------------------
+-- The Wrongness (design_batch3.md §4) — shared resolver + entry check.
+-- While pending, the face-down card does not fester (countFesteringThreats
+-- skips its guid) — it is unresolved, not fled-from.
+-----------------------------------------------------------------------
+function resolveWrongness(trigger)
+    local w = gameState.wrongness
+    if not w then return end
+    gameState.wrongness = nil
+    local card = w.guid and getObjectFromGUID(w.guid)
+    if not card then
+        broadcastEvent("proc", "The wrongness at " .. (w.location or "?") .. " is gone — nothing was there after all.")
+        return
+    end
+    safecall(function() card.setRotationSmooth({0, 180, 0}) end, "Wrongness")   -- flip face-up
+    local tName = card.getNickname() or "Unknown Threat"
+    if trigger == "entered" then
+        broadcastEvent("warn", "You went to look. The wrongness at " .. (w.location or "?") .. " is: " .. tName .. "!")
+    else
+        broadcastEvent("warn", "Nobody went to look. At Dawn, the wrongness at " .. (w.location or "?") .. " reveals itself: " .. tName .. "!")
+    end
+    broadcastEvent("proc", card.getDescription() or "")
+    local tType = identifyThreatType(card)
+    if tType == "Soft" then
+        broadcastEvent("proc", tName .. " is a soft threat — resolve it and discard.")
+    else
+        broadcastEvent("warn", tName .. " must be fought or fled. Left standing, it festers at Dawn.")
+    end
+end
+
+-- Called after any location change (Move, bonus move, Dusk scramble, Flee).
+function checkWrongnessEntry(color)
+    local w = gameState.wrongness
+    if not w then return end
+    local char = gameState.activeChars[color]
+    if char and not char.down and char.location == w.location then
+        resolveWrongness("entered")
+    end
+end
 
 DAWN_EFFECTS["P2_HUNGRY"] = {
     onReveal = function(card)
@@ -252,12 +328,12 @@ DAWN_EFFECTS["P2_DEERCLOPS_NEAR"] = {
 }
 
 DAWN_EFFECTS["P2_DEERCLOPS_ARRIVES"] = {
+    -- No arrival Doom: a boss charges the track by STAYING (+2 fester per
+    -- Dawn, §15.1), not by showing up.
     onReveal = function(card)
-        broadcastEvent("warn", "THE DEERCLOPS ARRIVES at the Basketball Court! Doom +1.")
-        gameState.doom = gameState.doom + 1
-        moveDoomMarker(gameState.doom)
+        broadcastEvent("warn", "THE DEERCLOPS ARRIVES at the Basketball Court!")
         gameState.ongoingDawnEffects.deerclopsActive = true
-        broadcastEvent("warn", "ONGOING: While Deerclops is on the map, all Sanity costs are doubled.")
+        broadcastEvent("warn", "ONGOING: While Deerclops is on the map, all Sanity costs are doubled. It festers Doom +2 each Dawn it stands.")
         safecall(function() nudgeCameraToBoss("Deerclops", "BasketballCourt") end, "CameraNudge")
         safecall(function() Audio.playBossLoop("deerclops") end, "Audio")
     end,
@@ -410,12 +486,11 @@ DAWN_EFFECTS["P3_EYE_NEAR"] = {
 }
 
 DAWN_EFFECTS["P3_EYE_ARRIVES"] = {
+    -- No arrival Doom — festering (+2/Dawn) is the boss's bill.
     onReveal = function(card)
-        broadcastEvent("warn", "THE EYE OF TERROR ARRIVES! Doom +2.")
-        gameState.doom = gameState.doom + 2
-        moveDoomMarker(gameState.doom)
+        broadcastEvent("warn", "THE EYE OF TERROR ARRIVES!")
         gameState.ongoingDawnEffects.eyeActive = true
-        broadcastEvent("warn", "ONGOING: Each Dawn, draw 1 extra Threat at the Eye's location.")
+        broadcastEvent("warn", "ONGOING: Each Dawn, draw 1 extra Threat at the Eye's location. It festers Doom +2 each Dawn it stands.")
         safecall(function() nudgeCameraToBoss("EyeOfTerror", "EllieLucaHouse") end, "CameraNudge")
         safecall(function() Audio.playBossLoop("eye_of_terror") end, "Audio")
     end,
@@ -505,7 +580,7 @@ DAWN_EFFECTS["P3_GRAVITY_WRONG"] = {
 
 DAWN_EFFECTS["P3_TIME_SKIP"] = {
     onReveal = function(card)
-        gameState.day = math.min(7, gameState.day + 1)
+        gameState.day = math.min(getTotalDays(), gameState.day + 1)
         gameState.doom = gameState.doom + 1
         moveDoomMarker(gameState.doom)
         allPlayersLose("hunger", 1)
@@ -546,12 +621,14 @@ DAWN_EFFECTS["P3_OFFERING"] = {
 -- Phase 4: Final Hours
 -----------------------------------------------------------------------
 DAWN_EFFECTS["P4_FINAL_HOURS"] = {
+    -- (An earlier draft claimed "ONGOING: Doom rate is now +3 per day" but
+    -- never implemented it, and a flat +3 would trample the per-player-count
+    -- rates in Design §15.6. The card is now its immediate effect only.)
     onReveal = function(card)
         allPlayersLose("sanity", 2)
         gameState.doom = gameState.doom + 2
         moveDoomMarker(gameState.doom)
-        gameState.ongoingDawnEffects.doomRatePlus3 = true
-        broadcastEvent("warn", "The final hours begin. Doom +2. ONGOING: Doom rate is now +3 per day.")
+        broadcastEvent("warn", "The final hours begin. All players lose 2 Sanity. Doom +2.")
     end,
 }
 
@@ -562,12 +639,18 @@ DAWN_EFFECTS["P4_SOURCE_NEAR"] = {
 }
 
 DAWN_EFFECTS["P4_SOURCE_ARRIVES"] = {
+    -- No arrival Doom — festering (+2/Dawn) is the boss's bill.
     onReveal = function(card)
-        broadcastEvent("warn", "THE SOURCE ARRIVES at the center of the map! Doom +3.")
-        gameState.doom = gameState.doom + 3
-        moveDoomMarker(gameState.doom)
+        broadcastEvent("warn", "THE SOURCE ARRIVES at the center of the map!")
         gameState.ongoingDawnEffects.sourceActive = true
-        broadcastEvent("warn", "ONGOING: The Source is the final boss. Defeat it before Day 7 ends OR survive with Doom < 30.")
+        -- Persistent boss HP (§12.6): the script tracks the Source's HP from
+        -- here on — and at 5 HP it splits (checkSourcePhase, combat.lua).
+        gameState.bossHP = gameState.bossHP or {}
+        gameState.bossHP.source = SOURCE_MAX_HP or 8
+        gameState.sourceSplit = false
+        broadcastEvent("warn", "ONGOING: The Source is the final boss. It MUST be destroyed before Day 7 ends — while it stands, there is no victory.")
+        broadcastEvent("proc", "The Source: HP " .. gameState.bossHP.source ..
+            " (script-tracked). At 5 HP it will SPLIT — two Terror Beaks peel off to adjacent tiles.")
         safecall(function() nudgeCameraToBoss("TheSource", "EllieLucaHouse") end, "CameraNudge")
         -- No audio folder for "the_source" yet — Audio.playBossLoop no-ops
         -- when CREATURES[name] is missing, so ambient continues normally.
@@ -651,8 +734,8 @@ DAWN_EFFECTS["P4_DAWN_BREAKS"] = {
     onReveal = function(card)
         broadcastEvent("gain", "Dawn breaks. Doom does NOT advance this Dawn.")
         gameState.ongoingDawnEffects.noDoomThisDawn = true
-        if gameState.day == 7 then
-            broadcastEvent("phase", "Day 7 — continue to the final Tick. Survival check!")
+        if gameState.day == getTotalDays() then
+            broadcastEvent("phase", "The final day — continue to the final Tick. Survival check!")
         end
     end,
     onCleanup = function()
@@ -727,6 +810,95 @@ DAWN_EFFECTS["P4_MEMORY_FLOOD"] = {
 }
 
 -----------------------------------------------------------------------
+-- Anti-stacking Dawn cards: the thing outside notices crowds.
+-----------------------------------------------------------------------
+local function mostPopulatedLocations()
+    local pops = {}
+    local maxPop = 0
+    for _, char in pairs(gameState.activeChars) do
+        if not char.down and char.location then
+            pops[char.location] = (pops[char.location] or 0) + 1
+            if pops[char.location] > maxPop then maxPop = pops[char.location] end
+        end
+    end
+    local locs = {}
+    for loc, n in pairs(pops) do
+        if n == maxPop and maxPop >= 2 then table.insert(locs, loc) end
+    end
+    return locs, maxPop
+end
+
+DAWN_EFFECTS["P2_DRAWN_TO_CROWDS"] = {
+    onReveal = function(card)
+        gameState.ongoingDawnEffects.crowdThreat = true
+        broadcastEvent("warn", "ONGOING: Tonight, the most-populated location draws +1 Threat. It has learned where you gather.")
+    end,
+    onCleanup = function()
+        gameState.ongoingDawnEffects.crowdThreat = nil
+    end,
+}
+
+DAWN_EFFECTS["P3_HUNTS_THE_HERD"] = {
+    onReveal = function(card)
+        local locs = mostPopulatedLocations()
+        if #locs == 0 then
+            broadcastEvent("proc", "Everyone is scattered — it circles, finding no herd. No effect.")
+        else
+            for _, loc in ipairs(locs) do
+                for _, char in pairs(gameState.activeChars) do
+                    if not char.down and char.location == loc then
+                        char.sanity = math.max(0, char.sanity - 1)
+                        broadcastEvent("damage", char.name .. " feels watched at " .. loc .. " — loses 1 Sanity.")
+                    end
+                end
+            end
+        end
+        gameState.ongoingDawnEffects.crowdThreat = true
+        broadcastEvent("warn", "ONGOING: Tonight, the most-populated location draws +1 Threat.")
+    end,
+    onCleanup = function()
+        gameState.ongoingDawnEffects.crowdThreat = nil
+    end,
+}
+
+-----------------------------------------------------------------------
+-- Manual steps per Dawn card — things the script cannot do for the
+-- players (physical token moves, group choices, deck searches). These
+-- feed the tickable Dawn checklist panel (ui_rules.lua) so instructions
+-- don't just scroll away in chat. Cards absent here are fully scripted.
+-----------------------------------------------------------------------
+DAWN_MANUAL_STEPS = {
+    P1_PHONES_DEAD      = { "Every player discards 1 Battery (if held)." },
+    P1_FRESH_FOOD       = { "Add 2 Food to Ellie & Luca's House resource bag." },
+    P1_SCHOOL_CLOSED    = { "Move every standee at the Basketball Court to an adjacent tile." },
+    P1_OLD_FRIEND_VISIT = { "Choose one player: +2 Sanity (use their +S button)." },
+    P1_BIKE_FOUND       = { "One player at a sport court may take the Bicycle token." },
+    P1_GARDEN_GROWS     = { "Add 1 Food to every house tile's resource area." },
+    P1_SOMETHING_WATCHED = { "Optional DARE: the watched player may lose 1 more Sanity (-S button) to peek at the top Threat card." },
+    P1_STRANGE_RADIO    = { "Anyone who rolled a 6: peek at the Market deck for a Clue.",
+                            "Optional DARE: spend 2 Battery to peek the next 3 Dawn cards (host: draw + show + return in order)." },
+    P1_PHOTO_FOUND      = { "Choose one player: +1 Sanity and peek at the top Threat card." },
+    P2_FOOD_SPOILS      = { "Every player discards 1 Food.",
+                            "Optional DARE: eat it anyway — +2 Hunger and -1 Health (stat buttons) instead of discarding." },
+    P2_VISITOR          = { "Resolve the revealed Visitor card's instructions." },
+    P2_SUPPLY_DROP      = { "Add 1 Metal + 1 Cloth to the nearest house tile.",
+                            "Draw 1 Threat at that house tile." },
+    P2_MIRROR_CRACK     = { "Every player discards 1 Battery (if held)." },
+    P3_POWER_OUT        = { "Return all Battery tokens to the supply." },
+    P3_FRIEND_CHANGED   = { "Player to your left: -2 Sanity and reveals one Item." },
+    P3_TRUTH_GLIMPSE    = { "Search the Market deck for a Clue card; reveal it face-up (claimable Day 6+)." },
+    P3_WALLS_CLOSE      = { "If a house holds more than its capacity, excess players move now." },
+    P3_ALLY_MISSING     = { "Player with fewest items: discard all items, move their standee to a random tile." },
+    P3_OFFERING         = { "Team choice: sacrifice 3 Food for Doom -2, OR everyone loses 1 Sanity." },
+    P3_EYE_SPLITS       = { "Place 3 Terror Beak threat cards at tiles adjacent to the Eye." },
+    P4_SACRIFICE_OPTION = { "Optional: one player may go Down to reduce Doom by 5." },
+    P4_GROUND_SPLITS    = { "Destroy a random location tile; players there flee; its resources are lost." },
+    P4_LAST_MEAL        = { "Remove all Food tokens from every location." },
+    P4_ALL_TOGETHER     = { "Vote on a tile; move all standees there." },
+    P4_BARGAIN          = { "Choose a negotiator: roll d6 — 4+: Doom -3; 1-3: they go Down." },
+}
+
+-----------------------------------------------------------------------
 -- Dispatch entry point (called from day_loop.lua -> revealDawnCard)
 -----------------------------------------------------------------------
 function dispatchDawnEffect(card)
@@ -738,10 +910,18 @@ function dispatchDawnEffect(card)
         end
     end
 
-    -- Store previous ID for next cleanup cycle
-    local id = card.getNickname() or ""
-    -- Strip whitespace / normalize
-    id = id:match("^%s*(.-)%s*$") or id
+    -- Resolve the card's effect ID. Cards are tagged with their CSV id
+    -- (e.g. "P1_QUIET_EVENING") by build_save.py; the nickname holds the
+    -- display title, so check tags first and fall back to the nickname.
+    local id = nil
+    if card.getTags then
+        for _, tag in ipairs(card.getTags()) do
+            if DAWN_EFFECTS[tag] then id = tag; break end
+        end
+    end
+    if not id then
+        id = (card.getNickname() or ""):match("^%s*(.-)%s*$") or ""
+    end
 
     local handler = DAWN_EFFECTS[id]
     if handler and handler.onReveal then
@@ -749,6 +929,17 @@ function dispatchDawnEffect(card)
     else
         broadcastEvent("proc", "No scripted effect for Dawn card: " .. id)
     end
+
+    -- Populate the tickable manual-steps checklist (ui_rules.lua panel).
+    gameState.dawnChecklist = {}
+    for _, step in ipairs(DAWN_MANUAL_STEPS[id] or {}) do
+        table.insert(gameState.dawnChecklist, { text = step, done = false })
+    end
+    if #gameState.dawnChecklist > 0 then
+        broadcastEvent("warn", "This Dawn card needs " .. #gameState.dawnChecklist ..
+            " manual step(s) — see the checklist panel (top right). Tick each when done.")
+    end
+    safecall(function() refreshDawnChecklist() end, "DawnChecklist")
 
     -- Track for next-dawn cleanup
     if gameState.activeDawn then

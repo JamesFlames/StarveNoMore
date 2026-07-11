@@ -10,7 +10,7 @@
 -- so paths under art/ go via the /art prefix. Sound URLs go through
 -- audio_manifest.lua which uses its own /sounds prefix.
 local _BASE = "http://localhost:8080/art"
-local function _url(path) return _BASE .. "/" .. path end
+local function url(path) return _BASE .. "/" .. path end
 
 ASSETS = {
     -- Boards

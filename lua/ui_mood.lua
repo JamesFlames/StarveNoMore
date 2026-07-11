@@ -103,7 +103,7 @@ function confirmSleepAloneAtCourt(color, location, onConfirm)
             "Sleep alone at " .. location .. "?",
             char.name .. " will draw +1 extra Threat and get no sleep regen.\n"
             .. "Charlie will likely attack (no house = no shelter).\n"
-            .. "Consider moving to a house tile before Dusk.",
+            .. "But survive the night and you salvage 2 resources at Dawn.",
             onConfirm
         )
     else

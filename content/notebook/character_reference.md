@@ -1,16 +1,19 @@
 # Character Reference
 
+Every character has one **Signature** — a once-per-game named move, fired from the Signature button. Save it for the moment it matters.
+
 ## James — The Gamer
 - Stats: Health 8 / Hunger 6 / Sanity 10
 - **Gaming Reflexes:** once per turn reroll one of your own dice.
 - **Pattern Recognition:** once per day peek the top of any deck.
+- **All-Nighter (Signature, 1×):** take 3 extra actions this turn; lose 3 Sanity at the next Tick.
 - **Wired (constraint):** consume 1 Energy Drink per day or lose 2 Sanity at night.
 - Starting hand: Energy Drink ×2, Pocketknife, Flashlight, Headphones.
 
 ## Coco — The Angel
 - Stats: Health 6 / Hunger 8 / Sanity 12
 - **Calming Presence:** allies at her tile lose 1 less Sanity at Tick.
-- **Touch of Hope:** once per game heal any character +4 Health.
+- **Touch of Hope (Signature, 1×):** heal any character +4 Health, anywhere on the map.
 - **Light in the Dark:** never triggers Charlie attacks.
 - **No Home (constraint):** end Night alone in a non-house = -3 Sanity.
 - Starting hand: First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery, Friendship Bracelet.
@@ -20,8 +23,9 @@
 - **Speed:** Move +1 space per Move action.
 - **Court Master:** +1 attack die at the Basketball Court.
 - **Backboard Block:** Defend action shields adjacent allies for one round.
+- **Posterize (Signature, 1×):** instantly defeat one non-boss threat at your tile — no roll, no counter. The noise: your tile draws +1 Threat tonight.
 - **Big Appetite:** lose 2 Hunger per day.
-- **Loud:** moving to a new tile draws +1 Threat at Night.
+- **Loud:** if Rayman moved at all today, the location where he spends the Night draws +1 Threat (once — it doesn't stack).
 - Starting hand: Basketball, Sports Drink ×2, Athletic Tape, Whistle.
 
 ## Ellie — The Cook
@@ -29,6 +33,7 @@
 - **Crockpot Master:** Recipes need 1 fewer ingredient (min 1).
 - **Comfort Food:** when Ellie shares cooked food, eaters gain +1 extra Hunger and +1 extra Sanity.
 - **Knows the Pantry:** at her own house, search resource bag for a specific token.
+- **The Feast (Signature, 1×):** at a Crockpot, cook any number of recipes in a single action (ingredients still required); consumes ALL your held Food.
 - **Particular Eater (constraint):** cannot eat raw food.
 - Starting hand: Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.
 
@@ -37,5 +42,6 @@
 - **Rally:** once per turn give an adjacent ally a free non-movement action.
 - **Calm Words:** at his tile, on a Sanity-loss event, roll d6 — 4+ negates the loss for everyone here.
 - **Storyteller:** allies at his tile +1 Sanity at Night.
+- **The Speech (Signature, 1×):** every character, anywhere, +2 Sanity. Only usable while an ally is Down or below 3 Sanity.
 - **Needs an Audience (constraint):** alone, his Sanity does not regenerate.
 - Starting hand: Notebook, Loud Whistle, Pep Talk, Reading Lamp, Toolbox.

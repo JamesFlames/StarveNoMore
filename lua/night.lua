@@ -2,9 +2,9 @@
 -- Design §11.4: For each location with players (least populated first):
 --   1. Threat draw
 --   2. Resolve threats (combat)
---   3. Charlie check (no light = d8 Sanity + d6 Health)
+--   3. Charlie check (no light = 2 Sanity + 1 Health, escalating per consecutive dark night)
 --   4. Storytelling (Comfort/Music items for Sanity)
---   5. Sleep regen
+--   5. Sleep regen (houses sleep 2 comfortably — extra sleepers get the floor)
 
 -----------------------------------------------------------------------
 -- Location threat rates
@@ -16,6 +16,19 @@ LOCATION_THREAT_RATE = {
     BasketballCourt  = 1,
     BadmintonCourt   = 1,
 }
+
+-----------------------------------------------------------------------
+-- Rayman's Loud, with the 3-player relief (§20.1, batch 4 W2): at 3
+-- players the noise needs 3+ tiles moved today — a short errand stays
+-- quiet. At 4-5 players any movement is Loud, as before.
+-----------------------------------------------------------------------
+function raymanLoudTonight()
+    if not gameState.raymanMovedToday then return false end
+    if gameState.playerCount == 3 and (gameState.raymanTilesMovedToday or 0) < 3 then
+        return false
+    end
+    return true
+end
 
 -----------------------------------------------------------------------
 -- Main Night resolver (called from day_loop.lua → beginNight)
@@ -90,10 +103,56 @@ function resolveNightAtLocation(location, colors)
         baseRate = baseRate + 1
     end
 
+    -- Crowd-drawn threats (Dawn cards): +1 threat at the most-populated location(s)
+    if gameState.ongoingDawnEffects.crowdThreat then
+        local maxPop = 0
+        local popHere = #colors
+        for _, ch in pairs(gameState.activeChars) do
+            if not ch.down then
+                local n = 0
+                for _, ch2 in pairs(gameState.activeChars) do
+                    if not ch2.down and ch2.location == ch.location then n = n + 1 end
+                end
+                if n > maxPop then maxPop = n end
+            end
+        end
+        if popHere >= maxPop and popHere >= 2 then
+            baseRate = baseRate + 1
+            broadcastEvent("warn", "It is drawn to the gathering at " .. location .. " — +1 Threat.")
+        end
+    end
+
     -- Alone at a sport court: +1 extra threat
     if #colors == 1 and (location:find("Court") or location:find("Badminton") or location:find("Basketball")) then
         baseRate = baseRate + 1
         broadcastEvent("warn", charNames[1] .. " is alone at " .. location .. "! Extra threat drawn.")
+    end
+
+    -- Rayman's Loud constraint: if he moved at all today, the location where
+    -- he spends the Night draws +1 Threat — the noise follows him home.
+    if raymanLoudTonight() then
+        for _, c in ipairs(colors) do
+            local ch = gameState.activeChars[c]
+            if ch and ch.name == "Rayman" then
+                baseRate = baseRate + 1
+                broadcastEvent("warn", "Rayman was Loud today — +1 Threat at " .. location .. ".")
+                break
+            end
+        end
+    end
+
+    -- Dare — the court floodlights (P1_LIGHTS_FLICKER): the glow draws the
+    -- dark. The reward half pays out at Dawn beside Moonlit Salvage.
+    if gameState.ongoingDawnEffects.dareCourtGlow
+        and (location:find("Court") or location:find("Badminton") or location:find("Basketball")) then
+        baseRate = baseRate + 2
+        broadcastEvent("warn", "The floodlights hum over " .. location .. " — the dare's price: +2 Threats.")
+    end
+
+    -- Posterize (Signature, §6.7): the dunk echoed here all afternoon.
+    if (gameState.loudSignature or {})[location] then
+        baseRate = baseRate + 1
+        broadcastEvent("warn", "The echo of the dunk draws attention — +1 Threat at " .. location .. ".")
     end
 
     -- Barricade reduces threat draws
@@ -142,7 +201,7 @@ function resolveNightAtLocation(location, colors)
                             if tType == "Soft" then
                                 broadcastEvent("proc", tName .. " is a soft threat — resolves and discards.")
                             else
-                                broadcastEvent("warn", tName .. " must be fought or fled! Players at " .. location .. " must deal with it.")
+                                broadcastEvent("warn", tName .. " must be fought or fled! Flee: move 1 tile away, pay 1 Sanity (always legal, even starving). A fled threat stays here and festers at Dawn.")
                             end
                         end
                     })
@@ -180,11 +239,9 @@ function resolveNightAtLocation(location, colors)
                 if ch and not ch.down then
                     -- Check for light sources: player must have Flashlight, Lantern, Fire, etc.
                     -- In scripted mode, we check if flashlights are disabled
-                    local hasLight = checkPlayerHasLight(c)
-                    if not hasLight then
+                    -- checkPlayerHasLight announces the protecting item itself
+                    if not checkPlayerHasLight(c) then
                         resolveCharlieAttack(c)
-                    else
-                        broadcastEvent("proc", ch.name .. " has a light source — Charlie avoids them.")
                     end
                 end
             end
@@ -195,20 +252,103 @@ function resolveNightAtLocation(location, colors)
 end
 
 -----------------------------------------------------------------------
--- Check if a player has a light source
+-- Light-source check: scans the player's hand and the area around
+-- their player board for personal lights, and their current tile for
+-- a shared Campfire. On fire-only nights (P2_PORCH_LIGHT /
+-- P4_LAST_LIGHTS) the Flashlight is ignored.
+--
+-- Cards are matched by their Market id tag (build_save.py tags each
+-- card with its CSV id) with a nickname fallback for hand-placed items.
 -----------------------------------------------------------------------
+LIGHT_SOURCES = {
+    { id = "M_FLASHLIGHT", label = "Flashlight",       fire = false },
+    { id = "M_LANTERN",    label = "Lantern",          fire = true  },
+    { id = "M_FIRE_KIT",   label = "Fire Starter Kit", fire = true  },
+}
+
+local CAMPFIRE_RADIUS = 7  -- matches the fester radius: "at this tile"
+
+local function _matchesLight(obj, src)
+    if obj.hasTag and obj.hasTag(src.id) then return true end
+    local nick = (obj.getNickname and obj.getNickname()) or ""
+    return nick:lower():find(src.label:lower(), 1, true) ~= nil
+end
+
+local function _playerLightCandidates(color, charName)
+    local out = {}
+    -- Cards in the player's hand
+    local ok, handObjs = pcall(function() return Player[color].getHandObjects() end)
+    if ok and handObjs then
+        for _, o in ipairs(handObjs) do out[#out + 1] = o end
+    end
+    -- Objects laid out around the player board (same box as getPlayerResources)
+    local board = getPlayerBoard(charName)
+    if board then
+        local pos = board.getPosition()
+        local b = board.getBoundsNormalized()
+        local pad = 1.5
+        local minX = pos.x - b.size.x * 0.5 - pad
+        local maxX = pos.x + b.size.x * 0.5 + pad
+        local minZ = pos.z - b.size.z * 0.5 - pad
+        local maxZ = pos.z + b.size.z * 0.5 + pad
+        for _, obj in ipairs(getAllObjects()) do
+            local p = obj.getPosition()
+            if p.x >= minX and p.x <= maxX and p.z >= minZ and p.z <= maxZ then
+                out[#out + 1] = obj
+            end
+        end
+    end
+    return out
+end
+
 function checkPlayerHasLight(color)
-    -- In a full implementation, scan the player's hand zone for light-source items
-    -- For now, check if flashlights are disabled and return a heuristic
-    if gameState.ongoingDawnEffects.flashlightsDisabled or gameState.ongoingDawnEffects.onlyFireLight then
-        -- Only Fire counts; broadcast a manual check
-        broadcastEvent("proc", "Light check for " .. color .. ": only Fire sources count tonight. Confirm manually.")
-        return false  -- conservative: assume no fire unless confirmed
+    local char = gameState.activeChars[color]
+    if not char then return false end
+    local fireOnly = gameState.ongoingDawnEffects.flashlightsDisabled
+                  or gameState.ongoingDawnEffects.onlyFireLight
+
+    -- Shared fire: a Campfire at this character's tile covers everyone there.
+    local tile = getLocationTile(char.location or "")
+    if tile then
+        local tp = tile.getPosition()
+        for _, obj in ipairs(getAllObjects()) do
+            local isCampfire = (obj.hasTag and obj.hasTag("M_CAMPFIRE"))
+            if not isCampfire then
+                local nick = (obj.getNickname and obj.getNickname()) or ""
+                isCampfire = nick:lower():find("campfire", 1, true) ~= nil
+            end
+            if isCampfire then
+                local p = obj.getPosition()
+                local dx, dz = p.x - tp.x, p.z - tp.z
+                if (dx * dx + dz * dz) <= (CAMPFIRE_RADIUS * CAMPFIRE_RADIUS) then
+                    broadcastEvent("proc", char.name .. " is lit by the Campfire at " .. (char.location or "?") .. " — Charlie stays away.")
+                    return true
+                end
+            end
+        end
     end
 
-    -- Default: broadcast and assume the player will handle it
-    broadcastEvent("proc", "Light check for " .. color .. ": do you have a Flashlight, Lantern, or Fire? (Confirm manually.)")
-    return false  -- conservative default; Phase G/H will add proper item scanning
+    -- Personal lights: hand + player-board area.
+    local foundDisabled = nil
+    for _, obj in ipairs(_playerLightCandidates(color, char.name)) do
+        for _, src in ipairs(LIGHT_SOURCES) do
+            if _matchesLight(obj, src) then
+                if src.fire or not fireOnly then
+                    local note = (src.id == "M_FIRE_KIT") and " (spend 1 Wood for tonight's fire)" or ""
+                    broadcastEvent("proc", char.name .. "'s " .. src.label .. " keeps the dark out" .. note .. " — Charlie stays away.")
+                    return true
+                end
+                foundDisabled = src.label
+            end
+        end
+    end
+
+    if foundDisabled then
+        broadcastEvent("warn", char.name .. "'s " .. foundDisabled .. " is useless tonight — only Fire counts as light.")
+    else
+        broadcastEvent("proc", char.name .. " has no light: no Flashlight/Lantern/Fire Kit in hand or by their player board, no Campfire at their tile.")
+    end
+    return false
 end
 
 -----------------------------------------------------------------------
@@ -253,6 +393,40 @@ end
 function resolveSleep()
     broadcastEvent("phase", "--- SLEEP ---")
 
+    -- Crowded floor (Design §11.4): a house sleeps two comfortably. Each
+    -- character beyond the second at the same house gets the floor — no
+    -- sleep regeneration. Beds go to owners first, then to the guests who
+    -- need them most (lowest Sanity).
+    local BEDS_PER_HOUSE = 2
+    local floorSleepers = {}   -- [color] = true
+    local sleepersByLoc = {}   -- [loc] = { {color=, char=}, ... }
+    for color, char in pairs(gameState.activeChars) do
+        if not char.down then
+            local loc = char.location or ""
+            local isHouse = not (loc:find("Court") or loc:find("Badminton") or loc:find("Basketball"))
+            if isHouse then
+                sleepersByLoc[loc] = sleepersByLoc[loc] or {}
+                table.insert(sleepersByLoc[loc], { color = color, char = char })
+            end
+        end
+    end
+    for loc, sleepers in pairs(sleepersByLoc) do
+        if #sleepers > BEDS_PER_HOUSE then
+            -- Owners keep their own beds; remaining beds go to lowest-Sanity guests.
+            table.sort(sleepers, function(a, b)
+                local aOwn = (CHARACTER_HOMES[a.char.name] == loc)
+                local bOwn = (CHARACTER_HOMES[b.char.name] == loc)
+                if aOwn ~= bOwn then return aOwn end
+                return a.char.sanity < b.char.sanity
+            end)
+            for i = BEDS_PER_HOUSE + 1, #sleepers do
+                floorSleepers[sleepers[i].color] = true
+                broadcastEvent("warn", sleepers[i].char.name .. " gets the floor at " .. loc ..
+                    " — a house sleeps two comfortably. No sleep regen.")
+            end
+        end
+    end
+
     for color, char in pairs(gameState.activeChars) do
         if not char.down then
             local loc = char.location or ""
@@ -271,7 +445,9 @@ function resolveSleep()
             -- Winter scenario: houses give +1 Sanity bonus at sleep
             local winterBonus = (gameState.scenarioFlags or {}).housesSanityBonus and isHouse
 
-            if isOwnHome then
+            if floorSleepers[color] then
+                -- Crowded floor: no regen (broadcast already sent above)
+            elseif isOwnHome then
                 -- Own house: +1 Sanity, +1 Hunger, +1 Health
                 local sanityGain = 1 + (winterBonus and 1 or 0)
                 char.sanity = math.min(char.maxSanity, char.sanity + sanityGain)

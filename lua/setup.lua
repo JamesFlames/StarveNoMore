@@ -63,6 +63,7 @@ function Setup(hostColor)
                 down       = false,
                 briefed    = false,
                 location   = home,
+                signatureUsed = false,   -- Signature Move (§6.7): one per game
             }
 
             -- Move standee to starting location
@@ -80,9 +81,21 @@ function Setup(hostColor)
     -- 6. Set Day=1, Doom=0
     gameState.day = 1
     gameState.doom = 0
-    gameState.phase = 1
+    gameState.difficulty = gameState.difficulty or "standard"
+    gameState.phase = getPhaseForDay(1)
     gameState.subPhase = "Dawn"
     gameState.dayLog = {}
+    gameState.chronicle = nil          -- fresh Week in Review record
+    safecall(function() ensureChronicle() end, "Chronicle")
+    safecall(function() recordSetupInChronicle() end, "Telemetry")
+    gameState.combatContext = nil
+    gameState.gameOverCause = nil
+    gameState.bossHP = {}
+    gameState.sourceSplit = nil
+    gameState.pendingSanityPenalty = {}
+    gameState.loudSignature = {}
+    gameState.wrongness = nil
+    gameState.basementOpened = nil
 
     local counter = getDayCounter()
     if counter then counter.setValue(1) end

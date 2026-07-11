@@ -1,5 +1,5 @@
 id,boss,bonus,art_notes
-TR_DEERCLOPS,The Deerclops Defeated,All Sanity costs are reduced by 1 (minimum 1) for the rest of the game.,Antler shard mounted
-TR_EYE_OF_TERROR,The Eye of Terror Defeated,Once per Day a player may peek at the top Threat card.,Iris in a glass jar
+TR_DEERCLOPS,The Antler Sled,Once per turn a character may bring one co-located ally along on a Move — both move together (both pay 1 Hunger). The team travels as a pack now.,Antler shard lashed into a sled
+TR_EYE_OF_TERROR,The Watching Jar,At each Dusk the team looks at the top 2 Threat cards and returns them in any order. You see the night coming and choose which part of it lands first.,Iris in a glass jar that still tracks movement
 TR_SOURCE,The Source Defeated,(End-game victory.) Awards the Hero achievement.,Twisted black mass on a plinth
 TR_TRUTH,The Truth Trophy,Awarded for collecting all 3 Clues. Truth Run achievement. The team learns what was happening.,Open book with one clear page

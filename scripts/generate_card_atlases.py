@@ -476,12 +476,12 @@ def main():
     print(f"Recipe face: {len(rows)} cards -> 5x4 atlas ({atlas.size[0]}x{atlas.size[1]})")
     render_card_back("RECIPE", "recipe").save(os.path.join(OUT, "recipe_back.png"))
 
-    # --- Threat deck (6x8 grid) ---
+    # --- Threat deck (7x8 grid) ---
     rows = read_csv("cards_threats.csv")
     cards = render_with_count(render_threat_card, rows)
-    atlas = build_atlas(cards, 6, 8)
+    atlas = build_atlas(cards, 7, 8)
     atlas.save(os.path.join(OUT, "threat_face.png"))
-    print(f"Threat face: {len(rows)} cards -> 6x8 atlas ({atlas.size[0]}x{atlas.size[1]})")
+    print(f"Threat face: {len(rows)} cards -> 7x8 atlas ({atlas.size[0]}x{atlas.size[1]})")
     render_card_back("THREAT", "threat").save(os.path.join(OUT, "threat_back.png"))
 
     # --- Visitor deck (3x2 grid) ---

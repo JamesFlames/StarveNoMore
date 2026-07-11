@@ -5,12 +5,12 @@
 -----------------------------------------------------------------------
 
 -- Static content loaded as Lua strings (from content/ markdown files)
-HELP_QUICKSTART = [[GOAL: Survive 7 nights. Doom < 30. Don't all go Down.
+HELP_QUICKSTART = [[GOAL: Survive 7 nights. Doom < 30. Don't all go Down. And when The Source arrives (Days 6-7), destroy it — outlasting it is not enough.
 
 EACH DAY:
-1. Dawn - flip a Dawn card. Read it. Doom advances.
+1. Dawn - flip a Dawn card. Read it. Doom advances (+1 per threat left on the map, +2 per boss!).
 2. Day - 3 actions each: Move, Gather, Craft, Cook, Fight, Rest, Cleanse. Trade is free.
-3. Dusk - declare where you sleep.
+3. Dusk - last chance: scramble 1 tile (1 Hunger) or stay. You sleep where you stand.
 4. Night - threats drawn. Fight or suffer. Charlie attacks the lightless.
 5. Tick - lose 1 Hunger, 1 Sanity. Day advances.
 
@@ -22,7 +22,7 @@ Below 3 in any stat: Bad Things Happen.
 
 TRADE freely at the same tile - no action cost.
 
-LIGHT: No light source at night = Charlie attack (d8 Sanity + d6 Health).
+LIGHT: No light source at night = Charlie attack (2 Sanity + 1 Health, worse each consecutive dark night).
 
 Hover anything for its rule. Click "?" for this menu. Click "What now?" if stuck.]]
 
@@ -36,7 +36,7 @@ RESOURCES: Wood, Metal, Cloth, Food, Energy Drink, Battery.
 Hand limit: 5 Items + 8 Resources.
 
 LIGHT: Flashlight (Battery), Lantern/Campfire (Fire).
-No light at night = Charlie: d8 Sanity + d6 Health.
+No light at night = Charlie: 2 Sanity + 1 Health, +1 each per consecutive dark night.
 
 PHASES:
 1 (Days 1-2) Dusk of the Week
@@ -46,16 +46,24 @@ PHASES:
 
 ACTIONS: Move(1), Gather(1), Craft(1), Cook(1), Fight(1), Rest(1), Cleanse(1), Trade(free).
 
+COMBAT: 5-6 = hit. Landed a hit? PRESS THE ATTACK: 1 Sanity per bonus die until you miss (press dice never fumble; the enemy waits until you stop). Boss kills: Deerclops Doom -2, Eye Doom -3, +3 resources, + Trophy.
+
+VARIANTS (optional, set at setup): Rotation turns - 1 action per visit, cycling; pass after acting banks the rest. Scenario - a week-long twist (see Rules in effect panel).
+
 SEVERITY: 1=flavor, 2=minor, 3=combat, 4=phase-shift, 5=boss.
 
-DOWN: Ghost. Can't act. Drift 1 tile/round. -1 Sanity to co-located allies. 1 word/round.
+DOWN: Ghost. Can't act. Drift 1 tile/round. 1 word/round. Going Down feeds Doom +1.
 Revive: Telltale Heart + 2 Health from reviver. Returns at half max.
 
-DOOM: 0-30 track. Thresholds: 10(threats+1), 15(market 1/day), 20(-1 Sanity Tick), 25(bosses any), 30(defeat).
+DOOM: 0-30 track. Advances each Dawn by phase rate, +1 per threat left on the map (max +3), +2 per boss / +1 Treeguard (no cap), +1 whenever someone goes Down.
+Thresholds: 10(threats+1), 15(crafts +1 resource), 20(-1 Sanity Tick), 25(bosses any), 30(defeat).
 Cleanse: 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink -> Doom -2.
 
-WIN: Survive Day 7, Doom < 30.
-Bonus: Pristine (all 5 alive), Truth (3 Clues), Hero (4 bosses).]]
+SLEEP: Houses sleep 2 comfortably. Extra sleepers get the floor: no regen.
+Survive a night at a sport court: salvage 2 resources at Dawn.
+
+WIN: Survive Day 7, Doom < 30, and The Source destroyed (if it still stands at the end of Day 7, you lose).
+Bonus: Pristine (all 5 alive), Truth (3 Clues), Hero (all 3 phase bosses).]]
 
 -- Dynamic content generators
 function getHelpCharContent(player)
@@ -106,14 +114,15 @@ function getHelpDawnContent()
 end
 
 function getHelpDoomContent()
-    local text = "DOOM TRACK: " .. gameState.doom .. " / 30\n\n"
+    local text = "DOOM TRACK: " .. gameState.doom .. " / " .. getDoomLimit() .. "\n\n"
 
-    text = text .. "Current phase doom rate: +" .. getDoomRate() .. " per day\n\n"
+    text = text .. "Current phase doom rate: +" .. getDoomRate() .. " per day (scaled by player count)\n"
+    text = text .. "Festering at Dawn: +1 per threat on the map (max +3); bosses +2 each, Treeguard +1 (no cap).\n\n"
 
     text = text .. "THRESHOLDS:\n"
     local thresholds = {
         {10, "Night threat draws +1 at all locations.", gameState.doom >= 10},
-        {15, "Market refresh slowed to 1 card per day.", gameState.doom >= 15},
+        {15, "Scarcity: every craft costs +1 extra resource (your choice).", gameState.doom >= 15},
         {20, "All characters lose +1 Sanity at Tick.", gameState.doom >= 20},
         {25, "Boss-level threats can appear in any phase.", gameState.doom >= 25},
         {30, "DEFEAT — the neighborhood is consumed.", gameState.doom >= 30},
@@ -231,15 +240,29 @@ function onWhatNowClick(player, value, id)
     local char = gameState.activeChars[color]
     local sp = gameState.subPhase or "PreGame"
     -- The Lua subPhase uses "GameOver"; the markdown groups it under "PostGame".
-    local groupKey = (sp == "GameOver") and "PostGame" or sp
+    -- "PreDawn" (the pause between Tick and the next Begin Day) uses the Tick
+    -- group's between_days hint.
+    local groupKey = sp
+    if sp == "GameOver" then groupKey = "PostGame" end
+    if sp == "PreDawn" then groupKey = "Tick" end
 
     -- 1) Phase-base hint
     local phaseHints = WHATNOW_HINTS[groupKey] or WHATNOW_HINTS.PreGame or {}
     local base = phaseHints.default or ""
 
+    -- Post-game: pick the hint matching how the game actually ended
+    -- (victory / defeat_doom / defeat_down / defeat_source).
+    if groupKey == "PostGame" and gameState.gameOverCause then
+        base = phaseHints[gameState.gameOverCause] or base
+    end
+
     -- Day no-actions override
     if sp == "Day" and char and (char.actionsLeft or 0) <= 0 then
         base = phaseHints.no_actions or base
+    end
+    -- Between-days override
+    if sp == "PreDawn" then
+        base = phaseHints.between_days or base
     end
 
     local hint = ""
@@ -252,6 +275,12 @@ function onWhatNowClick(player, value, id)
 
             if char.name == "James" and not gameState.jamesEnergyDrinkUsed then
                 hint = _appendHint(hint, charHints.james_no_energy_drink, char)
+            end
+
+            -- Signature nudge (§6.7): from Day 5 on, remind holders that the
+            -- big move is still in the tank — the finale is what it's for.
+            if not char.signatureUsed and gameState.day >= 5 then
+                hint = _appendHint(hint, charHints.signature_unused, char)
             end
 
             if char.name == "Rayman" and (char.location or ""):find("Basketball") then
@@ -363,6 +392,8 @@ function refreshActionButtonReasons(color)
         setActionTooltip("actFight", "No actions remaining. Click Pass.")
         setActionTooltip("actRest", "No actions remaining. Click Pass.")
         setActionTooltip("actCleanse", "No actions remaining. Click Pass.")
+        setActionTooltip("actTrade", "Trade is still free once per turn at your tile — even with 0 actions.")
+        setActionTooltip("actUndo", "Undo your last action's stat, position, and Doom changes.")
     else
         setActionTooltip("actMove", "Move to an adjacent location. Costs 1 action + 1 Hunger.")
         setActionTooltip("actGather", "Gather 1 resource from this location. Costs 1 action.")
@@ -382,6 +413,8 @@ function refreshActionButtonReasons(color)
 
         setActionTooltip("actRest", "Rest: +1 Hunger or +2 Sanity. At your own house: also +1 Health.")
         setActionTooltip("actCleanse", "Cleanse Doom -2. Costs 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink.")
+        setActionTooltip("actTrade", "Trade with another player. Free once per turn at your tile; otherwise 1 action.")
+        setActionTooltip("actUndo", "Undo your last action's stat, position, and Doom changes (once per action).")
     end
 end
 
@@ -397,9 +430,9 @@ NOTEBOOK_QUICKSTART = [[STARVE NO MORE — QUICK START
 GOAL: Survive 7 nights. Doom < 30. Don't all go Down.
 
 EACH DAY:
-1. Dawn — flip a Dawn card. Read it. Doom advances.
+1. Dawn — flip a Dawn card. Read it. Doom advances (+1 per threat left on the map).
 2. Day — 3 actions each: Move, Gather, Craft, Cook, Fight, Rest, Cleanse. Trade is free.
-3. Dusk — declare where you sleep.
+3. Dusk — last chance: scramble 1 tile (1 Hunger) or stay. You sleep where you stand.
 4. Night — threats drawn. Fight or suffer. Charlie attacks the lightless.
 5. Tick — lose 1 Hunger, 1 Sanity. Day advances.
 
@@ -414,16 +447,16 @@ SETUP:
 1. Click Setup Game. Pick a path graph. Pick characters. Read your briefing.
 
 TURN STRUCTURE:
-Dawn: Day Counter advances. Reveal Phase deck card. Doom advances.
+Dawn: Day Counter advances. Doom advances (phase rate + 1 per festering threat, max +3; bosses +2 each, Treeguard +1, no cap). Court survivors salvage 2 resources. Reveal Phase deck card.
 Day: 3 actions each — Move(1), Gather(1), Craft(1), Cook(1), Fight(1), Rest(1), Cleanse(1), Trade(free).
-Dusk: Declare sleep location.
-Night: Threat draws per tile. Combat. Charlie check. Storytelling. Sleep.
+Dusk: Scramble 1 tile (1 Hunger, optional, once). You sleep where you stand.
+Night: Threat draws per tile. Combat. Charlie check (2 Sanity + 1 Health, escalating). Storytelling. Sleep — houses sleep 2; extras get the floor (no regen).
 Tick: -1 Hunger, -1 Sanity. Check victory/defeat.
 
-COMBAT: Roll d6s. 5-6 = hit. 1 = fumble. Enemy counter-attacks.
-DEATH: Health 0 or Sanity 0 = Down (ghost). Revive with Telltale Heart.
+COMBAT: Roll d6s. 5-6 = hit. 1 = fumble only on a total whiff. Hit? Press the Attack: 1 Sanity per bonus die until you miss; then the enemy counters. Boss kills rebate Doom (-2/-3) and drop spoils.
+DEATH: Health 0 or Sanity 0 = Down (ghost). Doom +1. Revive with Telltale Heart.
 DOOM: 0-30. Thresholds at 10/15/20/25/30. Cleanse: Doom -2.
-VICTORY: Survive Day 7, Doom < 30.]]
+VICTORY: Survive Day 7, Doom < 30, and The Source destroyed if it arrived.]]
 
 NOTEBOOK_CHARACTERS = [[CHARACTER REFERENCE
 
@@ -437,7 +470,7 @@ Constraint: No Home (alone non-house = -3 Sanity)
 
 RAYMAN (Yellow) — HP 12 / HU 10 / SA 6
 Perks: Speed (+1 move), Court Master (+1 atk at Basketball Court), Defend
-Constraints: Big Appetite (-2 Hunger/Tick), Loud (+1 Threat on move)
+Constraints: Big Appetite (-2 Hunger/Tick), Loud (moved today = +1 Threat at his Night tile)
 
 ELLIE (Green) — HP 8 / HU 10 / SA 8
 Perks: Crockpot Master (-1 ingredient), Comfort Food (+1 shared), Knows Pantry

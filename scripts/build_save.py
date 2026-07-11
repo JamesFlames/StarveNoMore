@@ -92,6 +92,8 @@ ASSET_MAP = {
     "boss_eyeofterror_back":   "bosses/eye_of_terror.png",
     "boss_thesource_front":    "bosses/the_source.png",
     "boss_thesource_back":     "bosses/the_source.png",
+    "boss_treeguard_front":    "bosses/treeguard.png",
+    "boss_treeguard_back":     "bosses/treeguard.png",
     "boss_charlie_front":      "bosses/charlie.png",
     "boss_charlie_back":       "bosses/charlie.png",
 }
@@ -568,7 +570,7 @@ threat_deck = make_deck(
     deck_id=30,
     face_url=ph("threat_face"),
     back_url=ph("threat_back"),
-    num_w=6, num_h=8,
+    num_w=7, num_h=8,
     cards_data=threats,
     id_field="id", name_field="name",
     desc_func=threat_desc,
@@ -795,8 +797,9 @@ for char_name, color, bx, bz, stats in characters:
 bosses = [
     ("Deerclops", 6, 3),
     ("EyeOfTerror", 8, 3),
-    ("TheSource", 10, 3),
+    ("TheSource", 8, 3),   # retuned 10 -> 8 (batch 4 W3 calibration)
     ("Charlie", 4, 2),
+    ("Treeguard", 5, 2),   # Phase 2.5 mini-boss — wakes at Dusk of Day 4 (lua/treeguard.lua)
 ]
 
 boss_pool = base_obj("Bag", tf(16, 2, 10),
@@ -823,6 +826,18 @@ objects.append(boss_pool)
 # ---------------------------------------------------------------------------
 # E.18  Telltale Heart supply (Bag of 5 tokens)
 # ---------------------------------------------------------------------------
+
+# Sealed Basement (Design §13.5 / design_batch3.md §3): a fixed Pry
+# destination under Ellie & Luca's House, visible from setup — the map's
+# guaranteed early-game goal for whoever crafts a Pry tool.
+_elh = loc_positions["EllieLucaHouse"]
+basement = base_obj("BlockSquare",
+                    tf(_elh["x"] - 3.5, 1, _elh["z"] - 3.5, sx=1.4, sy=0.5, sz=1.4),
+                    nickname="The Sealed Basement",
+                    desc="A padlocked hatch under Ellie & Luca's House. Someone stocked it before the week began.\n\nPry (free action + Crowbar / Lockpick / Pry Bar): a free Market Item, plus 2 Food + 1 Wood + 1 Battery.",
+                    tags=["SealedBasement"])
+basement["ColorDiffuse"] = {"r": 0.28, "g": 0.22, "b": 0.15}
+objects.append(basement)
 
 heart_bag = base_obj("Bag", tf(14, 1.5, 8),
                      nickname="Telltale Heart Supply",
@@ -956,6 +971,7 @@ LUA_LOAD_ORDER = [
     "audio.lua",            # defines Audio.* (depends on AUDIO)
     "whatnow_hints.lua",    # auto-gen by scripts/generate_whatnow_hints.py — defines WHATNOW_HINTS
     "market_data.lua",      # auto-gen by scripts/generate_market_data.py — defines MARKET_COSTS
+    "threat_types.lua",     # auto-gen by scripts/generate_threat_types.py — defines THREAT_TYPE_BY_NAME
     "setup.lua",
     "day_loop.lua",
     "effects/dawn_effects.lua",
@@ -964,13 +980,18 @@ LUA_LOAD_ORDER = [
     "night.lua",
     "tick_victory.lua",
     "actions.lua",
+    "treeguard.lua",        # Phase 2.5 mini-boss (wake/appease/defeat)
+    "signatures.lua",       # Signature Moves (§6.7) — once-per-game per-character actions
+    "telemetry.lua",        # Session log: chronicle setup/turns/beats + Copy Session Log export (batch 4 W0)
     "ui_banner.lua",
     "ui_actionbar.lua",
     "ui_controls.lua",
     "ui_setup.lua",
     "ui_help.lua",
+    "ui_rules.lua",         # "Rules in effect" panel + day-cycle strip
     "ui_mood.lua",
     "audit.lua",
+    "selftest.lua",         # runSelfTest() — scripted in-TTS smoke test (J.11)
 ]
 
 lua_parts = []

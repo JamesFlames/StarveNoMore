@@ -4,6 +4,7 @@ Generate lua/audio_manifest.lua from the on-disk sounds/ tree.
 Walks `sounds/` and emits a Lua table grouping URLs + durations by category:
   - AUDIO.AMBIENT_SUBURBAN  — sounds/ambient/suburban/*
   - AUDIO.AMBIENT_VARIED    — sounds/ambient/varied/*
+  - AUDIO.AMBIENT_NIGHT     — sounds/ambient/night/*  (low drones for the Night phase)
   - AUDIO.CREATURES.<name>  — sounds/creatures/<name>/*  (bearger/deerclops/eye_of_terror/treeguard)
   - AUDIO.SFX.tick_chime    — sounds/sfx/tick_chime.wav
 
@@ -94,6 +95,7 @@ def emit_table(lines, indent, items):
 def main():
     suburban = list_clips("sounds/ambient/suburban")
     varied   = list_clips("sounds/ambient/varied")
+    night    = list_clips("sounds/ambient/night")
     creatures = {}
     creatures_dir = os.path.join(SOUNDS_DIR, "creatures")
     if os.path.isdir(creatures_dir):
@@ -139,6 +141,10 @@ def main():
     emit_table(L, 4, varied)
     L.append("}")
     L.append("")
+    L.append("AUDIO.AMBIENT_NIGHT = {")
+    emit_table(L, 4, night)
+    L.append("}")
+    L.append("")
     L.append("AUDIO.CREATURES = {}")
     for boss in sorted(creatures.keys()):
         L.append(f"AUDIO.CREATURES.{boss} = {{")
@@ -159,6 +165,7 @@ def main():
     counts = {
         "AMBIENT_SUBURBAN": len(suburban),
         "AMBIENT_VARIED":   len(varied),
+        "AMBIENT_NIGHT":    len(night),
     }
     for boss, items in creatures.items():
         counts[f"CREATURES.{boss}"] = len(items)

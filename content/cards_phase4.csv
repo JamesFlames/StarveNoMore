@@ -1,7 +1,7 @@
 id,title,severity,immediate,ongoing,art_notes
-P4_FINAL_HOURS,The Final Hours Begin,4,All players lose 2 Sanity. Doom +2.,Doom rate is now +3 per day.,Clock with hands spinning backward
+P4_FINAL_HOURS,The Final Hours Begin,4,All players lose 2 Sanity. Doom +2.,,Clock with hands spinning backward
 P4_SOURCE_NEAR,Something Worse Approaches,5,Pre-warning. The Source arrives at next Dawn.,,A swelling shape just beyond the streetlight
-P4_SOURCE_ARRIVES,The Source Arrives,5,Place the Source at the center of the map. Doom +3.,The Source is the final boss. The team must defeat it before Day 7 ends OR survive Day 7 with Doom < 30.,A Burtonesque mass with no clear shape
+P4_SOURCE_ARRIVES,The Source Arrives,5,Place the Source at the center of the map.,The final boss. It MUST be destroyed before Day 7 ends — while it stands there is no victory. Festers Doom +2 each Dawn.,A Burtonesque mass with no clear shape
 P4_DESPAIR,Despair,4,Each player rolls Sanity d8: lose Sanity equal to (face value / 2 round up).,Until next Dawn: Rest restores no Sanity.,Heads in hands at a kitchen table
 P4_SACRIFICE_OPTION,A Way Out,3,Any one player may immediately become Down to reduce Doom by 5. (Optional.),,An open doorway with light
 P4_LAST_LIGHTS,The Last Lights Go Out,4,All players lose 1 Sanity. All Battery tokens lose 1 charge (if a charge system exists; otherwise discard 1 Battery per player).,Until next Dawn: Only Fire is a light source.,Flashlight beam dimming

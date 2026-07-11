@@ -4,10 +4,12 @@
 -- Behaviour:
 --   - Day starts with a randomly-selected suburban ambient track.
 --   - When that track finishes, varied ambient tracks play one after another.
---   - Night stops ambience entirely.
+--   - Night switches to low drone tracks (sounds/ambient/night/), chained
+--     one after another. Cozy dread needs a heartbeat, not silence.
 --   - When a boss appears, ambient is suspended and a random sound from that
 --     boss's folder plays. After the sound + 10s, if the boss is still alive,
 --     another random sound plays. Loops until Audio.stopBossLoop() is called.
+--     A live boss loop owns the soundscape through Night and Dawn.
 --   - Tick fires a brief soft chime (sounds/sfx/tick_chime.wav).
 --
 -- Constraints:
@@ -19,7 +21,7 @@
 
 Audio = {
     state = {
-        mode         = "idle",       -- "idle" | "ambient" | "boss"
+        mode         = "idle",       -- "idle" | "ambient" | "night" | "boss"
         ambientPhase = "suburban",   -- "suburban" (first track of day) | "varied"
         bossName     = nil,          -- key into AUDIO.CREATURES when mode=="boss"
         nextHandle   = nil,          -- Wait.time handle for next scheduled clip
@@ -67,6 +69,15 @@ local function _playNextVaried()
     _scheduleNext(_playNextVaried, clip.duration or 180)
 end
 
+-- Play one night drone and schedule the next while mode=="night".
+local function _playNextNight()
+    if Audio.state.mode ~= "night" then return end
+    local clip = _pickRandom(AUDIO.AMBIENT_NIGHT)
+    if not clip then return end
+    _playClip(clip)
+    _scheduleNext(_playNextNight, clip.duration or 72)
+end
+
 -- Boss loop: random roar, wait roar+10s, repeat while mode=="boss".
 local function _bossStep()
     if Audio.state.mode ~= "boss" then return end
@@ -98,12 +109,23 @@ end
 -- ---------------- public API ----------------
 
 -- Called at the start of a new in-game day (Dawn).
+-- A live boss loop keeps the soundscape — the roars don't stop for sunrise.
 function Audio.startDayAmbience()
+    if Audio.state.mode == "boss" then return end
     Audio.state.ambientPhase = "suburban"  -- fresh day -> start with suburban
     _resumeAmbient()
 end
 
--- Called at Night start. Stops music entirely.
+-- Called at Night start. Switches to the low night drones; a live boss
+-- loop keeps priority (the thing outside is louder than the wind).
+function Audio.startNightAmbience()
+    if Audio.state.mode == "boss" then return end
+    _cancel()
+    Audio.state.mode = "night"
+    _playNextNight()
+end
+
+-- Hard stop (kept for edge cases / manual host control).
 function Audio.stopAmbience()
     _cancel()
     Audio.state.mode = "idle"
@@ -138,12 +160,18 @@ function Audio.playBossLoop(boss_name)
     _bossStep()
 end
 
--- Called when a boss is defeated. Resumes day ambience.
+-- Called when a boss is defeated. Resumes whatever ambience fits the hour.
 function Audio.stopBossLoop(boss_name)
     -- If a different boss is currently active, ignore.
     if boss_name and Audio.state.bossName ~= boss_name then return end
     _cancel()
-    _resumeAmbient()
+    Audio.state.bossName = nil
+    if gameState and gameState.subPhase == "Night" then
+        Audio.state.mode = "night"
+        _playNextNight()
+    else
+        _resumeAmbient()
+    end
 end
 
 -- Play a one-shot SFX by key (any clip in AUDIO.SFX). Briefly interrupts
@@ -159,6 +187,9 @@ function Audio.playSFX(key)
     Audio.state.nextHandle = Wait.time(function()
         if resumeMode == "ambient" then
             _resumeAmbient()
+        elseif resumeMode == "night" then
+            Audio.state.mode = "night"
+            _playNextNight()
         elseif resumeMode == "boss" and resumeBoss then
             Audio.state.mode = "boss"
             Audio.state.bossName = resumeBoss
@@ -169,7 +200,9 @@ end
 
 -- Convenience names for the project's specific SFX events.
 function Audio.playChime()       Audio.playSFX("tick_chime")          end
+function Audio.playTurnPing()    Audio.playSFX("turn_ping")           end
 function Audio.playWalk()        Audio.playSFX("character_walk")      end
 function Audio.playTradeChat()   Audio.playSFX("character_talktrade") end
 function Audio.playMeet()        Audio.playSFX("character_meet")      end
 function Audio.playDeath()       Audio.playSFX("character_death")     end
+function Audio.playGrowl()       Audio.playSFX("night_growl")         end

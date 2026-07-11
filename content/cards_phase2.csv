@@ -1,11 +1,11 @@
 id,title,severity,immediate,ongoing,art_notes
-P2_PORCH_LIGHT,The Porch Light Flickers,2,All players lose 1 Sanity.,Until next Dawn: Charlie checks ignore Flashlights — only Fire counts as a light source.,Porches with blacked-out bulbs
+P2_PORCH_LIGHT,The Porch Light Flickers,2,All players lose 1 Sanity.,Until next Dawn: Charlie checks ignore Flashlights — only Fire counts as a light source. DARE: the first player to Gather at a house today may take 3 resources instead of 1 — and lose 2 Sanity from what they see through the window.,Porches with blacked-out bulbs
 P2_SHADOWS_MOVE,Shadows Move Without Bodies,3,Each player rolls the Sanity d8 and loses Sanity equal to half (round up).,,Burton-style ink shadow
-P2_FOOD_SPOILS,Food Goes Bad,3,Each player discards 1 Food from their resources.,,Mold creeping over an apple
-P2_BASKETBALL_BOUNCE,A Basketball Bounces in the Dark,2,Spawn a Threat at the Basketball Court (draw face-down on tile).,,A ball bouncing in a moonlit empty court
+P2_FOOD_SPOILS,Food Goes Bad,3,Each player discards 1 Food from their resources.,DARE: eat it anyway — keep your spoiled Food and eat it now: +2 Hunger and -1 Health.,Mold creeping over an apple
+P2_BASKETBALL_BOUNCE,A Basketball Bounces in the Dark,2,Something is wrong at the School. The top Threat card is placed FACE-DOWN at the Basketball Court. It resolves when someone goes to look — or at the next Dawn where it stands.,,A ball bouncing in a moonlit empty court
 P2_HUNGRY,Everyone's Hungrier Than They Should Be,2,Each player loses 1 Hunger.,Until next Dawn: Rest restores no Hunger.,Empty plate with a bite-mark
 P2_DEERCLOPS_NEAR,The Deerclops Approaches,3,Pre-warning. The Deerclops boss arrives next Dawn at the Basketball Court.,,Massive antlered silhouette in fog
-P2_DEERCLOPS_ARRIVES,The Deerclops Arrives,4,Place the Deerclops standee on the Basketball Court. Doom +1.,While Deerclops is on the map: All Sanity costs are doubled.,Single cyclopean eye behind trees
+P2_DEERCLOPS_ARRIVES,The Deerclops Arrives,4,Place the Deerclops standee on the Basketball Court.,While Deerclops is on the map: All Sanity costs are doubled. It festers Doom +2 each Dawn.,Single cyclopean eye behind trees
 P2_DOOR_OPENS,A Door Opens by Itself,2,The player at Ellie & Luca's House loses 2 Sanity. (If empty: skip.),,Front door slowly swinging in
 P2_VISITOR,An Old Friend Drops By,3,Resolve the top Visitor card.,,Knock on a door with a stranger silhouette
 P2_BLOOD_MOON,Blood Moon Rising,3,All players lose 1 Sanity.,Until next Dawn: Threat draws +1 at all locations.,A red moon over the cul-de-sac
@@ -14,3 +14,4 @@ P2_SUPPLY_DROP,A Box on the Porch,2,Add 1 Metal and 1 Cloth to the nearest house
 P2_MIRROR_CRACK,Every Mirror Cracked,2,All players discard 1 Battery (if held). The player with the most items loses 1 Sanity.,,Spiderweb cracks across a bathroom mirror
 P2_STRANGER_WAVES,Someone Waves from the End of the Street,2,All players at sport courts lose 2 Sanity.,Until next Dawn: movement to or from sport courts costs +1 Hunger.,A figure waving slowly in the distance with the wrong number of fingers
 P2_RAIN_STARTS,The Rain Starts and Won't Stop,2,All outdoor locations (sport courts) have Gather actions cost +1 Sanity this day.,Until next Dawn: Fire light sources are extinguished at sport courts.,Heavy rain streaking past a streetlight
+P2_DRAWN_TO_CROWDS,Drawn to the Crowds,3,,Tonight the location with the most characters draws +1 Threat. It has learned where you gather.,Many spindly silhouettes crowded in one warm lit window while something tall watches from the dark street

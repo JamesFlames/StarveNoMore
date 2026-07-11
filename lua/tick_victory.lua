@@ -17,8 +17,18 @@ function resolveTick()
             local hungerLoss = 1
             local sanityLoss = 1
 
-            -- Rayman's Big Appetite: -2 Hunger instead of -1
-            if char.name == "Rayman" then hungerLoss = 2 end
+            -- Rayman's Big Appetite: -2 Hunger instead of -1.
+            -- 3-player relief (§20.1, batch 4 W2): with only three characters
+            -- absorbing his overheads, the big appetite only bites on days he
+            -- earned it — fought, or moved 2+ tiles. A quiet day costs 1.
+            if char.name == "Rayman" then
+                hungerLoss = 2
+                if gameState.playerCount == 3 and not gameState.raymanFoughtToday
+                    and (gameState.raymanTilesMovedToday or 0) < 2 then
+                    hungerLoss = 1
+                    broadcastEvent("proc", "Rayman had a quiet day — Big Appetite eases to -1 Hunger (3-player relief).")
+                end
+            end
 
             -- Winter scenario: hunger decay doubled
             local flags = gameState.scenarioFlags or {}
@@ -64,37 +74,42 @@ function resolveTick()
                 broadcastEvent("damage", "James didn't get his Energy Drink — loses 2 Sanity (Wired).")
             end
 
+            -- All-Nighter crash (Signature, §6.7): the extra actions get billed now.
+            local pendingSanity = (gameState.pendingSanityPenalty or {})[color]
+            if pendingSanity then
+                char.sanity = math.max(0, char.sanity - pendingSanity)
+                gameState.pendingSanityPenalty[color] = nil
+                broadcastEvent("damage", char.name .. " crashes after the All-Nighter — loses " ..
+                    pendingSanity .. " Sanity. (Now " .. char.sanity .. ")")
+            end
+
             -- Low stat threshold effects (Design §10.1)
             if char.health > 0 and char.health < 3 then
                 broadcastEvent("warn", char.name .. " is critically injured (Health < 3). Movement costs +1 action.")
             end
             if char.hunger > 0 and char.hunger < 3 then
-                broadcastEvent("warn", char.name .. " is starving (Hunger < 3). Cannot fight or use [Effort] actions.")
+                broadcastEvent("warn", char.name .. " is starving (Hunger < 3). Cannot fight or use [Effort] actions — but may always Flee (1 tile, 1 Sanity).")
             end
             if char.sanity > 0 and char.sanity < 3 then
-                broadcastEvent("warn", char.name .. " is losing grip on reality (Sanity < 3). Will hallucinate at next Dawn.")
+                broadcastEvent("warn", char.name .. " is losing grip on reality (Sanity < 3). Haunted: draws a personal Threat at next Dawn that allies can't help with.")
             end
 
             checkDownState(color)
         end
     end
 
-    -- Ghost presence: each Down character drains -1 Sanity from co-located living players
+    -- Charlie streak: a night without an attack resets her interest.
     for color, char in pairs(gameState.activeChars) do
-        if char.down then
-            for c2, ch2 in pairs(gameState.activeChars) do
-                if c2 ~= color and not ch2.down and ch2.location == char.location then
-                    ch2.sanity = math.max(0, ch2.sanity - 1)
-                    broadcastEvent("damage", char.name .. "'s ghost drains 1 Sanity from " .. ch2.name .. ".")
-                    checkDownState(c2)
-                end
-            end
+        if char.charlieHitTonight then
+            char.charlieHitTonight = nil
+        else
+            char.charlieStreak = 0
         end
     end
 
     -- Reset daily flags
     gameState.jamesEnergyDrinkUsed = false
-    gameState.marketRefillUsed = false
+    gameState.pendingSanityPenalty = {}   -- any crash owed by a Down character is moot
 
     -- Check victory/defeat
     if checkDefeat() then
@@ -175,6 +190,14 @@ function checkDownState(color)
 
     if wentDown then
         safecall(function() Audio.playDeath() end, "Audio")
+        safecall(function() ensureChronicle().downs = ensureChronicle().downs + 1 end, "Chronicle")
+
+        -- A fallen friend feeds the dark: Doom +1 (Design §16.4)
+        gameState.doom = math.min(getDoomLimit(), gameState.doom + 1)
+        safecall(function() moveDoomMarker(gameState.doom) end, "DoomMarker")
+        broadcastEvent("warn", char.name .. " falling feeds the dark — Doom +1 (now " .. gameState.doom .. " / " .. getDoomLimit() .. ").")
+        safecall(function() checkDoomThresholds() end, "DoomThresholds")
+
         -- Auto-broadcast revival hint to the team (once per character per day).
         gameState.dailyAlerts = gameState.dailyAlerts or {}
         gameState.dailyAlerts[color] = gameState.dailyAlerts[color] or {}
@@ -240,6 +263,7 @@ function reviveCharacter(reviverColor, targetColor)
 
     broadcastEvent("gain", target.name .. " is REVIVED! Health " .. target.health ..
         ", Hunger " .. target.hunger .. ", Sanity " .. target.sanity .. ".")
+    safecall(function() ensureChronicle().revives = ensureChronicle().revives + 1 end, "Chronicle")
 
     checkDownState(reviverColor)
     return true
@@ -273,25 +297,29 @@ function doCleanse(color)
     local char = gameState.activeChars[color]
     if not char then return end
 
-    -- Resource cost is verified manually by the player (they discard tokens)
-    -- The script handles the Doom reduction
-    broadcastEvent("proc", char.name .. " performs a Cleansing ritual!")
-    broadcastEvent("proc", "Required: 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink. Discard these now.")
+    -- Auto-verify and pay the cost; refund the action if the player can't.
+    if not verifyAndPayResources(color, {Wood=1, Cloth=1, Battery=1, EnergyDrink=1}, "Cleanse") then
+        char.actionsLeft = char.actionsLeft + 1
+        return
+    end
 
+    broadcastEvent("proc", char.name .. " performs a Cleansing ritual!")
     gameState.doom = math.max(0, gameState.doom - 2)
     moveDoomMarker(gameState.doom)
-    broadcastEvent("gain", "Doom reduced by 2! Now at " .. gameState.doom .. " / 30.")
+    broadcastEvent("gain", "Doom reduced by 2! Now at " .. gameState.doom .. " / " .. getDoomLimit() .. ".")
 end
 
 -----------------------------------------------------------------------
 -- F.10 — Victory and Defeat detection
 -----------------------------------------------------------------------
 function checkDefeat()
-    -- Condition 1: Doom >= 30
-    if gameState.doom >= 30 then
-        broadcastEvent("damage", "DOOM REACHES 30 — THE WORLD IS CONSUMED.")
+    -- Condition 1: Doom at the track limit (30; 15 on Long Weekend)
+    if gameState.doom >= getDoomLimit() then
+        broadcastEvent("damage", "DOOM REACHES " .. getDoomLimit() .. " — THE WORLD IS CONSUMED.")
         broadcastEvent("phase", "=== DEFEAT ===")
+        gameState.gameOverCause = "defeat_doom"
         gameState.subPhase = "GameOver"
+        safecall(function() showWeekInReview() end, "WeekReview")
         return true
     end
 
@@ -309,7 +337,9 @@ function checkDefeat()
     if anyActive and allDown then
         broadcastEvent("damage", "ALL CHARACTERS ARE DOWN — HOPE IS LOST.")
         broadcastEvent("phase", "=== DEFEAT ===")
+        gameState.gameOverCause = "defeat_all_down"
         gameState.subPhase = "GameOver"
+        safecall(function() showWeekInReview() end, "WeekReview")
         return true
     end
 
@@ -317,16 +347,34 @@ function checkDefeat()
 end
 
 function checkVictory()
-    -- Win: survive Day 7 (after Night/Tick) with Doom < 30
-    if gameState.day >= 7 and gameState.subPhase == "Tick" and gameState.doom < 30 then
-        broadcastEvent("gain", "DAY 7 SURVIVED! DOOM HELD AT " .. gameState.doom .. " / 30.")
-        broadcastEvent("phase", "=== VICTORY ===")
+    -- Win: survive Day 7 (after Night/Tick) with Doom < 30 AND the Source
+    -- stopped. Design §16.3(3): if the final boss still stands at the end
+    -- of Day 7, surviving around it was not enough.
+    if gameState.day >= getTotalDays() and gameState.subPhase == "Tick" then
+        local sourceKilled = (gameState.bossesDefeated or {}).source
+            or gameState.ongoingDawnEffects.sourceDefeated
+        if not sourceKilled and isBossOnMap("Boss:TheSource") then
+            broadcastEvent("damage", "DAY 7 ENDS — AND THE SOURCE STILL STANDS.")
+            broadcastEvent("damage", "Surviving was never going to be enough. The neighborhood is lost.")
+            broadcastEvent("phase", "=== DEFEAT ===")
+            gameState.gameOverCause = "defeat_source"
+            gameState.subPhase = "GameOver"
+            safecall(function() showWeekInReview() end, "WeekReview")
+            return true
+        end
 
-        -- Check bonus victories
-        checkBonusVictories()
+        if gameState.doom < getDoomLimit() then
+            broadcastEvent("gain", "DAY " .. gameState.day .. " SURVIVED! DOOM HELD AT " .. gameState.doom .. " / " .. getDoomLimit() .. ".")
+            broadcastEvent("phase", "=== VICTORY ===")
 
-        gameState.subPhase = "GameOver"
-        return true
+            -- Check bonus victories
+            checkBonusVictories()
+
+            gameState.gameOverCause = "victory"
+            gameState.subPhase = "GameOver"
+            safecall(function() showWeekInReview() end, "WeekReview")
+            return true
+        end
     end
 
     return false
@@ -350,12 +398,17 @@ function checkBonusVictories()
         broadcastEvent("gain", "BONUS: Truth Run — all 3 Clues discovered! The ending changes.")
     end
 
-    -- Hero Run: all bosses defeated (tracked by defeat flags)
+    -- Hero Run: all three phase bosses defeated (Deerclops, Eye, Source).
+    -- The Treeguard mini-boss doesn't count (Design §14.2). Kills are
+    -- recorded in gameState.bossesDefeated (persistent) by markBossDefeated;
+    -- the ongoingDawnEffects flags are checked too for save compatibility.
+    local bd = gameState.bossesDefeated or {}
+    local e = gameState.ongoingDawnEffects
     local bossesDefeated = 0
-    if gameState.ongoingDawnEffects.deerclopsDefeated then bossesDefeated = bossesDefeated + 1 end
-    if gameState.ongoingDawnEffects.eyeDefeated then bossesDefeated = bossesDefeated + 1 end
-    if gameState.ongoingDawnEffects.sourceDefeated then bossesDefeated = bossesDefeated + 1 end
+    if bd.deerclops or e.deerclopsDefeated then bossesDefeated = bossesDefeated + 1 end
+    if bd.eye or e.eyeDefeated then bossesDefeated = bossesDefeated + 1 end
+    if bd.source or e.sourceDefeated then bossesDefeated = bossesDefeated + 1 end
     if bossesDefeated >= 3 then
-        broadcastEvent("gain", "BONUS: Hero Run — all bosses defeated!")
+        broadcastEvent("gain", "BONUS: Hero Run — all three phase bosses defeated!")
     end
 end

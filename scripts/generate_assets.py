@@ -637,7 +637,7 @@ def generate_main_board():
     centered_text(draw, doom_x, doom_top - 30, "D O O M", FONT_BOARD_LOC, PAL["red"])
 
     # Steps 0-30
-    thresholds = {10: "Threats +1", 15: "Market 1/day", 20: "+1 Sa loss", 25: "Bosses any", 30: "DEFEAT"}
+    thresholds = {10: "Threats +1", 15: "Crafts +1 cost", 20: "+1 Sa loss", 25: "Bosses any", 30: "DEFEAT"}
     for step in range(31):
         sy = doom_top + int(step * step_h)
         # Color gradient: cool to warm

@@ -54,8 +54,13 @@ function onHostBeginDay(player, value, id)
 end
 
 function onHostResolveNight(player, value, id)
+    if gameState.subPhase == "Dusk" then
+        -- Close the scramble window and start the Night phase.
+        safecall(function() beginNight() end, "BeginNight")
+        return
+    end
     if gameState.subPhase ~= "Night" then
-        broadcastToColor("Not in the Night phase.", player.color, BROADCAST_COLORS.damage)
+        broadcastToColor("Not in the Dusk or Night phase.", player.color, BROADCAST_COLORS.damage)
         return
     end
     safecall(function() ResolveNight() end, "ResolveNight")
@@ -83,14 +88,21 @@ function onHostRestart(player, value, id)
                 subPhase = "PreGame",
                 activeColor = nil, turnOrder = {}, turnIndex = 0,
                 playerCount = 0, pathVariant = nil,
+                turnStyle = "full", actedThisVisit = false,
+                combatContext = nil,
+                scenario = nil, scenarioFlags = {},
                 dayLog = {}, activeDawn = nil,
                 ongoingDawnEffects = {},
                 activeChars = {},
+                chronicle = nil,   -- lazily rebuilt by ensureChronicle()
             }
+            UI.hide("weekReviewPanel")
+            UI.hide("combatPanel")
             broadcastEvent("phase", "Game reset. Click Setup to begin a new game.")
             refreshPhaseBanner()
             UI.hide("actionBar")
             UI.hide("statDisplay")
+            UI.hide("duskPanel")
         end
     )
 end
@@ -101,6 +113,9 @@ end
 -- Summary panel (I.4 stub)
 -----------------------------------------------------------------------
 function showEndOfDaySummary()
+    -- Chronicle the day while its dayLog is still intact (wiped at next Dawn).
+    safecall(function() recordDayInChronicle() end, "Chronicle")
+
     if not UI then return end
 
     local title = "End of Day " .. gameState.day
@@ -117,7 +132,7 @@ function showEndOfDaySummary()
         end
     end
 
-    body = body .. "Doom: " .. gameState.doom .. " / 30\n\n"
+    body = body .. "Doom: " .. gameState.doom .. " / " .. getDoomLimit() .. "\n\n"
 
     -- QoL: Stat comparison (start-of-day vs now)
     local startStats = gameState.dayStartStats or {}
@@ -169,6 +184,170 @@ function onSummaryClose(player, value, id)
 end
 
 -----------------------------------------------------------------------
+-- Week in Review chronicle (design_batch1.md §3)
+-- A persistent record across the whole campaign — dayLog is wiped each
+-- Dawn, the chronicle is not. Accumulated by small hooks at sites that
+-- already fire (cook, kill, Charlie, Down, revive, day-end), narrated
+-- back at game end by showWeekInReview().
+-----------------------------------------------------------------------
+function ensureChronicle()
+    -- Lazy init: saves from before the chronicle existed load cleanly.
+    if not gameState.chronicle then
+        gameState.chronicle = {
+            days = {}, meals = {}, kills = {},
+            peakDoom = { value = 0, day = 0 },
+            maxCharlieStreak = { value = 0, name = "" },
+            downs = 0, revives = 0,
+            setup = {}, turns = {},
+            beats = { pressKills = 0, signaturesUsed = {}, sourceSplit = false, daresTaken = 0 },
+        }
+    end
+    return gameState.chronicle
+end
+
+local BOSS_NAME_PATTERNS = { "deerclops", "eye of terror", "eyeofterror", "source", "treeguard" }
+
+function recordKillInChronicle(threatName, colors)
+    local ch = ensureChronicle()
+    local who = {}
+    for _, color in ipairs(colors or {}) do
+        local c = gameState.activeChars[color]
+        if c then table.insert(who, c.name) end
+    end
+    local lower = string.lower(threatName or "")
+    local isBoss = false
+    for _, p in ipairs(BOSS_NAME_PATTERNS) do
+        if string.find(lower, p, 1, true) then isBoss = true break end
+    end
+    table.insert(ch.kills, { who = table.concat(who, " & "), threat = threatName or "?",
+                             day = gameState.day, boss = isBoss })
+end
+
+function recordMealInChronicle(cookName)
+    local ch = ensureChronicle()
+    ch.meals[cookName] = (ch.meals[cookName] or 0) + 1
+end
+
+function recordCharlieInChronicle(charName, streak)
+    local ch = ensureChronicle()
+    if streak > ch.maxCharlieStreak.value then
+        ch.maxCharlieStreak.value = streak
+        ch.maxCharlieStreak.name = charName
+    end
+end
+
+-- Called at day end (from showEndOfDaySummary), while the day's dayLog is
+-- still intact — BeginDay wipes it at the next Dawn.
+function recordDayInChronicle()
+    local ch = ensureChronicle()
+    local day = gameState.day
+
+    local damageCount = 0
+    local headline = nil
+    for _, e in ipairs(gameState.dayLog or {}) do
+        if e.category == "damage" then
+            damageCount = damageCount + 1
+            -- Headline precedence 1: somebody fell tonight.
+            if not headline and (e.message:find("is DOWN") or e.message:find("is LOST")) then
+                headline = e.message
+            end
+        end
+    end
+    -- Precedence 2: a boss fell today.
+    if not headline then
+        for _, k in ipairs(ch.kills) do
+            if k.day == day and k.boss then
+                headline = "The " .. k.threat .. " fell to " .. k.who .. "."
+                break
+            end
+        end
+    end
+    -- Precedence 3: a bruising day / a quiet one.
+    if not headline then
+        if damageCount >= 4 then headline = "A bruising day — the neighborhood bit back " .. damageCount .. " times."
+        elseif damageCount > 0 then headline = "The team took some knocks and kept moving."
+        else headline = "A quiet day. Nobody trusted it." end
+    end
+
+    ch.days[day] = { headline = headline, damageTonight = damageCount }
+    if gameState.doom > ch.peakDoom.value then
+        ch.peakDoom.value = gameState.doom
+        ch.peakDoom.day = day
+    end
+end
+
+function showWeekInReview()
+    -- The game can end before the day-end summary fires (victory/defeat are
+    -- checked first in resolveTick) — chronicle the final day now. Safe to
+    -- call twice: it overwrites the same day's entry.
+    safecall(function() recordDayInChronicle() end, "Chronicle")
+
+    local ch = ensureChronicle()
+    local lines = {}
+
+    for day = 1, 7 do
+        local d = ch.days[day]
+        if d then table.insert(lines, "Day " .. day .. " — " .. d.headline) end
+    end
+    if #lines > 0 then table.insert(lines, "") end
+
+    -- The darkest night: most damage entries in one day.
+    local worstDay, worstDmg = nil, 0
+    for day, d in pairs(ch.days) do
+        if d.damageTonight > worstDmg then worstDay, worstDmg = day, d.damageTonight end
+    end
+    if worstDay then
+        table.insert(lines, "Darkest night: Day " .. worstDay .. " (" .. worstDmg .. " wounds and frights)")
+    end
+
+    -- Best kill: prefer a boss, else the last kill.
+    local best = nil
+    for _, k in ipairs(ch.kills) do
+        if k.boss then best = k break end
+    end
+    if not best and #ch.kills > 0 then best = ch.kills[#ch.kills] end
+    if best then
+        table.insert(lines, "Best kill: " .. best.threat .. " — " .. best.who .. " (Day " .. best.day .. ")")
+    end
+    table.insert(lines, "Threats defeated: " .. #ch.kills)
+
+    -- Camp mother: most meals cooked.
+    local cook, meals = nil, 0
+    for name, n in pairs(ch.meals) do
+        if n > meals then cook, meals = name, n end
+    end
+    if cook then table.insert(lines, "Kept everyone fed: " .. cook .. " (" .. meals .. " meals)") end
+
+    if ch.maxCharlieStreak.value > 0 then
+        table.insert(lines, "Held the line in the dark: " .. ch.maxCharlieStreak.name ..
+            " (" .. ch.maxCharlieStreak.value .. " night(s) of Charlie)")
+    end
+    table.insert(lines, "Doom high-water mark: " .. ch.peakDoom.value .. " / " .. getDoomLimit() .. " (Day " .. ch.peakDoom.day .. ")")
+    if ch.downs > 0 then
+        table.insert(lines, "The fallen: " .. ch.downs .. " down" .. (ch.revives > 0 and (" — " .. ch.revives .. " brought back") or ""))
+    else
+        table.insert(lines, "Nobody fell. Not once.")
+    end
+
+    local title = (gameState.gameOverCause == "victory") and "THE WEEK YOU SURVIVED" or "THE WEEK THAT TOOK YOU"
+    local body = table.concat(lines, "\n")
+    broadcastEvent("phase", "=== WEEK IN REVIEW ===")
+    for _, l in ipairs(lines) do
+        if l ~= "" then broadcastEvent("proc", l) end
+    end
+
+    if UI then
+        UI.setAttribute("weekReviewTitle", "text", title)
+        UI.setAttribute("weekReviewBody", "text", body)
+        UI.show("weekReviewPanel")
+    end
+end
+
+function onWeekReviewClose(player, value, id)
+    UI.hide("weekReviewPanel")
+end
+
+-----------------------------------------------------------------------
 -- G.7 ��� Tooltips on every interactable
 -- Runs at end of Setup to populate descriptions from tag data
 -----------------------------------------------------------------------
@@ -185,7 +364,7 @@ TOOLTIP_DATA = {
     ["DayCounter"]           = "Day Counter. Current: Day {day} of 7.",
     -- Decks
     ["MarketCardDeck"]       = "Market Deck. Craft items by spending resources. 5 face-up in the display.",
-    ["ThreatCardDeck"]       = "Threat Deck. Drawn at Night. Soft threats resolve instantly; Hard ones must be fought.",
+    ["ThreatCardDeck"]       = "Threat Deck. Drawn at Night. Soft threats resolve instantly; Hard ones must be fought. Threats left on the map fester at Dawn: +1 Doom each (max +3); bosses +2 each, no cap.",
     ["VisitorCardDeck"]      = "Visitor Deck. Absent characters may arrive via Dawn cards.",
     -- Supply
     ["TelltaleHeartSupply"]  = "Telltale Hearts (5 max). Cook: 1 Cloth + 1 Battery + 1 Food + 2 Health. Use to revive a Down character.",
@@ -193,8 +372,8 @@ TOOLTIP_DATA = {
     ["Location:JamesHouse"]       = "James's House. Yields: Energy Drink, Battery, Junk Food. The Den: free trade once/day.",
     ["Location:RaymanHouse"]      = "Rayman's House. Yields: Sports Equipment, Sports Drink. The Garage: Rest +1 Health.",
     ["Location:EllieLucaHouse"]   = "Ellie & Luca's House. Yields: Food, Cloth, Pantry. The Kitchen: permanent Crockpot.",
-    ["Location:BasketballCourt"]  = "Basketball Court. Yields: Wood, Metal, Cloth. Echoes: d6 on gather (6=bonus, 1-2=Sanity loss).",
-    ["Location:BadmintonCourt"]   = "Badminton Court. Yields: Cloth, Wood, Metal. The Net: +1 die defending.",
+    ["Location:BasketballCourt"]  = "Basketball Court. Yields: Wood, Metal, Cloth. Echoes: d6 on gather (6=bonus, 1-2=Sanity loss). Moonlit Salvage: survive a night here, gather 2 at Dawn.",
+    ["Location:BadmintonCourt"]   = "Badminton Court. Yields: Cloth, Wood, Metal. The Net: +1 die defending. Moonlit Salvage: survive a night here, gather 2 at Dawn.",
     -- Severity Legend
     ["SeverityLegend"]       = "Severity dot legend: 1=flavor, 2=minor, 3=combat, 4=phase-shift, 5=boss/apocalyptic.",
 }
@@ -223,12 +402,12 @@ function refreshDynamicTooltips()
     local doomMarker = getDoomMarker()
     if doomMarker then
         local nextT = getNextDoomThreshold() or 30
-        doomMarker.setDescription("Doom: " .. gameState.doom .. " / 30. Next threshold at " .. nextT .. ".")
+        doomMarker.setDescription("Doom: " .. gameState.doom .. " / " .. getDoomLimit() .. ". Next threshold at " .. nextT .. ".")
     end
 
     -- Update Day counter tooltip
     local dayCounter = getDayCounter()
     if dayCounter then
-        dayCounter.setDescription("Day " .. gameState.day .. " of 7.")
+        dayCounter.setDescription("Day " .. gameState.day .. " of " .. getTotalDays() .. ".")
     end
 end

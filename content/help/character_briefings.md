@@ -19,7 +19,7 @@ You know patterns. You see things before they happen. You live at **James's Hous
 
 **Starting hand:** Energy Drink ×2, Pocketknife, Flashlight, Headphones.
 
-**Your first move:** You start at James's House. Gather an Energy Drink to stay stocked, then use Pattern Recognition to peek at the Phase deck — tell your team what's coming tomorrow.
+**Your first move:** You start at James's House. Gather from The Stash — you can take 2 Energy Drinks at once, so stock up every other day instead of daily. Then use Pattern Recognition to peek at the Phase deck — tell your team what's coming tomorrow.
 
 ---
 
@@ -56,7 +56,7 @@ You're the fastest and the toughest. You hit hard. You also eat a lot and make n
 
 **Constraints**
 - **Big Appetite:** You lose 2 Hunger per day Tick (everyone else loses 1). Ellie is your best friend.
-- **Loud:** When you move to a new location, draw 1 extra Threat card during Night. Travel wisely.
+- **Loud:** If you moved at all today, the location where you spend the Night draws +1 extra Threat — the noise follows you home. It doesn't stack; a day spent standing still is a quiet one. Travel wisely.
 
 **Starting hand:** Basketball (weapon), Sports Drink ×2, Athletic Tape, Whistle.
 

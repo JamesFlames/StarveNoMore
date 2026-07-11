@@ -6,68 +6,30 @@
 AUDIO = {}
 
 AUDIO.AMBIENT_SUBURBAN = {
-    { url = "http://localhost:8080/sounds/ambient/suburban/city_fall_day_v3.wav", duration = 134.49, name = "city_fall_day_v3.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/city_fall_night.wav", duration = 135.41, name = "city_fall_night.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/city_wet_day.wav", duration = 127.80, name = "city_wet_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/city_wet_night.wav", duration = 134.06, name = "city_wet_night.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/city_winter_day.wav", duration = 134.24, name = "city_winter_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/city_winter_night.wav", duration = 132.54, name = "city_winter_night.wav" },
     { url = "http://localhost:8080/sounds/ambient/suburban/dontstarve_dlc003_amb_temperate_interior_city_day.wav", duration = 51.26, name = "dontstarve_dlc003_amb_temperate_interior_city_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/dontstarve_dlc003_amb_temperate_interior_city_night.wav", duration = 49.02, name = "dontstarve_dlc003_amb_temperate_interior_city_night.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_fall_day.wav", duration = 157.21, name = "suburbs_fall_day.wav" },
     { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_fall_day_amb_dsh.wav", duration = 113.53, name = "suburbs_fall_day_amb_dsh.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_fall_night_amb_dsh.wav", duration = 113.76, name = "suburbs_fall_night_amb_dsh.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_fall_night_v2.wav", duration = 122.16, name = "suburbs_fall_night_v2.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_wet_day.wav", duration = 123.73, name = "suburbs_wet_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_wet_day_amb_dsh.wav", duration = 154.00, name = "suburbs_wet_day_amb_dsh.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_wet_night.wav", duration = 123.73, name = "suburbs_wet_night.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_wet_night_amb_dsh.wav", duration = 143.47, name = "suburbs_wet_night_amb_dsh.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_winter_day_amb_dsh.wav", duration = 166.97, name = "suburbs_winter_day_amb_dsh.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_winter_day_v2_dsh.wav", duration = 149.28, name = "suburbs_winter_day_v2_dsh.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_winter_night_amb_dsh.wav", duration = 163.35, name = "suburbs_winter_night_amb_dsh.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_winter_night_v2_dsh.wav", duration = 140.33, name = "suburbs_winter_night_v2_dsh.wav" },
 }
 
 AUDIO.AMBIENT_VARIED = {
-    { url = "http://localhost:8080/sounds/ambient/varied/H_Ambience_Fog_Layer1_LP.wav", duration = 94.89, name = "H_Ambience_Fog_Layer1_LP.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/H_Ambience_Fog_Layer2_LP.wav", duration = 93.78, name = "H_Ambience_Fog_Layer2_LP.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/H_Ambience_Fog_Layer3_LP.wav", duration = 97.45, name = "H_Ambience_Fog_Layer3_LP.wav" },
     { url = "http://localhost:8080/sounds/ambient/varied/badland_summer_lp.mp3", duration = 54.88, name = "badland_summer_lp.mp3" },
-    { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds fall day_ds_amb.wav", duration = 129.47, name = "battlegrounds fall day_ds_amb.wav" },
     { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds fall night_ds_amb.wav", duration = 99.08, name = "battlegrounds fall night_ds_amb.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds wet day-01_ds_amb (1).wav", duration = 137.99, name = "battlegrounds wet day-01_ds_amb (1).wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds wet day-01_ds_amb.wav", duration = 137.99, name = "battlegrounds wet day-01_ds_amb.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds wet night_ds_amb.wav", duration = 129.80, name = "battlegrounds wet night_ds_amb.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds winter day_ds_amb.wav", duration = 129.69, name = "battlegrounds winter day_ds_amb.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds winter night_ds_amb.wav", duration = 128.74, name = "battlegrounds winter night_ds_amb.wav" },
     { url = "http://localhost:8080/sounds/ambient/varied/cave_lp.mp3", duration = 80.05, name = "cave_lp.mp3" },
     { url = "http://localhost:8080/sounds/ambient/varied/deep_jungle_fall_night.wav", duration = 112.88, name = "deep_jungle_fall_night.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/deep_jungle_wet_day.wav", duration = 108.86, name = "deep_jungle_wet_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/deep_jungle_wet_night.wav", duration = 108.90, name = "deep_jungle_wet_night.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/deep_jungle_winter_day.wav", duration = 117.23, name = "deep_jungle_winter_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/deep_jungle_winter_night.wav", duration = 114.34, name = "deep_jungle_winter_night.wav" },
     { url = "http://localhost:8080/sounds/ambient/varied/forest_summer_lp.mp3", duration = 75.40, name = "forest_summer_lp.mp3" },
-    { url = "http://localhost:8080/sounds/ambient/varied/gas_jungle_wet_day.wav", duration = 108.90, name = "gas_jungle_wet_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/gas_jungle_wet_night.wav", duration = 108.90, name = "gas_jungle_wet_night.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/gas_jungle_winter_night.wav", duration = 132.22, name = "gas_jungle_winter_night.wav" },
     { url = "http://localhost:8080/sounds/ambient/varied/grasslandry_day_lp.mp3", duration = 47.50, name = "grasslandry_day_lp.mp3" },
     { url = "http://localhost:8080/sounds/ambient/varied/hamlet_amb_cave_st_lp.wav", duration = 116.64, name = "hamlet_amb_cave_st_lp.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/hamlet_amb_store_3_st_lp.wav", duration = 171.36, name = "hamlet_amb_store_3_st_lp.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/jungle_fall_night.wav", duration = 167.67, name = "jungle_fall_night.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/jungle_wet_day.wav", duration = 119.84, name = "jungle_wet_day.wav" },
     { url = "http://localhost:8080/sounds/ambient/varied/jungle_wet_night_lp.mp3", duration = 46.43, name = "jungle_wet_night_lp.mp3" },
-    { url = "http://localhost:8080/sounds/ambient/varied/lillypad_wet_day.wav", duration = 94.28, name = "lillypad_wet_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/lillypad_wet_night.wav", duration = 94.84, name = "lillypad_wet_night.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/lillypad_winter_day.wav", duration = 94.38, name = "lillypad_winter_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/lilypad_fall_day.wav", duration = 94.17, name = "lilypad_fall_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/lilypad_fall_night.wav", duration = 93.64, name = "lilypad_fall_night.wav" },
     { url = "http://localhost:8080/sounds/ambient/varied/mangrove_dry_day.mp3", duration = 46.58, name = "mangrove_dry_day.mp3" },
     { url = "http://localhost:8080/sounds/ambient/varied/mangrove_hurricane_day.mp3", duration = 46.25, name = "mangrove_hurricane_day.mp3" },
-    { url = "http://localhost:8080/sounds/ambient/varied/plains_fall_day_amb_dsh_v2 .wav", duration = 118.33, name = "plains_fall_day_amb_dsh_v2 .wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/plains_wet_night_amb_dsh_v2 .wav", duration = 118.29, name = "plains_wet_night_amb_dsh_v2 .wav" },
     { url = "http://localhost:8080/sounds/ambient/varied/wind_heavy_lp.mp3", duration = 39.37, name = "wind_heavy_lp.mp3" },
     { url = "http://localhost:8080/sounds/ambient/varied/wind_light_lp.mp3", duration = 31.67, name = "wind_light_lp.mp3" },
     { url = "http://localhost:8080/sounds/ambient/varied/winterwind_lp.mp3", duration = 43.09, name = "winterwind_lp.mp3" },
+}
+
+AUDIO.AMBIENT_NIGHT = {
+    { url = "http://localhost:8080/sounds/ambient/night/night_drone_cold.wav", duration = 72.00, name = "night_drone_cold.wav" },
+    { url = "http://localhost:8080/sounds/ambient/night/night_drone_hollow.wav", duration = 72.00, name = "night_drone_hollow.wav" },
+    { url = "http://localhost:8080/sounds/ambient/night/night_drone_low.wav", duration = 72.00, name = "night_drone_low.wav" },
 }
 
 AUDIO.CREATURES = {}
@@ -77,7 +39,6 @@ AUDIO.CREATURES.bearger = {
     { url = "http://localhost:8080/sounds/creatures/bearger/bearger_chew_1.mp3", duration = 0.33, name = "bearger_chew_1.mp3" },
     { url = "http://localhost:8080/sounds/creatures/bearger/bearger_chew_2.mp3", duration = 0.27, name = "bearger_chew_2.mp3" },
     { url = "http://localhost:8080/sounds/creatures/bearger/bearger_chew_3.mp3", duration = 0.12, name = "bearger_chew_3.mp3" },
-    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_death_1 (1).mp3", duration = 0.57, name = "bearger_death_1 (1).mp3" },
     { url = "http://localhost:8080/sounds/creatures/bearger/bearger_death_1.mp3", duration = 0.57, name = "bearger_death_1.mp3" },
     { url = "http://localhost:8080/sounds/creatures/bearger/bearger_distant_1.mp3", duration = 2.78, name = "bearger_distant_1.mp3" },
 }
@@ -91,7 +52,6 @@ AUDIO.CREATURES.deerclops = {
     { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_death_1.mp3", duration = 1.23, name = "deerclops_death_1.mp3" },
     { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_death_2.mp3", duration = 1.36, name = "deerclops_death_2.mp3" },
     { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_1.mp3", duration = 4.28, name = "deerclops_distant_1.mp3" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_2 (1).mp3", duration = 3.94, name = "deerclops_distant_2 (1).mp3" },
     { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_2.mp3", duration = 3.94, name = "deerclops_distant_2.mp3" },
     { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_3.mp3", duration = 4.61, name = "deerclops_distant_3.mp3" },
     { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_4.mp3", duration = 3.92, name = "deerclops_distant_4.mp3" },
@@ -147,4 +107,6 @@ AUDIO.SFX.character_death = { url = "http://localhost:8080/sounds/sfx/Character_
 AUDIO.SFX.character_meet = { url = "http://localhost:8080/sounds/sfx/Character_Meet_Sound.mp3", duration = 1.68, name = "Character_Meet_Sound.mp3" }
 AUDIO.SFX.character_talktrade = { url = "http://localhost:8080/sounds/sfx/Character_TalkTrade_Sound.mp3", duration = 2.59, name = "Character_TalkTrade_Sound.mp3" }
 AUDIO.SFX.character_walk = { url = "http://localhost:8080/sounds/sfx/Character_Walk_Sound.mp3", duration = 3.11, name = "Character_Walk_Sound.mp3" }
+AUDIO.SFX.night_growl = { url = "http://localhost:8080/sounds/sfx/night_growl.wav", duration = 2.20, name = "night_growl.wav" }
 AUDIO.SFX.tick_chime = { url = "http://localhost:8080/sounds/sfx/tick_chime.wav", duration = 1.60, name = "tick_chime.wav" }
+AUDIO.SFX.turn_ping = { url = "http://localhost:8080/sounds/sfx/Turn_Ping_Sound.wav", duration = 0.52, name = "Turn_Ping_Sound.wav" }

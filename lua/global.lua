@@ -15,6 +15,11 @@ gameState = {
     turnIndex    = 0,
     playerCount  = 0,
     pathVariant  = nil,
+    turnStyle    = "full",     -- "full" (3 actions per turn) | "rotate" (1 action per visit — §11.2 variant)
+    actedThisVisit = false,    -- rotation variant: has the active player acted since gaining priority?
+    combatContext = nil,       -- transient live-combat state for Press the Attack (§12.5); nil when no fight is open
+    scenario     = nil,        -- active Scenario id (SC_*, optional variant — §17.3) or nil
+    scenarioFlags = {},        -- rule flags set by the active Scenario
     dayLog       = {},
     activeDawn   = nil,        -- {id, title, immediate, ongoing, severity}
     ongoingDawnEffects = {},   -- keyed by effect name
@@ -33,6 +38,22 @@ gameState = {
     -- Idle-detection nudge state (see day_loop.lua).
     lastInteractionAt    = 0,
     idleNudgedThisTurn   = false,
+
+    -- Week in Review chronicle (design_batch1.md §3). A persistent record
+    -- across all 7 days (NOT wiped with dayLog each Dawn), narrated at game
+    -- end. Reset at setup; auto-persists with gameState.
+    chronicle = {
+        days = {},                              -- [day] = {headline, damageTonight}
+        meals = {},                             -- [charName] = count
+        kills = {},                             -- { {who, threat, day}, ... }
+        peakDoom = { value = 0, day = 0 },
+        maxCharlieStreak = { value = 0, name = "" },
+        downs = 0, revives = 0,
+        -- Session telemetry (design_batch4.md W0, lua/telemetry.lua):
+        setup = {},                             -- player count / roster / variants / difficulty
+        turns = {},                             -- { {day, name, seconds}, ... } per player turn
+        beats = { pressKills = 0, signaturesUsed = {}, sourceSplit = false, daresTaken = 0 },
+    },
 }
 
 -----------------------------------------------------------------------
@@ -56,25 +77,61 @@ CHARACTER_HOMES = {
 
 ACTIONS_PER_TURN = 3
 
--- Phase→day mapping: which phase deck is active on which day
-function getPhaseForDay(day)
-    if day <= 2 then return 1
-    elseif day <= 4 then return 2
-    elseif day <= 5 then return 3
-    else return 4 end
+-----------------------------------------------------------------------
+-- Difficulty modes (Design §17.2, batch 4 W3). gameState.difficulty is
+-- "standard" unless the host picks otherwise in the setup Variants step.
+--   weekend   — 3 days (Phase 1 + half of Phase 2), Doom track halved
+--               (defeat at 15). Good for teaching.
+--   standard  — the full 7-day week.
+--   nightmare — Doom rate +1 in every phase; no Phase 1 (the week starts
+--               on Strange Days).
+-- Long Weekend and Nightmare are derived offsets from the tuned Standard,
+-- not separately balanced.
+-----------------------------------------------------------------------
+DIFFICULTY_PARAMS = {
+    weekend   = { label = "Long Weekend", days = 3, doomLimit = 15, doomDelta = 0,
+                  phaseForDay = {1, 1, 2} },
+    standard  = { label = "Standard",     days = 7, doomLimit = 30, doomDelta = 0 },
+    nightmare = { label = "Nightmare",    days = 7, doomLimit = 30, doomDelta = 1,
+                  minPhase = 2 },
+}
+
+function getDifficulty()
+    return DIFFICULTY_PARAMS[gameState.difficulty or "standard"] or DIFFICULTY_PARAMS.standard
 end
 
--- Doom rate per phase, scaled by player count (Design §15.6)
+function getTotalDays() return getDifficulty().days end
+function getDoomLimit() return getDifficulty().doomLimit end
+
+-- Phase→day mapping: which phase deck is active on which day
+function getPhaseForDay(day)
+    local diff = getDifficulty()
+    if diff.phaseForDay then
+        return diff.phaseForDay[math.min(day, #diff.phaseForDay)]
+    end
+    local phase
+    if day <= 2 then phase = 1
+    elseif day <= 4 then phase = 2
+    elseif day <= 5 then phase = 3
+    else phase = 4 end
+    if diff.minPhase then phase = math.max(diff.minPhase, phase) end
+    return phase
+end
+
+-- Doom rate per phase, scaled by player count (Design §15.6).
+-- Retuned 2026-07 alongside uncapped boss festering and the removal of
+-- boss arrival Doom: the fixed clock is gentler because far more of the
+-- pressure is now responsive (festering bosses, threats, Downs).
 DOOM_RATES = {
-    [3] = {1, 1, 1, 2},
-    [4] = {1, 1, 2, 3},
-    [5] = {1, 2, 2, 3},
+    [3] = {1, 1, 1, 1},
+    [4] = {1, 1, 1, 2},
+    [5] = {1, 1, 2, 2},
 }
 
 function getDoomRate()
     local pc = math.max(3, math.min(5, gameState.playerCount))
     local rates = DOOM_RATES[pc] or DOOM_RATES[4]
-    return rates[gameState.phase] or 1
+    return (rates[gameState.phase] or 1) + (getDifficulty().doomDelta or 0)
 end
 
 -----------------------------------------------------------------------

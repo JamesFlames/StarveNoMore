@@ -5,9 +5,11 @@
 -----------------------------------------------------------------------
 -- State tracking for the walkthrough
 local setupState = {
-    step = 0,             -- 0=not started, 1=path pick, 2=char pick, 3=briefing, 4=done
+    step = 0,             -- 0=not started, 1=path pick, 1.5=variants, 2=char pick, 3=briefing, 4=done
     hostColor = nil,
     pickedPath = nil,
+    rotationTurns = false, -- §11.2 rotation variant (1 action per visit)
+    randomScenario = false, -- §17.3 optional Scenario (applied at finalize)
     charPicks = {},       -- { [color] = charName }
     pendingColors = {},   -- colors still needing to pick
 }
@@ -49,7 +51,71 @@ function onPickPath(player, value, id)
 
     UI.hide("setupStep1")
 
-    -- Advance to step 2
+    -- Advance to step 1.5: optional variants (host chooses; defaults = standard game)
+    setupState.step = 1.5
+    UI.show("setupStepVariants")
+end
+
+-----------------------------------------------------------------------
+-- Step 1.5: Optional variants (rotation turns §11.2, Scenario §17.3)
+-----------------------------------------------------------------------
+local function refreshVariantToggle(id, on, labelOn, labelOff)
+    UI.setAttribute(id, "text", on and labelOn or labelOff)
+    UI.setAttribute(id, "color", on and "rgba(45,60,35,0.95)" or "rgba(30,30,45,0.9)")
+    UI.setAttribute(id, "textColor", on and "#DDFFCC" or "#BBBBDD")
+end
+
+function onToggleRotation(player, value, id)
+    setupState.rotationTurns = not setupState.rotationTurns
+    refreshVariantToggle("toggleRotation", setupState.rotationTurns,
+        "Rotation turns: ON\n(take 1 action per visit, cycling — shorter waits at 4-5 players)",
+        "Rotation turns: OFF\n(take 1 action per visit, cycling — shorter waits at 4-5 players)")
+end
+
+function onToggleScenario(player, value, id)
+    setupState.randomScenario = not setupState.randomScenario
+    refreshVariantToggle("toggleScenario", setupState.randomScenario,
+        "Random Scenario: ON\n(a week-long twist like The Long Winter — revealed at setup)",
+        "Random Scenario: OFF\n(a week-long twist like The Long Winter — recommended after your first game)")
+end
+
+-- Difficulty selector (Design §17.2, batch 4 W3): cycles through the
+-- DIFFICULTY_PARAMS modes. Standard unless changed.
+local DIFFICULTY_CYCLE = { "standard", "weekend", "nightmare" }
+local DIFFICULTY_BLURBS = {
+    standard  = "Difficulty: STANDARD\n(the full 7-day week)",
+    weekend   = "Difficulty: LONG WEEKEND\n(3 days, Doom track halved — good for teaching)",
+    nightmare = "Difficulty: NIGHTMARE\n(Doom +1 every phase; the week starts on Strange Days)",
+}
+
+function onToggleDifficulty(player, value, id)
+    local current = setupState.difficulty or "standard"
+    local idx = 1
+    for i, d in ipairs(DIFFICULTY_CYCLE) do
+        if d == current then idx = i break end
+    end
+    setupState.difficulty = DIFFICULTY_CYCLE[(idx % #DIFFICULTY_CYCLE) + 1]
+    refreshVariantToggle("toggleDifficulty", setupState.difficulty ~= "standard",
+        DIFFICULTY_BLURBS[setupState.difficulty],
+        DIFFICULTY_BLURBS[setupState.difficulty])
+end
+
+function onVariantsContinue(player, value, id)
+    UI.hide("setupStepVariants")
+    gameState.turnStyle = setupState.rotationTurns and "rotate" or "full"
+    if setupState.rotationTurns then
+        broadcastEvent("proc", "Variant on — Rotation turns: 1 action per visit, cycling until all are spent.")
+    end
+    gameState.difficulty = setupState.difficulty or "standard"
+    if gameState.difficulty ~= "standard" then
+        local diff = getDifficulty()
+        broadcastEvent("proc", "Difficulty: " .. diff.label .. " — " .. diff.days ..
+            " days, Doom track to " .. diff.doomLimit ..
+            ((diff.doomDelta or 0) > 0 and (", Doom rate +" .. diff.doomDelta .. " per phase") or "") .. ".")
+    end
+    -- The Scenario (if any) is applied in finalizeGuidedSetup, after the
+    -- characters exist (some scenarios modify character stats).
+
     setupState.step = 2
     showCharPickForNextPlayer()
 end
@@ -137,9 +203,9 @@ end
 -- H.2 — Character Briefing Popup (Step 3, one per player)
 -----------------------------------------------------------------------
 CHAR_BRIEFINGS = {
-    James = "You are James, the Gamer.\n\nYou know patterns. You see things before they happen.\n\nStrengths:\n- Gaming Reflexes: once per turn, reroll one die.\n- Pattern Recognition: once per day, peek any deck top.\n\nConstraint:\n- Wired: consume 1 Energy Drink per day or lose 2 Sanity at night.\n\nStarting hand: Energy Drink x2, Pocketknife, Flashlight, Headphones.\n\nFirst move: Gather an Energy Drink, then use Pattern Recognition to peek at the Phase deck.",
+    James = "You are James, the Gamer.\n\nYou know patterns. You see things before they happen.\n\nStrengths:\n- Gaming Reflexes: once per turn, reroll one die.\n- Pattern Recognition: once per day, peek any deck top.\n\nConstraint:\n- Wired: consume 1 Energy Drink per day or lose 2 Sanity at night.\n\nStarting hand: Energy Drink x2, Pocketknife, Flashlight, Headphones.\n\nFirst move: Gather at home — The Stash lets you take 2 Energy Drinks at once. Stock up, then use Pattern Recognition to peek at the Phase deck.",
     Coco = "You are Coco, the Angel.\n\nYou are calm when the world isn't. You're visiting — no house of your own.\n\nStrengths:\n- Calming Presence: allies at your tile lose 1 less Sanity at Tick.\n- Touch of Hope (once per game): heal any character +4 Health.\n- Light in the Dark: never triggers Charlie attacks.\n- Wanderer's Gift: gain +1 Sanity each time you move to a new location.\n\nConstraint:\n- No Home: alone at a non-house tile at night = -3 Sanity.\n\nStarting hand: First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Battery, Friendship Bracelet.\n\nFirst move: Keep moving — your Gift rewards travel. Stick with allies at night.",
-    Rayman = "You are Rayman, the Basketball Player.\n\nFastest and toughest. You hit hard. You also eat a lot.\n\nStrengths:\n- Speed: Move 2 tiles per Move action.\n- Court Master: +1 attack die at the Basketball Court.\n- Backboard Block: Defend action shields adjacent allies.\n\nConstraints:\n- Big Appetite: lose 2 Hunger per Tick (others lose 1).\n- Loud: moving to a new tile = +1 Threat draw at Night.\n\nStarting hand: Basketball, Sports Drink x2, Athletic Tape, Whistle.\n\nFirst move: Head to the Basketball Court for Wood. Watch your Hunger.",
+    Rayman = "You are Rayman, the Basketball Player.\n\nFastest and toughest. You hit hard. You also eat a lot.\n\nStrengths:\n- Speed: Move 2 tiles per Move action.\n- Court Master: +1 attack die at the Basketball Court.\n- Backboard Block: Defend action shields adjacent allies.\n\nConstraints:\n- Big Appetite: lose 2 Hunger per Tick (others lose 1).\n- Loud: if you moved at all today, wherever you spend the Night draws +1 Threat. A quiet day keeps the dark away.\n\nStarting hand: Basketball, Sports Drink x2, Athletic Tape, Whistle.\n\nFirst move: Head to the Basketball Court for Wood. Watch your Hunger.",
     Ellie = "You are Ellie, the Cook.\n\nThe kitchen is your domain. You feed the team.\n\nStrengths:\n- Crockpot Master: recipes need 1 fewer ingredient (min 1).\n- Comfort Food: shared meals give +1 extra Hunger and Sanity.\n- Knows the Pantry: at your house, pick a specific resource.\n\nConstraint:\n- Particular Eater: cannot eat raw food. Must cook first.\n\nStarting hand: Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.\n\nFirst move: Gather Food with Knows the Pantry, then cook Hot Stew for the team.",
     Luca = "You are Luca, the Orator.\n\nYour words hold Sanity together when everything else falls apart.\n\nStrengths:\n- Rally: once per turn, give an adjacent ally a free action.\n- Calm Words: on Sanity-loss events at your tile, d6 — 4+ negates it.\n- Storyteller: allies at your tile gain +1 Sanity at Night.\n\nConstraint:\n- Needs an Audience: Sanity doesn't regen when alone.\n\nStarting hand: Notebook, Loud Whistle, Pep Talk, Reading Lamp, Toolbox.\n\nFirst move: Use Rally to give Ellie a free action. Stay with allies.",
 }
@@ -236,6 +302,7 @@ function finalizeGuidedSetup()
             down       = false,
             briefed    = true,
             location   = home,
+            signatureUsed = false,   -- Signature Move (§6.7): one per game
         }
 
         local standee = getCharacterStandee(charName)
@@ -247,12 +314,31 @@ function finalizeGuidedSetup()
         broadcastEvent("proc", charName .. " assigned to " .. color .. ".")
     end
 
+    -- 5.5. Optional Scenario (§17.3) — applied now that the characters
+    -- exist, because some scenarios modify character stats (e.g. Summer's
+    -- -2 max Hunger).
+    if setupState.randomScenario then
+        safecall(function() applyRandomScenario() end, "Scenario")
+    end
+
     -- 6. Day=1, Doom=0
     gameState.day = 1
     gameState.doom = 0
-    gameState.phase = 1
+    gameState.difficulty = gameState.difficulty or "standard"
+    gameState.phase = getPhaseForDay(1)   -- Nightmare starts on Strange Days
     gameState.subPhase = "Dawn"
     gameState.dayLog = {}
+    gameState.chronicle = nil          -- fresh Week in Review record
+    safecall(function() ensureChronicle() end, "Chronicle")
+    safecall(function() recordSetupInChronicle() end, "Telemetry")
+    gameState.combatContext = nil
+    gameState.gameOverCause = nil
+    gameState.bossHP = {}
+    gameState.sourceSplit = nil
+    gameState.pendingSanityPenalty = {}
+    gameState.loudSignature = {}
+    gameState.wrongness = nil
+    gameState.basementOpened = nil
 
     local counter = getDayCounter()
     if counter then counter.setValue(1) end

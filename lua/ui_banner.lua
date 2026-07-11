@@ -30,7 +30,7 @@ function refreshPhaseBanner()
     if not UI then return end  -- guard against early calls
 
     -- Day field with flavor text
-    local dayText = "Day " .. gameState.day .. " of 7"
+    local dayText = "Day " .. gameState.day .. " of " .. getTotalDays()
     local flavor = DAY_FLAVOR[gameState.day]
     if flavor and gameState.started then
         dayText = dayText .. "  —  " .. flavor
@@ -43,7 +43,7 @@ function refreshPhaseBanner()
 
     -- Doom field with next threshold
     local nextThresh = getNextDoomThreshold()
-    local doomText = "Doom " .. gameState.doom .. " / 30"
+    local doomText = "Doom " .. gameState.doom .. " / " .. getDoomLimit()
     if nextThresh then
         doomText = doomText .. "  (next: " .. nextThresh .. ")"
     end
@@ -59,7 +59,9 @@ function refreshPhaseBanner()
     end
 
     -- Active player field
-    local activeText = "— " .. (gameState.subPhase or "pre-game") .. " —"
+    local spLabel = gameState.subPhase or "pre-game"
+    if spLabel == "PreDawn" then spLabel = "between days" end
+    local activeText = "— " .. spLabel .. " —"
     if gameState.activeColor then
         local char = gameState.activeChars[gameState.activeColor]
         if char then
@@ -76,6 +78,11 @@ function refreshPhaseBanner()
     refreshActionBar()
     refreshCharRoster()
     refreshStandeeTooltips()
+
+    -- "Rules in effect" panel + day-cycle strip + Dawn checklist (ui_rules.lua)
+    safecall(function() refreshRulesPanel() end, "RulesPanel")
+    safecall(function() refreshCycleStrip() end, "CycleStrip")
+    safecall(function() refreshDawnChecklist() end, "DawnChecklist")
 
     -- Pulse the next clickable thing so it's not just text-described
     highlightCTA(getNextCTA())
@@ -189,11 +196,13 @@ function recommendNext()
         end
         return "Day phase"
     elseif sp == "Dusk" then
-        return "Declare your sleep location"
+        return "Scramble 1 tile (1 Hunger) or stay — then host clicks Resolve Night"
     elseif sp == "Night" then
         return "Night — resolving threats and sleep"
     elseif sp == "Tick" then
         return "End-of-round processing..."
+    elseif sp == "PreDawn" then
+        return "Host: click Begin Day to start Day " .. gameState.day
     elseif sp == "GameOver" then
         return "Game over. Click Restart to play again."
     end
@@ -364,14 +373,16 @@ function getNextCTA()
             end
         end
         return {"actionBar"}
-    elseif sp == "Tick" then
+    elseif sp == "Tick" or sp == "PreDawn" then
         return {"btnBeginDay"}
+    elseif sp == "Dusk" then
+        return {"btnResolveNight"}
     elseif sp == "Night" then
         return {"btnResolveNight"}
     elseif sp == "GameOver" then
         return {"btnRestart"}
     end
-    -- Dawn auto-resolves through the dispatch; Dusk has no manual click.
+    -- Dawn auto-resolves through the dispatch.
     return {}
 end
 

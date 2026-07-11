@@ -118,11 +118,11 @@ A rule that violates any of these gets cut.
 
 A single round (one in-game day) cycles through:
 
-1. **Dawn (event)** — Reveal the day's **Dawn card** from the current Phase deck. Resolve immediately. (See §15.)
+1. **Dawn (event)** — Doom advances (by phase rate, plus festering: +1 per threat left on the map, +2 per boss — see §15.1). Court survivors collect their Moonlit Salvage (§7.4). Then reveal the day's **Dawn card** from the current Phase deck and resolve immediately. (See §15.)
 2. **Day Phase (player actions)** — Each player takes a fixed number of actions in turn order. Default: **3 actions per player**.
-3. **Dusk (declaration)** — Each player declares which location they will spend the night at. This is committed publicly.
-4. **Night Phase (resolution)** — All players resolve night events at their chosen location. Players outside their declared location, or alone in dangerous spaces, suffer additional consequences.
-5. **Tick (decay)** — Every player loses 1 Hunger and 1 Sanity (modified by location and character traits). Day counter advances. Doom counter advances by current rate.
+3. **Dusk (scramble)** — Each character may make one last **1-tile move, paying 1 Hunger**, then declares publicly where they sleep. You sleep where you stand.
+4. **Night Phase (resolution)** — All players resolve night events at their chosen location. Players alone in dangerous spaces suffer additional consequences — and are paid for surviving them.
+5. **Tick (decay)** — Every player loses 1 Hunger and 1 Sanity (modified by location and character traits). Day counter advances.
 
 The loop is **unrelenting**: even a perfectly executed day still costs the players something. The game is therefore not "make zero mistakes" but "spend wisely on the right things."
 
@@ -167,6 +167,7 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Base Stats.** Health **8**, Hunger **6**, Sanity **10**.
 - **Perk: Gaming Reflexes.** Once per turn, may reroll one of his own dice (combat or event).
 - **Perk: Pattern Recognition.** May peek at the top card of any deck once per day.
+- **Signature: All-Nighter (once per game, §6.7).** Take 3 extra actions this turn; James loses 3 Sanity at the next Tick. The crash always comes.
 - **Constraint: Wired.** James starts the game addicted to Energy Drinks. If he does not consume an Energy Drink token by the end of any day, he loses 2 Sanity that night.
 - **Starting hand:** Energy Drink ×2, Pocketknife, Flashlight, Headphones (sanity buffer).
 - **Plays best with:** Coco (sanity stability), Ellie (food independence).
@@ -177,7 +178,7 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Visual style.** Soft sweater, pale halo motif faintly visible in her shadow on the map.
 - **Base Stats.** Health **6**, Hunger **8**, Sanity **12**.
 - **Perk: Calming Presence.** All allies in Coco's location lose 1 less Sanity at the night Tick (minimum 0).
-- **Perk: Touch of Hope (once per game).** Heal any character on the map by 4 Health, regardless of distance.
+- **Signature: Touch of Hope (once per game, §6.7).** Heal any character on the map by 4 Health, regardless of distance.
 - **Perk: Light in the Dark.** Coco never triggers Charlie attacks (see §15.4).
 - **Constraint: No Home.** Coco does not have a house tile. Each night she must declare a location that contains another player; if she ends the night alone in a non-house tile she loses 3 Sanity.
 - **Starting hand:** First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery, Friendship Bracelet.
@@ -191,8 +192,9 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Perk: Speed.** Moves 1 extra space per Move action.
 - **Perk: Court Master.** When Rayman fights at the Basketball Court, he gains +1 attack die.
 - **Perk: Backboard Block.** Can spend an action to "Defend": adjacent allies cannot be targeted by enemies until Rayman's next turn.
+- **Signature: Posterize (once per game, §6.7).** Instantly defeat one non-boss threat at his tile — no roll, no counter. The noise: his tile draws +1 Threat tonight.
 - **Constraint: Big Appetite.** Loses 2 Hunger per day Tick (other characters lose 1).
-- **Constraint: Loud.** When Rayman moves to a new location, draw 1 extra threat card during Night.
+- **Constraint: Loud.** If Rayman moved at all today (any Move, his Speed bonus step, or a Dusk scramble), the location where he spends the Night draws **1 extra Threat card**. It triggers at most once per night and follows him — the noise comes home with him. Tiles he merely passed through are unaffected. A day spent standing still is a quiet one, which makes "does Rayman move today?" a real team decision rather than a per-step tax.
 - **Starting hand:** Basketball (improvised weapon), Sports Drink ×2, Athletic Tape, Whistle.
 - **Plays best with:** Ellie (food management), Luca (Sanity).
 
@@ -204,6 +206,7 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Perk: Crockpot Master.** Recipes Ellie cooks require 1 fewer ingredient (minimum 1).
 - **Perk: Comfort Food.** When Ellie shares cooked food with another character, that character gains +1 extra Hunger and +1 extra Sanity.
 - **Perk: Knows the Pantry.** When at Ellie & Luca's House, Ellie may search the resource bag for a specific Food or Cooking Ingredient (does not draw randomly).
+- **Signature: The Feast (once per game, §6.7).** Cook any number of recipes in a single action (ingredients still required, at a Crockpot); consumes **all** her held Food.
 - **Constraint: Particular Eater.** Ellie cannot eat raw food. (Other characters can spend a Food token raw for partial Hunger; Ellie cannot.)
 - **Starting hand:** Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron (item).
 - **Plays best with:** Rayman (he eats a lot), Luca (housemate synergy).
@@ -216,6 +219,7 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Perk: Rally.** Once per turn, give an adjacent ally a free non-movement action.
 - **Perk: Calm Words.** When a Sanity-loss event occurs in his location, Luca may roll a d6: on 4+, the entire group at his location ignores the loss.
 - **Perk: Storyteller.** During Night, players in Luca's location regain +1 Sanity.
+- **Signature: The Speech (once per game, §6.7).** Every character, anywhere, gains +2 Sanity. Only speakable while an ally is Down or below 3 Sanity — it has to *matter*.
 - **Constraint: Needs an Audience.** Luca regenerates Sanity only when at least one other player is in his location. Alone, his Sanity does not regenerate.
 - **Starting hand:** Notebook, Loud Whistle, Pep-Talk (single-use card), Reading Lamp, Toolbox.
 - **Plays best with:** Anyone with low Sanity (he supports them).
@@ -223,9 +227,30 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 ### 6.6 Character Selection and Group Composition
 
 - Players choose characters in any order (suggest reverse-age, alphabet, or draft).
-- A **3-player game** uses 3 characters. The remaining two are **Visitor NPCs** that can be encountered at houses (drawn into the active group via a Dawn event card around Day 3 — they offer one-time aid then leave or join the party mechanically).
+- A **3-player game** uses 3 characters. The remaining two are **Visitor NPCs** that can be encountered at houses (drawn via a Dawn event card around Day 3 — they offer one-time aid, then depart at the next Dawn).
 - A **4-player game** plays the same way but with one Visitor NPC.
 - A **5-player game** has all five active.
+- **3-player composition guidance (provisional, simulation-derived — see §20.1).** Any 3 characters is *legal*, but the compositions are not equally forgiving: the Monte Carlo sweep (`scripts/simulate_balance.py --sweep3`) found every strong trio carries a sanity-support character (Coco or Luca), and trios built around Rayman struggled badly at the 3-player action economy — his Big Appetite and Loud are fixed overheads that three players absorb much worse than five. Until playtests settle it, teach 3-player groups: *take Coco or Luca, and know that Rayman is hard mode.* If human play confirms the gap, the fix is character numbers (per-count constraint scaling), not roster restrictions.
+
+### 6.7 Signature Moves
+
+Each character has one **Signature** — a once-per-game, named, board-printed move. Passive perks make characters *play* differently; Signatures make players *remember* their character: the big move you saved all game for one perfect moment, and the story you retell afterward. Five properties are shared:
+
+- **Once per game.** Fired from the character's Signature button (TTS) with an explicit confirm — these are irreversible one-shots (§18.14).
+- **Mismatched currency (§8.4).** Every Signature pays in a stat *adjacent* to what it buys: All-Nighter buys actions with future Sanity; Posterize buys a kill with tonight's threat draw; The Feast buys a banquet with the whole pantry. No Health-for-Health.
+- **A guaranteed story beat.** Five cards' worth of rules buy five retellable moments per campaign — Week in Review (§16.5) narrates them.
+- **Tuned for the finale.** Signatures are at their best in Days 5–7, and the endgame (the split-phase Source, §12.6; Nothing Left to Lose, §15.2) is tuned assuming they exist.
+- **Board print is legibility polish.** The mechanic ships on the button + confirm; printing the Signature line on the player boards is a follow-on art pass (§18.10).
+
+| Character | Signature (once per game) | Cost (mismatched) |
+|---|---|---|
+| James | **All-Nighter** — take 3 extra actions this turn | −3 Sanity at the next Tick |
+| Coco | **Touch of Hope** — heal any character on the map by 4 Health | Once per game; any distance |
+| Rayman | **Posterize** — instantly defeat one non-boss threat at his tile | The noise: +1 Threat draw here tonight |
+| Ellie | **The Feast** — cook any number of recipes in a single action | Consumes **all** her held Food |
+| Luca | **The Speech** — every character, anywhere, +2 Sanity | Only while an ally is Down or below 3 Sanity |
+
+*Interaction watch (intended drama, not a bug):* James can All-Nighter (−3 Sanity pending), press attacks (−1 Sanity each, §12.5), and go Down from his own aggression. Both costs are surfaced in the Rules panel and confirm dialogs so it is always a visible, chosen risk.
 
 ---
 
@@ -249,6 +274,7 @@ Ellie & Luca's House is the central node (their kitchen feeds the team). The two
 
 - **Yield.** Energy Drink ×1 per gather, Battery ×1 per two gathers, Junk Food (Food) ×1.
 - **Special: The Den.** Players in this location may freely trade cards with each other once per day (no action cost).
+- **Special: The Stash.** A Gather action here may take **2 Energy Drinks** instead of the normal random draw. This exists so James's Wired constraint is a logistics problem (stock up every other day), not a daily ritual that eats a third of his action budget.
 - **Sanity modifier:** 0 (familiar but cluttered).
 - **Defense:** +0.
 - **House owner:** James gains +1 Sanity per night when sleeping at his own house.
@@ -273,6 +299,7 @@ Ellie & Luca's House is the central node (their kitchen feeds the team). The two
 
 - **Yield.** Wood (broken bleachers), Metal (hoops, fencing), Cloth (forgotten gym clothes).
 - **Special: Echoes.** Each time a player gathers here, they roll a d6. On 6, draw a bonus item card. On 1–2, lose 1 Sanity.
+- **Special: Moonlit Salvage.** A character who spends the night here and is still standing at Dawn gathers **2 resources** from this court's bag. The courts are richest when the world sleeps — sleeping out is a calculated gamble, not a blunder.
 - **Sanity modifier:** −1 (creepy at night, the building groans).
 - **Defense:** −1 (open court, exposed).
 - **Rayman bonus:** Court Master perk applies.
@@ -281,6 +308,7 @@ Ellie & Luca's House is the central node (their kitchen feeds the team). The two
 
 - **Yield.** Cloth (nets), Wood (rackets, posts), Metal (fittings).
 - **Special: The Net.** When defending in combat at this location, the team rolls +1 die (the nets entangle attackers).
+- **Special: Moonlit Salvage.** Same as the Basketball Court (§7.4): survive a night here, gather 2 resources at Dawn.
 - **Sanity modifier:** −1.
 - **Defense:** +1 (the nets help).
 - **Special hazard:** The Badminton Court has the highest threat-card draw rate at night (see §15).
@@ -357,6 +385,7 @@ Each Dawn card has:
 - A **flavor headline** ("The streetlights flicker. Something on the porch.")
 - An **immediate effect** ("All players lose 1 Sanity.")
 - Sometimes an **ongoing effect** ("Until the next Dawn, all gathers cost 1 extra Hunger.")
+- Sometimes a **Dare** — an *optional* hook alongside the mandatory effect ("DARE: the first player to Gather at a house today may take 3 resources instead of 1 — and lose 2 Sanity from what they see through the window."). Roughly a third of the **Phase 1–2** cards carry one; the late-week decks stay lean and lethal. The world acting first (Pillar 3) is more interesting when it sometimes acts as a *tempter*, not only a mugger: each dare is a mismatched-currency gamble (§8.4) the table argues over, which is exactly the texture the quiet *Jo* days were missing. Dares are never imposed — scripted ones are offered via a confirm or opt-in behaviour (sleeping at the glowing court); the rest appear as optional checklist steps.
 
 The Phase deck order is fixed, but card draw within a deck is shuffled — same shape, different details. (DST seasons principle: predictable structure, unpredictable details.)
 
@@ -395,6 +424,11 @@ Recipes embody the **mismatched-currency** principle: cooking costs raw ingredie
 
 Some threats are **soft** (a one-time penalty), some are **hard** (must be fought), and a few are **persistent** (stays on the location until cleared).
 
+Two special threat shapes:
+
+- **Sealed things** (`T_THE_DOOR`, `T_LOCKED_ROOM`, `T_SEALED_SHED`, `T_SEALED_LOCKER`, `T_SEALED_CAR`) — a *guaranteed* reward behind a tool gate: Pry them open (§13.5) for resources or a free Item. No dice, a clear goal, and a reason to have crafted the Crowbar.
+- **The Wrongness** (deferred threat, placed by the Phase-2 Dawn card *A Basketball Bounces in the Dark*) — the top Threat card is placed **face-down** at the Basketball Court and does **not** resolve. It resolves when a character enters that tile (someone goes to look) or at the next Dawn (it comes to them), whichever first. Until then it sits there, visibly unresolved, and the table argues about who goes to check — an hour of dread from one card. While face-down it does not fester (it is unresolved, not fled-from); exactly one such card exists, because two loose "something is wrong" objects dilute dread into bookkeeping.
+
 ### 9.5 The Visitor Deck (small)
 
 A small deck of ~6 cards used in 3- and 4-player games, representing the absent characters arriving for limited support. Triggered by a specific Dawn card mid-game.
@@ -402,10 +436,9 @@ A small deck of ~6 cards used in 3- and 4-player games, representing the absent 
 When a Visitor card resolves:
 
 1. The drawing player chooses one of the **inactive characters** (those not played by a human at the table) and places their standee at a house location indicated on the card.
-2. The Visitor takes a one-shot signature action immediately (e.g., "Coco arrives. Heal one Down ally to 1 Health.") then leaves at the next Dawn unless adopted (see step 3).
-3. **Adoption.** If a player has fewer than 3 active items in hand, they may "adopt" the Visitor: the Visitor stays as a controlled NPC, takes 1 free Move + 1 free Gather per round under the adopter's direction, but their **Hunger and Sanity decay against the adopter's stats** (the adopter spiritually carries them). This is the bounded social-deduction-free version of "more characters in play."
+2. The Visitor takes a one-shot signature action immediately (e.g., "Coco arrives. Heal one Down ally to 1 Health.") then departs at the next Dawn.
 
-This keeps Visitor mechanics from sprawling into a full sixth player slot while still rewarding 3-player tables with mid-game flavor.
+That's the whole mechanic: a knock at the door, one act of kindness, gone by morning. An earlier draft had an "adoption" rule that let a player keep the Visitor as a stat-shared NPC — cut, per the §19.6 self-audit. It was the most convoluted rule in the game, in service of the deck the design already flagged as its weakest. Visitors now reward 3- and 4-player tables with mid-game flavor at zero rules overhead.
 
 ### 9.6 Sample cards (concrete examples)
 
@@ -487,8 +520,8 @@ The five-pip **severity dot** is the Catan-probability-dots pattern ([Interestin
 │ its location lose 1 extra Sanity at Tick.    │
 │                                              │
 │ Defeat reward: 1 Sanity to each attacker.    │
-│ Flee: Move 2 spaces away on your next turn,  │
-│ paying 1 Hunger.                             │
+│ Flee: move 1 tile away, paying 1 Sanity.     │
+│ The Stalker stays — and festers at Dawn.     │
 └──────────────────────────────────────────────┘
 ```
 
@@ -505,8 +538,7 @@ The five-pip **severity dot** is the Catan-probability-dots pattern ([Interestin
 │ Immediate: Heal one Down ally to 1 Health,   │
 │ regardless of distance.                      │
 │                                              │
-│ Then: Coco departs at next Dawn unless       │
-│ adopted (see §9.5).                          │
+│ Then: Coco departs at the next Dawn.         │
 └──────────────────────────────────────────────┘
 ```
 
@@ -529,8 +561,8 @@ Each character has a personal player board with three sliders/tracks. The standa
 When any stat is below 25%, **Bad Things Happen**:
 
 - **Low Health (<3):** Movement costs +1 action.
-- **Low Hunger (<3):** Cannot fight. Cannot use any action card with the [Effort] tag.
-- **Low Sanity (<3):** Each Dawn, draw a Hallucination card from the threat deck, *resolve as if it were a real enemy*. Other players see the hallucination as a card; only the affected player knows it's not real (until it deals damage, which is real).
+- **Low Hunger (<3):** Cannot fight. Cannot use any action card with the [Effort] tag. (Flee is still legal — §12.4. A starving character can always run.)
+- **Low Sanity (<3):** **Haunted.** At each Dawn, draw 1 Threat card at your location. It is real to you: only *you* may fight or flee it — allies cannot help with what they cannot see. Discard it once resolved (defeated or fled); it never festers on the Doom track, because it was never really there. (An earlier draft had a hidden-information hallucination rule — "only the affected player knows it's not real" — cut for being unrunnable at a physical table and unimplementable with the public-information model of §18.9. Haunted keeps the isolation horror with zero hidden state.)
 
 When a stat hits 0:
 
@@ -561,9 +593,10 @@ Detailed breakdown of a single round (one in-game day). In TTS, every step liste
 ### 11.1 Phase 1 — Dawn (2–4 minutes)
 
 1. **Advance Day Counter.** Move the day token forward one step.
-2. **Reveal Dawn Card.** Draw the top card of the current Phase deck and read it aloud. Resolve all immediate effects.
-3. **Doom check.** Doom advances by the current rate (1, then 2 in Phase 3, then 3 in Phase 4).
-4. **Note ongoing effects.** Place the Dawn card face-up if it has lingering rules; remove it at the next Dawn unless its text says otherwise.
+2. **Doom check.** Doom advances by the current phase rate (see the §15.6 player-count table), **plus festering** (§15.1): +1 for every Threat card still on the map (capped at +3), and +2 for every Boss (+1 for the Treeguard), uncapped.
+3. **Moonlit Salvage.** Any character who spent the night at a sport court and is not Down gathers 2 resources from that court's bag (§7.4).
+4. **Reveal Dawn Card.** Draw the top card of the current Phase deck and read it aloud. Resolve all immediate effects.
+5. **Note ongoing effects.** Place the Dawn card face-up if it has lingering rules; remove it at the next Dawn unless its text says otherwise.
 
 ### 11.2 Phase 2 — Day (15–25 minutes)
 
@@ -580,11 +613,16 @@ Players take turns clockwise from the **First Player marker**. Each player has 3
 
 Once every player has spent or passed all 3 actions, Day ends.
 
-### 11.3 Phase 3 — Dusk (1–2 minutes)
+**Rotation variant (optional, chosen at setup).** Instead of spending all 3 actions in one sitting, each player spends **exactly 1 action per visit**, and priority cycles around the table until everyone's actions are gone. Passing *after* acting banks your remaining actions for your next visit; passing *without* acting forfeits them (so the day always ends). Free actions (Trade, character specials) are unaffected. Why it exists: with full turns at 5 players, a player can wait through 12 consecutive foreign actions between decisions — the Rotation variant caps that wait at 4, at the cost of chopping up each player's 3-action plan. Both modes are implemented in the TTS build (a setup toggle); which one *feels* better is an open playtest question (§20.2) — the design's default is full turns, because the §18.10 onboarding principle favors one coherent turn over four fragmented ones for a first game.
 
-Each player **declares** which location they will spend the night at. Declaration is **public** and **simultaneous** (or in clockwise order; player choice).
+### 11.3 Phase 3 — Dusk (2–3 minutes)
 
-A character can only sleep at the location their standee is currently on. If a character's standee is en-route or alone in a location they don't want, this is the time to scramble.
+Dusk is the round's last decision, and it is a real one:
+
+1. **Scramble (optional).** Each character may make **one 1-tile move, paying 1 Hunger**. No action cost — all actions are spent by now. This is the last chance to reach a safer tile, join an ally, or deliberately stay out at a court for the Moonlit Salvage gamble (§7.4).
+2. **Declare.** Each player declares publicly where they sleep. You sleep where you stand — the declaration is the table-talk moment where the group argues geometry: who pairs with whom, who takes the floor (§11.4), who risks the court.
+
+The Hunger cost matters: a scramble is cheap insurance early in the week and a real price late, when Hunger is scarce. Groups that plan their Day-phase movement well rarely need to scramble; groups that didn't pay for it.
 
 ### 11.4 Phase 4 — Night (5–10 minutes)
 
@@ -592,17 +630,20 @@ For each location with players in it (in order from least populated to most):
 
 1. **Threat draw.** Draw a number of Threat cards equal to the location's threat rate (0 for safe house tiles, 1 for sport courts, +1 if anyone "called attention" with a noisy action).
 2. **Resolve threats.** Combat rolls happen as needed. Players may use items.
-3. **Charlie check.** Any player whose location has no light source (no Flashlight, no Fire, no Battery-powered item) suffers a "Charlie attack" — 1 d8 Sanity damage and 1 d6 Health damage. (DST night-darkness translation; see [DontStarveVideoGamePrinciples.md §4](Archive/DontStarveVideoGamePrinciples.md).)
+3. **Charlie check.** Any player whose location has no light source (no Flashlight, no Fire, no Battery-powered item) suffers a "Charlie attack" — **2 Sanity and 1 Health**. For each consecutive night a character spends in darkness, Charlie grows bolder: **+1 Sanity and +1 Health more than the night before**. A night with light resets her interest. (DST night-darkness translation; see [DontStarveVideoGamePrinciples.md §4](Archive/DontStarveVideoGamePrinciples.md). Deterministic on purpose: a first slip is survivable and legible — *the world's rules*, not a die spike — but darkness as a habit is lethal.)
 4. **Storytelling at the campfire.** Players together at a house location may use Comfort/Music/Photo items for collective Sanity gain.
 5. **Sleep.** Each character regenerates per the table below. Coco's, Luca's, and Ellie's location perks resolve in addition.
 
+   **Crowded floor.** A house sleeps **two** comfortably. If more than two characters sleep at the same house, each character beyond the second gets the floor and regenerates **nothing** that night. Beds go to the house's owners first, then to whichever guests the table agrees need them most. (This is the anti-stacking pressure: the Crockpot pulls the team together by day; the beds push them apart by night. The nightly "who sleeps where" argument is the point.)
+
    | Sleeping at... | Regenerates |
    |---|---|
-   | Your own house | +1 Sanity, +1 Hunger, +1 Health |
-   | Someone else's house, with at least one other character present | +1 Sanity |
+   | Your own house (in a bed) | +1 Sanity, +1 Hunger, +1 Health |
+   | Someone else's house, in a bed, with at least one other character present | +1 Sanity |
+   | Any house, on the floor (third sleeper onward) | nothing |
    | Someone else's house, alone | nothing |
-   | A sport court (Basketball or Badminton), any company | nothing — courts are not safe spaces |
-   | A sport court, alone | nothing AND draw 1 extra Threat card |
+   | A sport court (Basketball or Badminton), any company | nothing — but survivors salvage 2 resources at Dawn (§7.4) |
+   | A sport court, alone | nothing AND draw 1 extra Threat card — but the same Dawn salvage applies |
 
 ### 11.5 Phase 5 — Tick (1 minute)
 
@@ -628,20 +669,20 @@ The team flips the top card of the **Strange Days** deck: *"The Porch Light Flic
 - **James** spends his **Pattern Recognition** ability (free) to peek at the top of the Threat deck. He sees a Shadow Stalker on top. Action 1: **Craft Flashlight** at the Market (irrelevant tonight — but useful tomorrow). Action 2: **Move** to Ellie's House. Action 3: **Rest** for +1 Hunger. He must consume an Energy Drink before night or take −2 Sanity (his Wired constraint); he plans to drink at end of round.
 - **Coco** is at Ellie's House. Action 1: **Trade** — gives a Comfort Blanket to James. Action 2: **Move** to the Badminton Court to scout. Action 3: **Gather** Cloth.
 
-**Dusk.** Declarations: Ellie at her House, James at Ellie's House (with her), Rayman at Basketball Court (alone), Coco at Badminton Court (alone — *uh oh*, her No Home constraint will trigger).
+**Dusk.** Scramble window: Coco *could* pay 1 Hunger to fall back to Ellie & Luca's House — but Ellie and James already have the two beds there, so she'd take the floor and regenerate nothing anyway. The team talks it over and Coco stays at the Badminton Court on purpose: eat the risk, collect the Moonlit Salvage at Dawn. Declarations: Ellie at her House, James at Ellie's House (with her), Rayman at Basketball Court (alone), Coco at Badminton Court (alone — her No Home constraint will bite).
 
 **Night.**
 Resolution order: Coco → Rayman → Ellie & James (most populated last).
 
-- **Coco at Badminton Court (alone).** Threat draw rate 2 (+1 because the Court is high-threat). She draws *Shadow Stalker* (the one James saw) and *The Wind in the Net* (atmospheric, −1 Sanity). The Stalker attacks: 2 dice → one 5 = 1 damage. Coco at 5 Health. She has no Flashlight; the Dawn card disabled them anyway. **Charlie attack:** roll d8 + d6 → 5 Sanity, 3 Health. Coco at 2 Health, 3 Sanity. Her No Home penalty: −3 Sanity for ending the night alone in a non-house tile. Coco is now Down (Sanity 0) — flip to ghost side.
-- **Rayman at Basketball Court (alone).** Threat draw rate 2. Draws *Echoes* (already in play) and *The Hollow Spectator* (HP 3). He fights — 2 attack dice + 1 Court Master + 1 Toy Bow = 4 dice. Roll: 5,6,4,1. Two hits, one fumble. Spectator at 1 HP, Rayman at 11 Health. Spectator returns: 1 die, 5 = 1 hit. Rayman at 10. He has a Flashlight and a Battery: **no Charlie attack**, even with the Dawn card, because his Battery is paired with a *Lantern* (Fire-equivalent — he crafted it on Day 2; the Dawn card disables Flashlights only).
-- **Ellie & James at Ellie's House.** Threat draw rate 0 (safe). They play Comfort items (James equips the Comfort Blanket Coco gave him — +1 Sanity). Sleep: Ellie at her own house → +1 Sanity, +1 Hunger, +1 Health. James at someone else's house with company → +1 Sanity. James drinks his Energy Drink (+2 Sanity, addiction satisfied).
+- **Coco at Badminton Court (alone).** Threat draw rate 2 (+1 because the Court is high-threat). She draws *Shadow Stalker* (the one James saw) and *The Wind in the Net* (atmospheric, −1 Sanity). The Stalker attacks: 2 dice → one 5 = 1 damage. Coco at 5 Health. She has no Flashlight; the Dawn card disabled them anyway. **Charlie attack:** first night in darkness → −2 Sanity, −1 Health. Her No Home penalty: −3 Sanity for ending the night alone in a non-house tile. Coco ends the night at 4 Health, 5 Sanity — battered, frightened, standing. Every point she lost traces to a decision the table made at Dusk, and tomorrow the Stalker is still on her tile.
+- **Rayman at Basketball Court (alone).** Threat draw rate 2, +1 because Rayman moved today (Loud — the noise followed him home). Draws *Echoes* (already in play), *The Hollow Spectator* (HP 3), and a soft atmospheric threat that resolves instantly. He fights the Spectator — 2 attack dice + 1 Court Master + 1 Toy Bow = 4 dice. Roll: 5,6,4,1. Two hits; the stray 1 doesn't matter (fumbles only bite on a complete whiff). Spectator at 1 HP. Spectator returns: 1 die, 5 = 1 hit. Rayman at 11. He has a Flashlight and a Battery: **no Charlie attack**, even with the Dawn card, because his Battery is paired with a *Lantern* (Fire-equivalent — he crafted it on Day 2; the Dawn card disables Flashlights only).
+- **Ellie & James at Ellie's House.** Threat draw rate 0 (safe). Two sleepers, two beds — no one on the floor. They play Comfort items (James equips the Comfort Blanket Coco gave him — +1 Sanity). Sleep: Ellie at her own house → +1 Sanity, +1 Hunger, +1 Health. James at someone else's house with company → +1 Sanity. James drinks his Energy Drink (+2 Sanity, addiction satisfied).
 
-**Tick.** Everyone loses 1 Hunger and 1 Sanity. Rayman loses 2 Hunger (Big Appetite). Coco's ghost lowers Ellie's and James's Sanity by 1 next round if she's still in their location at next Tick.
+**Tick.** Everyone loses 1 Hunger and 1 Sanity. Rayman loses 2 Hunger (Big Appetite).
 
-**Outcome.** The team gained ground on resources and a craft, but Coco is Down and the Doom is still climbing. They'll need to dispatch a Telltale Heart kit to her location tomorrow to revive her, costing real Health and a precious Cloth/Battery/Food bundle.
+**Outcome.** At the next Dawn the bill and the payoff both arrive: the wounded Spectator and the Shadow Stalker are still on the map, so Doom festers **+2** on top of the phase rate — the table now has a concrete reason to spend actions finishing fights. In exchange, Rayman and Coco each salvage **2 resources** from their courts. Coco is hurt but alive and needs an escort home; nobody is Down, but two threats are loose and the Doom track is visibly angrier.
 
-This is the rhythm of the game: a round is rarely catastrophic and rarely free. Survival is paid for in scattered small currencies all spent on the same night.
+This is the rhythm of the game: a round is rarely catastrophic and rarely free. Survival is paid for in scattered small currencies all spent on the same night — and every mess left standing overnight is charged interest at Dawn.
 
 ---
 
@@ -654,7 +695,7 @@ Combat is **fast and dice-based** ([InterestingGames.md §3.3.6](Archive/Interes
 When a character fights an enemy:
 - **Attacker rolls** dice equal to their **base attack value** (typically 1 die, +1 per equipped weapon, ±character/location modifiers).
 - Each die showing **5 or 6** = 1 hit. Each hit does 1 damage to the enemy.
-- Each die showing **1** = 1 self-hit (you fumble): take 1 Health damage.
+- **Fumble:** if the roll contains a **1** *and no hits at all*, take 1 Health damage (maximum 1 per roll, no matter how many 1s). A roll with any hit never fumbles — you connected; the stray swing doesn't matter. This keeps big dice pools from punishing the dedicated fighter: whiffing completely is what hurts, not rolling lots of dice.
 - The enemy then attacks back: roll its **attack die count** (printed on the threat card). Each 5 or 6 = 1 damage to the attacker. (Defenders may use shield/cover items to negate hits.)
 
 ### 12.2 Group combat
@@ -666,6 +707,36 @@ Rayman's Defend action redirects all return damage to him for one round.
 ### 12.3 Death and Unconsciousness
 
 If Health hits 0, the character is **Down** (see §16.4). Other characters at the same location may spend their next action to **Stabilize** (returning the character to 1 Health), but only if they have a Bandage item. Otherwise the character must wait for revival or stay Down.
+
+### 12.4 Flee
+
+Fighting is never compulsory. When a threat is at your location, you may **Flee** instead: move 1 tile away, paying **1 Sanity** (running in the dark is terrifying, not tiring). Three properties are deliberate:
+
+- **Always legal.** Flee is available even at Hunger < 3, when Fight is blocked (§10.1), and at Night when actions are spent. A starving, cornered character always has a legal move — there is no rules deadlock, only a bad night.
+- **Paid in Sanity.** Mismatched currency (§8.4): escaping the fight you couldn't win drains the stat that makes you hallucinate. A character who keeps running eventually breaks.
+- **The threat stays.** A fled threat remains where it was — and festers at Dawn (§15.1). Fleeing converts a Health problem into a Doom problem; it is a loan, not an escape.
+
+### 12.5 Press the Attack
+
+After your attack roll lands **at least one hit** (and the threat survives), you may **pay 1 Sanity to roll one bonus attack die** — and the enemy does not strike back until you stop. On a **5–6** the press deals 1 more damage and you may pay and press again; on a **1–4** the streak ends and the enemy counter-attacks. Press dice **never fumble** (a stray 1 just ends the streak — no double jeopardy on a die you paid for). In group combat, each fighter may press in turn, paying their own Sanity.
+
+Three properties are deliberate:
+
+- **Pure push-your-luck.** One sentence of rules; the whole table watches every press ("stop while you're ahead!"). It is the highest tension-per-rule mechanic in the game.
+- **Bloodlust costs your mind.** Mismatched currency again (§8.4) — and perfectly thematic: pressing the attack in the dark is how sanity goes. A press **may drop you to 0 Sanity and put you Down mid-fight** — a visible, chosen risk, gated by an explicit confirm in the TTS build (§18.14), never an accident.
+- **It is the burst tool for the mandatory Source (§16.1).** The team spending its collective mind to end the final boss in one desperate flurry is the intended climax play. Sanity-as-ammunition against the thing eating your minds is the game's thesis in one mechanic. (Simulation-verified: unfought-Source losses fell from 33% to 8% of games for co-located teams once pressing existed.)
+
+### 12.6 The Source's phases
+
+The final boss is more than a statblock (HP 8, Atk 3 — retuned from 10 in the batch-4 calibration pass, §20.1's sanctioned knob): it has **one scripted beat**. The **first time the Source drops to 5 HP or below, it splits** — two **Terror Beaks** peel off to tiles adjacent to it. The Beaks are ordinary threats (they fight, flee, and fester normally, +1 each at Dawn under the cap); the Source keeps its remaining HP. Now the team must burst the boss down *and* handle adds mid-fight — the moment Press the Attack (§12.5) was built for.
+
+Three properties are deliberate:
+
+- **A boss with a beat is a story; a big HP pool is a chore.** This is the one place the "emergence over scripting" pillar (§2) deliberately bends — the climax earns one scripted card.
+- **Deterministic and announced (§1.4).** The split threshold is public from the moment the Source arrives (the Rules panel shows its live HP and the coming split). The drama is in the situation, not a die spike.
+- **The engine tracks boss HP.** From the Source's arrival, its HP is script-tracked (`gameState.bossHP`) — mid-fight, across actions, across saves. No honor-system counting on the final boss; a save mid-fight restores the real number.
+
+A second beat at HP ≤ 2 was considered and deferred: one clean phase change reads as a climax; two risks a fiddly boss.
 
 ---
 
@@ -704,6 +775,15 @@ Recipe — **Telltale Heart**:
 
 Telltale Hearts are the only way to revive a Down character (see §16.4). Carrying them is a strategic choice: they fill a tight inventory slot but they are the team's life insurance.
 
+### 13.5 Pry and Sealed Things
+
+**Pry** is a **free action**: a character holding a **Crowbar, Lockpick, or Pry Bar** may open a sealed thing at their tile and take its printed reward — guaranteed, no roll. Sealed things come in two forms:
+
+- **Sealed Threat cards** (§9.4): drawn like any threat, but they don't fight — they wait. Each is a payoff for the team that invested in a tool.
+- **The Sealed Basement** — a fixed object placed under Ellie & Luca's House **at setup, visible from turn one**. Behind it: a free Market Item plus a resource cache (2 Food + 1 Wood + 1 Battery). Because it is placed, not drawn, every game has it — the map's reliable early destination ("we need to get into the basement"), which makes crafting a Pry tool early a genuine plan instead of a rounding error. It is tuned to be worth a detour, never mandatory: a team can win ignoring it.
+
+A guaranteed reward behind a tool gate is the cleanest excitement in the game: no randomness, a clear goal, a reason to specialise (clever desperation), and a shared objective the table organises around (storied collaboration). In the TTS build the verb is coded (`doPry`); the Pry button lights only when a sealed thing is co-located and the player holds a tool.
+
 ---
 
 ## 14. The Week Arc and Pacing
@@ -714,8 +794,9 @@ Seven in-game days, divided into four narrative phases. This is the DST season s
 |---|---|---|---|---|---|
 | 1 — Dusk of the Week | 1–2 | **Jo** (slow open) | Calm, exploratory. Resources are findable. Players learn the map. | +1 | None |
 | 2 — Strange Days | 3–4 | **Ha** (break) | Pressure rises. Threats appear regularly. | +1 | The Deerclops (mid-tier; Day 4) |
-| 3 — Long Nights | 5 | **Ha → Kyu** (pivot) | Boss night. Major disruption. | +2 | The Eye of Terror (heavy boss) |
-| 4 — Final Hours | 6–7 | **Kyu** (rapid climax) | Survival sprint. Doom races. | +3 | The Source (final boss; Day 7 ending if not stopped) |
+| 2.5 — The Grove Wakes | Dusk of Day 4 | **Ha** (aftershock) | Interlude mini-boss. The map itself pushes back. | — | The Treeguard (mini-boss; scheduled, not deck-drawn — §14.2) |
+| 3 — Long Nights | 5 | **Ha → Kyu** (pivot) | Boss night. Major disruption. | +1 | The Eye of Terror (heavy boss) |
+| 4 — Final Hours | 6–7 | **Kyu** (rapid climax) | Survival sprint. Doom races — mostly from what festers. Day 7 opens on the fixed **Last Dawn** (§15.7). | +2 | The Source (final boss; MUST be destroyed by end of Day 7 — §16.1; splits at 5 HP — §12.6) |
 
 The pacing math is deliberate: roughly half the campaign is *Jo*-style exploration where players learn and plan, but the second half compresses sharply. This produces the felt arc players describe as "having a story," not just "having a session." Mid-game compression is the cure for the runaway-leader and dead-turn problems ([PrinciplesOfGoodBoardGames.md §10](Archive/PrinciplesOfGoodBoardGames.md)) — late-game decisions matter more than early ones, so a perfect early game cannot win the game alone.
 
@@ -725,9 +806,28 @@ Each phase boss is a Threat-card-style enemy that appears on a specific Dawn car
 
 - **Pre-warn.** A Dawn card the day before announces them.
 - **Disrupt rules.** While present, change the game state ("All Sanity costs are doubled while The Deerclops is on the map").
-- **Reward when defeated.** Drop a Trophy card with a permanent passive bonus for the rest of the game.
+- **Reward when defeated.** A boss kill must feel like it *rescued the week*, not merely stopped a penalty (an earlier draft rewarded only a passive Trophy, and simulation showed boss-avoidance dominating — the reward side has to be loud). On defeat:
+  - **Doom rolls back**: Deerclops **−2**, Eye of Terror **−3**. (The Source ends the game; no rebate needed.) The one moment all week the public track lurches the *right* way — let the table cheer.
+  - **Spoils**: 3 resources shower onto the boss's tile.
+  - **The Trophy** — a unique **build-around**, not a stat bump: the Antler Sled (Deerclops) lets a Move carry a co-located ally; the Watching Jar (Eye) lets the team preview and reorder the top 2 Threat cards each Dusk. A Trophy is a new verb the team plays with, and the retold loot of the campaign.
+  - **Spectacle** (TTS build): the boss's roar loop cuts mid-roar, the lighting flashes, and a boss-specific kill line lands in chat — a kill is an event, not a log entry.
 
 Bosses are placed on a specific location determined by the Dawn card. The team must travel to or defend against them.
+
+### 14.2 The Treeguard (Phase 2.5 mini-boss)
+
+Between the Deerclops and the Eye of Terror sits a smaller, stranger fight. At **Dusk of Day 4** — always, scheduled by the clock rather than drawn from a deck — a **Treeguard** unfolds itself at a random sport court. The neighborhood has been feeding on the courts all week: broken bleachers for Wood, hoops for Metal, nets for Cloth. On Day 4, the timber notices.
+
+- **Stats:** HP 5, Attack 2 — tougher than any night threat, softer than a phase boss.
+- **While it stands:** no one may **Gather at its court** (it guards the timber), and as a boss on the map it **festers Doom +1 at each Dawn** (§15.1).
+- **Two outs, DST-style:**
+  - **Fight it.** Standard combat (§12). Defeat: +1 Sanity to each attacker, and salvage **3 Wood** from where it stood.
+  - **Appease it.** At its tile, spend an action and **2 Wood** to plant saplings. It watches, then folds back into stillness. No reward — but no wounds, and no more festering.
+- **No Trophy.** It is a mini-boss; it does not count toward the Hero Run (§16.2).
+
+Design intent, in order: (1) it is the mid-week **anti-turtling alarm** — a team camped at Ellie & Luca's kitchen must now march out to a court or eat +1 Doom per day; (2) the appeasement option is a pure **mismatched-currency** decision (pay the resource you were harvesting to keep harvesting it) and reads as instantly thematic to anyone who has played DST; (3) it is **scheduled, not deck-drawn**, so every campaign gets its Phase 2.5 beat — the shuffled Phase decks make the named bosses' arrival days wobble, and the Treeguard anchors the middle of the arc regardless.
+
+While the Treeguard is awake, its roar library (26 sounds under `sounds/creatures/treeguard/`) loops in place of the ambient track.
 
 ---
 
@@ -737,32 +837,44 @@ The Doom track is the main visible loss timer, lifted directly from Cthulhu Wars
 
 ### 15.1 The track
 
-A 30-step linear track on the main board. The Doom marker advances each Dawn:
+A 30-step linear track on the main board. The Doom marker advances each Dawn by the **phase rate** (4-player baseline; see §15.6 for the player-count table):
 
 - Phase 1: +1 per day.
 - Phase 2: +1 per day.
-- Phase 3: +2 per day.
-- Phase 4: +3 per day.
+- Phase 3: +1 per day.
+- Phase 4: +2 per day.
 
-If the marker reaches **30 before the team survives Day 7**, the team loses. Players can also push Doom back through specific "Cleanse" actions (see §15.3).
+The fixed clock is deliberately gentle, because most of the Doom pressure is **responsive** (below): festering threats, festering bosses, and fallen friends. The world doesn't punish you for time passing nearly as much as it punishes you for what you leave undone. (Bosses also add **no Doom on arrival** — an earlier draft charged +1/+2/+3 as each boss appeared, which double-billed the fight on top of uncapped boss festering. A boss charges the track by *staying*, not by showing up.)
+
+On top of the phase rate, Doom is **responsive to the state the players leave the world in**:
+
+- **Festering threats.** At each Dawn, Doom advances **+1 for every ordinary Threat card still on the map**, capped at +3 per Dawn (a bad night can't cascade into an instant loss). A threat fled from, ignored, or left at 1 HP is not a saved action — it is a loan against the Doom track. This is what makes Fight, Cleanse, and finishing fights genuinely competitive with self-care actions.
+- **Festering bosses.** Bosses are **exempt from the cap**: each phase boss on the map festers **+2 per Dawn** (the Treeguard mini-boss +1, §14.2). The cap exists so chaff can't snowball; bosses are not chaff. A team that decides to wait out the Deerclops is choosing to pay +2 Doom every single morning it stands — ignoring THE monster is never the cheap line. (Simulation showed that under a shared +3 cap, a boss-avoidance strategy comfortably out-performed engaging them; uncapped boss festering is what makes the boss fights economically real.)
+- **Fallen friends.** Whenever a character goes Down, **Doom +1** immediately (§16.4). The dark feeds on collapse.
+
+The clock is therefore partly in the players' hands: a clean map and a standing team hold Doom near the phase rate; a sloppy week compounds. If the marker reaches **30 before the team survives Day 7**, the team loses. Players can also push Doom back through specific "Cleanse" actions (see §15.3) — which the responsive sources make an actually-rational spend, not a theoretical one.
 
 ### 15.2 Doom thresholds (passive escalation)
 
 The Doom track has annotated thresholds that change ongoing rules:
 
 - **At 10:** The night phase threat draw is +1.
-- **At 15:** Crafting market refresh is slowed (refill 1 slot per day, not all).
+- **At 15:** **Scarcity** — every Market craft costs **+1 extra resource** of any type the crafter holds (their choice). (Replaced an earlier "refill 1 Market slot per day" rule, which reduced options without adding tension. Scarcity pressures instead of bores: players still see the full rotating market — they just can't quite afford it.)
 - **At 20:** All characters lose +1 Sanity at the night Tick.
-- **At 25:** Boss-level threats can appear in any phase.
+- **At 25:** Boss-level threats can appear in any phase — and **Nothing Left to Lose**: every character gains **+1 attack die** in all combat, and **Rest also restores +1 Health anywhere** (non-stacking with the at-home bonus). Every other threshold is a punishment; 25 is the moment the team *stops being afraid*. Doom 25 with the shared clock at 25/30 is already near-death — the buff is textbook negative feedback (catch-up that arrives as the *third act*), turning the most-dreaded number on the board into one desperate teams play toward. It cannot snowball: it only triggers when the co-op clock is nearly spent, and it helps everyone symmetrically.
 - **At 30:** Game over.
 
 ### 15.3 Pushing back Doom
 
 Players can spend an action and a specific resource bundle (typically: 1 of each: Wood, Cloth, Battery, Energy Drink — i.e., representative of community ritual) to do a **Cleansing**, reducing Doom by 2. This is rare, expensive, and a key strategic decision: do you spend this action on yourself, or on the world?
 
+The other way to push Doom back is **violence**: phase-boss kills rebate the track directly (Deerclops −2, Eye −3 — §14.1). Cleansing is the quiet communal answer; the boss fight is the loud one. Both exist so the "spend on the world" decision has a fighter's path and a homebody's path.
+
 ### 15.4 Charlie attacks
 
-Echoing DST's Charlie ([DontStarveVideoGamePrinciples.md §4](Archive/DontStarveVideoGamePrinciples.md)): any character at night without a light source suffers a Charlie attack. Coco is immune. Some boss-phase rules disable certain light sources.
+Echoing DST's Charlie ([DontStarveVideoGamePrinciples.md §4](Archive/DontStarveVideoGamePrinciples.md)): any character at night without a light source suffers a Charlie attack — **2 Sanity + 1 Health**, escalating by **+1 to each for every consecutive night that character spends in darkness**. A night with light resets the escalation. Coco is immune. Some boss-phase rules disable certain light sources.
+
+Deterministic by design (§1.4 "clever desperation"): losses must read as a chain of visible mistakes, not a die spike. One dark night is a survivable, legible lesson; making a habit of darkness is what kills. The escalation also makes light logistics a *week-long* plan rather than a nightly coin-flip.
 
 ### 15.5 Severity scaffolding (the dot system)
 
@@ -778,15 +890,26 @@ This solves the new-player problem: a new player can see a 5-dot Dawn card and i
 
 ### 15.6 Doom rate scaling by player count
 
-The +1 / +1 / +2 / +3 doom-per-day rate is balanced for the 4-player baseline. Player counts adjust the rate:
+The doom-per-day rate is balanced for the 4-player baseline. Player counts adjust the rate:
 
 | Players | Phase 1 | Phase 2 | Phase 3 | Phase 4 |
 |---|---|---|---|---|
-| 3 | +1 | +1 | +1 | +2 |
-| 4 (default) | +1 | +1 | +2 | +3 |
-| 5 | +1 | +2 | +2 | +3 |
+| 3 | +1 | +1 | +1 | +1 |
+| 4 (default) | +1 | +1 | +1 | +2 |
+| 5 | +1 | +1 | +2 | +2 |
 
-Rationale: 3-player teams have less action economy, so doom advances slower; 5-player teams move more total resources per round, so doom keeps pace. This is a **negative feedback knob** ([PrinciplesOfGoodBoardGames.md §9](Archive/PrinciplesOfGoodBoardGames.md)) on group capability — it equalizes pressure across player counts without rewriting any other rules.
+Rationale: more bodies at the table means more occupied tiles at night, more threat draws, and therefore more *responsive* Doom (festering) — so the fixed clock ticks slightly faster at higher counts to a lesser degree than it used to, not more. (Retuned 2026-07: the original table — 3p up to +2, 4p up to +3, 5p up to +3 — was calibrated before uncapped boss festering and the mandatory Source. Simulation showed it made 5-player games nearly unwinnable, with ~90% of losses to Doom, while the responsive sources now carry the late-game pressure the old flat rates were simulating. The Monte Carlo probe in `scripts/simulate_balance.py` validates the ordering; the exact 40–50% human win-rate target in §20.2 still needs playtests — the probe's combat model is too crude to certify it.)
+
+### 15.7 The Last Dawn
+
+Day 7's Dawn is **fixed**, not drawn: *"THE LAST DAWN — the sky is trying to lighten. Survive until it's over."* No penalty, no effect — pure tone, the first Dawn all week that isn't a threat. It is scheduled by the clock and bypasses the Phase 4 deck entirely (the same pattern as the Treeguard, §14.2 — the deck only ever has to cover Day 6). Predictable structure, unpredictable details — the DST seasons principle the Phase decks already follow, applied to the finish so every campaign lands on the same held breath. A physical `P4_LAST_DAWN` card for the print edition is deferred; the TTS build scripts it.
+
+### 15.8 Night Sounds and the dread of information
+
+Two batch-3 effects sharpen dread through *information design* alone — telegraphed unknowns, never new randomness (the legible-losses contract, §1.4, is untouched):
+
+- **Night Sounds.** At Dusk, if the top card of the Threat deck is a **Hard** threat, a distant growl plays across the table. No rule text, no mechanical tell, deliberately unexplained — veterans learn to brace when they hear it; new players just feel the hair go up. It reveals nothing gameable (not *which* threat, not *where*) and adds zero randomness: it merely *voices* a draw that was already going to happen. The knowledge that something is coming, without knowing what, is the core of horror. Discipline: only on Hard, only at Dusk, once, at low volume — the silence between growls is what makes the growl land.
+- **The Wrongness** (§9.4) applies the same principle to a physical object: a known-but-unresolved threat on the map converts a random Night draw into a *decision with anticipation* — the who-goes-to-look argument is the story.
 
 ---
 
@@ -794,13 +917,13 @@ Rationale: 3-player teams have less action economy, so doom advances slower; 5-p
 
 ### 16.1 Default victory
 
-The team **wins** if all surviving characters are alive at the end of Day 7 (after the Day 7 night phase fully resolves) and the Doom marker is at less than 30.
+The team **wins** if all surviving characters are alive at the end of Day 7 (after the Day 7 night phase fully resolves), the Doom marker is at less than 30, **and The Source has been destroyed** (if it arrived — see §16.3, condition 3). The final boss is not optional: a team that spends the Final Hours hiding from The Source has not won, whatever the Doom track says. (This clause is enforced, not flavor — simulation showed that if survival alone wins, the dominant strategy is to ignore every boss.)
 
 ### 16.2 Bonus victories
 
 - **Pristine Run** — All five characters are alive at game end. (No revivals counted; all five must have reached the end on their feet.) Awarded a "Story Card" to keep.
 - **Truth Run** — The team finds and reads all 3 Clue cards (special items in the Market deck) before Day 7. The ending narrative changes.
-- **Hero Run** — Defeat all four bosses, including the Source on Day 7.
+- **Hero Run** — Defeat all three phase bosses: the Deerclops, the Eye of Terror, and the Source. (The Treeguard mini-boss doesn't count — §14.2. The Source is already mandatory for any win; the Hero Run is for felling the other two as well.)
 
 These are not separate goals — they are achievements layered on top of survival, encouraging replay.
 
@@ -816,10 +939,12 @@ The team **loses** if any of:
 
 When a character is Down (Health 0 or Sanity 0):
 
+- **Doom +1**, immediately. The dark feeds on collapse (§15.1). This is deliberately the *only* systemic penalty for being Down — the pressure lands on the shared clock the team can fight, not on the survivors' stat tracks.
 - Flip the standee to its **ghost side**. The character cannot take actions, cannot gather, cannot fight.
 - Ghost characters drift between locations (1 free move per round).
-- Ghost characters lower the Sanity of any living player they share a location with at the night Tick (−1 Sanity, the lurking presence).
 - A ghost can whisper a single word to the team per round (literally — the ghost player may say one word per round to advise; this both flavors the experience and limits the alpha-player problem).
+
+(Design note: an earlier draft had ghosts drain −1 Sanity from co-located living players at Tick. Cut — it was a positive feedback loop that punished the team hardest exactly when they were already losing, and it discouraged the survivors from gathering around the body, which is where the story is.)
 
 To **revive** a Down character:
 
@@ -828,6 +953,12 @@ To **revive** a Down character:
 - The revived character returns at half their starting maximums (e.g., James returns at 4 Health, 3 Hunger, 5 Sanity).
 
 This is the DST soft permadeath ([DontStarveVideoGamePrinciples.md §7](Archive/DontStarveVideoGamePrinciples.md)) — death is meaningful but not eliminating.
+
+### 16.5 The Week in Review
+
+When the game ends — victory or defeat — the table gets the week read back to it: one headline per day ("Day 3 — the night Coco slept alone"), the darkest night, the best kill, who kept everyone fed, the longest run of dark nights survived, the Doom high-water mark, and the fallen and the saved. In the TTS build this is generated automatically from the game's own event log (nothing new is tracked at the table); in a print edition it is a one-minute ritual of flipping back through the week aloud.
+
+Why it's a rule and not a nicety: **storied collaboration (§1.4 #3) is a stated aesthetic, and the retelling is the actual replayability engine** ([PrinciplesOfGoodBoardGames.md §15](Archive/PrinciplesOfGoodBoardGames.md)). The Week in Review hands the table a script to retell from — the week becomes a story with a shape, which is exactly what makes "one more game" happen.
 
 ---
 
@@ -844,14 +975,43 @@ This is the DST soft permadeath ([DontStarveVideoGamePrinciples.md §7](Archive/
 7. Shuffle the Market deck. Deal 5 cards face-up to the Market display.
 8. Shuffle the Threat deck.
 9. Place all resource tokens in the **Resource Bag** (or Infinite Bags per type for TTS clarity).
-10. Set Day Counter to 1, Doom marker to 0.
-11. First player is the player whose real-life kitchen is currently most cluttered. (Theme.)
+10. Place **the Sealed Basement** at Ellie & Luca's House (fixed map feature — §13.5). Its tooltip states the cost and hints the reward.
+11. Set Day Counter to 1, Doom marker to 0.
+12. First player is the player whose real-life kitchen is currently most cluttered. (Theme.)
 
 ### 17.2 Difficulty variants
 
-- **Easy / Long Weekend** — 3 days only, Phase 1 + half of Phase 2. Doom track halved. Good for teaching.
-- **Standard** — 7 days, full rules.
-- **Nightmare** — 7 days, Doom rate +1 in every phase, no Phase 1 (start on Strange Days).
+Implemented (batch 4 W3): selectable in the setup Variants step, driven by `DIFFICULTY_PARAMS` (global.lua).
+
+- **Easy / Long Weekend** — 3 days only, Phase 1 + half of Phase 2 (day-phase map 1/1/2). Doom track halved: defeat at **15**. Good for teaching; the final day still gets the Last Dawn.
+- **Standard** — 7 days, full rules. Calibrated 2026-07: sim best line 40–50% with Days 6–7 losses (§20.1 boss-HP knob).
+- **Nightmare** — 7 days, Doom rate +1 in every phase, no Phase 1 (the day-phase map starts on Strange Days).
+
+Long Weekend and Nightmare are derived offsets from the tuned Standard, not separately balanced.
+
+### 17.3 Scenarios (optional variant)
+
+A **Scenario** is a single week-long modifier revealed at setup — the DST seasons idea compressed into one card: the same neighborhood, but this week the *world* is different. Scenarios are the game's coarse replayability lever on top of the fine-grained ones (map layouts §7.6, character composition §6.6): variability as a multiplier on an already-working game, never a substitute for depth ([PrinciplesOfGoodBoardGames.md §15](Archive/PrinciplesOfGoodBoardGames.md)).
+
+The eight Scenarios (authored in `content/cards_scenarios.csv`; rules applied by `lua/setup.lua`):
+
+| Scenario | The week's twist |
+|---|---|
+| **The Long Winter** | Hunger decay doubled; food gathering -1; houses give +1 Sanity at sleep (everyone huddles). |
+| **The Scorching Summer** | Everyone starts -2 max Hunger; Energy Drinks +1 Sanity; courts yield +1 resource. |
+| **The Rotting Autumn** | 1 Food spoils per location at Dawn; recipes yield +1 Hunger; Cloth easier to find. |
+| **The False Spring** | Days 1–3: no Charlie at all. Day 4+: Charlie hunts everywhere, every night. |
+| **Total Blackout** | No Batteries in the game; Flashlights uncraftable; Fire is the only light. |
+| **Strict Rationing** | Market restocks 1 card per 2 days; recipes cost 1 fewer ingredient. |
+| **The Full Moon** | Charlie never attacks — but all Soft threats become Hard (+2 HP, +1 attack). |
+| **The Shortcut** | A free path between James's House and the Badminton Court… that draws +1 Threat at both ends each night. |
+
+Rules of use:
+
+1. **Off by default.** The setup walkthrough offers "Random Scenario" as a toggle (§18.16); recommend it only after a group's first game — a Scenario on a first play muddies which rules are "the game" and which are "this week."
+2. **Revealed at setup, in force all week.** The active Scenario is announced at setup and mirrored in the "Rules in effect" panel for the whole game, so nobody has to remember it.
+3. **One at a time.** Scenarios are balanced individually, not in combination.
+4. **Physical edition note.** In the TTS build the Scenario is applied digitally (no physical deck is spawned); for a print edition, `cards_scenarios.csv` is the authoring source for an 8-card deck — draw 1 at setup, leave it face-up by the Doom track.
 
 ---
 
@@ -1056,7 +1216,7 @@ Players never accidentally commit a cost. New players also learn the cost mechan
 | Color | Meaning | Example |
 |---|---|---|
 | 🔴 Red | Damage / loss event | "Coco loses 3 Sanity from isolation." |
-| 🟡 Yellow | Warning / threshold crossing | "Doom reaches 15 — Market refresh slowed to 1/day." |
+| 🟡 Yellow | Warning / threshold crossing | "Doom reaches 15 — Scarcity: crafts cost +1 extra resource." |
 | 🟢 Green | Positive event / gain | "Rayman gathered Wood. Echoes 6: bonus Item drawn." |
 | 🔵 Cyan | Phase change | "Phase 3: Long Nights begins. Doom rate +2/day." |
 | ⚪ Gray | Procedural | "Day Counter: 3. First Player passes to Rayman." |
@@ -1098,7 +1258,7 @@ The Doom track also has its **threshold ribbon printed on the board itself** bes
 
 ```
 Doom track:
-[start] 5 [10: Night threats +1] 15 [Market 1/day] 20 [-1 Sanity Tick]
+[start] 5 [10: Night threats +1] 15 [Crafts +1 cost] 20 [-1 Sanity Tick]
         25 [Bosses any phase]   30 [DEFEAT]
 ```
 
@@ -1109,6 +1269,8 @@ The looming pressure is concrete, not abstract.
 The Setup button does not just deal cards — it walks players through a guided sequence that doubles as a tutorial.
 
 **Step 1 — Pick a path graph.** A modal: "Pick a starting layout." Three buttons (Compact / Sprawl / Linear), each with a small preview image. Click → that variant's path edges spawn between the location tiles. Other two are removed.
+
+**Step 1.5 — Optional variants.** A small host-only modal with two toggles, both OFF by default, and a Continue button: **Rotation turns** (§11.2 — one action per visit) and **Random Scenario** (§17.3 — revealed after characters are chosen). The modal says explicitly: "Both off = the standard game. First game? Just click Continue." — the §18.10.7 principle (the first decision is small) means new tables must be able to click straight through.
 
 **Step 2 — Pick characters.** Each seated `Player.Color` gets a pop-up showing all five character cards (front + back), with one-line plain-language strengths under each:
 - *James — fast learner; reads cards before drawing them.*
@@ -1130,7 +1292,7 @@ A player picks one. Picked characters turn unavailable for other seats. Coco sta
 >
 > **Constraint**
 > - Big Appetite: lose 2 Hunger per day (others lose 1).
-> - Loud: trigger an extra Threat draw when moving to a new location.
+> - Loud: if you moved today, wherever you sleep draws +1 Threat tonight.
 >
 > **Try first:** Move to the Basketball Court and gather Wood — your Court Master perk applies there.
 >
@@ -1154,7 +1316,7 @@ A floating **Help (?)** button on the Phase Banner opens a side panel with five 
 
 A second smaller button next to Help: **"What now?"** — context-aware advice. Click during:
 - Day Phase: "It's your turn, Ellie. You have 2 actions left. Suggested: cook a recipe at the Kitchen — you have 2 Food and 1 Wood available."
-- Dusk: "Each player declares where to sleep. Click on a location tile to claim it for tonight."
+- Dusk: "Last chance to move: scramble 1 tile (1 Hunger) via the Dusk panel, or stay put. You sleep where you stand."
 - Night: "Resolving threats at Badminton Court. Coco is here; click Resolve to proceed."
 - After a defeat: "The team lost on Day 6. Click Restart to try again with the same characters, or Setup for a fresh game."
 
@@ -1168,7 +1330,7 @@ The hint is generated from current state. It is the single most important new-pl
 |---|---|---|
 | Dawn | A flash; the Phase Banner highlights for 3 seconds | "Reveal Dawn" prominent |
 | Day | Normal warm lighting | Action Bar enabled |
-| Dusk | Slight desaturation | "Declare sleep location" banner; tiles become click-targets |
+| Dusk | Slight desaturation | "Scramble or stay" banner; Dusk panel offers the 1-tile scramble |
 | Night | `Lighting.LightIntensity` lowered ~25%; cooler ambient | Threats pile face-up by location; "Resolve Night" prominent |
 | Tick | Brief animated slide of stat tokens; soft chime | "End-of-Round Summary" panel shows |
 
@@ -1222,7 +1384,7 @@ For traceability, every major design decision is tagged with its inspiration sou
 | Open negotiation / trading | Catan §2.3.8 | The replayability engine: other humans are infinite content. |
 | Multiple paths to victory (Pristine, Truth, Hero) | Catan §2.3.9 + general design theory ([PrinciplesOfGoodBoardGames.md §11](Archive/PrinciplesOfGoodBoardGames.md)) | Replayability through varied goals. |
 | Dawn card "world acts first" | HPHB §1.3.3 | No turn is safe; pressure is constant. |
-| One-action-then-pass rotation (in Day phase) | Cthulhu Wars §3.2 | Fast pacing; reduces alpha-player problem. |
+| Full 3-action turns (default) + one-action-then-pass **Rotation variant** (§11.2) | Cthulhu Wars §3.2 | The default keeps a new player's turn coherent (plan 3 actions as one thought); the Rotation variant is the Cthulhu Wars downtime cure — at 5 players it cuts the wait between your decisions from up to 12 consecutive foreign actions to 4. Which one the table prefers is an explicit playtest A/B (§20.2). |
 | Visible component scale (boss standees larger) | Cthulhu Wars §3.4 | Information design through physical hierarchy. |
 | Variable map setup (3 path configurations) | Catan §2.3.1 | Cheap replayability lever. |
 | Hand limit forces trade | Catan §2.3.5 (the "7 effect") | Discourages hoarding; forces interaction. |
@@ -1247,14 +1409,14 @@ The design does *not* hide the global game state. Resources, the Doom track, and
 |---|---|---|
 | 1 | Can you name the emotion the game targets in one sentence? | ✅ "Cozy dread" — §1.4. |
 | 2 | Does each turn present at least one meaningful choice with real trade-offs? | ✅ The 3-action budget combined with the mismatched-currency map (§8.4) makes every action a choice. |
-| 3 | Is there a rule you're keeping out of fondness? | ⚠️ The Visitor deck is the candidate to cut — it adds rules to support 3- and 4-player counts. Playtest will tell us if the value justifies the complexity. |
+| 3 | Is there a rule you're keeping out of fondness? | ✅ Acted on — the Visitor **adoption** sub-rule was cut (§9.5); Visitors are now one-shot aid only. The deck itself stays, at near-zero rules cost. |
 | 4 | Do mechanics and theme reinforce each other? | ✅ Hunger/Sanity/Health, the Crockpot social magnet, Charlie attacks, and Telltale Heart sacrifice all are *consequences* of the world, not arbitrary rules. |
 | 5 | At least 2–3 viable paths to victory? | ✅ Survive (default), Pristine, Truth, Hero — four overlapping goals (§16.2). |
 | 6 | Different feel in early/mid/end game? | ✅ Jo-Ha-Kyu mapping (§14). Early days are exploratory; Day 5+ is climactic. |
 | 7 | Stress-tested for runaway leader, kingmaking, AP, elimination? | ✅ Co-op (no runaway leader); ghost word-limit (no kingmaking); soft turn timer (AP); ghost state (no elimination). |
 | 8 | Does player interaction generate stories? | ✅ Mismatched currency forces visible deals; the worked example in §11.6 shows the table-talk window naturally. |
-| 9 | Has the rulebook been read by someone who wasn't in the room while you wrote it? | ❌ Pending — first blind playtest scheduled (§20.2). |
-| 10 | Have you played it enough to be sick of it and still want to play again? | ❌ Pending — at the design-brief stage. The next milestone is to clear this. |
+| 9 | Has the rulebook been read by someone who wasn't in the room while you wrote it? | ❌ Pending — everything a blind playtest needs is now built (batch 4): session telemetry with a one-click export, the facilitator script and feedback form in `playtest/`, and a calibrated Standard difficulty. Two independent blind groups completing a game flips this. |
+| 10 | Have you played it enough to be sick of it and still want to play again? | ❌ Pending — the retention question ("do you want to play again right now?") is on the feedback form; yes-without-prompting is the only pass. |
 
 Two ❌ marks are acceptable at v1 (this document is the brief, not a finished game). Item 3's ⚠️ is the single most actionable note: the Visitor deck must justify itself in playtests or be cut.
 
@@ -1266,9 +1428,19 @@ Two ❌ marks are acceptable at v1 (this document is the brief, not a finished g
 
 - **Coco's lack of house** — penalty is strong; if it's too punishing, allow her to "claim" a temporary home each game.
 - **Rayman's loud movement penalty** — needs tuning; could make him underplayed if too harsh.
-- **Doom track rate** — the +3/day in Phase 4 may be too steep at 3 players; consider scaling Doom rate by player count.
+- **Doom track rate** — retuned 2026-07 to the §15.6 table (3p [1,1,1,1] / 4p [1,1,1,2] / 5p [1,1,2,2], no boss arrival Doom) after simulation showed the old table made 5p nearly unwinnable. The residual risk has inverted: with a gentle fixed clock, most Doom is now responsive (festering) — if playtests show diligent teams cruising, raise Phase 3–4 rates by +1 before touching festering.
+- **Boss lethality under the mandatory Source** — the Source must be killed to win, and the sim's crude combat model loses ~20–30% of games to it or to Downs accumulated across three boss fights in four days. **Knob taken (batch 4 W3, 2026-07): Source HP 10 → 8** — the single sanctioned change that put the sim's best line in the 40–50% band (turtle 34%→42%, spread 27%→41%) with losses still clustering on Days 6–7. Trophy healing remains the next knob if tables still find the Final Hours a meat grinder.
 - **Hand limit (5 cards)** — may need to be 6 to allow comfortable crafting; playtest both.
 - **Telltale Heart cost** — 2 Health from reviver is significant; if revival is too rare, lower to 1 Health.
+- **Festering Doom (+1/threat cap +3; bosses +2 uncapped) and Down Doom (+1)** — target end-of-game Doom around 18–26 on a Standard win; if games routinely blow past 30 by Day 5, lower the ordinary-threat cap to +2 before touching phase rates. Do NOT re-cap boss festering — the uncapped boss rate is what keeps boss-avoidance from being the dominant strategy (simulation-verified; see §15.1).
+- **Charlie escalation (2/1 base, +1/+1 per consecutive dark night)** — watch whether two consecutive dark nights is a death sentence for low-Health characters; if so, escalate Sanity only.
+- **Crowded floor (2 beds per house)** — check the 5-player geometry (forced 2/2/1 split); if the floor rule reads as pure punishment, let a Bedroll item add a third bed.
+- **Moonlit Salvage (2 resources)** — the court-sleep gamble should be tempting roughly once per game per team, not a camping strategy; if court-camping dominates, drop to 1 resource + 1 Echoes roll.
+- **Loud (moved today = +1 Threat at Rayman's night tile)** — watch whether Rayman players simply never move; if so, the constraint is over-tuned — soften to "moved 3+ tiles today."
+- **3-player composition inequality (simulation flag, 2026-07; reliefs implemented batch 4 W2)** — the `--sweep3` composition sweep found 3-character teams ranging from ~86% to ~0.5% win rate under their best scripted policy: every viable trio includes Coco or Luca, and all six Rayman trios collapsed (his Big Appetite + Loud overheads don't shrink with the team). **Both cheap knobs from the candidate menu are now implemented, behind a `playerCount == 3` guard:** Big Appetite costs 2 Hunger only on days Rayman fought or moved 2+ tiles, and Loud requires 3+ tiles moved. Sweep after: the floor gate passes (worst trio 31% under its best policy, nothing near 0) — but the sim *over-corrects*, putting Rayman trios at the top (97–99%), because Loud was the only Rayman cost it models against his fully-modeled combat value. The Big Appetite knob alone moved almost nothing (the collapse was Loud→Charlie→Sanity-6, not Hunger). **Verdict: the sim brackets the answer; the real tuning decision belongs to the W2 table A/B** — a Rayman trio must be confirmed fun at a real 3-player table before this is closed. Do not fix it with roster restrictions (§6.6).
+- **Flee (1 tile, 1 Sanity, threat festers)** — watch for flee-chaining as a free evasion loop; the Sanity bleed plus fester Doom should make three flights in a week feel expensive. If not, raise to 2 Sanity.
+- **The Stash (2 Energy Drinks per gather at James's)** — if James stops visiting home entirely after one mega-stock, cap held Energy Drinks at 4.
+- **Haunted (personal Threat at Dawn, allies can't help)** — check it doesn't hard-kill low-Sanity + low-Health characters; if so, cap Haunted threats at 2 HP.
 
 ### 20.2 Playtest plan
 
@@ -1276,7 +1448,9 @@ Two ❌ marks are acceptable at v1 (this document is the brief, not a finished g
 2. **3-player teach-and-play** — 3 days, then 7 days. Watch for analysis paralysis.
 3. **5-player full game** — confirm the table doesn't get overwhelmed; check that 5 characters all feel relevant.
 4. **Blind playtest** — give the rules to a group with no designer present; observe what they get wrong. Fix the rulebook accordingly.
-5. **Stress test difficulty** — repeat plays with the same group to find the win rate (target: 40–50% on Standard difficulty for experienced groups).
+5. **Stress test difficulty** — repeat plays with the same group to find the win rate (target: 40–50% on Standard difficulty for experienced groups). *Status (batch 4 W3, 2026-07): calibrated on the simulator — best line 42% with ~100% of losses on Days 6–7, via the Source HP 10 → 8 knob; the three difficulty modes (§17.2) are selectable at setup. Table confirmation pending; each session's Copy Session Log export feeds this.*
+6. **Turn-structure A/B (5 players)** — play one full game with default 3-action turns and one with the Rotation variant (§11.2), same group. Watch for: time between one player's decisions, phone-checking during others' turns, and whether Rotation fragments planning ("I forgot what my second action was for"). This decides whether Rotation stays a variant, becomes the 5-player default, or gets cut. *Status (batch 4 W0/W1): fully instrumented — the session log records `turnStyle` and per-turn durations in seconds, so the two games are directly comparable. Protocol in [playtest/facilitator_script.md](playtest/facilitator_script.md). Decision pending table data.*
+7. **Scenario pass** — once the base game's win rate is settled, one game per Scenario (§17.3) to catch degenerate combinations (e.g., Total Blackout with a Coco-less team that can't survive dark nights).
 
 ### 20.3 Expansion hooks (post-launch)
 

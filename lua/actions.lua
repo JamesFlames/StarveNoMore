@@ -15,6 +15,8 @@ function snapshotForUndo(color)
         location = char.location,
         actionsLeft = char.actionsLeft,
         doom = gameState.doom,
+        raymanMovedToday = gameState.raymanMovedToday,
+        raymanBonusMove = gameState.raymanBonusMove,
     }
 end
 
@@ -34,6 +36,8 @@ function doUndo(color)
     char.sanity = snap.sanity
     char.actionsLeft = snap.actionsLeft
     gameState.doom = snap.doom
+    gameState.raymanMovedToday = snap.raymanMovedToday
+    gameState.raymanBonusMove = snap.raymanBonusMove
 
     -- Move standee back if location changed
     if char.location ~= snap.location then
@@ -47,6 +51,9 @@ function doUndo(color)
 
     moveDoomMarker(gameState.doom)
     gameState.undoSnapshot = nil  -- can only undo once
+    -- Rotation variant: the undone action no longer counts as this visit's
+    -- one action, so the player may act again before passing.
+    gameState.actedThisVisit = false
 
     broadcastEvent("proc", char.name .. " undoes their last action.")
     refreshPhaseBanner()
@@ -121,9 +128,16 @@ function doMove(color, targetLocation)
         broadcastEvent("gain", "Coco gains +1 Sanity from Wanderer's Gift (moving to a new place).")
     end
 
+    -- The Wrongness (batch 3): arriving where something is wrong resolves it.
+    safecall(function() checkWrongnessEntry(color) end, "Wrongness")
+
     -- Rayman's perk: can move again for free (2 spaces per action)
+    -- Loud constraint: any movement today means his Night location draws +1 Threat.
     if char.name == "Rayman" then
+        gameState.raymanMovedToday = true
+        gameState.raymanTilesMovedToday = (gameState.raymanTilesMovedToday or 0) + 1
         broadcastEvent("gain", "Rayman can move a second space for free (Court Master). Click Move again or pass.")
+        broadcastEvent("warn", "Loud: Rayman moved today — wherever he spends the Night draws +1 Threat.")
         -- The second move is handled as a separate call with no action cost
         -- Tracked via a flag
         gameState.raymanBonusMove = true
@@ -137,6 +151,7 @@ function doRaymanBonusMove(color, targetLocation)
 
     local char = gameState.activeChars[color]
     if not char or char.name ~= "Rayman" then return end
+    gameState.raymanTilesMovedToday = (gameState.raymanTilesMovedToday or 0) + 1
 
     char.hunger = math.max(0, char.hunger - 1)
     char.location = targetLocation
@@ -148,6 +163,8 @@ function doRaymanBonusMove(color, targetLocation)
     if standee and tile then
         standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
     end
+
+    safecall(function() checkWrongnessEntry(color) end, "Wrongness")
 
     local othersAtTarget = false
     for c2, ch2 in pairs(gameState.activeChars) do
@@ -163,22 +180,138 @@ function doRaymanBonusMove(color, targetLocation)
 end
 
 -----------------------------------------------------------------------
+-- DUSK SCRAMBLE (Design §11.3) — during Dusk each character may make one
+-- 1-tile move, paying 1 Hunger. No action cost (all actions are spent by
+-- Dusk anyway). This is the last chance to get somewhere safe — or daring.
+-----------------------------------------------------------------------
+function doDuskMove(color, targetLocation)
+    if gameState.subPhase ~= "Dusk" then
+        broadcastToColor("Scramble moves are only allowed during Dusk.", color, BROADCAST_COLORS.damage)
+        return
+    end
+
+    local char = gameState.activeChars[color]
+    if not char then return end
+    if char.down then
+        broadcastToColor("You are Down and cannot scramble.", color, BROADCAST_COLORS.damage)
+        return
+    end
+
+    gameState.duskMoves = gameState.duskMoves or {}
+    if gameState.duskMoves[color] then
+        broadcastToColor("You've already scrambled this Dusk (1 tile max).", color, BROADCAST_COLORS.damage)
+        return
+    end
+
+    if targetLocation == char.location then
+        broadcastToColor("You're already at " .. targetLocation .. ".", color, BROADCAST_COLORS.damage)
+        return
+    end
+
+    -- One tile only, even for Rayman — everyone is tired at Dusk.
+    local adjacent = false
+    for _, n in ipairs(LOCATION_ADJACENCY[char.location] or {}) do
+        if n == targetLocation then adjacent = true; break end
+    end
+    local sFlags = gameState.scenarioFlags or {}
+    if sFlags.shortcutPath then
+        if (char.location == "JamesHouse" and targetLocation == "BadmintonCourt") or
+           (char.location == "BadmintonCourt" and targetLocation == "JamesHouse") then
+            adjacent = true
+        end
+    end
+    if not adjacent then
+        broadcastToColor(targetLocation .. " is not adjacent to " .. (char.location or "?") ..
+            ". Scramble reaches 1 tile only.", color, BROADCAST_COLORS.damage)
+        return
+    end
+
+    gameState.duskMoves[color] = true
+    char.hunger = math.max(0, char.hunger - 1)
+    char.location = targetLocation
+    if char.name == "Rayman" then
+        gameState.raymanMovedToday = true
+        gameState.raymanTilesMovedToday = (gameState.raymanTilesMovedToday or 0) + 1
+    end
+
+    broadcastEvent("warn", char.name .. " scrambles to " .. targetLocation .. " as the light fades. (-1 Hunger)")
+
+    local standee = getCharacterStandee(char.name)
+    local tile = getLocationTile(targetLocation)
+    if standee and tile then
+        standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
+    end
+
+    safecall(function() checkWrongnessEntry(color) end, "Wrongness")
+
+    local othersAtTarget = false
+    for c2, ch2 in pairs(gameState.activeChars) do
+        if c2 ~= color and not ch2.down and ch2.location == targetLocation then
+            othersAtTarget = true; break
+        end
+    end
+    if othersAtTarget then
+        safecall(function() Audio.playMeet() end, "Audio")
+    else
+        safecall(function() Audio.playWalk() end, "Audio")
+    end
+
+    checkDownState(color)
+end
+
+-----------------------------------------------------------------------
 -- GATHER (1 action) — Design §8.1
 -- Draw 1 resource from the location's resource bag.
 -----------------------------------------------------------------------
 function doGather(color)
-    if not spendAction(color, "Gather") then return end
-
     local char = gameState.activeChars[color]
     if not char then return end
 
     local loc = char.location or ""
+
+    -- The Treeguard guards the timber: no gathering at its lair (Design §14.2).
+    local tg = gameState.treeguard
+    if tg and tg.active and loc == tg.location then
+        broadcastToColor("The Treeguard looms over the timber — no Gathering at " .. loc ..
+            " while it stands. Fight it, or Appease it (2 Wood at its tile).", color, BROADCAST_COLORS.damage)
+        return
+    end
+
+    if not spendAction(color, "Gather") then return end
+
     broadcastEvent("proc", char.name .. " gathers at " .. loc .. ".")
 
     -- Determine which resource bags are available at this location
     -- Each location has tagged Infinite_Bag objects nearby
     -- For scripted mode, broadcast instruction; physical pickup is manual
     broadcastEvent("proc", "Draw 1 resource from " .. loc .. "'s resource bag.")
+
+    -- The Stash (Design §7.1): a gather at James's House may take
+    -- 2 Energy Drinks instead of the random draw.
+    if loc == "JamesHouse" then
+        broadcastEvent("gain", "The Stash: instead of a random draw, you may take 2 Energy Drinks.")
+    end
+
+    -- Dare — the porch light (P2_PORCH_LIGHT, design_batch3.md §2): the
+    -- first Gather at a house today may become 3 resources for 2 Sanity.
+    -- Offered, never imposed: the gather above stands either way.
+    local isHouse = (loc == "JamesHouse" or loc == "RaymanHouse" or loc == "EllieLucaHouse")
+    if gameState.ongoingDawnEffects.darePorchLight and isHouse then
+        showConfirm("Dare — the porch light",
+            "Upgrade this Gather to 3 resources — and lose 2 Sanity from what you see through the window?",
+            function()
+                if not gameState.ongoingDawnEffects.darePorchLight then return end  -- someone beat you to it
+                gameState.ongoingDawnEffects.darePorchLight = nil
+                local ch = gameState.activeChars[color]
+                if not ch or ch.down then return end
+                safecall(function() recordBeat("dare") end, "Telemetry")
+                ch.sanity = math.max(0, ch.sanity - 2)
+                broadcastEvent("gain", ch.name .. " takes the dare — draw 2 extra resources from " .. loc .. "'s bag (3 total).")
+                broadcastEvent("damage", ch.name .. " loses 2 Sanity from what they see through the window. (Now " .. ch.sanity .. ")")
+                checkDownState(color)
+                refreshPhaseBanner()
+            end)
+    end
 
     -- Ellie's perk: "Knows the Pantry" — gathers 1 extra at Ellie & Luca's House
     if char.name == "Ellie" and loc == "EllieLucaHouse" then
@@ -216,11 +349,16 @@ function doRest(color, choice)
         broadcastEvent("gain", char.name .. " rests: +2 Sanity. (Now " .. char.sanity .. ")")
     end
 
-    -- At own house: also +1 Health
+    -- At own house: also +1 Health. Nothing Left to Lose (Design §15.2):
+    -- at Doom 25, Rest heals +1 Health anywhere — non-stacking with the
+    -- home bonus (one +1 Health either way).
     local home = CHARACTER_HOMES[char.name]
     if home and char.location == home then
         char.health = math.min(char.maxHealth, char.health + 1)
         broadcastEvent("gain", char.name .. " rests at home: +1 Health. (Now " .. char.health .. ")")
+    elseif gameState.ongoingDawnEffects.doom25 then
+        char.health = math.min(char.maxHealth, char.health + 1)
+        broadcastEvent("gain", char.name .. " rests: +1 Health (Nothing Left to Lose). (Now " .. char.health .. ")")
     end
 end
 
@@ -234,9 +372,9 @@ function doFight(color)
     local char = gameState.activeChars[color]
     if not char then return end
 
-    -- Low Hunger check: cannot fight if Hunger < 3
+    -- Low Hunger check: cannot fight if Hunger < 3 (Flee is always legal)
     if char.hunger < 3 then
-        broadcastEvent("damage", char.name .. " is too hungry to fight (Hunger < 3)!")
+        broadcastEvent("damage", char.name .. " is too hungry to fight (Hunger < 3)! You can still Flee: move 1 tile away, paying 1 Sanity.")
         char.actionsLeft = char.actionsLeft + 1  -- refund
         return
     end
@@ -247,6 +385,47 @@ function doFight(color)
     -- In a full implementation, this would prompt for target selection
     -- For now, broadcast the instruction for manual resolution
     -- Players can call resolveCombat() directly or use the combat helper button
+end
+
+-----------------------------------------------------------------------
+-- FLEE (Design §12.4) — the Night escape valve. When a threat is at your
+-- tile, you may flee instead of fighting: move 1 tile away, paying
+-- 1 Sanity (running in the dark is terrifying, not tiring). Always
+-- legal — even starving (Hunger < 3 blocks Fight, never Flee). The
+-- threat stays where it was, and festers at Dawn.
+-----------------------------------------------------------------------
+function doFlee(color, targetLocation)
+    local char = gameState.activeChars[color]
+    if not char then return end
+    if char.down then
+        broadcastToColor("You are Down and cannot flee.", color, BROADCAST_COLORS.damage)
+        return
+    end
+
+    local adjacent = false
+    for _, n in ipairs(LOCATION_ADJACENCY[char.location] or {}) do
+        if n == targetLocation then adjacent = true; break end
+    end
+    if not adjacent then
+        broadcastToColor(targetLocation .. " is not adjacent to " .. (char.location or "?") ..
+            ". Flee reaches 1 tile only.", color, BROADCAST_COLORS.damage)
+        return
+    end
+
+    char.sanity = math.max(0, char.sanity - 1)
+    char.location = targetLocation
+
+    broadcastEvent("warn", char.name .. " flees to " .. targetLocation ..
+        " (-1 Sanity). The threat remains behind — and festers at Dawn.")
+
+    local standee = getCharacterStandee(char.name)
+    local tile = getLocationTile(targetLocation)
+    if standee and tile then
+        standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
+    end
+
+    safecall(function() checkWrongnessEntry(color) end, "Wrongness")
+    checkDownState(color)
 end
 
 -----------------------------------------------------------------------
@@ -341,14 +520,19 @@ function doBarricade(color)
     local char = gameState.activeChars[color]
     if not char then return end
 
+    -- Auto-verify and pay the 1 Wood; refund the action if unaffordable.
+    if not verifyAndPayResources(color, {Wood=1}, "the Barricade") then
+        char.actionsLeft = char.actionsLeft + 1
+        return
+    end
+
     local loc = char.location or ""
 
     -- Track barricades per location
     gameState.barricades = gameState.barricades or {}
     gameState.barricades[loc] = (gameState.barricades[loc] or 0) + 1
 
-    broadcastEvent("gain", char.name .. " barricades " .. loc .. "! (-1 Threat draw tonight). Costs 1 Wood.")
-    broadcastEvent("proc", "Discard 1 Wood from your resources now.")
+    broadcastEvent("gain", char.name .. " barricades " .. loc .. "! (-1 Threat draw tonight)")
 end
 
 -----------------------------------------------------------------------
@@ -367,6 +551,175 @@ function doDefend(color)
 
     gameState.raymanDefending = true
     broadcastEvent("gain", "Rayman DEFENDS! All return damage redirected to him this combat round.")
+end
+
+-----------------------------------------------------------------------
+-- PRY (free action, requires a Pry tool) — Design §13.5, design_batch3.md §3
+-- The one coded verb behind every sealed thing: sealed Threat cards and
+-- the Sealed Basement (a fixed object placed at Ellie & Luca's House by
+-- build_save.py). Guaranteed reward behind a tool gate — no dice.
+-----------------------------------------------------------------------
+PRY_TOOLS = {
+    { id = "M_CROWBAR",  label = "Crowbar" },
+    { id = "M_LOCKPICK", label = "Lockpick" },
+    { id = "M_PRY_BAR",  label = "Pry Bar" },
+}
+
+-- Reward per sealed thing. resources spill at the tile from the supply
+-- bags; market = free draws off the Market deck; line = the story beat.
+SEALED_REWARDS = {
+    T_THE_DOOR      = { market = 1,
+        line = "Behind the door: stocked shelves. A free Item from the Market deck." },
+    T_LOCKED_ROOM   = {
+        line = "The seven deadbolts give. Recover the Item card that was sealed inside." },
+    T_SEALED_SHED   = { resources = { Wood = 3 },
+        line = "The shed exhales sawdust: salvage 3 Wood." },
+    T_SEALED_LOCKER = { resources = { Battery = 2, Cloth = 1 },
+        line = "The locker was somebody's kit: 2 Battery and 1 Cloth." },
+    T_SEALED_CAR    = { resources = { EnergyDrink = 2, Metal = 1 },
+        line = "The glovebox and the trunk: 2 Energy Drinks and 1 Metal." },
+    BASEMENT        = { market = 1, resources = { Food = 2, Wood = 1, Battery = 1 },
+        line = "The basement cache, hoarded before the week began: a free Market Item plus 2 Food + 1 Wood + 1 Battery." },
+}
+
+local PRY_RADIUS = 7   -- same "at this tile" radius as festering / signatures
+
+-- Which Pry tool (label) does this player hold? Hand + player-board area,
+-- the same two places the night light check looks.
+function playerPryTool(color)
+    local char = gameState.activeChars[color]
+    if not char then return nil end
+    local candidates = {}
+    local ok, handObjs = pcall(function() return Player[color].getHandObjects() end)
+    if ok and handObjs then
+        for _, o in ipairs(handObjs) do candidates[#candidates + 1] = o end
+    end
+    local board = getPlayerBoard(char.name)
+    if board then
+        local pos = board.getPosition()
+        local b = board.getBoundsNormalized()
+        local pad = 1.5
+        for _, obj in ipairs(getAllObjects()) do
+            local p = obj.getPosition()
+            if p.x >= pos.x - b.size.x * 0.5 - pad and p.x <= pos.x + b.size.x * 0.5 + pad
+                and p.z >= pos.z - b.size.z * 0.5 - pad and p.z <= pos.z + b.size.z * 0.5 + pad then
+                candidates[#candidates + 1] = obj
+            end
+        end
+    end
+    for _, obj in ipairs(candidates) do
+        for _, tool in ipairs(PRY_TOOLS) do
+            if obj.hasTag and obj.hasTag(tool.id) then return tool.label end
+            local nick = (obj.getNickname and obj.getNickname()) or ""
+            if nick:lower():find(tool.label:lower(), 1, true) then return tool.label end
+        end
+    end
+    return nil
+end
+
+-- Sealed things at this tile: { {obj, id}, ... }. id keys SEALED_REWARDS.
+local function _sealedAtTile(locName)
+    local out = {}
+    local tile = locName and getLocationTile(locName)
+    if not tile then return out end
+    local tp = tile.getPosition()
+    for _, obj in ipairs(getAllObjects()) do
+        local sealedId = nil
+        if obj.hasTag then
+            if obj.hasTag("SealedBasement") and not gameState.basementOpened then
+                sealedId = "BASEMENT"
+            else
+                for id in pairs(SEALED_REWARDS) do
+                    if id ~= "BASEMENT" and obj.hasTag(id) then sealedId = id; break end
+                end
+            end
+        end
+        if sealedId then
+            local p = obj.getPosition()
+            local dx, dz = p.x - tp.x, p.z - tp.z
+            if (dx * dx + dz * dz) <= (PRY_RADIUS * PRY_RADIUS) then
+                table.insert(out, { obj = obj, id = sealedId })
+            end
+        end
+    end
+    return out
+end
+
+-- Precondition check; the reason doubles as the why-disabled tooltip.
+function canPry(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.down then return false, "You are Down." end
+    if #_sealedAtTile(char.location) == 0 then
+        return false, "Nothing sealed at " .. (char.location or "?") .. "."
+    end
+    local tool = playerPryTool(color)
+    if not tool then
+        return false, "You need a Crowbar, Lockpick, or Pry Bar (in hand or by your board)."
+    end
+    return true, tool
+end
+
+local function _deliverSealedReward(color, reward, locName)
+    if reward.resources then
+        local tile = getLocationTile(locName)
+        local pos = tile and tile.getPosition()
+        local i = 0
+        for resType, qty in pairs(reward.resources) do
+            local bag = getResourceBag(resType)
+            for _ = 1, qty do
+                i = i + 1
+                if bag and pos then
+                    safecall(function()
+                        bag.takeObject({ position = { pos.x + (i % 3) * 1.2 - 1.2, pos.y + 3, pos.z + 2 },
+                                         smooth = true })
+                    end, "PryLoot")
+                end
+            end
+        end
+    end
+    if reward.market and getMarketDeck() then
+        local deck = getMarketDeck()
+        if (deck.getQuantity and deck.getQuantity() or 0) > 0 then
+            local hz = getHandZone(color)
+            local tile = getLocationTile(locName)
+            local dest = (hz and hz.getPosition()) or (tile and tile.getPosition()) or Vector(0, 2, 0)
+            safecall(function()
+                deck.takeObject({
+                    position = dest + Vector(0, 2, 0),
+                    rotation = {0, 180, 0},
+                    smooth = true,
+                    callback_function = function(c)
+                        broadcastEvent("gain", "Sealed away all this time: " .. (c.getNickname() or "an Item") .. " — yours, free.")
+                    end,
+                })
+            end, "PryMarket")
+        end
+    end
+    if reward.line then broadcastEvent("gain", reward.line) end
+end
+
+function doPry(color)
+    local ok, toolOrReason = canPry(color)
+    if not ok then
+        broadcastToColor(toolOrReason or "Nothing to pry.", color, BROADCAST_COLORS.damage)
+        return false
+    end
+    local char = gameState.activeChars[color]
+    local target = _sealedAtTile(char.location)[1]
+    local reward = SEALED_REWARDS[target.id]
+    local name = (target.obj.getNickname and target.obj.getNickname() ~= "" and target.obj.getNickname())
+        or "the sealed thing"
+
+    broadcastEvent("proc", char.name .. " sets the " .. toolOrReason .. " against " .. name .. "... and it gives. (Pry is a free action.)")
+    _deliverSealedReward(color, reward, char.location)
+
+    if target.id == "BASEMENT" then
+        gameState.basementOpened = true
+    end
+    pcall(function() target.obj.destruct() end)
+    refreshPhaseBanner()
+    return true
 end
 
 -----------------------------------------------------------------------

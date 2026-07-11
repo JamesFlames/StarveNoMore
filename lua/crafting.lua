@@ -42,6 +42,11 @@ function doCraft(color, marketSlotIndex)
     local itemName = card.getNickname() or "Unknown Item"
     broadcastEvent("proc", char.name .. " crafts " .. itemName .. "!")
 
+    -- Doom threshold 15 (Scarcity): every craft costs +1 extra resource
+    if gameState.ongoingDawnEffects.doom15 then
+        broadcastEvent("warn", "Scarcity (Doom ≥ 15): also discard 1 extra resource of any type you hold.")
+    end
+
     -- Move card to the player's hand zone
     local handZone = getHandZone(color)
     if handZone then
@@ -62,15 +67,9 @@ function refillMarketSlot(slot)
         return
     end
 
-    -- Doom threshold 15: only refill 1 card per day
-    if gameState.ongoingDawnEffects.doom15 then
-        if gameState.marketRefillUsed then
-            broadcastEvent("warn", "Market refresh limited to 1/day (Doom ≥ 15). No refill.")
-            return
-        end
-        gameState.marketRefillUsed = true
-    end
-
+    -- (Doom 15 no longer slows the refill — it adds +1 to craft costs
+    -- instead. Scarcity should pressure, not bore: players still see
+    -- tempting cards they can't quite afford.)
     marketDeck.takeObject({
         position = slot.getPosition() + Vector(0, 1, 0),
         rotation = {0, 180, 0},  -- face up
@@ -190,19 +189,24 @@ function doCook(color, recipeId)
         return
     end
 
+    local char = gameState.activeChars[color]
+    if not char then return end
+
     -- Check night-only restriction
     if recipe.canCookAtNight and gameState.subPhase ~= "Night" then
         -- Midnight Snack can also be cooked during Day
     end
 
-    -- Action cost
+    -- Action cost. The Feast (Ellie's Signature, §6.7) covers every cook
+    -- for the rest of her turn in its single action.
     local actionCost = recipe.actionCost or 1
+    if char.feastActive then
+        actionCost = 0
+        broadcastEvent("proc", "The Feast: " .. recipe.name .. " costs no action.")
+    end
     for i = 1, actionCost do
         if not spendAction(color, "Cook (" .. recipe.name .. ")") then return end
     end
-
-    local char = gameState.activeChars[color]
-    if not char then return end
 
     -- Once-per-game check
     if recipe.oncePerGame then
@@ -215,6 +219,7 @@ function doCook(color, recipeId)
     end
 
     broadcastEvent("proc", char.name .. " cooks " .. recipe.name .. "!")
+    safecall(function() recordMealInChronicle(char.name) end, "Chronicle")
 
     -- Cook penalty (e.g., Battery Acid Soup costs health, Telltale Heart costs 2 health)
     if recipe.cookPenalty then

@@ -1,7 +1,7 @@
 id,title,severity,immediate,ongoing,art_notes
 P3_LONG_NIGHT,The Long Night Begins,4,All players lose 2 Sanity. Doom +1.,Until next Dawn: Day Phase has only 2 actions per player.,A sun that won't rise
 P3_EYE_NEAR,An Eye Watches the Sky,4,Pre-warning. The Eye of Terror boss arrives next Dawn at a random house tile.,,A single floating eye over rooftops
-P3_EYE_ARRIVES,The Eye of Terror Arrives,5,Place the Eye of Terror at a random house tile. Doom +2.,While Eye is on the map: Each Dawn, draw 1 extra Threat at the Eye's location.,Giant fleshy eye with antennae fronds
+P3_EYE_ARRIVES,The Eye of Terror Arrives,5,Place the Eye of Terror at a random house tile.,While Eye is on the map: Each Dawn, draw 1 extra Threat at its location. It festers Doom +2 each Dawn.,Giant fleshy eye with antennae fronds
 P3_EYE_SPLITS,The Eye Splits,5,The Eye of Terror splits into 3 Terror Beak Threats placed at adjacent tiles.,Eye is removed from the map.,Eye fracturing into bird-things
 P3_HUNGER_PANG,Hunger Pangs,3,All players lose 2 Hunger.,,Stomach rumble in a dark room
 P3_SCREAMS,Screams Down the Street,3,Each player loses 1 Sanity. The player with the lowest Sanity loses 2 more.,,Open mouth shapes against blank windows
@@ -14,3 +14,4 @@ P3_TIME_SKIP,You Lost a Day,4,Day counter advances by 1 (skip a day). Doom +1. A
 P3_WALLS_CLOSE,The Walls Are Closer,3,Each house tile loses 1 character capacity (max 4 instead of 5). Excess players must move at Dawn.,Until next Dawn: houses feel smaller.,A hallway that narrows into nothing
 P3_ALLY_MISSING,One of You Was Gone This Morning,3,The player with the fewest items loses all items in hand. They reappear at a random tile.,Until next Dawn: that player gets +1 action (adrenaline).,An empty sleeping bag and a trail of footprints
 P3_OFFERING,An Offering at the Door,3,Choose: sacrifice 3 Food to reduce Doom by 2 OR ignore it and all players lose 1 Sanity.,,A circle of salt and bone fragments on a welcome mat
+P3_HUNTS_THE_HERD,It Hunts the Herd,3,Each character at the most-populated location loses 1 Sanity.,Tonight the most-populated location draws +1 Threat.,A single enormous eye counting small figures huddled around a kitchen table
