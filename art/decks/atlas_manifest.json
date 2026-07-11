@@ -35,6 +35,12 @@
     "face": "recipe_face.png",
     "rows": 4
   },
+  "cards_starting.csv": {
+    "cards": 22,
+    "cols": 5,
+    "face": "starting_face.png",
+    "rows": 5
+  },
   "cards_threats.csv": {
     "cards": 51,
     "cols": 8,

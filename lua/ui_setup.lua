@@ -61,8 +61,9 @@ end
 -----------------------------------------------------------------------
 local function refreshVariantToggle(id, on, labelOn, labelOff)
     UI.setAttribute(id, "text", on and labelOn or labelOff)
-    UI.setAttribute(id, "color", on and "rgba(45,60,35,0.95)" or "rgba(30,30,45,0.9)")
-    UI.setAttribute(id, "textColor", on and "#DDFFCC" or "#BBBBDD")
+    -- Light "rulebook page" theme (matches global_ui.xml): green = ON.
+    UI.setAttribute(id, "color", on and "#CFE6C2FF" or "#ECE6D8FF")
+    UI.setAttribute(id, "textColor", on and "#1E5A1E" or "#3A362E")
 end
 
 function onToggleRotation(player, value, id)
@@ -131,6 +132,17 @@ local CHAR_BUTTON_MAP = {
     pickLuca   = "Luca",
 }
 
+-- Step 2 card styling (light "rulebook page" theme; matches global_ui.xml).
+local CHAR_CARD_STYLE = {
+    James  = { bg = "#E9E9F2FF", name = "#2B2B52" },
+    Coco   = { bg = "#F5E3E3FF", name = "#7A2727" },
+    Rayman = { bg = "#F0EDD8FF", name = "#5C5214" },
+    Ellie  = { bg = "#E2F0DCFF", name = "#1E5A1E" },
+    Luca   = { bg = "#E2E6F5FF", name = "#24336B" },
+}
+local CARD_TAKEN_BG   = "#CFCBC2AA"
+local CARD_TAKEN_NAME = "#8A857B"
+
 function showCharPickForNextPlayer()
     if #setupState.pendingColors == 0 then
         -- All players picked — finalize setup
@@ -140,7 +152,8 @@ function showCharPickForNextPlayer()
 
     local color = setupState.pendingColors[1]
     UI.setAttribute("step2Title", "text", "Step 2 — " .. color .. " Player: Pick Your Character")
-    UI.setAttribute("step2Subtitle", "text", "Choose a character. Taken characters are greyed out.")
+    UI.setAttribute("step2Subtitle", "text",
+        "Click a card to choose — taken characters are greyed out. Hover a card for the full briefing. HP = Health, HU = Hunger, SA = Sanity.")
 
     -- Grey out already-picked characters
     local taken = {}
@@ -149,20 +162,19 @@ function showCharPickForNextPlayer()
     end
 
     for btnId, charName in pairs(CHAR_BUTTON_MAP) do
+        local style = CHAR_CARD_STYLE[charName]
         if taken[charName] then
             UI.setAttribute(btnId, "interactable", "false")
-            UI.setAttribute(btnId, "color", "rgba(20,20,20,0.5)")
+            UI.setAttribute(btnId, "tooltip", charName .. " is already taken.")
+            UI.setAttribute("card" .. charName, "color", CARD_TAKEN_BG)
+            UI.setAttribute("charName_" .. charName, "color", CARD_TAKEN_NAME)
         else
             UI.setAttribute(btnId, "interactable", "true")
-            -- Restore original colors
-            local colors = {
-                pickJames  = "rgba(40,40,50,0.9)",
-                pickCoco   = "rgba(50,30,30,0.9)",
-                pickRayman = "rgba(50,50,30,0.9)",
-                pickEllie  = "rgba(30,50,30,0.9)",
-                pickLuca   = "rgba(30,30,50,0.9)",
-            }
-            UI.setAttribute(btnId, "color", colors[btnId])
+            -- Hovering anywhere on the card shows the full briefing — every
+            -- detail the post-pick page would tell you about this character.
+            UI.setAttribute(btnId, "tooltip", CHAR_BRIEFINGS[charName] or charName)
+            UI.setAttribute("card" .. charName, "color", style.bg)
+            UI.setAttribute("charName_" .. charName, "color", style.name)
         end
     end
 
@@ -204,7 +216,7 @@ end
 -----------------------------------------------------------------------
 CHAR_BRIEFINGS = {
     James = "You are James, the Gamer.\n\nYou know patterns. You see things before they happen.\n\nStrengths:\n- Gaming Reflexes: once per turn, reroll one die.\n- Pattern Recognition: once per day, peek any deck top.\n\nConstraint:\n- Wired: consume 1 Energy Drink per day or lose 2 Sanity at night.\n\nStarting hand: Energy Drink x2, Pocketknife, Flashlight, Headphones.\n\nFirst move: Gather at home — The Stash lets you take 2 Energy Drinks at once. Stock up, then use Pattern Recognition to peek at the Phase deck.",
-    Coco = "You are Coco, the Angel.\n\nYou are calm when the world isn't. You're visiting — no house of your own.\n\nStrengths:\n- Calming Presence: allies at your tile lose 1 less Sanity at Tick.\n- Touch of Hope (once per game): heal any character +4 Health.\n- Light in the Dark: never triggers Charlie attacks.\n- Wanderer's Gift: gain +1 Sanity each time you move to a new location.\n\nConstraint:\n- No Home: alone at a non-house tile at night = -3 Sanity.\n\nStarting hand: First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Battery, Friendship Bracelet.\n\nFirst move: Keep moving — your Gift rewards travel. Stick with allies at night.",
+    Coco = "You are Coco, the Angel.\n\nYou are calm when the world isn't. You're visiting — no house of your own.\n\nStrengths:\n- Calming Presence: allies at your tile lose 1 less Sanity at Tick.\n- Touch of Hope (once per game): heal any character +4 Health.\n- Light in the Dark: never triggers Charlie attacks.\n- Wanderer's Gift: gain +1 Sanity each time you move to a new location.\n\nConstraint:\n- No Home: alone at a non-house tile at night = -3 Sanity.\n\nStarting hand: First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery, Friendship Bracelet.\n\nFirst move: Keep moving — your Gift rewards travel. Stick with allies at night.",
     Rayman = "You are Rayman, the Basketball Player.\n\nFastest and toughest. You hit hard. You also eat a lot.\n\nStrengths:\n- Speed: Move 2 tiles per Move action.\n- Court Master: +1 attack die at the Basketball Court.\n- Backboard Block: Defend action shields adjacent allies.\n\nConstraints:\n- Big Appetite: lose 2 Hunger per Tick (others lose 1).\n- Loud: if you moved at all today, wherever you spend the Night draws +1 Threat. A quiet day keeps the dark away.\n\nStarting hand: Basketball, Sports Drink x2, Athletic Tape, Whistle.\n\nFirst move: Head to the Basketball Court for Wood. Watch your Hunger.",
     Ellie = "You are Ellie, the Cook.\n\nThe kitchen is your domain. You feed the team.\n\nStrengths:\n- Crockpot Master: recipes need 1 fewer ingredient (min 1).\n- Comfort Food: shared meals give +1 extra Hunger and Sanity.\n- Knows the Pantry: at your house, pick a specific resource.\n\nConstraint:\n- Particular Eater: cannot eat raw food. Must cook first.\n\nStarting hand: Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.\n\nFirst move: Gather Food with Knows the Pantry, then cook Hot Stew for the team.",
     Luca = "You are Luca, the Orator.\n\nYour words hold Sanity together when everything else falls apart.\n\nStrengths:\n- Rally: once per turn, give an adjacent ally a free action.\n- Calm Words: on Sanity-loss events at your tile, d6 — 4+ negates it.\n- Storyteller: allies at your tile gain +1 Sanity at Night.\n\nConstraint:\n- Needs an Audience: Sanity doesn't regen when alone.\n\nStarting hand: Notebook, Loud Whistle, Pep Talk, Reading Lamp, Toolbox.\n\nFirst move: Use Rally to give Ellie a free action. Stay with allies.",
@@ -218,6 +230,21 @@ function showCharBriefing(color, charName)
     UI.setAttribute("briefTitle", "text", "You are " .. charName)
     UI.setAttribute("briefBody", "text", text)
     UI.show("charBriefing")
+end
+
+-- Go Back: return the just-picked character to the pool and reopen the
+-- Step 2 pick for the same player.
+function onBriefBack(player, value, id)
+    UI.hide("charBriefing")
+    local color = setupState.briefingColor
+    if color and setupState.charPicks[color] then
+        broadcastEvent("proc", setupState.charPicks[color] .. " returned to the pool — " ..
+            color .. " is picking again.")
+        setupState.charPicks[color] = nil
+        table.insert(setupState.pendingColors, 1, color)
+    end
+    setupState.step = 2
+    showCharPickForNextPlayer()
 end
 
 function onBriefDismiss(player, value, id)
@@ -256,29 +283,18 @@ function finalizeGuidedSetup()
         if deck then deck.shuffle() end
     end
 
-    -- 3. Market
-    local marketDeck = getMarketDeck()
-    if marketDeck then
-        marketDeck.shuffle()
-        Wait.time(function()
-            local slots = getMarketSlots()
-            for i, slot in ipairs(slots) do
-                if marketDeck and marketDeck.getQuantity() > 0 then
-                    marketDeck.takeObject({
-                        position = slot.getPosition() + Vector(0, 1, 0),
-                        rotation = {0, 180, 0},
-                        smooth = true,
-                    })
-                end
-            end
-        end, 0.5)
-    end
+    -- 3. Market — deal the display row (empty slots only; re-setup safe)
+    dealMarketDisplay()
 
     -- 4. Threat deck
     local threatDeck = getThreatDeck()
     if threatDeck then threatDeck.shuffle() end
 
-    -- 5. Assign characters per picks
+    -- 5. Assign characters per picks. Wipe the previous party first so a
+    -- re-setup can never leave stale characters in the roster.
+    gameState.activeChars = {}
+    gameState.dailyAlerts = {}
+
     local seated = {}
     for color, _ in pairs(setupState.charPicks) do
         table.insert(seated, color)
@@ -305,14 +321,16 @@ function finalizeGuidedSetup()
             signatureUsed = false,   -- Signature Move (§6.7): one per game
         }
 
-        local standee = getCharacterStandee(charName)
-        local tile = getLocationTile(home)
-        if standee and tile then
-            standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
-        end
+        placeCharacterAtTile(charName, home)
 
         broadcastEvent("proc", charName .. " assigned to " .. color .. ".")
     end
+
+    -- Characters nobody picked leave the map for the bench.
+    safecall(function() benchUnusedCharacters() end, "Bench")
+
+    -- Starting hands: each character's personal items into their hand.
+    safecall(function() dealStartingHands() end, "StartingHands")
 
     -- 5.5. Optional Scenario (§17.3) — applied now that the characters
     -- exist, because some scenarios modify character stats (e.g. Summer's

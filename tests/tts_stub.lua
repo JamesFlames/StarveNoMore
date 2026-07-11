@@ -342,6 +342,8 @@ function UI.getValue(id) return UI.getAttribute(id, "text") end
 function UI.setClass(id, v) return UI.setAttribute(id, "class", v) end
 function UI.setXml(_xml) return true end
 function UI.getXml() return "" end
+function UI.setCustomAssets(assets) TTS.ui.customAssets = assets; return true end
+function UI.getCustomAssets() return TTS.ui.customAssets or {} end
 
 -- ---------------------------------------------------------------------------
 -- Players

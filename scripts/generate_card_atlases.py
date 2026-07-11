@@ -60,6 +60,7 @@ PALETTE = {
     "threat":      (85, 40, 40),       # Threat — blood red
     "visitor":     (55, 75, 90),       # Visitor — sky blue
     "trophy":      (90, 80, 40),       # Trophy — burnished gold
+    "starting":    (70, 65, 90),       # Starting item — dusk violet
 }
 
 # ---------------------------------------------------------------------------
@@ -359,6 +360,26 @@ def render_visitor_card(row):
     draw_card_id_footer(draw, card_id)
     return img
 
+def render_starting_card(row):
+    img = Image.new("RGB", (CARD_W, CARD_H), PALETTE["bg"])
+    draw = ImageDraw.Draw(img)
+    accent = PALETTE["starting"]
+    card_id = row.get("id", "")
+
+    paste_card_art(img, card_id, accent)
+    draw_text_panel(img, draw, accent)
+
+    y = draw_title_row(draw, row.get("name", "?"), accent)
+    y = draw_kicker(draw, f"STARTING ITEM • {row.get('character', '?')}", accent, y)
+
+    effect = (row.get("effect") or "").strip()
+    if effect:
+        draw_wrapped_text(draw, 12, y, effect,
+                          FONT_BODY, PALETTE["text"], CARD_W - 24, max_lines=6)
+
+    draw_card_id_footer(draw, card_id)
+    return img
+
 def render_trophy_card(row):
     img = Image.new("RGB", (CARD_W, CARD_H), PALETTE["bg"])
     draw = ImageDraw.Draw(img)
@@ -507,6 +528,10 @@ def main():
                render_with_count(render_trophy_card, read_csv("cards_trophies.csv")))
     render_card_back("TROPHY", "trophy").save(os.path.join(OUT, "trophy_back.png"))
 
+    build_deck("cards_starting.csv", "starting", "Starting items",
+               render_with_count(render_starting_card, read_csv("cards_starting.csv")))
+    render_card_back("STARTING", "starting").save(os.path.join(OUT, "starting_back.png"))
+
     manifest_path = os.path.join(OUT, "atlas_manifest.json")
     with open(manifest_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, indent=2, sort_keys=True)
@@ -516,7 +541,7 @@ def main():
     print()
     print(f"Illustrations: {art_present} present, {art_missing} missing (using fallback rectangles)")
     print(f"All atlases written to: {OUT}")
-    print("Total: 9 face atlases + 9 back images = 18 files")
+    print("Total: 10 face atlases + 10 back images = 20 files")
 
 if __name__ == "__main__":
     main()

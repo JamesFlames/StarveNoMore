@@ -1,6 +1,13 @@
 -- setup.lua  (F.3 — Setup flow, bare-bones without UX walkthrough)
 
 function Setup(hostColor)
+    -- Guard: a second Setup on a running game would re-deal the Market and
+    -- overwrite the picked party with the default seat assignment.
+    if gameState.started then
+        broadcastEvent("damage", "Game already started. Click Restart first.")
+        return
+    end
+
     broadcastEvent("phase", "Setting up Starve No More...")
 
     -- 1. Pick a random path-edge variant
@@ -15,30 +22,18 @@ function Setup(hostColor)
         if deck then deck.shuffle() end
     end
 
-    -- 3. Shuffle and deal Market
-    local marketDeck = getMarketDeck()
-    if marketDeck then
-        marketDeck.shuffle()
-        -- Deal 5 face-up to the display (handled by the display slots)
-        Wait.time(function()
-            local slots = getMarketSlots()
-            for i, slot in ipairs(slots) do
-                if marketDeck and marketDeck.getQuantity() > 0 then
-                    marketDeck.takeObject({
-                        position = slot.getPosition() + Vector(0, 1, 0),
-                        rotation = {0, 180, 0},  -- face-up
-                        smooth   = true,
-                    })
-                end
-            end
-        end, 0.5)
-    end
+    -- 3. Shuffle and deal Market display (empty slots only)
+    dealMarketDisplay()
 
     -- 4. Shuffle Threat deck
     local threatDeck = getThreatDeck()
     if threatDeck then threatDeck.shuffle() end
 
-    -- 5. Assign characters to seated players
+    -- 5. Assign characters to seated players. Wipe the previous party
+    -- first so a re-setup can never leave stale characters around.
+    gameState.activeChars = {}
+    gameState.dailyAlerts = {}
+
     local seated = getActivePlayerColors()
     gameState.playerCount = #seated
     gameState.turnOrder = seated
@@ -66,17 +61,18 @@ function Setup(hostColor)
                 signatureUsed = false,   -- Signature Move (§6.7): one per game
             }
 
-            -- Move standee to starting location
-            local standee = getCharacterStandee(charName)
-            local tile = getLocationTile(home)
-            if standee and tile then
-                local pos = tile.getPosition() + Vector(0, 1.5, 0)
-                standee.setPositionSmooth(pos)
-            end
+            -- Move standee to its per-character slot at the home tile
+            placeCharacterAtTile(charName, home)
 
             broadcastEvent("proc", charName .. " assigned to " .. color .. ".")
         end
     end
+
+    -- Characters nobody is playing leave the map for the bench.
+    safecall(function() benchUnusedCharacters() end, "Bench")
+
+    -- Starting hands: each character's personal items into their hand.
+    safecall(function() dealStartingHands() end, "StartingHands")
 
     -- 6. Set Day=1, Doom=0
     gameState.day = 1
@@ -117,6 +113,73 @@ function Setup(hostColor)
     end, 1.0)
 end
 
+-----------------------------------------------------------------------
+-- Starting hands (design §6): each character's personal item deck is
+-- dealt into their player's hand. James's two Energy Drinks are resource
+-- tokens (his Wired economy runs on tokens), placed beside his board.
+-- Re-setup safe: a consumed deck simply no longer exists to deal.
+-----------------------------------------------------------------------
+function dealStartingHands()
+    for color, char in pairs(gameState.activeChars) do
+        local deck = findOneByTag("StartingHand:" .. char.name)
+        if deck then
+            deck.deal(deck.getQuantity(), color)
+            broadcastToColor(char.name .. "'s starting items are in your hand — hover each card to see what it does.",
+                color, BROADCAST_COLORS.gain)
+        end
+        if char.name == "James" then
+            local bag = getResourceBag("EnergyDrink")
+            local board = getPlayerBoard("James")
+            if bag and board then
+                for i = 1, 2 do
+                    bag.takeObject({
+                        position = board.getPosition() + Vector(-2.6, 0.8 + i * 0.4, 0),
+                        smooth   = true,
+                    })
+                end
+                broadcastToColor("James starts with 2 Energy Drink tokens by his player board — Wired burns one per day.",
+                    color, BROADCAST_COLORS.warn)
+            end
+        end
+    end
+end
+
+-----------------------------------------------------------------------
+-- Market display: deal a card to every EMPTY display slot. Safe to call
+-- on a re-setup — occupied slots are skipped, so cards never double-deal
+-- and pile up (they used to scatter across the day counter).
+-----------------------------------------------------------------------
+local function _slotOccupied(slotPos)
+    for _, card in ipairs(findAllByTag("MarketCard")) do
+        if card.type == "Card" then
+            local p = card.getPosition()
+            local dx, dz = p.x - slotPos.x, p.z - slotPos.z
+            if (dx * dx + dz * dz) < 4 then return true end
+        end
+    end
+    return false
+end
+
+function dealMarketDisplay()
+    local marketDeck = getMarketDeck()
+    if not marketDeck then return end
+    marketDeck.shuffle()
+    Wait.time(function()
+        local deck = getMarketDeck()
+        if not deck then return end
+        for _, slot in ipairs(getMarketSlots()) do
+            local slotPos = slot.getPosition()
+            if not _slotOccupied(slotPos) and deck.getQuantity() > 0 then
+                deck.takeObject({
+                    position = slotPos + Vector(0, 1, 0),
+                    rotation = {0, 180, 0},  -- face-up
+                    smooth   = true,
+                })
+            end
+        end
+    end, 0.5)
+end
+
 function moveDoomMarker(targetStep)
     local marker = getDoomMarker()
     if not marker then return end
@@ -143,7 +206,7 @@ function createDayButton()
         click_function = "onBeginDayClick",
         function_owner = Global,
         label          = "Begin Day",
-        position       = {0, 0.5, -2},
+        position       = {0, 0.5, -0.95},  -- board-local; scaled x12 → just south of the courts
         rotation       = {0, 0, 0},
         width          = 2000,
         height         = 500,

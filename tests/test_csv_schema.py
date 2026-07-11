@@ -20,6 +20,7 @@ SCHEMAS = {
     "cards_scenarios.csv": (["id", "name", "season", "effect", "ongoing"], r"SC_[A-Z0-9_]+"),
     "locations.csv": (["id", "name", "yields", "special", "sanity_modifier", "defense", "threat_rate", "house_owner"], r"L_[A-Z0-9_]+"),
     "resources.csv": (["id", "name", "color", "icon", "tag", "sources", "uses"], r"R_[A-Z0-9_]+"),
+    "cards_starting.csv": (["id", "character", "name", "count", "effect"], r"S_[A-Z0-9_]+"),
 }
 
 CSV_FILES = sorted(SCHEMAS)
@@ -97,6 +98,28 @@ def test_resource_tags_well_formed():
         tag = (r["tag"] or "").strip()
         if not re.fullmatch(r"Resource:[A-Za-z]+", tag):
             problems.append(f"{r['id']}: tag {tag!r} is not of the form Resource:<Name>")
+    assert not problems, "\n".join(problems)
+
+
+def test_starting_items_characters_and_counts():
+    """Every starting item belongs to a real character with a sane copy
+    count, and every character actually has a starting hand."""
+    valid_chars = {"James", "Coco", "Rayman", "Ellie", "Luca"}
+    per_char = {}
+    problems = []
+    for r in read_csv_rows("cards_starting.csv"):
+        char = (r["character"] or "").strip()
+        if char not in valid_chars:
+            problems.append(f"{r['id']}: unknown character {char!r}")
+            continue
+        count = (r["count"] or "").strip()
+        if not count.isdigit() or not (1 <= int(count) <= 3):
+            problems.append(f"{r['id']}: count {count!r} (expected 1..3)")
+            continue
+        per_char[char] = per_char.get(char, 0) + int(count)
+    for char in sorted(valid_chars):
+        if per_char.get(char, 0) < 3:
+            problems.append(f"{char}: only {per_char.get(char, 0)} starting cards (expected 3+)")
     assert not problems, "\n".join(problems)
 
 

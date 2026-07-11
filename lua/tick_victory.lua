@@ -283,7 +283,7 @@ function ghostDrift(color, newLocation)
     local standee = getCharacterStandee(char.name)
     local tile = getLocationTile(newLocation)
     if standee and tile then
-        standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
+        standee.setPositionSmooth(getCharSlotPosition(tile, char.name))
     end
 end
 

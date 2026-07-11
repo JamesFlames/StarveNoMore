@@ -34,13 +34,10 @@ end
 
 -----------------------------------------------------------------------
 -- G.10 — Host control panel handlers
+-- (The old onHostSetup, which ran the bare seat-order Setup(), is gone:
+-- every UI path now goes through the guided walkthrough. The bare
+-- Setup() remains for tests and console use only.)
 -----------------------------------------------------------------------
-function onHostSetup(player, value, id)
-    safecall(function() Setup(player.color) end, "Setup")
-    refreshPhaseBanner()
-    updateActivePlayerIndicator()
-end
-
 function onHostBeginDay(player, value, id)
     if not gameState.started then
         broadcastToColor("Run Setup first.", player.color, BROADCAST_COLORS.damage)
@@ -103,6 +100,11 @@ function onHostRestart(player, value, id)
             UI.hide("actionBar")
             UI.hide("statDisplay")
             UI.hide("duskPanel")
+
+            -- Restore the board's 3D Setup button (cleared when clicked).
+            local board = getMainBoard()
+            if board then board.clearButtons() end
+            safecall(function() createSetupButton() end, "SetupButton")
         end
     )
 end
@@ -368,6 +370,8 @@ TOOLTIP_DATA = {
     ["VisitorCardDeck"]      = "Visitor Deck. Absent characters may arrive via Dawn cards.",
     -- Supply
     ["TelltaleHeartSupply"]  = "Telltale Hearts (5 max). Cook: 1 Cloth + 1 Battery + 1 Food + 2 Health. Use to revive a Down character.",
+    ["ResourceBag"]          = "Resource supply bag. You never dig in here yourself — the Gather action (and card rewards) hand you tokens from it automatically.",
+    ["PathVariant"]          = "Decorative path tiles for an alternate map layout. Safe to ignore during play.",
     -- Locations
     ["Location:JamesHouse"]       = "James's House. Yields: Energy Drink, Battery, Junk Food. The Den: free trade once/day.",
     ["Location:RaymanHouse"]      = "Rayman's House. Yields: Sports Equipment, Sports Drink. The Garage: Rest +1 Health.",

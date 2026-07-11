@@ -93,9 +93,31 @@ def bundle():
     return lua_bundle()
 
 
+def parse_xml_load_order():
+    """Parse XML_LOAD_ORDER out of build_save.py (same reason as the Lua one)."""
+    src = read_text(os.path.join(SCRIPTS, "build_save.py"))
+    m = re.search(r"XML_LOAD_ORDER\s*=\s*\[(.*?)\]", src, re.S)
+    assert m, "XML_LOAD_ORDER not found in build_save.py"
+    files = re.findall(r'"([^"]+\.xml)"', m.group(1))
+    assert files, "XML_LOAD_ORDER parsed empty"
+    return files
+
+
+def all_xml_files():
+    """Every xml/ file, ordered as build_save.py concatenates them."""
+    order = parse_xml_load_order()
+    extras = sorted(fn for fn in os.listdir(XML_DIR)
+                    if fn.endswith(".xml") and fn not in order)
+    for fn in order:
+        assert os.path.isfile(os.path.join(XML_DIR, fn)), (
+            f"file in XML_LOAD_ORDER missing on disk: {fn}")
+    return order + extras
+
+
 @pytest.fixture(scope="session")
 def xml_source():
-    return read_text(os.path.join(XML_DIR, "global_ui.xml"))
+    """The concatenated global UI XML exactly as build_save.py assembles it."""
+    return "\n".join(read_text(os.path.join(XML_DIR, fn)) for fn in all_xml_files())
 
 
 # --------------------------------------------------------------------------
@@ -112,6 +134,7 @@ CSV_FOR_PREFIX = {
     "TR": "cards_trophies.csv",
     "V": "cards_visitors.csv",
     "SC": "cards_scenarios.csv",
+    "S": "cards_starting.csv",
     # "R" is ambiguous: recipes (R_HOT_STEW) and resources (R_WOOD) share it,
     # so R_* membership is checked against the union of both files.
 }

@@ -2,6 +2,22 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Starting hands + robustness program (2026-07)
+
+- **Starting hands are real now.** Each character's personal items (design §6: Pocketknife/Flashlight/Headphones, First Aid Kit/Comfort Blanket/…, Basketball/Sports Drinks/…, Crockpot/Cooking Knife/…, Notebook/Pep Talk/…) exist as cards — authored in `content/cards_starting.csv`, rendered into a 10th deck atlas, built into per-character decks in the save, and dealt into each player's hand at setup (`dealStartingHands`). James's Energy Drink ×2 arrive as resource **tokens** by his board (Wired runs on tokens). His starting Flashlight counts for the night light check (nickname match).
+- **Printed weapon dice are script-rolled.** `getAttackDice` had a TODO where equipment should have counted; `WEAPON_DICE` is now generated from "+N Attack die" card text (market + starting CSVs) and combat adds the best single carried weapon automatically.
+- **Robustness program** (see `robustnessimprovements.md` for the full list & status): new test gates for XML well-formedness, literal `\n`, TTS-parseable colors (the white-panel bug class, checked in XML *and* Lua), image↔CustomUIAssets↔disk, dynamic per-character UI ids, luacheck (skips if not installed; CI runs it), TOOLTIP_DATA↔save tags, standee-slot constant mirror, starting-decks↔CSV; `onLoad` survives a corrupt saved state (pcall + fresh start); the dead bare-setup handler is gone; the hand+board "carried objects" scan is one shared helper for lights and weapons.
+
+## Playtest UX fixes — first live-table feedback (2026-07)
+
+No rule changes. Everything below came out of the first real sit-down:
+
+- **Every UI color fixed at the root**: the XML/Lua wrote colors as `rgba(30,40,30,0.9)`-style 0–255 values, but TTS parses rgba() components as 0–1 floats — so every "dark" panel and button clamped to white and its pale text was unreadable ("What now?", "End Turn / Pass", the entire setup walkthrough). All 123 occurrences converted to `#RRGGBBAA` hex; the HUD is now actually dark.
+- **Setup walkthrough restyled** as light "rulebook pages" with dark text. Step 2 became portrait cards (standee art, big bold name, role/stats/abilities/constraint); hovering a card shows that character's full briefing; literal `\n`s in labels render as real line breaks. The briefing page gained **Go Back — change character**.
+- **The board's 3D Setup button now runs the guided walkthrough.** It used to fire the bare seat-order `Setup()`, which re-dealt the Market and silently replaced the picked party with the default seat assignment (the "picked Rayman/Coco/James, roster says James/Ellie/Luca" bug). Both setup paths now refuse to run on a started game and wipe the previous party before assigning.
+- **Physical setup untangled**: every character owns a fixed standee slot on each tile (no more stacked standees at Ellie & Luca's); the market display is a spaced, locked column on the board's left flank (dealt cards no longer shove each other around, bury the Day Counter, or clip the board edge); the market deal skips occupied slots; unpicked characters move to an off-board bench.
+- **Smaller reads**: the Party roster sizes itself to the actual party; the phase banner sits below the TTS menu bar; HP/HU/SA labels explain the stats on hover; supply bags say that Gather draws from them automatically.
+
 ## Framework improvements (2026-07)
 
 No rule changes. Workshop hardening (the framework-improvements pass; planning doc since retired — this entry is its record): constant-mirror tests (bosses, thresholds, Cleanse, difficulty), `RECIPE_DATA`/`SEALED_REWARDS` now generated from CSV columns, atlas grids derived from card counts via `art/decks/atlas_manifest.json`, the `gameRoll` RNG seam, a TTS-stub divergence ledger, `SYMBOLS.md` + luacheck config, full-campaign bot/fuzz tests, save `SCHEMA_VERSION` + migration + frozen fixture, session-log analyzer, CI lint/artifact jobs. Fixed in passing: a malformed `T_CLOCK_STOPS` CSV row that had shifted its art note out of column. Follow-up: the in-game Notebook/Help text is now generated from `content/` markdown (`generate_notebook.py`) — previously three hand-copied versions, two of them stale.

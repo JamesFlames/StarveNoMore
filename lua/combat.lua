@@ -239,8 +239,26 @@ function getAttackDice(color)
     -- being afraid — +1 attack die for everyone, all combat.
     if gameState.ongoingDawnEffects.doom25 then dice = dice + 1 end
 
-    -- Equipment bonuses would be checked via hand zone / item tags
-    -- For now, broadcast a reminder
+    -- Weapons: cards print "+N Attack die"; WEAPON_DICE (auto-generated
+    -- from the card CSVs by generate_market_data.py) lets the script roll
+    -- them. Only the best single carried weapon counts — no stacking.
+    local bonus, weaponName = 0, nil
+    safecall(function()
+        for _, obj in ipairs(getPlayerCarriedObjects(color, char.name)) do
+            for id, n in pairs(WEAPON_DICE or {}) do
+                if obj.hasTag and obj.hasTag(id) and n > bonus then
+                    bonus = n
+                    weaponName = (obj.getNickname and obj.getNickname()) or id
+                end
+            end
+        end
+    end, "WeaponDice")
+    if bonus > 0 then
+        dice = dice + bonus
+        broadcastEvent("proc", char.name .. "'s " .. (weaponName or "weapon") ..
+            " adds +" .. bonus .. " attack " .. (bonus == 1 and "die" or "dice") .. ".")
+    end
+
     return dice
 end
 

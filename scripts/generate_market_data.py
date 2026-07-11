@@ -1,15 +1,24 @@
 """
-Parse content/cards_market.csv → lua/market_data.lua
+Parse content/cards_market.csv (+ cards_starting.csv) → lua/market_data.lua
 
 The market CSV's cost column is plain English ("1 Metal + 1 Battery").
 This script tokenises each cost into a Lua sub-table so ui_actionbar.lua
 can compare it against a player's resource counts when highlighting which
 Market cards are currently affordable.
 
+It also parses "+N Attack die/dice" out of the effect column of BOTH the
+market and starting-item CSVs, so combat.lua can roll printed weapon
+bonuses automatically instead of leaving them to table memory.
+
 Output structure:
     MARKET_COSTS = {
         M_FLASHLIGHT = { Metal = 1, Battery = 1 },
         M_CROWBAR    = { Metal = 2, Wood = 1 },
+        ...
+    }
+    WEAPON_DICE = {
+        M_CROWBAR    = 1,
+        S_BASKETBALL = 1,
         ...
     }
 
@@ -23,7 +32,11 @@ import re
 
 REPO_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 CSV_PATH   = os.path.join(REPO_ROOT, "content", "cards_market.csv")
+STARTING_CSV_PATH = os.path.join(REPO_ROOT, "content", "cards_starting.csv")
 LUA_PATH   = os.path.join(REPO_ROOT, "lua", "market_data.lua")
+
+# "+1 Attack die" / "+2 Attack dice" in an effect column marks a weapon.
+ATTACK_DIE_RE = re.compile(r"\+(\d+)\s+Attack\s+(?:die|dice)", re.I)
 
 # Canonical token tag suffixes used by build_save.py (Resource:<Type>).
 RESOURCE_KEYS = {"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}
@@ -71,6 +84,7 @@ def main():
         raise SystemExit(f"missing source: {CSV_PATH}")
 
     rows = []
+    weapons = []   # (card_id, name, dice) from market + starting CSVs
     with open(CSV_PATH, "r", encoding="utf-8", newline="") as f:
         for row in csv.DictReader(f):
             cid = (row.get("id") or "").strip()
@@ -79,6 +93,17 @@ def main():
             cost_str = (row.get("cost") or "").strip()
             cost = parse_cost(cost_str)
             rows.append((cid, row.get("name", ""), cost_str, cost))
+            m = ATTACK_DIE_RE.search(row.get("effect") or "")
+            if m:
+                weapons.append((cid, row.get("name", ""), int(m.group(1))))
+
+    if os.path.isfile(STARTING_CSV_PATH):
+        with open(STARTING_CSV_PATH, "r", encoding="utf-8", newline="") as f:
+            for row in csv.DictReader(f):
+                cid = (row.get("id") or "").strip()
+                m = ATTACK_DIE_RE.search(row.get("effect") or "")
+                if cid and m:
+                    weapons.append((cid, row.get("name", ""), int(m.group(1))))
 
     L = []
     L.append("-- market_data.lua")
@@ -106,6 +131,16 @@ def main():
         L.append(f"MARKET_COSTS.{cid} = {{ {items} }}")
 
     L.append("")
+    L.append("-- WEAPON_DICE[card_id] = printed attack-die bonus, parsed from the")
+    L.append('-- effect text ("+N Attack die"). combat.lua getAttackDice adds the')
+    L.append("-- best single carried weapon automatically.")
+    L.append("")
+    L.append("WEAPON_DICE = {}")
+    L.append("")
+    for cid, name, dice in sorted(weapons):
+        L.append(f"WEAPON_DICE.{cid} = {dice}  -- {name}")
+
+    L.append("")
 
     os.makedirs(os.path.dirname(LUA_PATH), exist_ok=True)
     with open(LUA_PATH, "w", encoding="utf-8", newline="\n") as f:
@@ -114,6 +149,7 @@ def main():
     print(f"wrote {os.path.relpath(LUA_PATH, REPO_ROOT)}")
     print(f"  cards with token costs: {parsed_count}")
     print(f"  cards with no token costs (free / body-cost only): {skipped_count}")
+    print(f"  weapons with printed attack dice: {len(weapons)}")
 
 
 if __name__ == "__main__":

@@ -45,7 +45,7 @@ function doUndo(color)
         local standee = getCharacterStandee(char.name)
         local tile = getLocationTile(snap.location)
         if standee and tile then
-            standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
+            standee.setPositionSmooth(getCharSlotPosition(tile, char.name))
         end
     end
 
@@ -105,7 +105,7 @@ function doMove(color, targetLocation)
     local standee = getCharacterStandee(char.name)
     local tile = getLocationTile(targetLocation)
     if standee and tile then
-        standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
+        standee.setPositionSmooth(getCharSlotPosition(tile, char.name))
     end
 
     -- Audio cues: walk SFX always; meet SFX if another character is already
@@ -161,7 +161,7 @@ function doRaymanBonusMove(color, targetLocation)
     local standee = getCharacterStandee(char.name)
     local tile = getLocationTile(targetLocation)
     if standee and tile then
-        standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
+        standee.setPositionSmooth(getCharSlotPosition(tile, char.name))
     end
 
     safecall(function() checkWrongnessEntry(color) end, "Wrongness")
@@ -239,7 +239,7 @@ function doDuskMove(color, targetLocation)
     local standee = getCharacterStandee(char.name)
     local tile = getLocationTile(targetLocation)
     if standee and tile then
-        standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
+        standee.setPositionSmooth(getCharSlotPosition(tile, char.name))
     end
 
     safecall(function() checkWrongnessEntry(color) end, "Wrongness")
@@ -421,7 +421,7 @@ function doFlee(color, targetLocation)
     local standee = getCharacterStandee(char.name)
     local tile = getLocationTile(targetLocation)
     if standee and tile then
-        standee.setPositionSmooth(tile.getPosition() + Vector(0, 1.5, 0))
+        standee.setPositionSmooth(getCharSlotPosition(tile, char.name))
     end
 
     safecall(function() checkWrongnessEntry(color) end, "Wrongness")

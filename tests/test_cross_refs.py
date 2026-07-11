@@ -134,6 +134,7 @@ DECK_FACES = {
     "cards_threats.csv": "threat_face.png",
     "cards_visitors.csv": "visitor_face.png",
     "cards_trophies.csv": "trophy_face.png",
+    "cards_starting.csv": "starting_face.png",
 }
 
 
@@ -209,7 +210,7 @@ def test_built_save_grids_match_manifest():
 # Card ids hardcoded in Lua must exist in the CSVs
 # --------------------------------------------------------------------------
 
-CARD_ID_RE = re.compile(r'"((?:P[1-4]|M|R|T|TR|V|SC)_[A-Z][A-Z0-9_]*)"')
+CARD_ID_RE = re.compile(r'"((?:P[1-4]|M|R|T|TR|V|SC|S)_[A-Z][A-Z0-9_]*)"')
 
 
 def test_hardcoded_card_ids_exist(card_ids):
@@ -239,6 +240,101 @@ def test_market_costs_cover_market_deck():
     orphans = sorted(cost_ids - csv_ids)
     assert not missing, f"market cards with no MARKET_COSTS entry (canAfford breaks): {missing}"
     assert not orphans, f"MARKET_COSTS entries for nonexistent cards: {orphans}"
+
+
+# --------------------------------------------------------------------------
+# Built-save object contracts: tooltip tags, starting-hand decks, slot mirror
+# --------------------------------------------------------------------------
+
+def _load_built_save():
+    from conftest import ROOT
+    save_path = os.path.join(ROOT, "saves", "StarveNoMore.json")
+    assert os.path.isfile(save_path), "saves/StarveNoMore.json missing — run build_save.py"
+    with open(save_path, "r", encoding="utf-8") as f:
+        return _json.load(f)
+
+
+def _all_save_tags(save):
+    tags = set()
+
+    def walk(node):
+        if isinstance(node, dict):
+            for t in node.get("Tags", []) or []:
+                tags.add(t)
+            for key in ("ObjectStates", "ContainedObjects"):
+                for child in node.get(key, []) or []:
+                    walk(child)
+            for sp in node.get("AttachedSnapPoints", []) or []:
+                for t in sp.get("Tags", []) or []:
+                    tags.add(t)
+
+    walk({"ObjectStates": save.get("ObjectStates", [])})
+    return tags
+
+
+def test_tooltip_data_tags_exist_in_save():
+    """Every TOOLTIP_DATA key must be a tag some object in the built save
+    actually carries — otherwise applyTooltips() silently does nothing for it."""
+    src = read_text(os.path.join(LUA_DIR, "ui_controls.lua"))
+    m = re.search(r"TOOLTIP_DATA\s*=\s*\{(.*?)\n\}", src, re.S)
+    assert m, "TOOLTIP_DATA table not found in ui_controls.lua"
+    keys = set(re.findall(r'\["([^"]+)"\]\s*=', m.group(1)))
+    assert keys, "no TOOLTIP_DATA keys parsed (format changed? update test)"
+
+    tags = _all_save_tags(_load_built_save())
+    missing = sorted(k for k in keys if k not in tags)
+    assert not missing, f"TOOLTIP_DATA keys matching no object tag in the save: {missing}"
+
+
+def test_starting_hand_decks_in_save_match_csv():
+    """One StartingHand:<name> deck per character, holding exactly the CSV's
+    cards (count column included)."""
+    expected = {}
+    for r in read_csv_rows("cards_starting.csv"):
+        expected[r["character"]] = expected.get(r["character"], 0) + int(r["count"])
+
+    save = _load_built_save()
+    found = {}
+    for obj in save.get("ObjectStates", []):
+        for tag in obj.get("Tags", []):
+            m = re.match(r"StartingHand:(\w+)$", tag)
+            if m:
+                found[m.group(1)] = len(obj.get("ContainedObjects", []))
+
+    assert found == expected, (
+        f"starting-hand decks in the save {found} != cards_starting.csv {expected} — "
+        "rerun scripts/build_save.py (and generate_card_atlases.py if counts changed)")
+
+
+def test_char_slot_offsets_mirror_helpers():
+    """build_save.py bakes initial standee positions with CHAR_SLOT_X/Z;
+    lua/helpers.lua recomputes the same slots at runtime (getCharSlotPosition).
+    If they drift, standees teleport at the first move."""
+    helpers = read_text(os.path.join(LUA_DIR, "helpers.lua"))
+    m = re.search(
+        r"Vector\(\s*(-?[\d.]+)\s*\+\s*i\s*\*\s*([\d.]+)\s*,\s*[\d.]+\s*,\s*(-?[\d.]+)\s*\)",
+        helpers)
+    assert m, "getCharSlotPosition offset expression not found in helpers.lua (update test)"
+    base_x, step, z = float(m.group(1)), float(m.group(2)), float(m.group(3))
+
+    idx = dict(re.findall(r"(\w+)\s*=\s*(\d)", re.search(
+        r"CHAR_SLOT_INDEX\s*=\s*\{(.*?)\}", helpers, re.S).group(1)))
+    assert set(idx) == {"James", "Coco", "Rayman", "Ellie", "Luca"}
+
+    build = read_text(os.path.join(SCRIPTS, "build_save.py"))
+    bx = dict(re.findall(r'"(\w+)":\s*(-?[\d.]+)', re.search(
+        r"CHAR_SLOT_X\s*=\s*\{(.*?)\}", build, re.S).group(1)))
+    bz = float(re.search(r"CHAR_SLOT_Z\s*=\s*(-?[\d.]+)", build).group(1))
+
+    problems = []
+    if abs(bz - z) > 1e-9:
+        problems.append(f"CHAR_SLOT_Z {bz} != helpers z {z}")
+    for name, i in idx.items():
+        expected_x = base_x + int(i) * step
+        got = bx.get(name)
+        if got is None or abs(float(got) - expected_x) > 1e-9:
+            problems.append(f"{name}: build_save x {got} != helpers slot {expected_x}")
+    assert not problems, "\n".join(problems)
 
 
 # --------------------------------------------------------------------------

@@ -212,10 +212,14 @@ end
 
 function onLoad(savedState)
     if savedState and savedState ~= "" then
-        local decoded = JSON.decode(savedState)
-        if decoded then
+        -- pcall: a corrupt saved state must not kill the whole mod script —
+        -- fall back to a fresh game and say so.
+        local ok, decoded = pcall(function() return JSON.decode(savedState) end)
+        if ok and decoded then
             gameState = decoded
             migrateGameState()
+        else
+            broadcastToAll("Could not read the saved game state — starting fresh.", {1, 0.6, 0.4})
         end
     end
 
@@ -269,6 +273,12 @@ function createSetupButton()
 end
 
 function onSetupClick(obj, playerColor, altClick)
+    -- Route through the guided walkthrough — the bare Setup() would assign
+    -- characters by seat color and ignore the players' picks.
+    if gameState.started then
+        broadcastToColor("Game already started. Click Restart first.", playerColor, BROADCAST_COLORS.damage)
+        return
+    end
     obj.clearButtons()
-    safecall(function() Setup(playerColor) end, "Setup")
+    safecall(function() startGuidedSetup(playerColor) end, "Setup")
 end

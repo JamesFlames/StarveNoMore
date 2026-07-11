@@ -53,7 +53,7 @@ historical references; do not link to them from new documentation.
 - Six of the Lua files in that list are **auto-generated** and should never be edited by hand:
   - `lua/audio_manifest.lua`  — built by `scripts/generate_audio_manifest.py` from the `sounds/` tree
   - `lua/whatnow_hints.lua`   — built by `scripts/generate_whatnow_hints.py` from `content/help/whatnow_hints.md`
-  - `lua/market_data.lua`     — built by `scripts/generate_market_data.py` from `content/cards_market.csv`
+  - `lua/market_data.lua`     — built by `scripts/generate_market_data.py` from `content/cards_market.csv` + `cards_starting.csv` (`MARKET_COSTS` for affordability + `WEAPON_DICE` parsed from "+N Attack die" effect text)
   - `lua/threat_types.lua`    — built by `scripts/generate_threat_types.py` from `content/cards_threats.csv` (`THREAT_TYPE_BY_NAME` for the Night Sounds peek + `SEALED_REWARDS` from the `pry_reward` column)
   - `lua/recipe_data.lua`     — built by `scripts/generate_recipe_data.py` from `content/cards_recipes.csv` (`RECIPE_DATA` from the structured `script` column)
   - `lua/notebook_data.lua`   — built by `scripts/generate_notebook.py` from `content/notebook/*.md` + `content/help/glossary.md` (the in-game Notebook tabs and Help-panel text; build_save.py reuses its `md_to_text` for the Quick Start notecard)
@@ -79,7 +79,7 @@ StarveNoMore/
 │   ├── audio_manifest.lua      # AUTO-GENERATED — track URLs + durations (AUDIO table)
 │   ├── audio.lua               # Audio.startDayAmbience / playBossLoop / playChime / playWalk / playMeet / playTradeChat / playDeath / playSFX
 │   ├── whatnow_hints.lua       # AUTO-GENERATED — WHATNOW_HINTS table from markdown
-│   ├── market_data.lua         # AUTO-GENERATED — MARKET_COSTS table from cards_market.csv
+│   ├── market_data.lua         # AUTO-GENERATED — MARKET_COSTS + WEAPON_DICE from cards_market.csv + cards_starting.csv
 │   ├── threat_types.lua        # AUTO-GENERATED — THREAT_TYPE_BY_NAME + SEALED_REWARDS from cards_threats.csv
 │   ├── recipe_data.lua         # AUTO-GENERATED — RECIPE_DATA from cards_recipes.csv (script column)
 │   ├── notebook_data.lua       # AUTO-GENERATED — Notebook/Help text from content/notebook/*.md + glossary.md
@@ -115,6 +115,7 @@ StarveNoMore/
 │   ├── cards_visitors.csv
 │   ├── cards_trophies.csv
 │   ├── cards_scenarios.csv     # 8 optional week-long Scenarios (design §17.3) — applied digitally by setup.lua; no physical deck yet
+│   ├── cards_starting.csv      # Per-character starting items (S_*) — dealt to hands by dealStartingHands at setup
 │   ├── locations.csv
 │   ├── resources.csv
 │   ├── tooltips.csv
@@ -150,6 +151,13 @@ StarveNoMore/
 | Rayman | Basketball Player| 12     | 10     | 6      | RaymanHouse    |
 | Ellie  | The Cook         | 8      | 10     | 8      | EllieLucaHouse |
 | Luca   | The Orator       | 7      | 8      | 10     | EllieLucaHouse |
+
+Each character's starting items (`content/cards_starting.csv`, `S_*`) are a
+small deck in the save, dealt into that player's hand by `dealStartingHands`
+(setup.lua) at setup; James additionally gets 2 Energy Drink **tokens** by his
+player board (his Wired economy runs on tokens, not cards). Weapon items with
+"+N Attack die" text are counted automatically in combat via `WEAPON_DICE`
+(best single carried weapon; no stacking).
 
 ### Locations
 JamesHouse, RaymanHouse, EllieLucaHouse, BasketballCourt, BadmintonCourt
@@ -205,7 +213,7 @@ Survive all 7 days with Doom < 30 and at least one character not Down — and if
 - **All gameplay randomness goes through `gameRoll(a, b)`** (helpers.lua) — never call `math.random` directly in game logic. Tests script dice by redefining `gameRoll`; cosmetic randomness (audio shuffle) stays on `math.random`.
 - UI panels are shown/hidden via `UI.show(id)` / `UI.hide(id)` targeting XML element IDs
 - The build script is the single source of truth for what gets packaged into the TTS save
-- **If a change requires remembering to update a second file, add the test that remembers instead.** The suite already enforces: generated-file freshness, Dawn card↔handler pairing, `ongoingDawnEffects`↔Rules-panel labels, XML↔Lua handler contracts, sim↔lua constant mirrors (stats, Doom rates/thresholds, Cleanse, boss statlines, difficulty params), and atlas-manifest↔CSV↔save grids. Extend that list before relying on memory.
+- **If a change requires remembering to update a second file, add the test that remembers instead.** The suite already enforces: generated-file freshness, Dawn card↔handler pairing, `ongoingDawnEffects`↔Rules-panel labels, XML↔Lua handler contracts, sim↔lua constant mirrors (stats, Doom rates/thresholds, Cleanse, boss statlines, difficulty params), atlas-manifest↔CSV↔save grids, standee-slot constants (build_save↔helpers), `TOOLTIP_DATA`↔save tags, starting decks↔CSV, XML image names↔`CustomUIAssets`, and TTS-parseable colors everywhere. Extend that list before relying on memory. (`robustnessimprovements.md` tracks this program.)
 - Symbol lookup: `SYMBOLS.md` maps every global function/constant to its file and line — one lookup instead of N greps.
 
 ## ComfyUI Workflow
@@ -515,8 +523,10 @@ python -m pytest tests          # needs: pip install pytest lupa
 
 CI runs it on every push (`.github/workflows/tests.yml`). What it covers:
 
-- **`test_csv_schema.py`** — every `content/*.csv`: required columns, unique/well-formed ids, stat ranges.
-- **`test_cross_refs.py`** — cross-artifact drift: every Dawn card has a `DAWN_EFFECTS` entry (and no orphans), every `ongoingDawnEffects` flag has an `EFFECT_RULES` label, atlas grids hold every card **and** match `NumWidth/NumHeight` in build_save.py, hardcoded card ids in Lua exist in the CSVs, `MARKET_COSTS` covers the Market deck, every asset/sound URL resolves to a file on disk.
+- **`test_csv_schema.py`** — every `content/*.csv`: required columns, unique/well-formed ids, stat ranges, starting-item characters/counts.
+- **`test_cross_refs.py`** — cross-artifact drift: every Dawn card has a `DAWN_EFFECTS` entry (and no orphans), every `ongoingDawnEffects` flag has an `EFFECT_RULES` label, atlas grids hold every card **and** match `NumWidth/NumHeight` in build_save.py, hardcoded card ids in Lua exist in the CSVs, `MARKET_COSTS` covers the Market deck, every asset/sound URL resolves to a file on disk, `TOOLTIP_DATA` keys are real save tags, starting-hand decks match `cards_starting.csv`, and the standee slot constants in build_save.py mirror `helpers.lua`.
+- **`test_xml_quality.py`** — the silent TTS failure modes: XML well-formedness, no literal `\n` in attributes (renders as text), every color parseable by TTS (hex length 3/4/6/8; rgb()/rgba() components must be 0-1 floats — 0-255 values clamp to white; checked in the XML **and** Lua color literals), `<Image image=...>` names resolve to `CustomUIAssets` + files on disk, and the per-character UI ids the Lua composes dynamically all exist.
+- **`test_lua_lint.py`** — runs `luacheck lua` against the generated `.luacheckrc` when luacheck is installed (skips otherwise; CI's luacheck job always runs it), and asserts `.luacheckrc` is still the generated file.
 - **`test_generated_freshness.py`** — reruns the three generators and fails if `audio_manifest.lua` / `whatnow_hints.lua` / `market_data.lua` are stale (always restores the committed bytes).
 - **`test_xml_lua_contract.py`** — every UI id the Lua targets exists in `global_ui.xml`; every XML `onClick` and Lua `click_function` names a defined function; XML ids are unique.
 - **`test_lua_statics.py`** — no global function/constant is defined twice across the concatenated bundle (the later definition would silently win); every lua file is deliberately placed in `LUA_LOAD_ORDER`.
@@ -579,7 +589,7 @@ python scripts/sync_comfyui_output.py --dry-run  # preview
 ```bash
 python scripts/generate_audio_manifest.py    # sounds/  → lua/audio_manifest.lua
 python scripts/generate_whatnow_hints.py     # whatnow_hints.md → lua/whatnow_hints.lua
-python scripts/generate_market_data.py       # cards_market.csv → lua/market_data.lua
+python scripts/generate_market_data.py       # cards_market.csv + cards_starting.csv → lua/market_data.lua (costs + weapon dice)
 python scripts/generate_threat_types.py      # cards_threats.csv → lua/threat_types.lua (types + sealed rewards)
 python scripts/generate_recipe_data.py       # cards_recipes.csv → lua/recipe_data.lua
 python scripts/generate_notebook.py          # notebook/help markdown → lua/notebook_data.lua

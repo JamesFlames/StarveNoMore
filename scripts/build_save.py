@@ -1,15 +1,33 @@
 """
 Build the Starve No More TTS save JSON with all Phase D + E components.
+
 Run: python scripts/build_save.py
 Output: saves/StarveNoMore.json + saves/StarveNoMore.pretty.json
+
+Publish mode (hosted assets instead of file:/// + localhost):
+    python scripts/build_save.py --publish https://your.cdn/starvenomore [--out path]
+Output: saves/StarveNoMore.publish.json (or --out). The dev saves are not
+touched. Upload the repo's art/, sounds/ and PlayerRules.html under the base
+URL so the rewritten links resolve.
 """
 
+import argparse
 import json
 import csv
 import os
 import glob
 
 from generate_notebook import md_to_text   # shared md→text for the Quick Start notecard
+
+_ap = argparse.ArgumentParser(description="Assemble the TTS save JSON.")
+_ap.add_argument("--publish", metavar="BASE_URL", default=None,
+                 help="use BASE_URL for every asset instead of file:/// art "
+                      "and http://localhost:8080 sounds/rules; writes a "
+                      "separate publish save")
+_ap.add_argument("--out", default=None,
+                 help="output path for the publish save "
+                      "(default: saves/StarveNoMore.publish.json)")
+ARGS = _ap.parse_args()
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONTENT = os.path.join(ROOT, "content")
@@ -57,6 +75,8 @@ ASSET_MAP = {
     "visitor_back":        "decks/visitor_back.png",
     "trophy_face":         "decks/trophy_face.png",
     "trophy_back":         "decks/trophy_back.png",
+    "starting_face":       "decks/starting_face.png",
+    "starting_back":       "decks/starting_back.png",
     # Tokens
     "token_wood":          "tokens/resource_wood.png",
     "token_metal":         "tokens/resource_metal.png",
@@ -103,9 +123,19 @@ ASSET_MAP = {
     "boss_charlie_back":       "bosses/charlie.png",
 }
 
+def served(relpath):
+    """URL for a repo-root-relative path: the local dev server by default
+    (scripts/serve_art.bat), the hosted base in --publish builds."""
+    base = ARGS.publish or "http://localhost:8080"
+    return base.rstrip("/") + "/" + relpath
+
+
 def art(name):
-    """Resolve an asset name to a file:/// URL for TTS local testing."""
+    """Resolve an asset name to a URL: file:/// for local testing, the
+    hosted base URL in --publish builds."""
     if name in ASSET_MAP:
+        if ARGS.publish:
+            return served("art/" + ASSET_MAP[name])
         path = os.path.join(ART_DIR, ASSET_MAP[name]).replace("\\", "/")
         return f"file:///{path}"
     # Fallback: try to find the file directly
@@ -181,6 +211,7 @@ recipes = read_csv("cards_recipes.csv")
 threats = read_csv("cards_threats.csv")
 visitors = read_csv("cards_visitors.csv")
 trophies = read_csv("cards_trophies.csv")
+starting = read_csv("cards_starting.csv")
 
 # ---------------------------------------------------------------------------
 # Atlas manifest: NumWidth/NumHeight come from what the atlas generator
@@ -344,10 +375,14 @@ board_snaps.append({
     "Tags": ["Snap:DayCounter"]
 })
 
-# Market display (5 slots)
-for i in range(5):
+# Market display (5 slots) — a column down the board's left flank.
+# TTS cards are ~2.3 units wide/3.2 long, so slots need ~3.6 units of
+# separation or the dealt cards physically shove each other (and anything
+# nearby — they used to bury the Day Counter and clip the board edge).
+MARKET_SLOT_POSITIONS = [(-12.5, 9.0 - i * 3.6) for i in range(5)]
+for i, (msx, msz) in enumerate(MARKET_SLOT_POSITIONS):
     board_snaps.append({
-        "Position": {"x": -10 + i * 1.5, "y": 0.1, "z": 10},
+        "Position": {"x": msx, "y": 0.1, "z": msz},
         "Rotation": {"x": 0, "y": 0, "z": 0},
         "Tags": [f"Snap:Market:{i}"]
     })
@@ -463,7 +498,7 @@ for variant in ["Compact", "Sprawl", "Linear", "Ring", "Star"]:
     bag = base_obj("Bag",
                    tf(-16, 2, 12 + ["Compact","Sprawl","Linear","Ring","Star"].index(variant) * 3),
                    nickname=f"Path Edges: {variant}",
-                   desc=f"Path-edge decorative tiles for the {variant} layout. Setup script activates one set.",
+                   desc=f"Decorative path tiles for the {variant} map layout. Purely cosmetic — safe to ignore during play.",
                    tags=["PathVariant", f"PathVariant:{variant}"])
     bag["ContainedObjects"] = []
     # 3 decorative path tiles per variant
@@ -558,13 +593,14 @@ market_deck = make_deck(
 )
 objects.append(market_deck)
 
-# 5 placeholder face-up market display cards (the setup script deals these)
-# For now, place 5 Notecard placeholders at the market slots
-for i in range(5):
-    slot = base_obj("Notecard", tf(-10 + i * 1.5, 1.2, 10),
+# 5 market display slots (the setup script deals a face-up card onto each).
+# Locked notecards so physics can never wedge them under the board.
+for i, (msx, msz) in enumerate(MARKET_SLOT_POSITIONS):
+    slot = base_obj("Notecard", tf(msx, 1.05, msz),
                     nickname=f"Market Slot {i+1}",
-                    desc="A Market card will be dealt here during Setup.",
-                    tags=["MarketSlot", f"MarketSlot:{i}"])
+                    desc="A Market card is dealt face-up here during Setup. Craft claims the card; the deck refills the slot.",
+                    tags=["MarketSlot", f"MarketSlot:{i}"],
+                    locked=True)
     objects.append(slot)
 
 # ---------------------------------------------------------------------------
@@ -660,6 +696,57 @@ for i, row in enumerate(trophies):
     objects.append(card)
 
 # ---------------------------------------------------------------------------
+# E.13b  Starting-hand decks — one small deck per character, stacked in a
+# pile off the board's right edge. Setup deals each picked character's deck
+# into that player's hand (dealStartingHands in lua/setup.lua). James's two
+# Energy Drinks are resource tokens, granted by the same function.
+# ---------------------------------------------------------------------------
+
+_sw, _sh = atlas_grid("cards_starting.csv", starting)
+starting_custom_deck = {
+    "60": {
+        "FaceURL": ph("starting_face"),
+        "BackURL": ph("starting_back"),
+        "NumWidth": _sw,
+        "NumHeight": _sh,
+        "BackIsHidden": True,
+        "UniqueBack": False,
+        "Type": 0
+    }
+}
+
+for si, start_char in enumerate(["James", "Coco", "Rayman", "Ellie", "Luca"]):
+    contained = []
+    deck_ids = []
+    for i, row in enumerate(starting):
+        if row["character"] != start_char:
+            continue
+        for _copy in range(max(1, int(row.get("count") or 1))):
+            card = base_obj("Card", tf(),
+                            nickname=row["name"],
+                            desc=row["effect"],
+                            tags=["StartingItem", row["id"]])
+            card["CardID"] = 6000 + i
+            card["CustomDeck"] = dict(starting_custom_deck)
+            card["HideWhenFaceDown"] = True
+            card["Hands"] = True
+            contained.append(card)
+            deck_ids.append(6000 + i)
+    # The StartingHand:<name> tag lives on the DECK only (not its cards), so
+    # dealStartingHands can never mistake an already-dealt card for the deck.
+    start_deck = base_obj("DeckCustom",
+                          tf(16.5, 1.5 + si * 0.35, 4, ry=180, rz=180),
+                          nickname=f"{start_char}'s Starting Hand",
+                          desc=f"{start_char}'s personal items. Dealt to {start_char}'s player automatically during Setup.",
+                          tags=["StartingHandDeck", f"StartingHand:{start_char}"])
+    start_deck["DeckIDs"] = deck_ids
+    start_deck["CustomDeck"] = dict(starting_custom_deck)
+    start_deck["ContainedObjects"] = contained
+    start_deck["HideWhenFaceDown"] = True
+    start_deck["Hands"] = False
+    objects.append(start_deck)
+
+# ---------------------------------------------------------------------------
 # E.14  Resource Infinite Bags (6)
 # ---------------------------------------------------------------------------
 
@@ -687,7 +774,7 @@ for res_name, token_url, color, x, y, z in resources:
 
     bag = base_obj("Infinite_Bag", tf(x, y, z),
                    nickname=f"{res_name.replace('EnergyDrink', 'Energy Drink')} Supply",
-                   desc=f"Infinite supply of {res_name.replace('EnergyDrink', 'Energy Drink')} tokens. Take as needed.",
+                   desc=f"Supply of {res_name.replace('EnergyDrink', 'Energy Drink')} tokens. You never dig in here yourself — the Gather action (and card rewards) hand you tokens from it automatically.",
                    tags=["ResourceBag", f"ResourceBag:{res_name}"])
     bag["ContainedObjects"] = [token]
     objects.append(bag)
@@ -747,20 +834,24 @@ STANDEE_COLORS = {
     "Luca":   {"r": 1.00, "g": 0.60, "b": 0.20},   # Orange
 }
 
+CHAR_HOME_TILE = {"James": "JamesHouse", "Rayman": "RaymanHouse",
+                  "Ellie": "EllieLucaHouse", "Luca": "EllieLucaHouse",
+                  "Coco": "EllieLucaHouse"}
+
+# One slot per character across a tile's lower half so standees sharing a
+# tile (Ellie, Luca and Coco all start at Ellie & Luca's House) never spawn
+# stacked on each other. Keep in sync with CHAR_SLOT_INDEX /
+# getCharSlotPosition in lua/helpers.lua.
+CHAR_SLOT_X = {"James": -1.8, "Coco": -0.9, "Rayman": 0.0, "Ellie": 0.9, "Luca": 1.8}
+CHAR_SLOT_Z = -1.7
+
 for char_name, color, bx, bz, stats in characters:
     # Standee
+    _home = loc_positions[CHAR_HOME_TILE[char_name]]
     standee = base_obj("Figurine_Custom",
-                       tf(loc_positions.get(
-                           {"James":"JamesHouse","Rayman":"RaymanHouse",
-                            "Ellie":"EllieLucaHouse","Luca":"EllieLucaHouse",
-                            "Coco":"EllieLucaHouse"}[char_name],
-                           {"x":0,"y":0.1,"z":0})["x"],
+                       tf(_home["x"] + CHAR_SLOT_X[char_name],
                           1.5,
-                          loc_positions.get(
-                           {"James":"JamesHouse","Rayman":"RaymanHouse",
-                            "Ellie":"EllieLucaHouse","Luca":"EllieLucaHouse",
-                            "Coco":"EllieLucaHouse"}[char_name],
-                           {"x":0,"y":0.1,"z":0})["z"]),
+                          _home["z"] + CHAR_SLOT_Z),
                        nickname=char_name,
                        desc=f"{char_name} — character standee. Health {stats['health']} / Hunger {stats['hunger']} / Sanity {stats['sanity']}.",
                        tags=["Character", f"Character:{char_name}"])
@@ -926,6 +1017,25 @@ notecard = base_obj("Notecard", tf(12, 1.2, -14),
 objects.append(notecard)
 
 # ---------------------------------------------------------------------------
+# Player Rules tablet — an in-TTS browser showing PlayerRules.html (generated
+# by scripts/generate_player_rules.py from the same markdown as the Notebook).
+# Needs scripts/serve_art.bat running locally, or the hosted URL in --publish
+# builds. The same page opens in any desktop browser.
+# ---------------------------------------------------------------------------
+
+tablet = base_obj("Tablet", tf(17, 1.2, -13.5, ry=180),
+                  nickname="Player Rules",
+                  desc="The full player rulebook, right here on the table.\n\n"
+                       "Zoom in (hover + Z) to read; scroll with the tablet's own controls.\n\n"
+                       "Prefer your own screen? Open PlayerRules.html from the repo in any "
+                       "browser, or visit " + served("PlayerRules.html") + " while the "
+                       "asset server is running.",
+                  tags=["PlayerRules"],
+                  locked=True)
+tablet["PageURL"] = served("PlayerRules.html")
+objects.append(tablet)
+
+# ---------------------------------------------------------------------------
 # Assemble the full save
 # ---------------------------------------------------------------------------
 
@@ -1042,7 +1152,9 @@ print(f"Lua script assembled: {len(LUA_LOAD_ORDER)} files, {len(save['LuaScript'
 # ---------------------------------------------------------------------------
 
 XML_LOAD_ORDER = [
-    "global_ui.xml",
+    "hud.xml",      # persistent HUD: banner, cycle strip, host controls, action bar, stats, roster
+    "setup.xml",    # guided setup walkthrough: steps 1/1.5/2 + character briefing
+    "dialogs.xml",  # modal dialogs: confirm, summary, week review, help, trade, combat, dusk
 ]
 
 xml_parts = []
@@ -1065,6 +1177,13 @@ for xml_path in sorted(glob.glob(os.path.join(XML_DIR, "*.xml"))):
 save["XmlUI"] = "\n".join(xml_parts)
 print(f"XML UI assembled: {len(XML_LOAD_ORDER)} files, {len(save['XmlUI'])} chars")
 
+# Custom UI assets: images the global XML references by name (the setup
+# walkthrough's Step 2 character portrait cards).
+save["CustomUIAssets"] = [
+    {"Type": 0, "Name": f"char_front_{n}", "URL": art(f"char_{n.lower()}_front")}
+    for n in ["James", "Coco", "Rayman", "Ellie", "Luca"]
+]
+
 # Collect all unique tags used across all objects
 all_tags = set()
 def collect_tags(obj_list):
@@ -1086,11 +1205,25 @@ save["ComponentTags"]["labels"] = [
 # Write outputs
 os.makedirs(SAVES, exist_ok=True)
 
-with open(os.path.join(SAVES, "StarveNoMore.json"), "w", encoding="utf-8") as f:
-    json.dump(save, f, separators=(",", ":"))
+if ARGS.publish:
+    # Publish build: swap every dev-server URL in the Lua bundle (assets.lua
+    # art paths, audio_manifest.lua sound URLs) for the hosted base, then
+    # write a SEPARATE save so the dev files stay byte-stable.
+    base = ARGS.publish.rstrip("/")
+    save["LuaScript"] = save["LuaScript"].replace("http://localhost:8080", base)
+    leftovers = [u for u in ("file:///", "localhost") if u in json.dumps(save)]
+    out_path = ARGS.out or os.path.join(SAVES, "StarveNoMore.publish.json")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(save, f, separators=(",", ":"))
+    print(f"PUBLISH save written: {out_path} (assets under {base})")
+    if leftovers:
+        raise SystemExit(f"publish build still contains local URLs: {leftovers}")
+else:
+    with open(os.path.join(SAVES, "StarveNoMore.json"), "w", encoding="utf-8") as f:
+        json.dump(save, f, separators=(",", ":"))
 
-with open(os.path.join(SAVES, "StarveNoMore.pretty.json"), "w", encoding="utf-8") as f:
-    json.dump(save, f, indent=2, ensure_ascii=False)
+    with open(os.path.join(SAVES, "StarveNoMore.pretty.json"), "w", encoding="utf-8") as f:
+        json.dump(save, f, indent=2, ensure_ascii=False)
 
 # Stats
 total_objects = len(objects)

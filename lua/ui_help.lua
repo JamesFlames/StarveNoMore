@@ -125,10 +125,10 @@ function refreshHelpPanel(player)
     local tabKeys = {"quick", "char", "dawn", "doom", "glossary"}
     for i, tabId in ipairs(tabs) do
         if tabKeys[i] == currentHelpTab then
-            UI.setAttribute(tabId, "color", "rgba(20,50,60,0.9)")
+            UI.setAttribute(tabId, "color", "#14323CE6")
             UI.setAttribute(tabId, "textColor", "#88DDFF")
         else
-            UI.setAttribute(tabId, "color", "rgba(20,40,40,0.8)")
+            UI.setAttribute(tabId, "color", "#142828CC")
             UI.setAttribute(tabId, "textColor", "#AACCCC")
         end
     end

@@ -115,6 +115,7 @@ function refreshCharRoster()
         if ch and ch.name then nameToColor[ch.name] = color end
     end
 
+    local shown = 0
     for _, name in ipairs(ROSTER_NAMES) do
         local color = nameToColor[name]
         local char = color and gameState.activeChars[color]
@@ -123,13 +124,14 @@ function refreshCharRoster()
             -- Character is not in this game — hide their row entirely.
             UI.setAttribute(rowId, "active", "false")
         else
+            shown = shown + 1
             UI.setAttribute(rowId, "active", "true")
             -- Dim the row if Down.
             if char.down then
-                UI.setAttribute(rowId, "color", "rgba(40,10,10,0.6)")
+                UI.setAttribute(rowId, "color", "#280A0A99")
                 UI.setAttribute("rosterName_" .. name, "text", name .. " ✗")
             else
-                UI.setAttribute(rowId, "color", "rgba(20,20,20,0.5)")
+                UI.setAttribute(rowId, "color", "#14141480")
                 UI.setAttribute("rosterName_" .. name, "text", name)
             end
             UI.setAttribute("rosterHealth_" .. name, "percentage", _pct(char.health, char.maxHealth))
@@ -140,6 +142,11 @@ function refreshCharRoster()
             UI.setAttribute("rosterSanityVal_" .. name, "text", char.sanity .. "/" .. char.maxSanity)
         end
     end
+
+    -- Fit the panel to the party: header (~30px) + one row (56px + 3 gap)
+    -- per character actually in this game — a 3-player party gets a
+    -- 3-row box, not a 5-row one.
+    UI.setAttribute("charRoster", "height", tostring(30 + shown * 59))
 end
 
 -----------------------------------------------------------------------

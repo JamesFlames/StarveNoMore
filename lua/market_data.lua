@@ -106,3 +106,19 @@ MARKET_COSTS.M_NOTEBOOK = { Cloth = 1, Wood = 1 }
 MARKET_COSTS.M_PRY_BAR = { Metal = 1 }
 -- M_BICYCLE (Bicycle): 2 Metal + 1 Wood + 1 Cloth
 MARKET_COSTS.M_BICYCLE = { Cloth = 1, Metal = 2, Wood = 1 }
+
+-- WEAPON_DICE[card_id] = printed attack-die bonus, parsed from the
+-- effect text ("+N Attack die"). combat.lua getAttackDice adds the
+-- best single carried weapon automatically.
+
+WEAPON_DICE = {}
+
+WEAPON_DICE.M_BAT = 1  -- Improvised Bat
+WEAPON_DICE.M_CHAINSAW = 2  -- Chainsaw
+WEAPON_DICE.M_CROWBAR = 1  -- Crowbar
+WEAPON_DICE.M_HAIRSPRAY = 2  -- Hairspray + Lighter
+WEAPON_DICE.M_SHARPENED_SPOON = 1  -- Sharpened Spoon
+WEAPON_DICE.M_TOY_BOW = 1  -- Toy Bow
+WEAPON_DICE.S_BASKETBALL = 1  -- Basketball
+WEAPON_DICE.S_COOKING_KNIFE = 1  -- Cooking Knife
+WEAPON_DICE.S_POCKETKNIFE = 1  -- Pocketknife

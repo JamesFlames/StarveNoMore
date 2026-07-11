@@ -274,32 +274,9 @@ local function _matchesLight(obj, src)
     return nick:lower():find(src.label:lower(), 1, true) ~= nil
 end
 
-local function _playerLightCandidates(color, charName)
-    local out = {}
-    -- Cards in the player's hand
-    local ok, handObjs = pcall(function() return Player[color].getHandObjects() end)
-    if ok and handObjs then
-        for _, o in ipairs(handObjs) do out[#out + 1] = o end
-    end
-    -- Objects laid out around the player board (same box as getPlayerResources)
-    local board = getPlayerBoard(charName)
-    if board then
-        local pos = board.getPosition()
-        local b = board.getBoundsNormalized()
-        local pad = 1.5
-        local minX = pos.x - b.size.x * 0.5 - pad
-        local maxX = pos.x + b.size.x * 0.5 + pad
-        local minZ = pos.z - b.size.z * 0.5 - pad
-        local maxZ = pos.z + b.size.z * 0.5 + pad
-        for _, obj in ipairs(getAllObjects()) do
-            local p = obj.getPosition()
-            if p.x >= minX and p.x <= maxX and p.z >= minZ and p.z <= maxZ then
-                out[#out + 1] = obj
-            end
-        end
-    end
-    return out
-end
+-- The hand + player-board-area scan lives in helpers.lua now
+-- (getPlayerCarriedObjects), shared with the combat weapon check so
+-- "carried" can never mean two different things.
 
 function checkPlayerHasLight(color)
     local char = gameState.activeChars[color]
@@ -330,7 +307,7 @@ function checkPlayerHasLight(color)
 
     -- Personal lights: hand + player-board area.
     local foundDisabled = nil
-    for _, obj in ipairs(_playerLightCandidates(color, char.name)) do
+    for _, obj in ipairs(getPlayerCarriedObjects(color, char.name)) do
         for _, src in ipairs(LIGHT_SOURCES) do
             if _matchesLight(obj, src) then
                 if src.fire or not fireOnly then

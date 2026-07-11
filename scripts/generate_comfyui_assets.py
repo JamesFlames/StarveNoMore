@@ -195,6 +195,7 @@ CARD_DECK_FILES = [
     ("threats",  "cards_threats.csv"),
     ("visitors", "cards_visitors.csv"),
     ("trophies", "cards_trophies.csv"),
+    ("starting", "cards_starting.csv"),
 ]
 
 

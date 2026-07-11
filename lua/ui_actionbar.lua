@@ -862,10 +862,10 @@ end
 function setActionEnabled(buttonId, enabled)
     if enabled then
         UI.setAttribute(buttonId, "interactable", "true")
-        UI.setAttribute(buttonId, "color", "rgba(30,50,40,0.9)")
+        UI.setAttribute(buttonId, "color", "#1E3228E6")
     else
         UI.setAttribute(buttonId, "interactable", "false")
-        UI.setAttribute(buttonId, "color", "rgba(20,20,20,0.6)")
+        UI.setAttribute(buttonId, "color", "#14141499")
     end
 end
 

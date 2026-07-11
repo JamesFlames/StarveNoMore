@@ -1,0 +1,244 @@
+<!-- setup.xml — the guided setup walkthrough (H.1/H.2): map layout pick,
+     optional variants, character cards, and the one-time briefing.
+     These panels use a light 'rulebook page' theme with dark text. -->
+
+<!-- ================================================================== -->
+<!-- H.1  SETUP WALKTHROUGH — 4-step guided modal                       -->
+<!-- Step 1: Path graph pick                                            -->
+<!-- ================================================================== -->
+<!-- Setup walkthrough panels use a light "rulebook page" theme: parchment -->
+<!-- backgrounds with dark text (readability feedback from playtesting).   -->
+<Panel id="setupStep1"
+       rectAlignment="MiddleCenter"
+       width="560" height="340"
+       color="#F2E8D5F7"
+       outline="#7A5C2ECC"
+       outlineSize="2"
+       active="false">
+  <VerticalLayout spacing="8" padding="16 16 16 16"
+                  childForceExpandHeight="false">
+    <Text fontSize="20" fontStyle="Bold" color="#5C3A10"
+          text="Step 1 — Choose the Map Layout" preferredHeight="28" />
+    <Text fontSize="14" color="#4A4436"
+          text="Pick the path layout that connects locations. This affects how far apart tiles are."
+          preferredHeight="36" />
+    <HorizontalLayout spacing="14" childForceExpandWidth="true"
+                      preferredHeight="70">
+      <Button id="pickCompact"
+              onClick="onPickPath"
+              fontSize="15" color="#E7F0DCFF" textColor="#1E5A1E"
+              text="Compact&#10;(close together)" />
+      <Button id="pickSprawl"
+              onClick="onPickPath"
+              fontSize="15" color="#E7F0DCFF" textColor="#1E5A1E"
+              text="Sprawl&#10;(spread out)" />
+      <Button id="pickLinear"
+              onClick="onPickPath"
+              fontSize="15" color="#E7F0DCFF" textColor="#1E5A1E"
+              text="Linear&#10;(line path)" />
+    </HorizontalLayout>
+    <HorizontalLayout spacing="14" childForceExpandWidth="true"
+                      preferredHeight="70">
+      <Button id="pickRing"
+              onClick="onPickPath"
+              fontSize="15" color="#E7F0DCFF" textColor="#1E5A1E"
+              text="Ring&#10;(circular loop)" />
+      <Button id="pickStar"
+              onClick="onPickPath"
+              fontSize="15" color="#E7F0DCFF" textColor="#1E5A1E"
+              text="Star&#10;(central hub)" />
+    </HorizontalLayout>
+  </VerticalLayout>
+</Panel>
+
+<!-- ================================================================== -->
+<!-- H.1  SETUP WALKTHROUGH — Step 1.5: Optional variants               -->
+<!-- ================================================================== -->
+<Panel id="setupStepVariants"
+       rectAlignment="MiddleCenter"
+       width="560" height="410"
+       color="#F2E8D5F7"
+       outline="#7A5C2ECC"
+       outlineSize="2"
+       active="false">
+  <VerticalLayout spacing="8" padding="16 16 16 16"
+                  childForceExpandHeight="false">
+    <Text fontSize="20" fontStyle="Bold" color="#5C3A10"
+          text="Optional Variants" preferredHeight="28" />
+    <Text fontSize="14" color="#4A4436"
+          text="Defaults = the standard game. First game? Just click Continue."
+          preferredHeight="30" />
+    <Button id="toggleDifficulty"
+            onClick="onToggleDifficulty"
+            fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
+            preferredHeight="64"
+            tooltip="Cycle: Standard (7 days) / Long Weekend (3 days, Doom to 15 — teaching game) / Nightmare (Doom +1 per phase, starts on Strange Days)."
+            text="Difficulty: STANDARD&#10;(the full 7-day week)" />
+    <Button id="toggleRotation"
+            onClick="onToggleRotation"
+            fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
+            preferredHeight="64"
+            text="Rotation turns: OFF&#10;(take 1 action per visit, cycling — shorter waits at 4-5 players)" />
+    <Button id="toggleScenario"
+            onClick="onToggleScenario"
+            fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
+            preferredHeight="64"
+            text="Random Scenario: OFF&#10;(a week-long twist like The Long Winter — recommended after your first game)" />
+    <Button id="variantsContinue"
+            onClick="onVariantsContinue"
+            fontSize="16" fontStyle="Bold" color="#CFE6C2FF" textColor="#1E5A1E"
+            preferredHeight="52"
+            text="Continue" />
+  </VerticalLayout>
+</Panel>
+
+<!-- ================================================================== -->
+<!-- H.1  SETUP WALKTHROUGH — Step 2: Character pick                    -->
+<!-- ================================================================== -->
+<!-- Each character is a card: standee portrait, big name, role, stats,   -->
+<!-- abilities, constraint. A transparent full-card Button (pickX) sits    -->
+<!-- on top: it takes the click AND shows the full briefing as a tooltip   -->
+<!-- (set from CHAR_BRIEFINGS by showCharPickForNextPlayer).               -->
+<Panel id="setupStep2"
+       rectAlignment="MiddleCenter"
+       width="880" height="400"
+       color="#F2E8D5F7"
+       outline="#7A5C2ECC"
+       outlineSize="2"
+       active="false">
+  <VerticalLayout spacing="6" padding="14 14 14 14"
+                  childForceExpandHeight="false">
+    <Text id="step2Title" fontSize="20" fontStyle="Bold" color="#5C3A10"
+          text="Step 2 — Pick Your Character" preferredHeight="28" />
+    <Text id="step2Subtitle" fontSize="13" color="#4A4436"
+          text="Click a card to choose. Hover a card for the full briefing. HP = Health, HU = Hunger, SA = Sanity."
+          preferredHeight="22" />
+    <HorizontalLayout spacing="8" childForceExpandWidth="true"
+                      preferredHeight="300">
+
+      <Panel id="cardJames" color="#E9E9F2FF">
+        <VerticalLayout spacing="2" padding="6 6 8 4" childForceExpandHeight="false">
+          <Image image="char_front_James" preferredHeight="120" preserveAspect="true" />
+          <Text id="charName_James" fontSize="19" fontStyle="Bold" color="#2B2B52"
+                alignment="MiddleCenter" text="JAMES" preferredHeight="26" />
+          <Text fontSize="12" fontStyle="Italic" color="#33302A" alignment="MiddleCenter"
+                text="The Gamer" preferredHeight="16" />
+          <Text fontSize="12" color="#33302A" alignment="MiddleCenter"
+                text="HP 8 · HU 6 · SA 10" preferredHeight="18" />
+          <Text fontSize="11" color="#33302A" alignment="UpperCenter"
+                text="Peek decks&#10;Reroll dice" preferredHeight="34" />
+          <Text fontSize="11" color="#8A3A2A" alignment="UpperCenter"
+                text="Needs Energy Drinks" preferredHeight="30" />
+        </VerticalLayout>
+        <Button id="pickJames" onClick="onPickChar"
+                color="#00000000" textColor="#00000000" text="" tooltip="" />
+      </Panel>
+
+      <Panel id="cardCoco" color="#F5E3E3FF">
+        <VerticalLayout spacing="2" padding="6 6 8 4" childForceExpandHeight="false">
+          <Image image="char_front_Coco" preferredHeight="120" preserveAspect="true" />
+          <Text id="charName_Coco" fontSize="19" fontStyle="Bold" color="#7A2727"
+                alignment="MiddleCenter" text="COCO" preferredHeight="26" />
+          <Text fontSize="12" fontStyle="Italic" color="#33302A" alignment="MiddleCenter"
+                text="The Angel" preferredHeight="16" />
+          <Text fontSize="12" color="#33302A" alignment="MiddleCenter"
+                text="HP 6 · HU 8 · SA 12" preferredHeight="18" />
+          <Text fontSize="11" color="#33302A" alignment="UpperCenter"
+                text="Calming Presence&#10;Charlie immune" preferredHeight="34" />
+          <Text fontSize="11" color="#8A3A2A" alignment="UpperCenter"
+                text="No Home" preferredHeight="30" />
+        </VerticalLayout>
+        <Button id="pickCoco" onClick="onPickChar"
+                color="#00000000" textColor="#00000000" text="" tooltip="" />
+      </Panel>
+
+      <Panel id="cardRayman" color="#F0EDD8FF">
+        <VerticalLayout spacing="2" padding="6 6 8 4" childForceExpandHeight="false">
+          <Image image="char_front_Rayman" preferredHeight="120" preserveAspect="true" />
+          <Text id="charName_Rayman" fontSize="19" fontStyle="Bold" color="#5C5214"
+                alignment="MiddleCenter" text="RAYMAN" preferredHeight="26" />
+          <Text fontSize="12" fontStyle="Italic" color="#33302A" alignment="MiddleCenter"
+                text="The Athlete" preferredHeight="16" />
+          <Text fontSize="12" color="#33302A" alignment="MiddleCenter"
+                text="HP 12 · HU 10 · SA 6" preferredHeight="18" />
+          <Text fontSize="11" color="#33302A" alignment="UpperCenter"
+                text="Speed + Court Master&#10;Defend allies" preferredHeight="34" />
+          <Text fontSize="11" color="#8A3A2A" alignment="UpperCenter"
+                text="Big Appetite + Loud" preferredHeight="30" />
+        </VerticalLayout>
+        <Button id="pickRayman" onClick="onPickChar"
+                color="#00000000" textColor="#00000000" text="" tooltip="" />
+      </Panel>
+
+      <Panel id="cardEllie" color="#E2F0DCFF">
+        <VerticalLayout spacing="2" padding="6 6 8 4" childForceExpandHeight="false">
+          <Image image="char_front_Ellie" preferredHeight="120" preserveAspect="true" />
+          <Text id="charName_Ellie" fontSize="19" fontStyle="Bold" color="#1E5A1E"
+                alignment="MiddleCenter" text="ELLIE" preferredHeight="26" />
+          <Text fontSize="12" fontStyle="Italic" color="#33302A" alignment="MiddleCenter"
+                text="The Cook" preferredHeight="16" />
+          <Text fontSize="12" color="#33302A" alignment="MiddleCenter"
+                text="HP 8 · HU 10 · SA 8" preferredHeight="18" />
+          <Text fontSize="11" color="#33302A" alignment="UpperCenter"
+                text="Crockpot Master&#10;Comfort Food" preferredHeight="34" />
+          <Text fontSize="11" color="#8A3A2A" alignment="UpperCenter"
+                text="Can't eat raw food" preferredHeight="30" />
+        </VerticalLayout>
+        <Button id="pickEllie" onClick="onPickChar"
+                color="#00000000" textColor="#00000000" text="" tooltip="" />
+      </Panel>
+
+      <Panel id="cardLuca" color="#E2E6F5FF">
+        <VerticalLayout spacing="2" padding="6 6 8 4" childForceExpandHeight="false">
+          <Image image="char_front_Luca" preferredHeight="120" preserveAspect="true" />
+          <Text id="charName_Luca" fontSize="19" fontStyle="Bold" color="#24336B"
+                alignment="MiddleCenter" text="LUCA" preferredHeight="26" />
+          <Text fontSize="12" fontStyle="Italic" color="#33302A" alignment="MiddleCenter"
+                text="The Orator" preferredHeight="16" />
+          <Text fontSize="12" color="#33302A" alignment="MiddleCenter"
+                text="HP 7 · HU 8 · SA 10" preferredHeight="18" />
+          <Text fontSize="11" color="#33302A" alignment="UpperCenter"
+                text="Rally + Calm Words&#10;Storyteller" preferredHeight="34" />
+          <Text fontSize="11" color="#8A3A2A" alignment="UpperCenter"
+                text="Needs an Audience" preferredHeight="30" />
+        </VerticalLayout>
+        <Button id="pickLuca" onClick="onPickChar"
+                color="#00000000" textColor="#00000000" text="" tooltip="" />
+      </Panel>
+
+    </HorizontalLayout>
+  </VerticalLayout>
+</Panel>
+
+<!-- ================================================================== -->
+<!-- H.2  CHARACTER BRIEFING — one-time popup after pick                -->
+<!-- ================================================================== -->
+<Panel id="charBriefing"
+       rectAlignment="MiddleCenter"
+       width="560" height="480"
+       color="#F5EEDDF7"
+       outline="#54788CCC"
+       outlineSize="2"
+       active="false">
+  <VerticalLayout spacing="6" padding="14 14 14 14"
+                  childForceExpandHeight="false">
+    <Text id="briefTitle" fontSize="22" fontStyle="Bold" color="#4A3208"
+          text="Your Character" preferredHeight="28" />
+    <Text id="briefBody" fontSize="13" color="#2E2A22"
+          text=""
+          preferredHeight="352" />
+    <HorizontalLayout spacing="10" childForceExpandWidth="true"
+                      preferredHeight="42">
+      <Button id="briefBack"
+              onClick="onBriefBack"
+              fontSize="14" color="#E4D5BEFF" textColor="#6B4326"
+              preferredWidth="190"
+              tooltip="Changed your mind? Put this character back and pick another."
+              text="Go Back — change character" />
+      <Button id="briefDismiss"
+              onClick="onBriefDismiss"
+              fontSize="16" fontStyle="Bold" color="#CFE6C2FF" textColor="#1E5A1E"
+              text="I understand — let's go!" />
+    </HorizontalLayout>
+  </VerticalLayout>
+</Panel>
