@@ -14,6 +14,7 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 - [README.md](README.md) — short orientation for the GitHub landing page, dev quickstart, and the script-by-script build table.
 - [CHANGELOG.md](CHANGELOG.md) — the rule-change history, one entry per design batch. The retired planning docs (improvements.md, design_batch1–4.md, frameworkimprovements.md) live on as these entries + git history.
 - [SYMBOLS.md](SYMBOLS.md) — AUTO-GENERATED index of every Lua global (function/constant → file:line). Regenerate with `scripts/generate_symbol_index.py`.
+- [PlayerRules.md](PlayerRules.md) / [PlayerRules.html](PlayerRules.html) — AUTO-GENERATED player rulebook (`scripts/generate_player_rules.py`), assembled from the same `content/` markdown as the in-game Notebook. The HTML is what the in-TTS **Player Rules tablet** shows (served by `scripts/serve_art.bat`) and opens in any browser.
 - [playtest/facilitator_script.md](playtest/facilitator_script.md) + [playtest/feedback_form.md](playtest/feedback_form.md) — the blind-playtest protocol and per-player form (batch 4 W4). Session data comes from the Week in Review panel's **Copy Session Log** button; logs collect in [playtest/sessions/](playtest/sessions/README.md) and aggregate via `scripts/analyze_sessions.py`.
 - agents.md — this file.
 
@@ -23,12 +24,15 @@ These files were the input/scaffolding for the design but are no longer
 consulted by the build pipeline or by everyday work. Treat them as read-only
 historical references; do not link to them from new documentation.
 
-- `Archive/Checklist_For_TTS_Implementation.md` — phased build plan that drove the early implementation. **Keep**: the phase codes cited in code comments throughout `lua/` and `scripts/build_save.py` (e.g. `F.3`, `E.8`, `J.10`) refer to its sections.
 - `Archive/HowToCreateGamesInTabletopSimulator.md` — TTS API notes used to scaffold the Lua/XML.
-- `Archive/InterestingGames.md` — mechanical patterns from HPHB, Catan, Cthulhu Wars. **Keep**: StarveNoMoreDesignConcept.md cites its sections as design rationale in 13 places.
 - `Archive/PrinciplesOfGoodBoardGames.md`, `DontStarveVideoGamePrinciples.md` — design-theory sources.
 
-(The original commission brief `StarveNoMoreRequirements.md` was deleted 2026-07 as fully superseded by the design doc; recover from git history if ever needed.)
+(Deleted 2026-07, all recoverable from git history: the commission brief
+`StarveNoMoreRequirements.md`; the phased build checklist
+`Checklist_For_TTS_Implementation.md` — the phase codes in code comments,
+e.g. `F.3`, `E.8`, `J.10`, refer to its sections; and the `InterestingGames.md`
+game tear-downs, whose section numbers the design doc still cites as
+plain-text provenance notes.)
 
 ### content/ — in-game text and asset specs (loaded into the mod at build/runtime)
 
@@ -49,7 +53,7 @@ historical references; do not link to them from new documentation.
 - **Save format**: Single JSON file with embedded Lua + XML
 
 ### Build Pipeline
-- `scripts/build_save.py` — Concatenates the Lua files in `LUA_LOAD_ORDER` + `xml/global_ui.xml` into the TTS save JSON. Deck `NumWidth/NumHeight` come from `art/decks/atlas_manifest.json` (written by the atlas generator; a card-count mismatch is a hard stop — rerun the atlas generator).
+- `scripts/build_save.py` — Concatenates the Lua files in `LUA_LOAD_ORDER` + the `XML_LOAD_ORDER` files under `xml/` (hud / setup / dialogs) into the TTS save JSON. Deck `NumWidth/NumHeight` come from `art/decks/atlas_manifest.json` (written by the atlas generator; a card-count mismatch is a hard stop — rerun the atlas generator). `--publish BASE_URL [--out path]` writes a separate shareable save with every `file:///`/`localhost` asset URL rewritten to the hosted base (refuses to write if any local URL survives).
 - Six of the Lua files in that list are **auto-generated** and should never be edited by hand:
   - `lua/audio_manifest.lua`  — built by `scripts/generate_audio_manifest.py` from the `sounds/` tree
   - `lua/whatnow_hints.lua`   — built by `scripts/generate_whatnow_hints.py` from `content/help/whatnow_hints.md`
@@ -106,7 +110,9 @@ StarveNoMore/
 │   ├── selftest.lua            # runSelfTest() — scripted in-TTS smoke test (see Test Suite)
 │   └── assets.lua              # ASSETS table — image URL constants (LOCAL_DEV switch)
 ├── xml/
-│   └── global_ui.xml           # All UI panel definitions (Phase Banner, Action Bar, dialogs)
+│   ├── hud.xml                 # Persistent HUD: banner, cycle strip, host controls, action bar, stats, roster
+│   ├── setup.xml               # Guided setup walkthrough panels + character briefing
+│   └── dialogs.xml             # Modal dialogs: confirm / summary / week review / help / trade / combat / dusk
 ├── content/
 │   ├── cards_phase1.csv ... cards_phase4.csv   # Dawn cards per phase
 │   ├── cards_market.csv        # Source of truth for MARKET_COSTS
@@ -213,7 +219,7 @@ Survive all 7 days with Doom < 30 and at least one character not Down — and if
 - **All gameplay randomness goes through `gameRoll(a, b)`** (helpers.lua) — never call `math.random` directly in game logic. Tests script dice by redefining `gameRoll`; cosmetic randomness (audio shuffle) stays on `math.random`.
 - UI panels are shown/hidden via `UI.show(id)` / `UI.hide(id)` targeting XML element IDs
 - The build script is the single source of truth for what gets packaged into the TTS save
-- **If a change requires remembering to update a second file, add the test that remembers instead.** The suite already enforces: generated-file freshness, Dawn card↔handler pairing, `ongoingDawnEffects`↔Rules-panel labels, XML↔Lua handler contracts, sim↔lua constant mirrors (stats, Doom rates/thresholds, Cleanse, boss statlines, difficulty params), atlas-manifest↔CSV↔save grids, standee-slot constants (build_save↔helpers), `TOOLTIP_DATA`↔save tags, starting decks↔CSV, XML image names↔`CustomUIAssets`, and TTS-parseable colors everywhere. Extend that list before relying on memory. (`robustnessimprovements.md` tracks this program.)
+- **If a change requires remembering to update a second file, add the test that remembers instead.** The suite already enforces: generated-file freshness, Dawn card↔handler pairing, `ongoingDawnEffects`↔Rules-panel labels, XML↔Lua handler contracts, sim↔lua constant mirrors (stats, Doom rates/thresholds, Cleanse, boss statlines, difficulty params), atlas-manifest↔CSV↔save grids, standee-slot constants (build_save↔helpers), `TOOLTIP_DATA`↔save tags, starting decks↔CSV, XML image names↔`CustomUIAssets`, and TTS-parseable colors everywhere. Extend that list before relying on memory.
 - Symbol lookup: `SYMBOLS.md` maps every global function/constant to its file and line — one lookup instead of N greps.
 
 ## ComfyUI Workflow
@@ -396,7 +402,7 @@ player never has to ask "what now?":
   - GameOver → `btnRestart`
 
 ### 1b. Always-visible character roster + live standee tooltips
-- `xml/global_ui.xml` `charRoster` panel (MiddleRight) shows every character's current Health / Hunger / Sanity as compact bars + numeric values. Each name uses that character's standee color (white / red / green / light blue / orange).
+- `xml/hud.xml` `charRoster` panel (MiddleRight) shows every character's current Health / Hunger / Sanity as compact bars + numeric values. Each name uses that character's standee color (white / red / green / light blue / orange).
 - `lua/ui_banner.lua` `refreshCharRoster()` (called from `refreshPhaseBanner`) updates the bars, dims rows for Down characters, and hides rows for characters not in the current game.
 - `lua/ui_banner.lua` `refreshStandeeTooltips()` rewrites each character standee's `Description` on every state change so hovering a standee shows live `Health/Hunger/Sanity • At <Location>` (or the revival hint if Down).
 - `scripts/build_save.py` `STANDEE_COLORS` tints each character's `Figurine_Custom` `ColorDiffuse` so the card holders match the roster naming (James white, Coco red, Rayman green, Ellie light blue, Luca orange).
@@ -526,14 +532,15 @@ CI runs it on every push (`.github/workflows/tests.yml`). What it covers:
 - **`test_csv_schema.py`** — every `content/*.csv`: required columns, unique/well-formed ids, stat ranges, starting-item characters/counts.
 - **`test_cross_refs.py`** — cross-artifact drift: every Dawn card has a `DAWN_EFFECTS` entry (and no orphans), every `ongoingDawnEffects` flag has an `EFFECT_RULES` label, atlas grids hold every card **and** match `NumWidth/NumHeight` in build_save.py, hardcoded card ids in Lua exist in the CSVs, `MARKET_COSTS` covers the Market deck, every asset/sound URL resolves to a file on disk, `TOOLTIP_DATA` keys are real save tags, starting-hand decks match `cards_starting.csv`, and the standee slot constants in build_save.py mirror `helpers.lua`.
 - **`test_xml_quality.py`** — the silent TTS failure modes: XML well-formedness, no literal `\n` in attributes (renders as text), every color parseable by TTS (hex length 3/4/6/8; rgb()/rgba() components must be 0-1 floats — 0-255 values clamp to white; checked in the XML **and** Lua color literals), `<Image image=...>` names resolve to `CustomUIAssets` + files on disk, and the per-character UI ids the Lua composes dynamically all exist.
-- **`test_lua_lint.py`** — runs `luacheck lua` against the generated `.luacheckrc` when luacheck is installed (skips otherwise; CI's luacheck job always runs it), and asserts `.luacheckrc` is still the generated file.
+- **`test_lua_lint.py`** — runs `luacheck lua` against the generated `.luacheckrc` when luacheck is installed (skips otherwise; CI's luacheck job always runs it), and asserts `.luacheckrc` is still the generated file. (CI's luacheck job is `continue-on-error` — flip it to hard-fail after reviewing a green run.)
 - **`test_generated_freshness.py`** — reruns the three generators and fails if `audio_manifest.lua` / `whatnow_hints.lua` / `market_data.lua` are stale (always restores the committed bytes).
-- **`test_xml_lua_contract.py`** — every UI id the Lua targets exists in `global_ui.xml`; every XML `onClick` and Lua `click_function` names a defined function; XML ids are unique.
+- **`test_xml_lua_contract.py`** — every UI id the Lua targets exists in the `xml/` files; every XML `onClick` and Lua `click_function` names a defined function; XML ids are unique across all files.
+- **`test_publish_build.py`** — a `--publish` build contains no `file:///` or `localhost` URL anywhere and never touches the committed dev save.
 - **`test_lua_statics.py`** — no global function/constant is defined twice across the concatenated bundle (the later definition would silently win); every lua file is deliberately placed in `LUA_LOAD_ORDER`.
 - **`test_build_output.py`** — rebuilds the save, validates the JSON, and fails if `saves/StarveNoMore.json` is stale relative to the sources (restores committed bytes; run `python scripts/build_save.py` to fix).
 - **`test_lua_runtime.py`** — runs the real concatenated bundle headlessly under Lua 5.2 (`lupa`) with `tests/tts_stub.lua` faking the TTS API: load smoke, `onLoad`/`onSave` round-trip, combat fumble rules, Charlie escalation/reset, Tick decay + Down + victory/defeat, revive, night light checks, and an `apply()`/`expire()` sweep over every Dawn effect. When adding gameplay rules, add a test here; extend the stub in `tts_stub.lua` if the code uses a TTS API it doesn't cover yet.
 - **`test_sim.py`** — enforces the sim maintenance rule mechanically (sim constants must equal `global.lua`'s: stats, homes, Doom rates/thresholds, Cleanse, boss statlines vs build_save + combat.lua, difficulty invariants), asserts per-game invariants over seeded batches, and checks policy win rates stay inside bands around the baseline table above. If you change a rule intentionally: update the sim, rerun the 3000-sim baseline, update the table above **and** the bands in `test_sim.py`.
-- **`test_full_campaign.py`** — a trivial bot plays whole games headlessly at every difficulty (invariants only: no hard error, stats in range, a verdict is reached), plus seeded random-verb fuzz games. The net for cross-feature breakage.
+- **`test_full_campaign.py`** — a trivial bot plays whole games headlessly at every difficulty (invariants only: no hard error, stats in range, a verdict is reached), plus seeded random-verb fuzz games and adversarial sequences (undo spam, re-entrant setup on all three UI paths, restart-then-re-setup). The net for cross-feature breakage.
 - **`test_save_fixture.py`** — loads the frozen `saves/fixtures/midgame_v1.json` (and a stripped old-schema variant) into the current bundle and plays a full day. Guards `migrateGameState()`.
 - **`test_analyze_sessions.py`** — the playtest-log aggregator against synthetic and real telemetry exports.
 
@@ -556,7 +563,8 @@ In-TTS checks that can't run headlessly stay in `lua/audit.lua` (`auditFirstLoad
 
 ### To build the TTS save:
 ```bash
-python scripts/build_save.py
+python scripts/build_save.py                                   # dev save (file:/// art, localhost sounds/rules)
+python scripts/build_save.py --publish https://your.cdn/snm    # shareable save, hosted URLs only
 ```
 
 ### To regenerate card atlases:
@@ -593,6 +601,7 @@ python scripts/generate_market_data.py       # cards_market.csv + cards_starting
 python scripts/generate_threat_types.py      # cards_threats.csv → lua/threat_types.lua (types + sealed rewards)
 python scripts/generate_recipe_data.py       # cards_recipes.csv → lua/recipe_data.lua
 python scripts/generate_notebook.py          # notebook/help markdown → lua/notebook_data.lua
+python scripts/generate_player_rules.py      # notebook/glossary markdown → PlayerRules.md + PlayerRules.html
 python scripts/generate_symbol_index.py      # lua/ → SYMBOLS.md + .luacheckrc
 ```
 
@@ -609,6 +618,14 @@ python scripts/simulate_balance.py --sims 3000 --rules old  # control group
 ```
 
 ### To test in TTS:
+```bat
+iwanttoplay
+```
+(repo root) — regenerate everything → build → full pytest gate → copy the save
+to the TTS saves folder → ensure the asset server is up → launch TTS via Steam.
+`--skip-tests` / `--no-launch` to trim the ends. Driver: `scripts/iwanttoplay.py`.
+
+Manually, the same steps are:
 1. Run `python scripts/build_save.py`.
 2. Start `scripts/serve_art.bat` so `http://localhost:8080/art/...` and `/sounds/...` resolve.
 3. Copy `saves/StarveNoMore.json` to your TTS saves folder.

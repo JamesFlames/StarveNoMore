@@ -15,7 +15,7 @@ This is the design brief for **Starve No More**. It is intended as the single so
 The document references and is consistent with:
 - [Archive/PrinciplesOfGoodBoardGames.md](Archive/PrinciplesOfGoodBoardGames.md) — general design theory.
 - [Archive/DontStarveVideoGamePrinciples.md](Archive/DontStarveVideoGamePrinciples.md) — DST-derived design pillars.
-- [Archive/InterestingGames.md](Archive/InterestingGames.md) — mechanical patterns from HPHB, Catan, Cthulhu Wars.
+- InterestingGames.md — mechanical patterns from HPHB, Catan, Cthulhu Wars (notes retired 2026-07; recover from git history).
 - [Archive/HowToCreateGamesInTabletopSimulator.md](Archive/HowToCreateGamesInTabletopSimulator.md) — implementation reference (frozen).
 
 ---
@@ -158,7 +158,7 @@ Every component is sized, type-marked, and TTS-mappable. The "TTS Object" column
 
 ## 6. Characters
 
-Each character is a **mechanical hook + a constraint + a starting hand of 5 cards**. Asymmetry follows the Cthulhu Wars principle (different rules, not just different stats; see [InterestingGames.md §3.3.1](Archive/InterestingGames.md)).
+Each character is a **mechanical hook + a constraint + a starting hand of 5 cards**. Asymmetry follows the Cthulhu Wars principle (different rules, not just different stats; see InterestingGames.md §3.3.1).
 
 ### 6.1 James — The Gamer
 
@@ -315,7 +315,7 @@ Ellie & Luca's House is the central node (their kitchen feeds the team). The two
 
 ### 7.6 Map Variability
 
-For replayability without scripting more rules, the path graph is **modular**: at game setup, players may shuffle the path-edge cards (3 standard configurations: "Compact," "Sprawl," "Linear") to slightly vary the movement geometry. This is the lightweight Catan-variability lever from [InterestingGames.md §2.3.1](Archive/InterestingGames.md).
+For replayability without scripting more rules, the path graph is **modular**: at game setup, players may shuffle the path-edge cards (3 standard configurations: "Compact," "Sprawl," "Linear") to slightly vary the movement geometry. This is the lightweight Catan-variability lever from InterestingGames.md §2.3.1.
 
 ---
 
@@ -338,7 +338,7 @@ A **Gather** action costs 1 of the player's 3 daily actions and yields **1 rando
 
 ### 8.2 Trading
 
-Players in the same location may trade resources, cards, or both **freely on either's turn**, with no action cost. This is the Catan negotiation layer ([InterestingGames.md §2.3.8](Archive/InterestingGames.md)) — open, social, deal-driven. The constraint that they must be in the same location is the design lever that makes location-choice a social decision, not just a logistical one.
+Players in the same location may trade resources, cards, or both **freely on either's turn**, with no action cost. This is the Catan negotiation layer (InterestingGames.md §2.3.8) — open, social, deal-driven. The constraint that they must be in the same location is the design lever that makes location-choice a social decision, not just a logistical one.
 
 ### 8.3 Hand Limit
 
@@ -401,7 +401,7 @@ Item categories:
 - **Foods** (Cooked Stew, Energy Bar, Hot Cocoa) — restore Hunger
 - **Special** (Telltale Heart for revival, Circle of Salt for boss combat)
 
-Each item has a craft cost (resources), a use effect, and notes whether it's single-use or persistent. The market refresh creates the same "store rotation" energy as a deckbuilder's market row ([InterestingGames.md §1.3](Archive/InterestingGames.md)).
+Each item has a craft cost (resources), a use effect, and notes whether it's single-use or persistent. The market refresh creates the same "store rotation" energy as a deckbuilder's market row (InterestingGames.md §1.3).
 
 ### 9.3 The Recipe Cards
 
@@ -463,7 +463,7 @@ To make the rules above tangible, here are five fully-written sample cards — o
 └──────────────────────────────────────────────┘
 ```
 
-The five-pip **severity dot** is the Catan-probability-dots pattern ([InterestingGames.md §2.3.2](Archive/InterestingGames.md)) ported to event cards: at-a-glance signal of how punishing this Dawn will be, so players can read pressure visually without parsing rules text.
+The five-pip **severity dot** is the Catan-probability-dots pattern (InterestingGames.md §2.3.2) ported to event cards: at-a-glance signal of how punishing this Dawn will be, so players can read pressure visually without parsing rules text.
 
 #### Sample Item card (Market deck)
 
@@ -688,7 +688,7 @@ This is the rhythm of the game: a round is rarely catastrophic and rarely free. 
 
 ## 12. Combat
 
-Combat is **fast and dice-based** ([InterestingGames.md §3.3.6](Archive/InterestingGames.md)). It has to be — combat happens often.
+Combat is **fast and dice-based** (InterestingGames.md §3.3.6). It has to be — combat happens often.
 
 ### 12.1 The roll
 
@@ -833,7 +833,7 @@ While the Treeguard is awake, its roar library (26 sounds under `sounds/creature
 
 ## 15. The Doom Track and Scheduled Threats
 
-The Doom track is the main visible loss timer, lifted directly from Cthulhu Wars ([InterestingGames.md §3.3.5](Archive/InterestingGames.md)) but inverted (it ticks against the players, like HPHB's location track).
+The Doom track is the main visible loss timer, lifted directly from Cthulhu Wars (InterestingGames.md §3.3.5) but inverted (it ticks against the players, like HPHB's location track).
 
 ### 15.1 The track
 
@@ -878,7 +878,7 @@ Deterministic by design (§1.4 "clever desperation"): losses must read as a chai
 
 ### 15.5 Severity scaffolding (the dot system)
 
-Borrowed from Catan's probability dots ([InterestingGames.md §2.3.2](Archive/InterestingGames.md)): Dawn cards and Threat cards print a **severity rating** as 1–5 dots in the top corner. The dots are not used in any rule — they are pure information design.
+Borrowed from Catan's probability dots (InterestingGames.md §2.3.2): Dawn cards and Threat cards print a **severity rating** as 1–5 dots in the top corner. The dots are not used in any rule — they are pure information design.
 
 - ●○○○○ — atmospheric flavor only.
 - ●●○○○ — minor stat hit (1 of one stat).
@@ -1362,7 +1362,7 @@ The system is not stopping bad plays — it is ensuring the player meant it.
 
 This is not a list of polish items to ship in a v2 patch. **Every item in §18.10–18.18 is part of the v1 design**, because the design's stated player-experience goal is *playable on the table without a rulebook* (§1.4). A TTS implementation that omits these is not an implementation of *this* game — it is a different, harder-to-onboard game wearing the same components.
 
-The original build plan that walked the implementation through Phases A–K is preserved in `Archive/Checklist_For_TTS_Implementation.md`; current build status lives in `agents.md` and `README.md`.
+The original build plan that walked the implementation through Phases A–K (the source of the phase codes like `F.3` / `E.8` still cited in code comments) was retired in 2026-07 — recover it from git history if needed; current build status lives in `agents.md` and `README.md`.
 
 ---
 
@@ -1376,7 +1376,7 @@ For traceability, every major design decision is tagged with its inspiration sou
 | Day/night cycle with forced retreat | DST §4 | Built-in pacing rhythm; creates the campfire moment. |
 | Phase-based week arc with bosses | DST §3, §10 | Game arc; rising tension; climactic punctuation. |
 | Soft permadeath via ghost state | DST §7 | Death is meaningful but doesn't eliminate the player. |
-| Asymmetric characters with hooks + constraints | DST §6, Cthulhu Wars §3.3.1 ([InterestingGames.md](Archive/InterestingGames.md)) | Each character plays a different game; cooperation requires complementary roles. |
+| Asymmetric characters with hooks + constraints | DST §6, Cthulhu Wars §3.3.1 (InterestingGames.md) | Each character plays a different game; cooperation requires complementary roles. |
 | 5 unique location tiles with special actions | DST §1, Catan §2.3.1 | Suburban map as DST world; tiles as Catan-style modular geography. |
 | Doom track | Cthulhu Wars §3.3.5 + HPHB §1.3.5 | Visible loss timer; the game's main dramatic arc. |
 | Market deck of craftable items | HPHB §1.3, Cthulhu Wars (spellbook unlocks) | Engine-building progression; encourages varied strategies. |
@@ -1456,7 +1456,7 @@ Two ❌ marks are acceptable at v1 (this document is the brief, not a finished g
 
 - **More characters.** A Year 2 box adds 5 new survivors (e.g., a Musician, a Mechanic, a Dog).
 - **More locations.** Extend the map to 8 locations: Library, Convenience Store, the Park.
-- **The Source's Backstory** (campaign mode). A 5-game arc where decisions persist between sessions: which characters survived, which clues were found, what the Source actually was. (Borrowing HPHB's box-progression idea, [InterestingGames.md §1.3.6](Archive/InterestingGames.md).)
+- **The Source's Backstory** (campaign mode). A 5-game arc where decisions persist between sessions: which characters survived, which clues were found, what the Source actually was. (Borrowing HPHB's box-progression idea, InterestingGames.md §1.3.6.)
 - **Co-op vs. Traitor variant.** One player secretly serves the Source. Raises the game's social-deduction layer.
 - **Solo mode.** Single player controls 2–3 characters as a personal cast.
 
@@ -1494,5 +1494,5 @@ The game succeeds when: a group of three friends plays through a seven-day campa
 *Reference documents (archived; preserved for traceability):*
 - [Archive/PrinciplesOfGoodBoardGames.md](Archive/PrinciplesOfGoodBoardGames.md) — design theory.
 - [Archive/DontStarveVideoGamePrinciples.md](Archive/DontStarveVideoGamePrinciples.md) — DST translation.
-- [Archive/InterestingGames.md](Archive/InterestingGames.md) — patterns from HPHB, Catan, Cthulhu Wars.
+- InterestingGames.md — patterns from HPHB, Catan, Cthulhu Wars (notes retired 2026-07; recover from git history).
 - [Archive/HowToCreateGamesInTabletopSimulator.md](Archive/HowToCreateGamesInTabletopSimulator.md) — TTS implementation guide.

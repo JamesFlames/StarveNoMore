@@ -190,7 +190,7 @@ def main():
         f'<a href="#{_slug(t)}">{html.escape(t)}</a>' for t, _r, _b in sections) + "</nav>"
     body_parts = []
     for title, rel, body in sections:
-        body_parts.append(f'<hr class="sep"/>')
+        body_parts.append('<hr class="sep"/>')
         body_parts.append(f'<h1 id="{_slug(title)}">{html.escape(title)}</h1>')
         body_parts.append(f"<!-- from {rel} -->")
         body_parts.append(md_to_html(body))

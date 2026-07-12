@@ -151,6 +151,78 @@ def _fuzz_verbs(env, rng):
     ]
 
 
+# ---------------------------------------------------------------------------
+# Adversarial sequences: hostile click patterns real tables produce — spam,
+# re-entrancy, restarts — must degrade to broadcasts, never corrupt state.
+# ---------------------------------------------------------------------------
+
+def _broadcast_messages(env):
+    broadcasts = lua_to_py(env.eval("TTS.broadcasts")) or []
+    if isinstance(broadcasts, dict):     # lua_to_py maps array tables to lists, but be safe
+        broadcasts = list(broadcasts.values())
+    return [b["message"] for b in broadcasts]
+
+
+def test_undo_spam_refunds_exactly_once():
+    env = make_env()
+    start_game(env)
+    env.globals().BeginDay()
+    flush(env)
+    color = env.eval("gameState.activeColor")
+    assert color, "no active player after BeginDay"
+    before = env.eval(f'gameState.activeChars["{color}"].actionsLeft')
+    env.globals().doGather(color)
+    flush(env)
+    for _ in range(5):
+        env.globals().doUndo(color)
+    after = env.eval(f'gameState.activeChars["{color}"].actionsLeft')
+    assert after == before, f"undo spam changed actions {before} -> {after} (must refund once)"
+    assert_invariants(env, "undo spam")
+
+
+def test_reentrant_setup_is_refused():
+    env = make_env()
+    start_game(env)
+    party_before = sorted(c["name"] for c in lua_to_py(env.eval("gameState.activeChars")).values())
+    env.globals().BeginDay()
+    flush(env)
+    day_before = env.eval("gameState.day")
+
+    env.globals().Setup("White")           # bare path
+    env.execute('onSetupClick(TTS.makeObject({}), "White")')   # 3D board button path
+    env.execute('onHostSetupGuided(Player["White"])')          # host panel path
+    flush(env)
+
+    assert env.eval("gameState.started") is True
+    assert env.eval("gameState.day") == day_before
+    party_after = sorted(c["name"] for c in lua_to_py(env.eval("gameState.activeChars")).values())
+    assert party_after == party_before, "a re-entrant setup path rewrote the party"
+    assert any("already started" in m for m in _broadcast_messages(env)), (
+        "re-entrant setup must refuse loudly, not silently")
+
+
+def test_restart_then_resetup_is_clean():
+    env = make_env()
+    start_game(env)
+    env.globals().BeginDay()
+    flush(env)
+    # Host restarts mid-day, through the confirm dialog like a real click.
+    env.execute('onHostRestart(Player["White"])')
+    env.execute('onConfirmYes(Player["White"])')
+    flush(env)
+    assert env.eval("gameState.started") is False
+    assert not (lua_to_py(env.eval("gameState.activeChars")) or {}), (
+        "restart left stale characters in the roster")
+
+    # A fresh setup on the same table works and produces a clean Day 1.
+    env.globals().Setup("White")
+    flush(env)
+    assert env.eval("gameState.started") is True
+    assert env.eval("gameState.day") == 1
+    assert env.eval("gameState.doom") == 0
+    assert_invariants(env, "post-restart re-setup")
+
+
 @pytest.mark.parametrize("seed", [11, 23, 47])
 def test_fuzz_campaign_no_hard_errors(seed):
     rng = random.Random(seed)

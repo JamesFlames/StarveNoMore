@@ -1,0 +1,165 @@
+"""iwanttoplay — from source tree to a running game in one command.
+
+Pipeline (each step gates the next; a failure stops before anything ships):
+
+  1. REGENERATE  every derived artifact from its sources (idempotent, fast):
+                 audio manifest, hints, market data, threat types, recipes,
+                 notebook text, player rules, card atlases, symbol index.
+  2. BUILD       saves/StarveNoMore.json via build_save.py.
+  3. TEST        the full pytest suite. The freshness tests verify the save
+                 just built matches the sources — the tests bless the exact
+                 bytes that get copied. (--skip-tests to live dangerously.)
+  4. COPY        the save into the Tabletop Simulator saves folder.
+  5. SERVE       ensure the local asset server is running on :8080
+                 (sounds + the Player Rules tablet need it).
+  6. LAUNCH      Tabletop Simulator via Steam. (--no-launch to skip.)
+
+Run from the repo root:  iwanttoplay  (the .bat wraps this script)
+"""
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+import time
+import urllib.request
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+SCRIPTS = os.path.join(REPO_ROOT, "scripts")
+SAVE_SRC = os.path.join(REPO_ROOT, "saves", "StarveNoMore.json")
+
+TTS_SAVE_DIRS = [
+    os.path.expandvars(r"%USERPROFILE%\Documents\My Games\Tabletop Simulator\Saves"),
+    os.path.expandvars(r"%OneDrive%\Documents\My Games\Tabletop Simulator\Saves"),
+]
+SERVER_PROBE = "http://localhost:8080/PlayerRules.html"
+SERVE_BAT = os.path.join(SCRIPTS, "serve_art.bat")
+TTS_STEAM_URL = "steam://rungameid/286160"
+
+# Regeneration order: data generators first, symbol index last (it reads the
+# lua/ tree the other generators may have rewritten). Atlases before the
+# build, which hard-stops on a stale atlas manifest.
+#
+# DELIBERATELY EXCLUDED — never add these here:
+#   generate_comfyui_assets.py / sync_comfyui_output.py — AI art generation:
+#     slow, needs the local ComfyUI server, and syncing could replace
+#     illustrations the table already approved. New art stays a manual step.
+#   generate_assets.py — rewrites tokens/boards; only needed when the icon
+#     set or board layout changes, so it also stays manual.
+# (generate_card_atlases.py below only READS art/decks/illustrations/ and
+# composites the deck sheets — it cannot lose curated art.)
+GENERATORS = [
+    "generate_audio_manifest.py",
+    "generate_whatnow_hints.py",
+    "generate_market_data.py",
+    "generate_threat_types.py",
+    "generate_recipe_data.py",
+    "generate_notebook.py",
+    "generate_player_rules.py",
+    "generate_card_atlases.py",
+    "generate_symbol_index.py",
+]
+
+
+def say(msg):
+    print(f"[iwanttoplay] {msg}", flush=True)
+
+
+def run_step(label, cmd, timeout=900):
+    start = time.time()
+    say(f"{label} ...")
+    proc = subprocess.run(cmd, cwd=REPO_ROOT, timeout=timeout)
+    took = time.time() - start
+    if proc.returncode != 0:
+        say(f"{label} FAILED (exit {proc.returncode}) after {took:.0f}s — stopping. "
+            "Nothing was copied or launched.")
+        sys.exit(proc.returncode or 1)
+    say(f"{label} OK ({took:.0f}s)")
+
+
+def server_running():
+    try:
+        with urllib.request.urlopen(SERVER_PROBE, timeout=3) as r:
+            return r.status == 200
+    except Exception:
+        return False
+
+
+def ensure_server():
+    if server_running():
+        say("asset server already up on :8080")
+        return
+    say("starting asset server (scripts/serve_art.bat) in its own window — "
+        "keep it open while playing")
+    # New console so the user can see it and close it when done.
+    subprocess.Popen(["cmd", "/c", "start", "Starve No More asset server",
+                      SERVE_BAT], cwd=REPO_ROOT)
+    for _ in range(10):
+        time.sleep(1)
+        if server_running():
+            say("asset server up")
+            return
+    say("WARNING: asset server did not answer on :8080 — sounds and the "
+        "rules tablet may not load. Is something else using the port?")
+
+
+def find_tts_saves_dir():
+    for d in TTS_SAVE_DIRS:
+        if os.path.isdir(d):
+            return d
+    return None
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Rebuild, test, install and launch Starve No More.")
+    ap.add_argument("--skip-tests", action="store_true",
+                    help="skip the pytest gate (faster, unverified)")
+    ap.add_argument("--no-launch", action="store_true",
+                    help="do everything except launching Tabletop Simulator")
+    args = ap.parse_args()
+
+    total_start = time.time()
+
+    # 1. Regenerate all derived artifacts.
+    for gen in GENERATORS:
+        run_step(f"regenerate ({gen})", [sys.executable, os.path.join(SCRIPTS, gen)])
+
+    # 2. Build the save.
+    run_step("build save", [sys.executable, os.path.join(SCRIPTS, "build_save.py")])
+
+    # 3. Test gate.
+    if args.skip_tests:
+        say("SKIPPING TESTS (--skip-tests) — the save you are about to play is unverified")
+    else:
+        run_step("test suite", [sys.executable, "-m", "pytest", "tests", "-q"])
+
+    # 4. Copy into the TTS saves folder.
+    dest_dir = find_tts_saves_dir()
+    if not dest_dir:
+        say("FAILED: no Tabletop Simulator saves folder found at:")
+        for d in TTS_SAVE_DIRS:
+            say(f"  {d}")
+        say("Is Tabletop Simulator installed? Copy saves/StarveNoMore.json by hand if "
+            "your saves live elsewhere.")
+        sys.exit(1)
+    dest = os.path.join(dest_dir, "StarveNoMore.json")
+    shutil.copyfile(SAVE_SRC, dest)
+    say(f"save copied -> {dest}")
+
+    # 5. Asset server.
+    ensure_server()
+
+    # 6. Launch.
+    if args.no_launch:
+        say("skipping launch (--no-launch)")
+    else:
+        say("launching Tabletop Simulator via Steam")
+        os.startfile(TTS_STEAM_URL)  # noqa: S606 — the whole point of the script
+
+    say(f"done in {time.time() - total_start:.0f}s. In TTS: Games -> Save & Load -> "
+        "'Starve No More' -> Load, then click Setup Game.")
+
+
+if __name__ == "__main__":
+    main()

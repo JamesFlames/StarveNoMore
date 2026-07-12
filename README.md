@@ -8,9 +8,21 @@ A cooperative survival board game for 3–5 players, built as a [Tabletop Simula
 
 ```bash
 pip install pytest lupa Pillow      # lupa runs the real Lua bundle headlessly
-python -m pytest tests              # ~250 tests; green = safe to build
+python -m pytest tests              # ~285 tests; green = safe to build
 python scripts/build_save.py        # assemble saves/StarveNoMore.json
 ```
+
+**Just want to play?** From the repo root:
+
+```bat
+iwanttoplay
+```
+
+One command: regenerates every derived artifact → builds the save → runs the
+full test suite → copies the save into your TTS saves folder → starts the
+asset server → launches Tabletop Simulator. A red test stops the pipeline
+before anything ships. Flags: `--skip-tests` (faster, unverified),
+`--no-launch` (everything except starting TTS).
 
 Everything else — pipelines, conventions, the file map — is in [`agents.md`](agents.md). Rule-change history: [`CHANGELOG.md`](CHANGELOG.md). Lua symbol lookup: [`SYMBOLS.md`](SYMBOLS.md).
 
@@ -43,8 +55,8 @@ StarveNoMore/
 ├── scripts/     Build + asset/data generation + balance sim + telemetry analyzer.
 ├── playtest/    Blind-playtest kit: facilitator script, feedback form, sessions/ logs.
 ├── saves/       Built TTS save (+ fixtures/ frozen mid-game save for compat tests).
-├── tests/       pytest suite (~275 tests) — runs the real Lua bundle headlessly,
-│                plus XML/color/lint quality gates (see robustnessimprovements.md).
+├── tests/       pytest suite (~285 tests) — runs the real Lua bundle headlessly,
+│                plus XML/color/lint quality gates and publish-build checks.
 └── Archive/     Superseded design / reference docs (frozen, no live links).
 ```
 
@@ -69,10 +81,11 @@ Requires Python 3 with `Pillow`. Card illustrations and board scenes need a loca
 
 | Script | Reads | Writes | Purpose |
 |---|---|---|---|
-| `scripts/build_save.py` | every file listed in `LUA_LOAD_ORDER`, `xml/global_ui.xml`, `art/decks/atlas_manifest.json` | `saves/StarveNoMore.json` + `saves/StarveNoMore.pretty.json` | The final assembly step. Concatenates the Lua bundle (29 files today) and the XML into one TTS save JSON, spawns the table objects (board, decks, tokens, player boards, character standees with per-character holder colors, the Sealed Basement, etc.), reading deck grid dimensions from the atlas manifest (hard-stops if atlases are stale), and pretty-prints a copy for diffing. Run this last after any change to Lua, XML, or auto-generated data tables. |
+| `scripts/build_save.py` | every file listed in `LUA_LOAD_ORDER`, the `XML_LOAD_ORDER` files under `xml/` (hud / setup / dialogs), `art/decks/atlas_manifest.json` | `saves/StarveNoMore.json` + `saves/StarveNoMore.pretty.json` (dev) or `saves/StarveNoMore.publish.json` (`--publish BASE_URL`) | The final assembly step. Concatenates the Lua bundle (29 files today) and the XML into one TTS save JSON, spawns the table objects (board, decks, tokens, player boards, character standees with per-character holder colors, the Sealed Basement, the Player Rules tablet, etc.), reading deck grid dimensions from the atlas manifest (hard-stops if atlases are stale), and pretty-prints a copy for diffing. `--publish` rewrites every `file:///`/`localhost` asset URL to a hosted base and writes a separate shareable save. Run this last after any change to Lua, XML, or auto-generated data tables. |
 | `scripts/generate_threat_types.py` | `content/cards_threats.csv` | `lua/threat_types.lua` | Emits `THREAT_TYPE_BY_NAME` (nickname → Hard/Soft/Persistent, used by the Night Sounds dusk peek — a face-down deck only exposes nicknames) and `SEALED_REWARDS` (from the structured `pry_reward` column, consumed by `doPry`). Re-run after editing the threats CSV. |
 | `scripts/generate_recipe_data.py` | `content/cards_recipes.csv` | `lua/recipe_data.lua` | Emits `RECIPE_DATA` from the structured `script` column (`allAtTile=hunger:4+sanity:2\|cookPenalty=health:2\|...`), so the card face text and what `doCook` actually does can never drift apart. Re-run after editing recipes. |
 | `scripts/generate_notebook.py` | `content/notebook/*.md`, `content/help/glossary.md` | `lua/notebook_data.lua` | Converts the player-doc markdown to plain text and emits the in-game Notebook tabs (Quick Start / Full Rules / Characters) and Help-panel Quick Start + Glossary constants. `build_save.py` imports its `md_to_text` for the physical Quick Start notecard — one source, every surface. |
+| `scripts/generate_player_rules.py` | `content/notebook/*.md`, `content/help/glossary.md` | `PlayerRules.md` + `PlayerRules.html` | The player rulebook, assembled from the same markdown as the Notebook (Quick Start → Full Rules → Characters → Glossary). The HTML is a self-contained styled page: the in-TTS **Player Rules tablet** loads it from `http://localhost:8080/PlayerRules.html` (start `scripts/serve_art.bat`), and the same file opens in any desktop browser. Re-run after editing the notebook/glossary markdown. |
 | `scripts/generate_symbol_index.py` | `lua/*.lua` (in `LUA_LOAD_ORDER` order) | `SYMBOLS.md`, `.luacheckrc` | The Lua bundle's table of contents: every global function/constant with file and line, plus a luacheck config whose globals list is generated from the bundle itself. Re-run after any Lua change (a freshness test enforces it). |
 | `scripts/analyze_sessions.py` | `playtest/sessions/*.json` (Copy Session Log exports) | console report | Aggregates playtest telemetry into the tables the validation gates need: win rate by difficulty/player count, loss-day histogram, median turn seconds by turn style (the Rotation A/B verdict), and how often the designed beats (presses, Signatures, the Source split, dares) actually fire at real tables. |
 | `scripts/generate_audio_manifest.py` | `sounds/ambient/{suburban,varied}/`, `sounds/creatures/<boss>/`, `sounds/sfx/` | `lua/audio_manifest.lua` | Walks the `sounds/` tree, computes each track's duration (precise for `.wav` via the stdlib `wave` module; estimated from filesize for `.mp3`), and emits a Lua table with `{url, duration, name}` entries grouped under `AUDIO.AMBIENT_SUBURBAN / AMBIENT_VARIED / CREATURES.<boss> / SFX.<key>`. Re-run after adding or removing any sound file. |
@@ -95,6 +108,7 @@ python scripts/generate_market_data.py
 python scripts/generate_threat_types.py
 python scripts/generate_recipe_data.py
 python scripts/generate_notebook.py       # in-game Notebook/Help text from content/*.md
+python scripts/generate_player_rules.py   # PlayerRules.md + PlayerRules.html from the same markdown
 python scripts/generate_symbol_index.py   # after any lua/ change (SYMBOLS.md + .luacheckrc)
 
 # 2. After adding new card illustrations to ComfyUI: queue, wait, sync.
@@ -120,8 +134,16 @@ python scripts/build_save.py
 2. Copy `saves/StarveNoMore.json` to your TTS saves folder
    (`%USERPROFILE%\Documents\My Games\Tabletop Simulator\Saves\` on Windows).
 3. Start the local asset server: `scripts/serve_art.bat` — serves the repo root
-   over `http://localhost:8080` so both `/art/...` and `/sounds/...` resolve.
+   over `http://localhost:8080` so `/art/...`, `/sounds/...` and
+   `/PlayerRules.html` all resolve.
 4. In TTS, *Games → Save & Load*, select the save, and click **Setup Game** on the table.
+5. Rules are on the table: the **Player Rules tablet** (bottom-right) shows the
+   full rulebook in-game; the same page is `PlayerRules.html` in any browser
+   (or `http://localhost:8080/PlayerRules.html` while the server runs).
+
+To share a save beyond this machine, host the repo's `art/`, `sounds/` and
+`PlayerRules.html` somewhere public and build with
+`python scripts/build_save.py --publish https://your.host/starvenomore`.
 
 ## Design pillars
 

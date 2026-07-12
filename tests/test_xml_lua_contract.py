@@ -45,7 +45,7 @@ def test_lua_ui_ids_exist_in_xml(lua_sources, xml_source):
         for lineno, line in enumerate(src.splitlines(), 1):
             for uid in UI_ID_CALL_RE.findall(line):
                 if uid not in xml_ids:
-                    problems.append(f"{rel}:{lineno}: UI call targets id {uid!r} not present in global_ui.xml")
+                    problems.append(f"{rel}:{lineno}: UI call targets id {uid!r} not present in any xml/ file")
     assert not problems, "\n".join(problems)
 
 
@@ -56,7 +56,7 @@ def test_xml_handlers_are_defined_in_lua(lua_sources, xml_source):
         # strip optional "Global/" prefix and "(...)" argument suffix
         name = raw.split("/")[-1].split("(")[0].strip()
         if name and name not in defined:
-            problems.append(f"global_ui.xml handler {raw!r}: no Lua function named {name!r}")
+            problems.append(f"XML handler {raw!r}: no Lua function named {name!r}")
     assert not problems, "\n".join(sorted(problems))
 
 
@@ -74,4 +74,4 @@ def test_createbutton_click_functions_are_defined(lua_sources):
 def test_xml_ids_unique(xml_source):
     ids = XML_ID_RE.findall(xml_source)
     dupes = sorted({i for i in ids if ids.count(i) > 1})
-    assert not dupes, f"duplicate element ids in global_ui.xml: {dupes}"
+    assert not dupes, f"duplicate element ids across the xml/ files: {dupes}"

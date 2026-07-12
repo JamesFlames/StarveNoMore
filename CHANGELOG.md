@@ -2,11 +2,19 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Player rulebook, publishable saves, structure pass (2026-07)
+
+- **Player Rules on the table.** `scripts/generate_player_rules.py` assembles `PlayerRules.md` + `PlayerRules.html` from the same `content/` markdown as the in-game Notebook (Quick Start → Full Rules → Characters → Glossary — can't drift). A **Player Rules tablet** object on the table shows the HTML in-game via the local asset server; the same file opens in any desktop browser. Freshness-tested like every other generated artifact.
+- **`--publish` builds.** `build_save.py --publish BASE_URL` writes a separate shareable save with every `file:///` and `localhost` URL rewritten to the hosted base — and refuses to write one that still contains a local URL. `test_publish_build.py` proves it end-to-end.
+- **UI XML split** into `xml/hud.xml` / `xml/setup.xml` / `xml/dialogs.xml` (was one ~1,300-line `global_ui.xml`); the build and the whole test suite read the files in `XML_LOAD_ORDER`.
+- **Adversarial tests**: undo spam refunds exactly once; all three setup entry points refuse re-entry on a running game; restart-through-the-confirm then re-setup yields a clean Day 1.
+- Housekeeping: the robustness tracking file was implemented out and removed (its live pieces now live in the test suite + agents.md); the retired `Archive/Checklist_For_TTS_Implementation.md` and `Archive/InterestingGames.md` were deleted (git history keeps them; the design doc's citations became plain-text provenance notes, and code comments' phase codes are explained in agents.md).
+
 ## Starting hands + robustness program (2026-07)
 
 - **Starting hands are real now.** Each character's personal items (design §6: Pocketknife/Flashlight/Headphones, First Aid Kit/Comfort Blanket/…, Basketball/Sports Drinks/…, Crockpot/Cooking Knife/…, Notebook/Pep Talk/…) exist as cards — authored in `content/cards_starting.csv`, rendered into a 10th deck atlas, built into per-character decks in the save, and dealt into each player's hand at setup (`dealStartingHands`). James's Energy Drink ×2 arrive as resource **tokens** by his board (Wired runs on tokens). His starting Flashlight counts for the night light check (nickname match).
 - **Printed weapon dice are script-rolled.** `getAttackDice` had a TODO where equipment should have counted; `WEAPON_DICE` is now generated from "+N Attack die" card text (market + starting CSVs) and combat adds the best single carried weapon automatically.
-- **Robustness program** (see `robustnessimprovements.md` for the full list & status): new test gates for XML well-formedness, literal `\n`, TTS-parseable colors (the white-panel bug class, checked in XML *and* Lua), image↔CustomUIAssets↔disk, dynamic per-character UI ids, luacheck (skips if not installed; CI runs it), TOOLTIP_DATA↔save tags, standee-slot constant mirror, starting-decks↔CSV; `onLoad` survives a corrupt saved state (pcall + fresh start); the dead bare-setup handler is gone; the hand+board "carried objects" scan is one shared helper for lights and weapons.
+- **Robustness program** (tracked in `robustnessimprovements.md` at the time; since implemented and removed — the enforced-mirrors list lives in agents.md): new test gates for XML well-formedness, literal `\n`, TTS-parseable colors (the white-panel bug class, checked in XML *and* Lua), image↔CustomUIAssets↔disk, dynamic per-character UI ids, luacheck (skips if not installed; CI runs it), TOOLTIP_DATA↔save tags, standee-slot constant mirror, starting-decks↔CSV; `onLoad` survives a corrupt saved state (pcall + fresh start); the dead bare-setup handler is gone; the hand+board "carried objects" scan is one shared helper for lights and weapons.
 
 ## Playtest UX fixes — first live-table feedback (2026-07)
 

@@ -61,7 +61,7 @@ end
 -----------------------------------------------------------------------
 local function refreshVariantToggle(id, on, labelOn, labelOff)
     UI.setAttribute(id, "text", on and labelOn or labelOff)
-    -- Light "rulebook page" theme (matches global_ui.xml): green = ON.
+    -- Light "rulebook page" theme (matches xml/setup.xml): green = ON.
     UI.setAttribute(id, "color", on and "#CFE6C2FF" or "#ECE6D8FF")
     UI.setAttribute(id, "textColor", on and "#1E5A1E" or "#3A362E")
 end
@@ -132,7 +132,7 @@ local CHAR_BUTTON_MAP = {
     pickLuca   = "Luca",
 }
 
--- Step 2 card styling (light "rulebook page" theme; matches global_ui.xml).
+-- Step 2 card styling (light "rulebook page" theme; matches xml/setup.xml).
 local CHAR_CARD_STYLE = {
     James  = { bg = "#E9E9F2FF", name = "#2B2B52" },
     Coco   = { bg = "#F5E3E3FF", name = "#7A2727" },
