@@ -363,7 +363,10 @@ function refreshActionButtonReasons(color)
 end
 
 function setActionTooltip(buttonId, text)
-    UI.setAttribute(buttonId, "tooltip", text)
+    -- Feeds the delayed actionTooltip panel (ui_actionbar.lua) rather than
+    -- the native tooltip attribute: the native one shows instantly, semi-
+    -- transparent, directly on top of the action bar.
+    ACTION_TOOLTIPS[buttonId] = text
 end
 
 -----------------------------------------------------------------------

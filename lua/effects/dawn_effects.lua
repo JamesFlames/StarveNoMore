@@ -711,7 +711,12 @@ DAWN_EFFECTS["P4_THE_TRUTH"] = {
         -- Check if the team has all 3 Clue cards
         local clueCount = gameState.clueCount or 0
         if clueCount >= 3 then
-            broadcastEvent("gain", "The team has all 3 Clues! A Truth Trophy is placed.")
+            broadcastEvent("gain", "The team has all 3 Clues! The Truth Trophy flips face-up on the trophy row.")
+            local trophy = findOneByTag("TR_TRUTH")
+            if trophy then
+                trophy.setRotationSmooth({0, 180, 0}, false, true)  -- face up
+                trophy.highlightOn("Yellow", 10)
+            end
         else
             allPlayersLose("sanity", 2)
             broadcastEvent("damage", "The truth is worse than you imagined. Missing Clues — all lose 2 Sanity.")
@@ -879,7 +884,7 @@ DAWN_MANUAL_STEPS = {
                             "Optional DARE: spend 2 Battery to peek the next 3 Dawn cards (host: draw + show + return in order)." },
     P1_PHOTO_FOUND      = { "Choose one player: +1 Sanity and peek at the top Threat card." },
     P2_FOOD_SPOILS      = { "Every player discards 1 Food.",
-                            "Optional DARE: eat it anyway — +2 Hunger and -1 Health (stat buttons) instead of discarding." },
+                            "Optional DARE: eat it anyway — announce it: +2 Hunger and -1 Health instead of discarding." },
     P2_VISITOR          = { "Resolve the revealed Visitor card's instructions." },
     P2_SUPPLY_DROP      = { "Add 1 Metal + 1 Cloth to the nearest house tile.",
                             "Draw 1 Threat at that house tile." },

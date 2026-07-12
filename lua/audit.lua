@@ -43,6 +43,11 @@ function lockdownCriticalObjects()
         end
     end
 
+    -- The Day Counter is script-driven only: block its +/- buttons so
+    -- players can't adjust the day by hand (setValue still works).
+    local counter = getDayCounter()
+    if counter then counter.interactable = false end
+
     -- Lock all resource infinite bags
     for _, obj in ipairs(getAllObjects()) do
         if obj.hasTag("ResourceBag") then

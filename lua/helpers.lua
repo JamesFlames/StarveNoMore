@@ -165,15 +165,23 @@ function getActivePlayerColors()
     return colors
 end
 
--- Map player color to character name
+-- Map player color to character name. Mid-game the roster is authoritative
+-- (a loaded old save may predate the colour scheme); otherwise fall back
+-- to the character-colour scheme in CHARACTER_COLORS (global.lua).
 function colorToCharacter(color)
-    local map = {White="James", Red="Coco", Yellow="Rayman", Green="Ellie", Blue="Luca"}
-    return map[color]
+    local char = gameState and gameState.activeChars and gameState.activeChars[color]
+    if char then return char.name end
+    for name, c in pairs(CHARACTER_COLORS) do
+        if c == color then return name end
+    end
+    return nil
 end
 
 function characterToColor(name)
-    local map = {James="White", Coco="Red", Rayman="Yellow", Ellie="Green", Luca="Blue"}
-    return map[name]
+    for color, char in pairs((gameState and gameState.activeChars) or {}) do
+        if char.name == name then return color end
+    end
+    return CHARACTER_COLORS[name]
 end
 
 -----------------------------------------------------------------------

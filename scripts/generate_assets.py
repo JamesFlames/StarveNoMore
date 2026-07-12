@@ -17,6 +17,8 @@ import os
 import math
 from PIL import Image, ImageDraw, ImageFont
 
+import board_geometry  # doom-track pixel geometry shared with build_save.py
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Output dirs
@@ -625,10 +627,12 @@ def generate_main_board():
         centered_text(draw, cx, cy + 165, stat_text, FONT_BOARD_TINY, tag_color)
 
     # --- DOOM TRACK (right side, vertical) ---
-    doom_x = 3600
-    doom_top = 300
-    doom_bot = 3800
-    step_h = (doom_bot - doom_top) / 30
+    # Pixel geometry comes from board_geometry so the Doom-marker snap
+    # points in build_save.py always land on the printed track.
+    doom_x = board_geometry.DOOM_TRACK_PX_X
+    doom_top = board_geometry.DOOM_TRACK_PX_TOP
+    doom_bot = board_geometry.DOOM_TRACK_PX_BOTTOM
+    step_h = board_geometry.DOOM_STEP_PX
 
     # Track background
     draw.rounded_rectangle([doom_x - 80, doom_top - 60, doom_x + 80, doom_bot + 60],

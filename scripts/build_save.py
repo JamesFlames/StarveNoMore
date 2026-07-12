@@ -18,6 +18,7 @@ import os
 import glob
 
 from generate_notebook import md_to_text   # shared md→text for the Quick Start notecard
+import board_geometry                       # shared board image↔world geometry
 
 _ap = argparse.ArgumentParser(description="Assemble the TTS save JSON.")
 _ap.add_argument("--publish", metavar="BASE_URL", default=None,
@@ -343,7 +344,21 @@ for color, x, z, ry in hand_colors:
 # E.1  Main Board
 # ---------------------------------------------------------------------------
 
-# Snap points for the main board
+# Snap points for the main board.
+# AttachedSnapPoints are stored in BOARD-LOCAL space; the board's transform
+# scale is 12, so Lua's board.positionToWorld(snap.position) multiplies
+# these by 12. Author in world units and divide by BOARD_SCALE here — the
+# old world-authored values made moveDoomMarker fling the marker to
+# (120, 72), far off the table.
+BOARD_SCALE = board_geometry.BOARD_SCALE
+
+def board_snap(wx, wz, tags):
+    return {
+        "Position": {"x": wx / BOARD_SCALE, "y": 0.02, "z": wz / BOARD_SCALE},
+        "Rotation": {"x": 0, "y": 0, "z": 0},
+        "Tags": tags,
+    }
+
 board_snaps = []
 
 # Location tile snap points (5 locations in the graph layout)
@@ -355,25 +370,22 @@ loc_positions = {
     "BadmintonCourt": {"x": 0,   "y": 0.1, "z": 8},
 }
 for name, pos in loc_positions.items():
-    board_snaps.append({
-        "Position": pos, "Rotation": {"x": 0, "y": 0, "z": 0},
-        "Tags": [f"Snap:Location:{name}"]
-    })
+    board_snaps.append(board_snap(pos["x"], pos["z"], [f"Snap:Location:{name}"]))
 
-# Doom track snap points (31 steps along the right edge)
+# Doom track snap points — 31 steps down the printed vertical track on the
+# board's right side (drawn by generate_assets.generate_main_board; geometry
+# shared via board_geometry so art and snaps can't drift apart). Consumed by
+# moveDoomMarker (setup.lua), which slides the locked Doom marker along them.
 for step in range(31):
+    lx, lz = board_geometry.doom_step_local(step)
     board_snaps.append({
-        "Position": {"x": 10 + (step % 10) * 0.4, "y": 0.1, "z": 6 - (step // 10) * 1.5},
+        "Position": {"x": lx, "y": 0.02, "z": lz},
         "Rotation": {"x": 0, "y": 0, "z": 0},
         "Tags": [f"Snap:Doom:{step}"]
     })
 
 # Day Counter snap
-board_snaps.append({
-    "Position": {"x": -10, "y": 0.1, "z": 8},
-    "Rotation": {"x": 0, "y": 0, "z": 0},
-    "Tags": ["Snap:DayCounter"]
-})
+board_snaps.append(board_snap(-10, 8, ["Snap:DayCounter"]))
 
 # Market display (5 slots) — a column down the board's left flank.
 # TTS cards are ~2.3 units wide/3.2 long, so slots need ~3.6 units of
@@ -381,47 +393,30 @@ board_snaps.append({
 # nearby — they used to bury the Day Counter and clip the board edge).
 MARKET_SLOT_POSITIONS = [(-12.5, 9.0 - i * 3.6) for i in range(5)]
 for i, (msx, msz) in enumerate(MARKET_SLOT_POSITIONS):
-    board_snaps.append({
-        "Position": {"x": msx, "y": 0.1, "z": msz},
-        "Rotation": {"x": 0, "y": 0, "z": 0},
-        "Tags": [f"Snap:Market:{i}"]
-    })
+    board_snaps.append(board_snap(msx, msz, [f"Snap:Market:{i}"]))
 
 # Deck slots
 for deck_name, xoff in [("PhaseDeck", -7), ("ThreatDeck", -4), ("VisitorDeck", -1), ("MarketDeck", 2)]:
-    board_snaps.append({
-        "Position": {"x": xoff, "y": 0.1, "z": 12},
-        "Rotation": {"x": 0, "y": 0, "z": 0},
-        "Tags": [f"Snap:{deck_name}"]
-    })
+    board_snaps.append(board_snap(xoff, 12, [f"Snap:{deck_name}"]))
 
 # Trophy display (4 slots)
 for i in range(4):
-    board_snaps.append({
-        "Position": {"x": 5 + i * 1.5, "y": 0.1, "z": 12},
-        "Rotation": {"x": 0, "y": 0, "z": 0},
-        "Tags": [f"Snap:Trophy:{i}"]
-    })
+    board_snaps.append(board_snap(5 + i * 1.5, 12, [f"Snap:Trophy:{i}"]))
 
 # Severity Legend snap
-board_snaps.append({
-    "Position": {"x": -3.5, "y": 0.1, "z": 13},
-    "Rotation": {"x": 0, "y": 0, "z": 0},
-    "Tags": ["Snap:SeverityLegend"]
-})
+board_snaps.append(board_snap(-3.5, 13, ["Snap:SeverityLegend"]))
 
 # Help button anchor
-board_snaps.append({
-    "Position": {"x": 10, "y": 0.1, "z": -10},
-    "Rotation": {"x": 0, "y": 0, "z": 0},
-    "Tags": ["Snap:HelpButton"]
-})
+board_snaps.append(board_snap(10, -10, ["Snap:HelpButton"]))
 
+# Tooltip=False: no hover text on the board itself — players can see what
+# it is, and the popup got in the way of hovering pieces on top of it.
 main_board = base_obj("Custom_Board", tf(0, 0.96, 0, sx=12, sy=1, sz=12),
                        nickname="Starve No More — Main Board",
                        desc="The suburban map. Doom threshold ribbons are printed on the board.",
                        tags=["Board", "MainBoard"],
-                       locked=True)
+                       locked=True,
+                       extra={"Tooltip": False})
 main_board["CustomImage"] = {
     "ImageURL": ph("main_board"),
     "ImageSecondaryURL": "",
@@ -519,10 +514,15 @@ for variant in ["Compact", "Sprawl", "Linear", "Ring", "Star"]:
 # E.6  Doom track marker
 # ---------------------------------------------------------------------------
 
-doom = base_obj("Custom_Token", tf(10, 1.5, 6),
+# Spawns locked on step 0 of the printed Doom track; only moveDoomMarker
+# (setup.lua) moves it — players can't drag it. y=1.2 mirrors the marker
+# rest height in moveDoomMarker.
+_doom_x, _doom_z = board_geometry.doom_step_world(0)
+doom = base_obj("Custom_Token", tf(_doom_x, 1.2, _doom_z),
                 nickname="Doom Marker",
                 desc="Doom: 0 / 30. Next threshold at 10: night threats +1.",
-                tags=["DoomMarker"])
+                tags=["DoomMarker"],
+                locked=True)
 doom["CustomImage"] = {
     "ImageURL": ph("doom_marker"),
     "ImageSecondaryURL": "",
@@ -535,7 +535,11 @@ objects.append(doom)
 # E.7  Day Counter
 # ---------------------------------------------------------------------------
 
-day_counter = base_obj("Counter", tf(-10, 1.2, 8),
+# ry=180 so the digits read right-side-up from the players' side (matches
+# the card rotation convention). The script alone advances it: onLoad /
+# lockdownCriticalObjects set interactable=false so players can't click
+# the counter's +/- buttons.
+day_counter = base_obj("Counter", tf(-10, 1.2, 8, ry=180),
                        nickname="Day Counter",
                        desc="Current day. Advances each Dawn.",
                        tags=["DayCounter"],
@@ -826,12 +830,15 @@ characters = [
 # the cardboard image; transparent-background character art ensures the
 # standee silhouette stays close to the source while the holder picks up
 # this colour).
+# Matches CHARACTER_COLORS in lua/global.lua — a player's seat colour is
+# determined by the character they pick, and the standee holder wears the
+# same colour.
 STANDEE_COLORS = {
-    "James":  {"r": 1.00, "g": 1.00, "b": 1.00},   # White
-    "Coco":   {"r": 0.92, "g": 0.32, "b": 0.32},   # Red
-    "Rayman": {"r": 0.35, "g": 0.78, "b": 0.40},   # Green
-    "Ellie":  {"r": 0.62, "g": 0.82, "b": 0.95},   # Light Blue
-    "Luca":   {"r": 1.00, "g": 0.60, "b": 0.20},   # Orange
+    "James":  {"r": 0.12, "g": 0.53, "b": 1.00},   # Blue
+    "Coco":   {"r": 1.00, "g": 1.00, "b": 1.00},   # White
+    "Rayman": {"r": 0.19, "g": 0.70, "b": 0.17},   # Green
+    "Ellie":  {"r": 0.91, "g": 0.88, "b": 0.17},   # Yellow
+    "Luca":   {"r": 0.86, "g": 0.10, "b": 0.09},   # Red
 }
 
 CHAR_HOME_TILE = {"James": "JamesHouse", "Rayman": "RaymanHouse",

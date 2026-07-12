@@ -49,7 +49,7 @@ This is the in-game reference. The full design intent is in StarveNoMoreDesignCo
 
 SETUP
 
-1. Click Setup Game on the Setup Pedestal.
+1. Click Setup Game on the main board (or on the Host Controls panel, top-left).
 2. Pick a path graph (Compact / Sprawl / Linear).
 3. Optional variants (both off = standard game): Rotation turns and Random Scenario (see Variants below).
 4. Each player picks a character. Read your one-time character briefing — that tells you what makes you different.
@@ -66,7 +66,7 @@ DAWN
 - Reveal top of the active Phase deck. Apply effects.
 
 DAY
-Each player has 3 actions, taken as one turn (default) — or, with the Rotation variant, 1 action per visit cycling around the table until all are spent (pass after acting = keep the rest banked; pass without acting = forfeit them). Choose any:
+Each player has 3 actions, taken as one turn (default) — or, with the Rotation turns variant, you take 1 action and play passes to the next player, circling the table until everyone has used all 3 (pass after acting = keep the rest for your next go; pass without acting = forfeit them). Choose any:
 - Move (1) — adjacent tile. Costs 1 Hunger. Rayman moves 2 spaces.
 - Gather (1) — draw 1 resource at this tile.
 - Craft (1) — buy an Item from the Market.
@@ -147,7 +147,7 @@ Bonus achievements:
 
 VARIANTS (OPTIONAL, CHOSEN AT SETUP)
 
-- Rotation turns — during Day, take 1 action per visit instead of all 3 at once; priority cycles until every action is spent. Shorter waits between your decisions at 4–5 players. Pass after acting keeps your remaining actions; pass without acting forfeits them.
+- Rotation turns — changes how Day turns are dealt out. Standard: on your turn you take all 3 of your actions, then the next player goes. Rotation: you take just 1 action and play passes to the next player, going around the table until everyone has used all 3 — shorter waits between your decisions at 4–5 players. Pass after acting keeps your remaining actions for your next go; pass without acting forfeits them.
 - Random Scenario — one week-long twist revealed at setup and shown in the "Rules in effect" panel all game: The Long Winter (hunger is brutal), The Scorching Summer, The Rotting Autumn, The False Spring, Total Blackout (Fire is the only light), Strict Rationing, The Full Moon (no Charlie, harder threats), The Shortcut. Recommended after your first game.]==]
 
 -- Notebook tab 'Characters'
@@ -270,7 +270,7 @@ PHASES
 - Phase 4 (Days 6–7) — Final Hours. The Source arrives — it must be destroyed before Day 7 ends.
 
 VARIANTS (OPTIONAL, CHOSEN AT SETUP)
-- Rotation turns — Day actions are taken 1 per visit, cycling around the table, instead of 3 at once. Pass after acting = keep your remaining actions banked; pass without acting = forfeit them.
+- Rotation turns — instead of taking all 3 of your actions in one turn, you take 1 action and play passes to the next player, going around the table until everyone has used all 3. Pass after acting = keep your remaining actions for your next go; pass without acting = forfeit them.
 - Scenario — one week-long world modifier revealed at setup (e.g. The Long Winter, Total Blackout). Its rules stay in the "Rules in effect" panel all game. One per game, off by default.
 
 TREEGUARD (MINI-BOSS)

@@ -402,10 +402,11 @@ player never has to ask "what now?":
   - GameOver → `btnRestart`
 
 ### 1b. Always-visible character roster + live standee tooltips
-- `xml/hud.xml` `charRoster` panel (MiddleRight) shows every character's current Health / Hunger / Sanity as compact bars + numeric values. Each name uses that character's standee color (white / red / green / light blue / orange).
+- `xml/hud.xml` `charRoster` panel (MiddleRight) shows every character's current Health / Hunger / Sanity as compact bars + numeric values. Each name uses that character's color (James blue / Coco white / Rayman green / Ellie yellow / Luca red).
 - `lua/ui_banner.lua` `refreshCharRoster()` (called from `refreshPhaseBanner`) updates the bars, dims rows for Down characters, and hides rows for characters not in the current game.
 - `lua/ui_banner.lua` `refreshStandeeTooltips()` rewrites each character standee's `Description` on every state change so hovering a standee shows live `Health/Hunger/Sanity • At <Location>` (or the revival hint if Down).
-- `scripts/build_save.py` `STANDEE_COLORS` tints each character's `Figurine_Custom` `ColorDiffuse` so the card holders match the roster naming (James white, Coco red, Rayman green, Ellie light blue, Luca orange).
+- `scripts/build_save.py` `STANDEE_COLORS` tints each character's `Figurine_Custom` `ColorDiffuse` so the card holders match the roster naming (James blue, Coco white, Rayman green, Ellie yellow, Luca red).
+- **A player's seat colour is determined by the character they pick** (`CHARACTER_COLORS`, global.lua — mirrored by `STANDEE_COLORS`): the guided setup's `reseatPlayerForCharacter` (ui_setup.lua) moves each player onto their character's colour at pick time (anyone parked there is shifted to a spare seat); the bare `Setup()` assigns characters by the same colour scheme.
 
 ### 2. What-now hints — auto-loaded from markdown
 - `content/help/whatnow_hints.md` is the **source of truth**. `scripts/generate_whatnow_hints.py` parses it into `lua/whatnow_hints.lua` (the `WHATNOW_HINTS` table).

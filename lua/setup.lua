@@ -39,7 +39,11 @@ function Setup(hostColor)
     gameState.turnOrder = seated
     gameState.turnIndex = 0
 
-    local defaultAssignment = {White="James", Red="Coco", Yellow="Rayman", Green="Ellie", Blue="Luca"}
+    -- Seat colour ↔ character follows CHARACTER_COLORS (a player's colour
+    -- is determined by their character; the guided setup reseats players
+    -- to enforce it — the bare path simply assigns by seat).
+    local defaultAssignment = {}
+    for name, c in pairs(CHARACTER_COLORS) do defaultAssignment[c] = name end
 
     for _, color in ipairs(seated) do
         local charName = defaultAssignment[color]
@@ -180,6 +184,10 @@ function dealMarketDisplay()
     end, 0.5)
 end
 
+-- Rest height of the locked Doom marker on the board top (mirrors the
+-- marker's spawn transform in build_save.py).
+local DOOM_MARKER_Y = 1.2
+
 function moveDoomMarker(targetStep)
     local marker = getDoomMarker()
     if not marker then return end
@@ -187,16 +195,32 @@ function moveDoomMarker(targetStep)
     if not board then return end
 
     -- Find the snap point for this doom step
-    local snaps = board.getSnapPoints()
-    for _, sp in ipairs(snaps) do
+    local worldPos = nil
+    for _, sp in ipairs(board.getSnapPoints()) do
         for _, tag in ipairs(sp.tags or {}) do
             if tag == "Snap:Doom:" .. tostring(targetStep) then
-                local worldPos = board.positionToWorld(sp.position) + Vector(0, 0.5, 0)
-                marker.setPositionSmooth(worldPos)
-                return
+                worldPos = board.positionToWorld(sp.position)
+                break
             end
         end
+        if worldPos then break end
     end
+    if not worldPos then return end
+    worldPos.y = DOOM_MARKER_Y
+
+    -- The marker stays locked so players can't drag it; only this function
+    -- moves it. Unlock for the smooth slide (locked objects don't smooth-
+    -- move reliably), then pin it exactly on the step and re-lock.
+    marker.setLock(false)
+    marker.setPositionSmooth(worldPos, false, true)
+    Wait.time(function()
+        local m = getDoomMarker()
+        if m then
+            m.setPosition(worldPos)
+            m.setRotation({0, 0, 0})
+            m.setLock(true)
+        end
+    end, 1.0)
 end
 
 function createDayButton()

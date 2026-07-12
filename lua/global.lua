@@ -72,6 +72,20 @@ CHARACTER_STATS = {
     Luca   = {health=7,  hunger=8,  sanity=10},
 }
 
+-- A player's seat colour is determined by the character they pick: the
+-- guided setup reseats each player onto their character's colour
+-- (reseatPlayerForCharacter, ui_setup.lua), and the bare Setup() assigns
+-- characters by the same scheme. Standee holders, roster names and hand
+-- zones all match these colours. Mirrored by STANDEE_COLORS in
+-- scripts/build_save.py.
+CHARACTER_COLORS = {
+    James  = "Blue",
+    Coco   = "White",
+    Rayman = "Green",
+    Ellie  = "Yellow",
+    Luca   = "Red",
+}
+
 CHARACTER_HOMES = {
     James  = "JamesHouse",
     Rayman = "RaymanHouse",
@@ -238,6 +252,7 @@ function onLoad(savedState)
             updateActivePlayerIndicator()
             applyTooltips()
             refreshDynamicTooltips()
+            safecall(function() lockdownCriticalObjects() end, "Lockdown")
         end
         -- J.10: Run first-load component audit
         safecall(function() auditFirstLoad() end, "FirstLoadAudit")
@@ -266,8 +281,10 @@ function createSetupButton()
         width          = 2400,
         height         = 600,
         font_size      = 300,
+        -- White text on the dark plate — the old grey-on-grey read as a
+        -- disabled button.
         color          = {0.15, 0.15, 0.15},
-        font_color     = {0.9, 0.7, 0.3},
+        font_color     = {1, 1, 1},
         tooltip        = "Click to set up a new game of Starve No More.",
     })
 end

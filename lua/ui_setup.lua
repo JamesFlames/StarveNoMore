@@ -21,6 +21,13 @@ function startGuidedSetup(hostColor)
     setupState.charPicks = {}
     setupState.pendingColors = {}
 
+    -- Remove the board's 3D "Setup Game" button on every entry path (the
+    -- XML Host Controls button skipped onSetupClick's clearButtons, so the
+    -- button — and its "click to set up a new game" hover — used to linger
+    -- through the whole game).
+    local board = getMainBoard()
+    if board then board.clearButtons() end
+
     -- Gather seated players
     local seated = getActivePlayerColors()
     for _, c in ipairs(seated) do
@@ -69,8 +76,8 @@ end
 function onToggleRotation(player, value, id)
     setupState.rotationTurns = not setupState.rotationTurns
     refreshVariantToggle("toggleRotation", setupState.rotationTurns,
-        "Rotation turns: ON\n(take 1 action per visit, cycling — shorter waits at 4-5 players)",
-        "Rotation turns: OFF\n(take 1 action per visit, cycling — shorter waits at 4-5 players)")
+        "Rotation turns: ON\n(take 1 action, then the next player goes — around the table 3 times)",
+        "Rotation turns: OFF\n(standard turns — each player takes all 3 actions in one go)")
 end
 
 function onToggleScenario(player, value, id)
@@ -105,7 +112,7 @@ function onVariantsContinue(player, value, id)
     UI.hide("setupStepVariants")
     gameState.turnStyle = setupState.rotationTurns and "rotate" or "full"
     if setupState.rotationTurns then
-        broadcastEvent("proc", "Variant on — Rotation turns: 1 action per visit, cycling until all are spent.")
+        broadcastEvent("proc", "Variant on — Rotation turns: each player takes 1 action at a time, going around the table until everyone has used all 3.")
     end
     gameState.difficulty = setupState.difficulty or "standard"
     if gameState.difficulty ~= "standard" then
@@ -133,12 +140,14 @@ local CHAR_BUTTON_MAP = {
 }
 
 -- Step 2 card styling (light "rulebook page" theme; matches xml/setup.xml).
+-- Hues follow each character's seat colour (CHARACTER_COLORS): James blue,
+-- Coco white, Rayman green, Ellie yellow, Luca red.
 local CHAR_CARD_STYLE = {
-    James  = { bg = "#E9E9F2FF", name = "#2B2B52" },
-    Coco   = { bg = "#F5E3E3FF", name = "#7A2727" },
-    Rayman = { bg = "#F0EDD8FF", name = "#5C5214" },
-    Ellie  = { bg = "#E2F0DCFF", name = "#1E5A1E" },
-    Luca   = { bg = "#E2E6F5FF", name = "#24336B" },
+    James  = { bg = "#E2E8F5FF", name = "#24336B" },
+    Coco   = { bg = "#F7F6F1FF", name = "#55524C" },
+    Rayman = { bg = "#E2F0DCFF", name = "#1E5A1E" },
+    Ellie  = { bg = "#F5F0D0FF", name = "#8A7414" },
+    Luca   = { bg = "#F5E3E3FF", name = "#7A2727" },
 }
 local CARD_TAKEN_BG   = "#CFCBC2AA"
 local CARD_TAKEN_NAME = "#8A857B"
@@ -181,6 +190,54 @@ function showCharPickForNextPlayer()
     UI.show("setupStep2")
 end
 
+-----------------------------------------------------------------------
+-- A player's colour is determined by the character they pick
+-- (CHARACTER_COLORS, global.lua): picking reseats the player onto the
+-- character's colour so pointer, hand zone, standee holder and roster
+-- all match. Anyone parked on the target seat is shifted to a spare
+-- seat — their own pick will reseat them properly in turn.
+-----------------------------------------------------------------------
+local SPARE_SEATS = { "Orange", "Purple", "Pink", "Teal", "Brown" }
+
+local function _renameSetupColor(oldColor, newColor)
+    for i, c in ipairs(setupState.pendingColors) do
+        if c == oldColor then setupState.pendingColors[i] = newColor end
+    end
+    if setupState.hostColor == oldColor then setupState.hostColor = newColor end
+    if setupState.charPicks[oldColor] then
+        setupState.charPicks[newColor] = setupState.charPicks[oldColor]
+        setupState.charPicks[oldColor] = nil
+    end
+end
+
+local function reseatPlayerForCharacter(color, charName)
+    local target = CHARACTER_COLORS and CHARACTER_COLORS[charName]
+    if not target or target == color then return color end
+
+    -- Free the target seat if another player is parked on it.
+    local occupant = Player[target]
+    if occupant and occupant.seated then
+        for _, spare in ipairs(SPARE_SEATS) do
+            if not Player[spare].seated then
+                if occupant.changeColor(spare) then
+                    _renameSetupColor(target, spare)
+                end
+                break
+            end
+        end
+    end
+
+    local mover = Player[color]
+    if mover and mover.seated and mover.changeColor(target) then
+        _renameSetupColor(color, target)
+        broadcastEvent("proc", charName .. " plays as " .. target .. " — seat colours follow characters.")
+        return target
+    end
+    -- Reseat refused (seat still occupied / engine edge): keep the old
+    -- colour — the game works either way, the colours just won't match.
+    return color
+end
+
 function onPickChar(player, value, id)
     local charName = CHAR_BUTTON_MAP[id]
     if not charName then return end
@@ -201,14 +258,16 @@ function onPickChar(player, value, id)
         return
     end
 
-    setupState.charPicks[color] = charName
+    local finalColor = color
+    safecall(function() finalColor = reseatPlayerForCharacter(color, charName) end, "Reseat")
+    setupState.charPicks[finalColor] = charName
     table.remove(setupState.pendingColors, 1)
-    broadcastEvent("proc", charName .. " assigned to " .. color .. ".")
+    broadcastEvent("proc", charName .. " assigned to " .. finalColor .. ".")
 
     UI.hide("setupStep2")
 
     -- Show briefing for this player (Step 3 interleaved)
-    showCharBriefing(color, charName)
+    showCharBriefing(finalColor, charName)
 end
 
 -----------------------------------------------------------------------
@@ -222,13 +281,29 @@ CHAR_BRIEFINGS = {
     Luca = "You are Luca, the Orator.\n\nYour words hold Sanity together when everything else falls apart.\n\nStrengths:\n- Rally: once per turn, give an adjacent ally a free action.\n- Calm Words: on Sanity-loss events at your tile, d6 — 4+ negates it.\n- Storyteller: allies at your tile gain +1 Sanity at Night.\n\nConstraint:\n- Needs an Audience: Sanity doesn't regen when alone.\n\nStarting hand: Notebook, Loud Whistle, Pep Talk, Reading Lamp, Toolbox.\n\nFirst move: Use Rally to give Ellie a free action. Stay with allies.",
 }
 
+-- Rich-text pass for the briefing dialog only: section titles become bold
+-- and slightly larger, colons dropped. CHAR_BRIEFINGS itself stays plain —
+-- it doubles as the pick-card hover tooltip, where rich-text tags would
+-- render literally.
+local function formatBriefingBody(text)
+    local out = text
+    out = out:gsub("Strengths:", "<b><size=16>Strengths</size></b>")
+    out = out:gsub("Constraints:", "<b><size=16>Constraints</size></b>")
+    out = out:gsub("Constraint:", "<b><size=16>Constraint</size></b>")
+    -- These two run inline into their item lists — break the line instead
+    -- of just dropping the colon.
+    out = out:gsub("Starting hand: ", "<b><size=16>Starting Hand</size></b>\n")
+    out = out:gsub("First move: ", "<b><size=16>First Move</size></b>\n")
+    return out
+end
+
 function showCharBriefing(color, charName)
     setupState.step = 3
     setupState.briefingColor = color
 
     local text = CHAR_BRIEFINGS[charName] or ("You are " .. charName .. ".")
     UI.setAttribute("briefTitle", "text", "You are " .. charName)
-    UI.setAttribute("briefBody", "text", text)
+    UI.setAttribute("briefBody", "text", formatBriefingBody(text))
     UI.show("charBriefing")
 end
 

@@ -247,6 +247,23 @@ end
 -- campaign lands on the same held breath. Pure tone, no penalty: the
 -- first Dawn all week that isn't a threat.
 -----------------------------------------------------------------------
+-- Where the drawn Dawn card is displayed (in front of the phase decks) and
+-- where yesterday's card is stacked when the next one is drawn. Cards
+-- dropped on the same spot pile into a face-up discard deck, so nobody
+-- ever has to tidy Dawn cards by hand.
+local DAWN_REVEAL_OFFSET = Vector(0, 1, -2.5)   -- relative to the phase deck
+local DAWN_DISCARD_POS   = {x = -4.5, y = 1.5, z = 9.5}
+
+local function discardActiveDawnCard()
+    local guid = gameState.activeDawn and gameState.activeDawn.cardGuid
+    if not guid then return end
+    local card = getObjectFromGUID(guid)
+    if card then
+        card.setPositionSmooth({DAWN_DISCARD_POS.x, DAWN_DISCARD_POS.y + 1, DAWN_DISCARD_POS.z}, false, true)
+        card.setRotationSmooth({0, 180, 0}, false, true)  -- face up on the pile
+    end
+end
+
 function revealLastDawn()
     -- dispatchDawnEffect normally cleans up the previous Dawn's ongoing
     -- effects; the Last Dawn bypasses the deck, so do it here.
@@ -256,6 +273,7 @@ function revealLastDawn()
             safecall(function() prev.onCleanup() end, "DawnCleanup:" .. gameState.activeDawn.prevId)
         end
     end
+    safecall(discardActiveDawnCard, "DawnDiscard")
 
     broadcastEvent("phase", "DAWN: THE LAST DAWN")
     broadcastEvent("proc", "The sky is trying to lighten. Survive until it's over.")
@@ -293,8 +311,13 @@ function revealDawnCard()
         return
     end
 
+    -- Yesterday's card moves itself to the discard pile first.
+    safecall(discardActiveDawnCard, "DawnDiscard")
+
     deck.takeObject({
-        position = deck.getPosition() + Vector(3, 1, 0),
+        -- In front of the deck row — the old +x offset dropped the card
+        -- on top of the Threat deck.
+        position = deck.getPosition() + DAWN_REVEAL_OFFSET,
         rotation = {0, 180, 0},  -- face up
         smooth   = true,
         callback_function = function(card)
@@ -307,6 +330,7 @@ function revealDawnCard()
                 id = name,
                 title = name,
                 description = desc,
+                cardGuid = card.getGUID and card.getGUID() or card.guid,
             }
 
             -- Dispatch dawn effect
@@ -334,7 +358,7 @@ function beginDayPhase()
     end
 
     if gameState.turnStyle == "rotate" then
-        broadcastEvent("proc", "Rotation variant: one action per visit, cycling until everyone has spent all "
+        broadcastEvent("proc", "Rotation turns: take 1 action, then the next player goes — around the table until everyone has used all "
             .. ACTIONS_PER_TURN .. ". Passing without acting forfeits your remaining actions.")
     end
 
@@ -424,7 +448,7 @@ function spendAction(color, actionName)
         return false
     end
     if gameState.turnStyle == "rotate" and gameState.actedThisVisit then
-        broadcastToColor("Rotation variant: one action per visit. Click Pass — your remaining actions stay banked.",
+        broadcastToColor("Rotation turns: that was your 1 action for this go-around. Click Pass — your remaining actions are kept for your next go.",
             color, BROADCAST_COLORS.damage)
         return false
     end

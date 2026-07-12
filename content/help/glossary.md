@@ -28,7 +28,7 @@
 - Phase 4 (Days 6–7) — Final Hours. The Source arrives — it must be destroyed before Day 7 ends.
 
 ## Variants (optional, chosen at setup)
-- **Rotation turns** — Day actions are taken 1 per visit, cycling around the table, instead of 3 at once. Pass after acting = keep your remaining actions banked; pass without acting = forfeit them.
+- **Rotation turns** — instead of taking all 3 of your actions in one turn, you take 1 action and play passes to the next player, going around the table until everyone has used all 3. Pass after acting = keep your remaining actions for your next go; pass without acting = forfeit them.
 - **Scenario** — one week-long world modifier revealed at setup (e.g. The Long Winter, Total Blackout). Its rules stay in the "Rules in effect" panel all game. One per game, off by default.
 
 ## Treeguard (mini-boss)

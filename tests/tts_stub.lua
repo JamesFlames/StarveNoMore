@@ -364,6 +364,18 @@ local function makePlayer(color)
         pingTable = function(_pos) return true end,
         print = function(msg) note("printToColor", msg, color) end,
         broadcast = function(msg) note("broadcastToColor", msg, color) end,
+        -- Reseat: swaps this seat's entry in TTS.seated, like the real
+        -- Player.changeColor (fails if this player isn't seated). Hands
+        -- are not migrated — the bundle only reseats before hands exist.
+        changeColor = function(newColor)
+            for i, c in ipairs(TTS.seated) do
+                if c == color then
+                    TTS.seated[i] = newColor
+                    return true
+                end
+            end
+            return false
+        end,
     }
 end
 

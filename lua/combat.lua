@@ -181,7 +181,7 @@ function markBossDefeated(threatName)
         gameState.doom = math.max(0, gameState.doom - 2)
         safecall(function() moveDoomMarker(gameState.doom) end, "Doom")
         broadcastEvent("gain", "The Deerclops falls! Sanity costs return to normal — and the pressure eases: Doom -2 (now "
-            .. gameState.doom .. "). Claim its Trophy.")
+            .. gameState.doom .. "). Its Trophy flips face-up on the trophy row — its power is live.")
     elseif string.find(lower, "eye of terror", 1, true) or string.find(lower, "eyeofterror", 1, true) then
         key = "eye"
         gameState.bossesDefeated.eye = true
@@ -189,21 +189,39 @@ function markBossDefeated(threatName)
         gameState.doom = math.max(0, gameState.doom - 3)
         safecall(function() moveDoomMarker(gameState.doom) end, "Doom")
         broadcastEvent("gain", "The Eye of Terror is destroyed! The sky stops watching: Doom -3 (now "
-            .. gameState.doom .. "). Claim its Trophy.")
+            .. gameState.doom .. "). Its Trophy flips face-up on the trophy row — its power is live.")
     elseif string.find(lower, "source", 1, true) then
         key = "source"
         gameState.bossesDefeated.source = true
         e.sourceDefeated = true
         e.sourceActive = nil
         if gameState.bossHP then gameState.bossHP.source = 0 end
-        broadcastEvent("gain", "THE SOURCE IS DESTROYED. Claim its Trophy — you have won the week.")
+        broadcastEvent("gain", "THE SOURCE IS DESTROYED. Its Trophy flips face-up — you have won the week.")
     end
 
     if key then
         if BOSS_KILL_NARRATIONS[key] then broadcastEvent("phase", BOSS_KILL_NARRATIONS[key]) end
         safecall(function() flashVictoryLighting() end, "Light")
         safecall(function() dropBossLoot(key) end, "BossLoot")
+        safecall(function() revealTrophy(key) end, "Trophy")
     end
+end
+
+-- Trophies sit face-down on the trophy row; a boss kill flips its own
+-- trophy face-up automatically — no card handling by the players.
+local TROPHY_TAG_BY_BOSS = {
+    deerclops = "TR_DEERCLOPS",
+    eye       = "TR_EYE_OF_TERROR",
+    source    = "TR_SOURCE",
+}
+
+function revealTrophy(key)
+    local tag = TROPHY_TAG_BY_BOSS[key]
+    if not tag then return end
+    local trophy = findOneByTag(tag)
+    if not trophy then return end
+    trophy.setRotationSmooth({0, 180, 0}, false, true)  -- face up
+    trophy.highlightOn("Yellow", 10)
 end
 
 -----------------------------------------------------------------------

@@ -95,7 +95,7 @@ local function collectActiveRules()
 
     -- 0.3) Table variants chosen at setup
     if gameState.turnStyle == "rotate" then
-        table.insert(lines, "VARIANT — Rotation turns: 1 action per visit, cycling. Pass after acting keeps your remaining actions; passing without acting forfeits them.")
+        table.insert(lines, "VARIANT — Rotation turns: take 1 action, then the next player goes; play circles the table until everyone has used all 3. Pass after acting = keep your remaining actions for your next go; pass without acting = forfeit them.")
     end
 
     -- 0.6) Active Scenario (§17.3): its rules apply all game

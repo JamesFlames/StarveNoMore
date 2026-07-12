@@ -33,7 +33,8 @@ end
 -- Uses TTS's per-object highlightOn(color, duration) so it doesn't compete
 -- with the global Phase Banner CTA pulse on XML elements.
 -----------------------------------------------------------------------
-local HIGHLIGHT_DURATION = 8  -- seconds
+local HIGHLIGHT_DURATION = 30  -- seconds; matches TARGET_TIMEOUT so the glow
+                               -- never dies while the target buttons remain
 
 -----------------------------------------------------------------------
 -- Market affordability: count Resource:* tokens near a player's board
@@ -225,18 +226,20 @@ local function _armTargetTimeout()
     end, TARGET_TIMEOUT)
 end
 
-local function _spawnTargetButton(obj, label, fnName, tooltip, wide)
+local function _spawnTargetButton(obj, label, fnName, tooltip, wide, pos)
     obj.createButton({
         click_function = fnName,
         function_owner  = Global,
         label           = label,
-        position        = {0, 0.4, 0},
+        position        = pos or {0, 0.4, 0},
         rotation        = {0, 0, 0},
         width           = wide and 2000 or 1200,
         height          = wide and 560 or 420,
         font_size       = wide and 240 or 180,
-        color           = {0.08, 0.28, 0.14, 0.95},
-        font_color      = {0.75, 1, 0.75},
+        -- Bright, fully opaque, white text: these must read as "click me"
+        -- from table height, not blend into the tile art.
+        color           = {0.10, 0.55, 0.20, 1.0},
+        font_color      = {1, 1, 1},
         tooltip         = tooltip,
     })
     table.insert(_targetButtonObjs, obj)
@@ -253,10 +256,13 @@ local function _spawnMoveButtons(color, mode)
         local tile = getLocationTile(locName)
         if tile then
             tile.highlightOn("Green", HIGHLIGHT_DURATION)
+            -- Front edge of the tile, floated well above it: the tile
+            -- centre is busy (standee slots, threat cards) and a button
+            -- there disappears into the clutter.
             _spawnTargetButton(tile, label, "onMoveTargetClick",
                 "Move " .. char.name .. " to " .. locName ..
                 ((mode == "bonusmove") and " (free second step)" or " (1 action, 1 Hunger)"),
-                true)
+                true, {0, 0.7, -0.85})
             n = n + 1
         end
     end
@@ -453,7 +459,7 @@ function onActMove(player, value, id)
         return
     end
     _armTargetTimeout()
-    broadcastToColor("Click MOVE HERE on a green tile (1 action, 1 Hunger). Click Move again to cancel.", color, BROADCAST_COLORS.proc)
+    broadcastToColor("Click the green MOVE HERE button floating at the front of a glowing tile (1 action, 1 Hunger). Click Move again to cancel.", color, BROADCAST_COLORS.proc)
 end
 
 function onActGather(player, value, id)
@@ -771,6 +777,7 @@ function refreshActionBar()
         end
     else
         UI.hide("actionBar")
+        UI.hide("actionTooltip")
         -- Keep stat display visible during other phases if game started
         if gameState.started then
             UI.show("statDisplay")
@@ -832,7 +839,7 @@ function refreshActionButtonStates(color)
     if canPry then
         local pryOk, pryWhy = canPry(color)
         setActionEnabled("actPry", pryOk and true or false)
-        UI.setAttribute("actPry", "tooltip",
+        setActionTooltip("actPry",
             pryOk and ("Pry open the sealed thing here — free action (you hold a " .. tostring(pryWhy) .. ").")
                   or ("Pry (free action). Unavailable: " .. (pryWhy or "")))
     end
@@ -843,7 +850,7 @@ function refreshActionButtonStates(color)
         local sigOk, sigWhy = canUseSignature(color)
         setActionEnabled("actSignature", sigOk and true or false)
         UI.setAttribute("actSignature", "text", sig.name)
-        UI.setAttribute("actSignature", "tooltip",
+        setActionTooltip("actSignature",
             sigOk and (sig.desc .. " " .. sig.cost .. " Once per game.")
                   or (sig.desc .. " Unavailable: " .. (sigWhy or "")))
     end
@@ -938,27 +945,52 @@ function refreshStatDisplay()
 end
 
 -----------------------------------------------------------------------
--- Stat adjust buttons (G.5 manual +/-)
+-- Action-button tooltips — shown in the actionTooltip panel just above
+-- the action bar (opaque, unlike the native transparent tooltip that
+-- rendered on top of the buttons), and only after a hover delay so they
+-- don't nag experienced players. Texts are dynamic: setActionTooltip
+-- (ui_help.lua) rewrites them with why-disabled reasons on every state
+-- change.
+-- (The manual +/- stat buttons that used to live here are gone: every
+-- stat change is automated by the action/night/tick handlers.)
 -----------------------------------------------------------------------
-function onStatHealthMinus(player)  modStatFromUI(player.color, "health", -1) end
-function onStatHealthPlus(player)   modStatFromUI(player.color, "health", 1) end
-function onStatHungerMinus(player)  modStatFromUI(player.color, "hunger", -1) end
-function onStatHungerPlus(player)   modStatFromUI(player.color, "hunger", 1) end
-function onStatSanityMinus(player)  modStatFromUI(player.color, "sanity", -1) end
-function onStatSanityPlus(player)   modStatFromUI(player.color, "sanity", 1) end
+ACTION_TOOLTIP_DELAY = 5  -- seconds of hover before the tooltip appears
 
-function modStatFromUI(color, stat, delta)
-    -- Allow any seated player to adjust stats for edge-case manual corrections
-    local activeColor = gameState.activeColor or color
-    local char = gameState.activeChars[activeColor]
-    if not char then return end
+ACTION_TOOLTIPS = {
+    actMove      = "Move to an adjacent location. Costs 1 action + 1 Hunger.",
+    actGather    = "Gather 1 resource from this location's bag. Costs 1 action.",
+    actCraft     = "Craft an item from the Market. Costs 1 action + resources.",
+    actCook      = "Cook a recipe at a Crockpot location. Costs 1 action + ingredients.",
+    actFight     = "Fight a threat at this location. Costs 1 action.",
+    actRest      = "Rest: +1 Hunger or +2 Sanity. At your own house: also +1 Health.",
+    actCleanse   = "Cleanse the Doom track (-2). Costs 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink.",
+    actTrade     = "Trade resources/items with another player. Free once per turn at your tile; otherwise 1 action.",
+    actSignature = "Your character's Signature Move — once per game.",
+    actPry       = "Pry open a sealed thing at your tile (free action; needs a Crowbar, Lockpick, or Pry Bar).",
+    actUndo      = "Undo your last action's stat, position, and Doom changes (once per action).",
+    actPass      = "End your turn. Remaining actions are forfeited.",
+}
 
-    local maxKey = "max" .. stat:sub(1,1):upper() .. stat:sub(2)
-    char[stat] = math.max(0, math.min(char[maxKey], char[stat] + delta))
+local actionTooltipWaits = {}  -- hovering player's color -> pending Wait id
 
-    local verb = delta > 0 and "gains" or "loses"
-    broadcastEvent("proc", char.name .. " " .. verb .. " " .. math.abs(delta) .. " " .. stat .. ". Now: " .. char[stat])
+function onActionTooltipEnter(player, value, id)
+    local tip = ACTION_TOOLTIPS[id]
+    if not tip then return end
+    local color = player.color
+    if actionTooltipWaits[color] then Wait.stop(actionTooltipWaits[color]) end
+    actionTooltipWaits[color] = Wait.time(function()
+        actionTooltipWaits[color] = nil
+        UI.setAttribute("actionTooltipText", "text", ACTION_TOOLTIPS[id] or tip)
+        UI.setAttribute("actionTooltip", "visibility", color)
+        UI.show("actionTooltip")
+    end, ACTION_TOOLTIP_DELAY)
+end
 
-    checkDownState(activeColor)
-    refreshStatDisplay()
+function onActionTooltipExit(player, value, id)
+    local color = player.color
+    if actionTooltipWaits[color] then
+        Wait.stop(actionTooltipWaits[color])
+        actionTooltipWaits[color] = nil
+    end
+    UI.hide("actionTooltip")
 end

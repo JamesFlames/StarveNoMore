@@ -78,7 +78,9 @@
             onClick="onToggleRotation"
             fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
             preferredHeight="64"
-            text="Rotation turns: OFF&#10;(take 1 action per visit, cycling — shorter waits at 4-5 players)" />
+            tooltip="OFF (standard): on your turn you take all 3 of your actions, then the next player goes. ON: you take just 1 action and play passes on, going around the table until everyone has spent all 3 — shorter waits between your decisions at 4-5 players."
+            tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
+            text="Rotation turns: OFF&#10;(standard turns — each player takes all 3 actions in one go)" />
     <Button id="toggleScenario"
             onClick="onToggleScenario"
             fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
@@ -116,10 +118,10 @@
     <HorizontalLayout spacing="8" childForceExpandWidth="true"
                       preferredHeight="300">
 
-      <Panel id="cardJames" color="#E9E9F2FF">
+      <Panel id="cardJames" color="#E2E8F5FF">
         <VerticalLayout spacing="2" padding="6 6 8 4" childForceExpandHeight="false">
           <Image image="char_front_James" preferredHeight="120" preserveAspect="true" />
-          <Text id="charName_James" fontSize="19" fontStyle="Bold" color="#2B2B52"
+          <Text id="charName_James" fontSize="19" fontStyle="Bold" color="#24336B"
                 alignment="MiddleCenter" text="JAMES" preferredHeight="26" />
           <Text fontSize="12" fontStyle="Italic" color="#33302A" alignment="MiddleCenter"
                 text="The Gamer" preferredHeight="16" />
@@ -131,13 +133,15 @@
                 text="Needs Energy Drinks" preferredHeight="30" />
         </VerticalLayout>
         <Button id="pickJames" onClick="onPickChar"
-                color="#00000000" textColor="#00000000" text="" tooltip="" />
+                color="#00000000" textColor="#00000000" text="" tooltip=""
+                tooltipPosition="Above" tooltipBackgroundColor="#F5EEDDFF"
+                tooltipTextColor="#2E2A22" tooltipBorderColor="#7A5C2ECC" />
       </Panel>
 
-      <Panel id="cardCoco" color="#F5E3E3FF">
+      <Panel id="cardCoco" color="#F7F6F1FF">
         <VerticalLayout spacing="2" padding="6 6 8 4" childForceExpandHeight="false">
           <Image image="char_front_Coco" preferredHeight="120" preserveAspect="true" />
-          <Text id="charName_Coco" fontSize="19" fontStyle="Bold" color="#7A2727"
+          <Text id="charName_Coco" fontSize="19" fontStyle="Bold" color="#55524C"
                 alignment="MiddleCenter" text="COCO" preferredHeight="26" />
           <Text fontSize="12" fontStyle="Italic" color="#33302A" alignment="MiddleCenter"
                 text="The Angel" preferredHeight="16" />
@@ -149,13 +153,15 @@
                 text="No Home" preferredHeight="30" />
         </VerticalLayout>
         <Button id="pickCoco" onClick="onPickChar"
-                color="#00000000" textColor="#00000000" text="" tooltip="" />
+                color="#00000000" textColor="#00000000" text="" tooltip=""
+                tooltipPosition="Above" tooltipBackgroundColor="#F5EEDDFF"
+                tooltipTextColor="#2E2A22" tooltipBorderColor="#7A5C2ECC" />
       </Panel>
 
-      <Panel id="cardRayman" color="#F0EDD8FF">
+      <Panel id="cardRayman" color="#E2F0DCFF">
         <VerticalLayout spacing="2" padding="6 6 8 4" childForceExpandHeight="false">
           <Image image="char_front_Rayman" preferredHeight="120" preserveAspect="true" />
-          <Text id="charName_Rayman" fontSize="19" fontStyle="Bold" color="#5C5214"
+          <Text id="charName_Rayman" fontSize="19" fontStyle="Bold" color="#1E5A1E"
                 alignment="MiddleCenter" text="RAYMAN" preferredHeight="26" />
           <Text fontSize="12" fontStyle="Italic" color="#33302A" alignment="MiddleCenter"
                 text="The Athlete" preferredHeight="16" />
@@ -167,13 +173,15 @@
                 text="Big Appetite + Loud" preferredHeight="30" />
         </VerticalLayout>
         <Button id="pickRayman" onClick="onPickChar"
-                color="#00000000" textColor="#00000000" text="" tooltip="" />
+                color="#00000000" textColor="#00000000" text="" tooltip=""
+                tooltipPosition="Above" tooltipBackgroundColor="#F5EEDDFF"
+                tooltipTextColor="#2E2A22" tooltipBorderColor="#7A5C2ECC" />
       </Panel>
 
-      <Panel id="cardEllie" color="#E2F0DCFF">
+      <Panel id="cardEllie" color="#F5F0D0FF">
         <VerticalLayout spacing="2" padding="6 6 8 4" childForceExpandHeight="false">
           <Image image="char_front_Ellie" preferredHeight="120" preserveAspect="true" />
-          <Text id="charName_Ellie" fontSize="19" fontStyle="Bold" color="#1E5A1E"
+          <Text id="charName_Ellie" fontSize="19" fontStyle="Bold" color="#8A7414"
                 alignment="MiddleCenter" text="ELLIE" preferredHeight="26" />
           <Text fontSize="12" fontStyle="Italic" color="#33302A" alignment="MiddleCenter"
                 text="The Cook" preferredHeight="16" />
@@ -185,13 +193,15 @@
                 text="Can't eat raw food" preferredHeight="30" />
         </VerticalLayout>
         <Button id="pickEllie" onClick="onPickChar"
-                color="#00000000" textColor="#00000000" text="" tooltip="" />
+                color="#00000000" textColor="#00000000" text="" tooltip=""
+                tooltipPosition="Above" tooltipBackgroundColor="#F5EEDDFF"
+                tooltipTextColor="#2E2A22" tooltipBorderColor="#7A5C2ECC" />
       </Panel>
 
-      <Panel id="cardLuca" color="#E2E6F5FF">
+      <Panel id="cardLuca" color="#F5E3E3FF">
         <VerticalLayout spacing="2" padding="6 6 8 4" childForceExpandHeight="false">
           <Image image="char_front_Luca" preferredHeight="120" preserveAspect="true" />
-          <Text id="charName_Luca" fontSize="19" fontStyle="Bold" color="#24336B"
+          <Text id="charName_Luca" fontSize="19" fontStyle="Bold" color="#7A2727"
                 alignment="MiddleCenter" text="LUCA" preferredHeight="26" />
           <Text fontSize="12" fontStyle="Italic" color="#33302A" alignment="MiddleCenter"
                 text="The Orator" preferredHeight="16" />
@@ -203,7 +213,9 @@
                 text="Needs an Audience" preferredHeight="30" />
         </VerticalLayout>
         <Button id="pickLuca" onClick="onPickChar"
-                color="#00000000" textColor="#00000000" text="" tooltip="" />
+                color="#00000000" textColor="#00000000" text="" tooltip=""
+                tooltipPosition="Above" tooltipBackgroundColor="#F5EEDDFF"
+                tooltipTextColor="#2E2A22" tooltipBorderColor="#7A5C2ECC" />
       </Panel>
 
     </HorizontalLayout>

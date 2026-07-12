@@ -24,7 +24,9 @@ from test_lua_runtime import make_env, populate_full_world, flush, lua_to_py
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
 
-SEATS = ("White", "Red", "Yellow")   # James, Coco, Rayman — exercises the 3p reliefs
+# Seat colours follow characters (CHARACTER_COLORS): Coco=White,
+# Rayman=Green, James=Blue — a trio with Rayman exercises the 3p reliefs.
+SEATS = ("White", "Green", "Blue")
 LOCATIONS = ["JamesHouse", "RaymanHouse", "EllieLucaHouse", "BasketballCourt", "BadmintonCourt"]
 
 
@@ -199,6 +201,40 @@ def test_reentrant_setup_is_refused():
     assert party_after == party_before, "a re-entrant setup path rewrote the party"
     assert any("already started" in m for m in _broadcast_messages(env)), (
         "re-entrant setup must refuse loudly, not silently")
+
+
+def test_guided_setup_reseats_players_to_character_colors():
+    """A player's colour is determined by the character they pick: the
+    guided walkthrough reseats each picker onto CHARACTER_COLORS' seat for
+    that character, displacing anyone parked there to a spare seat until
+    their own pick."""
+    env = make_env()
+    populate_full_world(env)
+    env.globals().onLoad("")
+    flush(env)
+    env.execute('TTS.seated = {"White", "Blue"}')
+    env.execute('onHostSetupGuided(Player["White"])')
+    env.execute('onPickPath(Player["White"], "-1", "pickCompact")')
+    env.execute('onVariantsContinue(Player["White"], "-1", "variantsContinue")')
+    flush(env)
+
+    # White player picks James -> James plays Blue; the pending player
+    # parked on Blue is displaced to the first spare seat (Orange).
+    env.execute('onPickChar(Player["White"], "-1", "pickJames")')
+    env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
+    # The displaced player (now Orange) picks Coco -> Coco plays White.
+    env.execute('onPickChar(Player["Orange"], "-1", "pickCoco")')
+    env.execute('onBriefDismiss(Player["White"], "-1", "briefDismiss")')
+    flush(env)
+
+    assert env.eval("gameState.started") is True
+    chars = lua_to_py(env.eval("gameState.activeChars"))
+    assert chars["Blue"]["name"] == "James", chars
+    assert chars["White"]["name"] == "Coco", chars
+    seated = lua_to_py(env.eval("TTS.seated"))
+    if isinstance(seated, dict):
+        seated = list(seated.values())
+    assert sorted(seated) == ["Blue", "White"], seated
 
 
 def test_restart_then_resetup_is_clean():
