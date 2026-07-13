@@ -220,6 +220,12 @@ function onWhatNowClick(player, value, id)
             if char.name == "James" and not gameState.jamesEnergyDrinkUsed then
                 hint = _appendHint(hint, charHints.james_no_energy_drink, char)
             end
+            if char.name == "James" and not gameState.jamesPeekUsed then
+                hint = _appendHint(hint, charHints.james_has_peek, char)
+            end
+            if char.name == "Luca" and not gameState.lucaRallyUsed then
+                hint = _appendHint(hint, charHints.luca_rally_unused, char)
+            end
 
             -- Signature nudge (§6.7): from Day 5 on, remind holders that the
             -- big move is still in the tank — the finale is what it's for.

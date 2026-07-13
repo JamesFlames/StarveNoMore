@@ -43,6 +43,8 @@ function BeginDay()
     gameState.raymanMovedToday = false  -- Loud constraint resets each day
     gameState.raymanTilesMovedToday = 0 -- 3p Big Appetite relief reads this (§20.1)
     gameState.raymanFoughtToday = false
+    gameState.raymanDefending = false   -- Backboard Block never outlives the night
+    gameState.jamesPeekUsed = false     -- Pattern Recognition: once per day (§6.1)
     gameState.loudSignature = {}        -- Posterize echo lasts one night only
     safecall(function() setPhaseMood("Dawn") end, "Mood")
     safecall(function() Audio.startDayAmbience() end, "Audio")
@@ -122,6 +124,15 @@ function BeginDay()
                 safecall(function() recordBeat("dare") end, "Telemetry")
             end
         end
+    end
+
+    -- The Eye of Terror's stare (P3_EYE_ARRIVES): each Dawn it stands, its
+    -- tile draws 1 extra Threat.
+    if gameState.ongoingDawnEffects.eyeActive and gameState.eyeLocation
+        and isBossOnMap("Boss:EyeOfTerror") then
+        broadcastEvent("warn", "The Eye of Terror stares down " .. gameState.eyeLocation ..
+            " — 1 extra Threat appears there.")
+        safecall(function() drawThreatsAt(gameState.eyeLocation, 1) end, "EyeThreat")
     end
 
     -- Haunted (Design §10.1): a character below 3 Sanity draws 1 Threat at
@@ -386,6 +397,14 @@ function advanceToNextPlayer()
         local char = gameState.activeChars[color]
         if char and not char.down and char.actionsLeft > 0 then
             gameState.activeColor = color
+            -- Per-turn perk windows reset with each new turn (§6.1 / §6.5).
+            gameState.jamesRerollUsed = false
+            gameState.lucaRallyUsed = false
+            -- Backboard Block (§6.3) holds "until Rayman's next turn".
+            if char.name == "Rayman" and gameState.raymanDefending then
+                gameState.raymanDefending = false
+                broadcastEvent("proc", "Rayman's Backboard Block ends — he steps out of the defensive stance.")
+            end
             safecall(function() markTurnStart() end, "Telemetry")
             broadcastEvent("proc", char.name .. "'s turn. " .. char.actionsLeft .. " action(s) remaining.")
             -- G.2: Update UI for new active player

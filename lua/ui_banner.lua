@@ -84,6 +84,9 @@ function refreshPhaseBanner()
     safecall(function() refreshCycleStrip() end, "CycleStrip")
     safecall(function() refreshDawnChecklist() end, "DawnChecklist")
 
+    -- Host Controls show only the buttons valid right now (ui_controls.lua)
+    safecall(function() refreshHostControls() end, "HostControls")
+
     -- Pulse the next clickable thing so it's not just text-described
     highlightCTA(getNextCTA())
 end

@@ -206,6 +206,7 @@ function clearActionTargets()
     local pa = gameState.pendingAction
     if pa and (pa.type == "move" or pa.type == "bonusmove"
             or pa.type == "craft" or pa.type == "cook" or pa.type == "trade"
+            or pa.type == "fight" or pa.type == "rally"
             or pa.type == "signature_heal") then
         gameState.pendingAction = nil
     end
@@ -215,7 +216,10 @@ function clearActionTargets()
     if clearSignatureTargets then
         safecall(function() clearSignatureTargets() end, "SigTargets")
     end
-    if UI then UI.hide("tradeDialog"); UI.hide("signatureTargetDialog") end
+    if UI then
+        UI.hide("tradeDialog"); UI.hide("signatureTargetDialog")
+        UI.hide("peekDialog"); UI.hide("rallyDialog")
+    end
 end
 
 local function _armTargetTimeout()
@@ -315,6 +319,51 @@ local function _spawnCookButtons()
     return n
 end
 
+-- Fight targets: everything fightable at the active player's tile gets a
+-- FIGHT button — plus a FIGHT TOGETHER button when standing, fed allies
+-- share the tile (group combat, Design §12.2).
+local _fightTargetByGuid = {}
+
+local function _alliesCanJoinFight(color)
+    local char = gameState.activeChars[color]
+    if not char then return false end
+    for c2, ch2 in pairs(gameState.activeChars) do
+        if c2 ~= color and not ch2.down and ch2.location == char.location
+            and ch2.hunger >= 3 then
+            return true
+        end
+    end
+    return false
+end
+
+local function _spawnFightButtons(color)
+    _fightTargetByGuid = {}
+    local char = gameState.activeChars[color]
+    if not char then return 0 end
+    local group = _alliesCanJoinFight(color)
+    local n = 0
+    for _, target in ipairs(fightTargetsAt(char.location)) do
+        local obj = target.obj
+        _fightTargetByGuid[obj.guid] = obj
+        obj.highlightOn("Red", HIGHLIGHT_DURATION)
+        local hpNote = target.stats.hp
+        if not target.boss then
+            local dmg = (gameState.threatDamage or {})[obj.guid] or 0
+            hpNote = math.max(0, target.stats.hp - dmg)
+        end
+        _spawnTargetButton(obj, "FIGHT", "onFightTargetClick",
+            "Fight " .. target.stats.name .. " (HP " .. hpNote .. ", Atk " .. target.stats.attack ..
+            ") — 1 action, you alone.", false, {0, 0.4, -0.6})
+        if group then
+            _spawnTargetButton(obj, "TOGETHER", "onFightTogetherClick",
+                "Fight " .. target.stats.name .. " as a group — every standing ally here with Hunger 3+ joins: summed dice, shared counter-attacks.",
+                false, {0, 0.4, 0.6})
+        end
+        n = n + 1
+    end
+    return n
+end
+
 -----------------------------------------------------------------------
 -- Target-button click handlers (createButton click_functions)
 -----------------------------------------------------------------------
@@ -385,6 +434,31 @@ function onCookTargetClick(obj, clickerColor, altClick)
     safecall(function() doCook(color, rid) end, "Cook")
     refreshPhaseBanner()
     updateActivePlayerIndicator()
+end
+
+local function _resolveFightClick(obj, clickerColor, together)
+    local pa = gameState.pendingAction
+    if not (pa and pa.type == "fight") then return end
+    if clickerColor ~= pa.color then
+        broadcastToColor("Only the fighting player may pick the target.", clickerColor, BROADCAST_COLORS.damage)
+        return
+    end
+    local target = _fightTargetByGuid[obj.guid]
+    if not target then return end
+    local color = pa.color
+    gameState.pendingAction = nil
+    _clearTargetButtons()
+    safecall(function() doFightTarget(color, target, together) end, "Fight")
+    refreshPhaseBanner()
+    updateActivePlayerIndicator()
+end
+
+function onFightTargetClick(obj, clickerColor, altClick)
+    _resolveFightClick(obj, clickerColor, false)
+end
+
+function onFightTogetherClick(obj, clickerColor, altClick)
+    _resolveFightClick(obj, clickerColor, true)
 end
 
 local function _highlightCraftTargets(color)
@@ -530,8 +604,29 @@ end
 function onActFight(player, value, id)
     local color = player.color
     if not validateActivePlayer(color) then return end
-    safecall(function() doFight(color) end, "Fight")
-    refreshPhaseBanner()
+    -- Clicking Fight again while a fight is pending cancels it.
+    local pa = gameState.pendingAction
+    clearActionTargets()
+    if pa and pa.color == color and pa.type == "fight" then
+        broadcastToColor("Fight cancelled.", color, BROADCAST_COLORS.proc)
+        return
+    end
+    local ok, why = canFight(color)
+    if not ok then
+        broadcastToColor(why or "Can't fight right now.", color, BROADCAST_COLORS.damage)
+        return
+    end
+    gameState.pendingAction = { type = "fight", color = color }
+    local n = 0
+    safecall(function() n = _spawnFightButtons(color) end, "FightTargets")
+    if n == 0 then
+        gameState.pendingAction = nil
+        broadcastToColor("Nothing to fight here.", color, BROADCAST_COLORS.damage)
+        return
+    end
+    _armTargetTimeout()
+    broadcastToColor("Click FIGHT on a glowing threat (1 action). TOGETHER pulls in every standing ally here with Hunger 3+. Click Fight again to cancel.",
+        color, BROADCAST_COLORS.proc)
 end
 
 function onActRest(player, value, id)
@@ -701,6 +796,78 @@ function onTradeCancel(player, value, id)
 end
 
 -----------------------------------------------------------------------
+-- Pattern Recognition (James, §6.1): pick a deck in a dialog, the top
+-- card's name goes to James alone. Free action, once per day (doPeek).
+-----------------------------------------------------------------------
+function onActPeek(player, value, id)
+    local color = player.color
+    if not validateActivePlayer(color) then return end
+    local ok, why = canPeek(color)
+    if not ok then
+        broadcastToColor(why or "Can't peek right now.", color, BROADCAST_COLORS.damage)
+        return
+    end
+    UI.show("peekDialog")
+end
+
+function onPeekDeckClick(player, value, id)
+    UI.hide("peekDialog")
+    safecall(function() doPeek(player.color, value) end, "Peek")
+    refreshPhaseBanner()
+end
+
+function onPeekCancel(player, value, id)
+    UI.hide("peekDialog")
+end
+
+-----------------------------------------------------------------------
+-- Rally (Luca, §6.5): pick an eligible ally in a dialog; they gain a
+-- free non-movement action. Free for Luca, once per turn (doRally).
+-----------------------------------------------------------------------
+local RALLY_COLORS = {"White", "Red", "Yellow", "Green", "Blue"}
+
+function onActRally(player, value, id)
+    local color = player.color
+    if not validateActivePlayer(color) then return end
+    local ok, why = canRally(color)
+    if not ok then
+        broadcastToColor(why or "Can't Rally right now.", color, BROADCAST_COLORS.damage)
+        return
+    end
+    local eligible = {}
+    for _, c in ipairs(rallyTargets(color)) do eligible[c] = true end
+    for _, c in ipairs(RALLY_COLORS) do
+        local btn = "rallyBtn_" .. c
+        local ch = gameState.activeChars[c]
+        if eligible[c] and ch then
+            UI.setAttribute(btn, "active", "true")
+            UI.setAttribute(btn, "text", ch.name .. "  (at " .. (ch.location or "?") .. ", " ..
+                (ch.actionsLeft or 0) .. " action(s) left)")
+        else
+            UI.setAttribute(btn, "active", "false")
+        end
+    end
+    gameState.pendingAction = { type = "rally", color = color }
+    UI.show("rallyDialog")
+end
+
+function onRallyTargetClick(player, value, id)
+    UI.hide("rallyDialog")
+    local pa = gameState.pendingAction
+    if not (pa and pa.type == "rally" and pa.color == player.color) then return end
+    gameState.pendingAction = nil
+    safecall(function() doRally(pa.color, value) end, "Rally")
+    refreshPhaseBanner()
+    updateActivePlayerIndicator()
+end
+
+function onRallyCancel(player, value, id)
+    UI.hide("rallyDialog")
+    local pa = gameState.pendingAction
+    if pa and pa.type == "rally" then gameState.pendingAction = nil end
+end
+
+-----------------------------------------------------------------------
 -- Undo: one-step rollback of the last action's stat / position / Doom
 -- bookkeeping (snapshot taken in spendAction via snapshotForUndo).
 -----------------------------------------------------------------------
@@ -822,8 +989,36 @@ function refreshActionButtonStates(color)
     -- Cook: only at crockpot locations
     setActionEnabled("actCook", not noActions and hasCrockpot)
 
-    -- Fight: need actions and hunger >= 3
-    setActionEnabled("actFight", not noActions and not tooHungry)
+    -- Fight: needs actions, Hunger >= 3, and something fightable here
+    if canFight then
+        local fightOk, fightWhy = canFight(color)
+        setActionEnabled("actFight", fightOk and true or false)
+        setActionTooltip("actFight",
+            fightOk and "Fight a threat or boss at this location (click a FIGHT button on the target). 1 action."
+                    or ("Fight (1 action). Unavailable: " .. (fightWhy or "")))
+    else
+        setActionEnabled("actFight", not noActions and not tooHungry)
+    end
+
+    -- Pattern Recognition (James only, §6.1): free peek, once per day
+    UI.setAttribute("actPeek", "active", char.name == "James" and "true" or "false")
+    if char.name == "James" then
+        local peekOk, peekWhy = canPeek(color)
+        setActionEnabled("actPeek", peekOk and true or false)
+        setActionTooltip("actPeek",
+            peekOk and "Pattern Recognition: peek at the top card of any deck — free action, once per day."
+                   or ("Pattern Recognition (free). Unavailable: " .. (peekWhy or "")))
+    end
+
+    -- Rally (Luca only, §6.5): free, once per turn, needs a nearby ally
+    UI.setAttribute("actRally", "active", char.name == "Luca" and "true" or "false")
+    if char.name == "Luca" then
+        local rallyOk, rallyWhy = canRally(color)
+        setActionEnabled("actRally", rallyOk and true or false)
+        setActionTooltip("actRally",
+            rallyOk and "Rally: give an ally at your tile or adjacent a free non-movement action — free, once per turn."
+                    or ("Rally (free). Unavailable: " .. (rallyWhy or "")))
+    end
 
     -- Rest: always available if actions remain
     setActionEnabled("actRest", not noActions)
@@ -961,7 +1156,9 @@ ACTION_TOOLTIPS = {
     actGather    = "Gather 1 resource from this location's bag. Costs 1 action.",
     actCraft     = "Craft an item from the Market. Costs 1 action + resources.",
     actCook      = "Cook a recipe at a Crockpot location. Costs 1 action + ingredients.",
-    actFight     = "Fight a threat at this location. Costs 1 action.",
+    actFight     = "Fight a threat or boss at this location — click FIGHT on the target (TOGETHER = group fight). Costs 1 action.",
+    actPeek      = "Pattern Recognition (James): peek at the top card of any deck. Free action, once per day.",
+    actRally     = "Rally (Luca): give an ally at your tile or adjacent a free non-movement action. Free, once per turn.",
     actRest      = "Rest: +1 Hunger or +2 Sanity. At your own house: also +1 Health.",
     actCleanse   = "Cleanse the Doom track (-2). Costs 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink.",
     actTrade     = "Trade resources/items with another player. Free once per turn at your tile; otherwise 1 action.",

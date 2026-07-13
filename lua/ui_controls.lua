@@ -38,9 +38,45 @@ end
 -- every UI path now goes through the guided walkthrough. The bare
 -- Setup() remains for tests and console use only.)
 -----------------------------------------------------------------------
+
+-----------------------------------------------------------------------
+-- Contextual Host Controls: only the buttons that are valid in the
+-- current sub-phase are shown, and the panel shrinks to fit. Refreshed
+-- from refreshPhaseBanner (ui_banner.lua) on every state change.
+--   PreGame          → Setup
+--   PreDawn          → Begin Day (+ Restart)
+--   Day              → End Turn (+ Restart)
+--   Dusk / Night     → Resolve Night (+ Restart; during Night it is the
+--                      manual fallback if the automatic chain stalls)
+--   Dawn / Tick      → nothing but Restart (both auto-advance)
+--   GameOver         → Restart
+-----------------------------------------------------------------------
+function refreshHostControls()
+    if not UI then return end
+    local sp = gameState.subPhase or "PreGame"
+    local show = {
+        btnSetup        = not gameState.started,
+        btnBeginDay     = gameState.started and sp == "PreDawn",
+        btnResolveNight = sp == "Dusk" or sp == "Night",
+        btnEndTurn      = sp == "Day" and gameState.activeColor ~= nil,
+        btnRestart      = gameState.started or sp == "GameOver",
+    }
+    local count = 0
+    for id, on in pairs(show) do
+        UI.setAttribute(id, "active", on and "true" or "false")
+        if on then count = count + 1 end
+    end
+    -- Title (~38px incl. padding) + one 38px button + 6px gap per row.
+    UI.setAttribute("hostControls", "height", tostring(46 + count * 44))
+end
 function onHostBeginDay(player, value, id)
     if not gameState.started then
         broadcastToColor("Run Setup first.", player.color, BROADCAST_COLORS.damage)
+        return
+    end
+    if gameState.subPhase ~= "PreDawn" then
+        broadcastToColor("Begin Day is only available between days (currently: " ..
+            tostring(gameState.subPhase) .. ").", player.color, BROADCAST_COLORS.damage)
         return
     end
     safecall(function()
@@ -370,7 +406,7 @@ TOOLTIP_DATA = {
     ["VisitorCardDeck"]      = "Visitor Deck. Absent characters may arrive via Dawn cards.",
     -- Supply
     ["TelltaleHeartSupply"]  = "Telltale Hearts (5 max). Cook: 1 Cloth + 1 Battery + 1 Food + 2 Health. Use to revive a Down character.",
-    ["ResourceBag"]          = "Resource supply bag. You never dig in here yourself — the Gather action (and card rewards) hand you tokens from it automatically.",
+    ["ResourceBag"]          = "Resource supply bag. Take tokens from here when a Gather (or card) tells you to; scripted costs and rewards (Cleanse, Pry, boss loot) pay in and out automatically.",
     ["PathVariant"]          = "Decorative path tiles for an alternate map layout. Safe to ignore during play.",
     -- Locations
     ["Location:JamesHouse"]       = "James's House. Yields: Energy Drink, Battery, Junk Food. The Den: free trade once/day.",

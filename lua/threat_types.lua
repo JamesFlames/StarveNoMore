@@ -60,6 +60,66 @@ THREAT_TYPE_BY_NAME["The Sealed Shed"] = "Persistent"  -- T_SEALED_SHED
 THREAT_TYPE_BY_NAME["The Sealed Locker"] = "Persistent"  -- T_SEALED_LOCKER
 THREAT_TYPE_BY_NAME["The Sealed Car"] = "Persistent"  -- T_SEALED_CAR
 
+-- Statlines per card id, for the scripted Fight action (doFightTarget,
+-- actions.lua). hp 0 = not fightable (Soft events / hp-less Persistents).
+THREAT_STATS = {}
+
+THREAT_STATS.T_SHADOW_STALKER = { name = "Shadow Stalker", hp = 4, attack = 2 }
+THREAT_STATS.T_HOLLOW_SPECTATOR = { name = "Hollow Spectator", hp = 3, attack = 1 }
+THREAT_STATS.T_TERROR_BEAK = { name = "Terror Beak", hp = 2, attack = 2 }
+THREAT_STATS.T_SPIDER_THING = { name = "Spider Thing", hp = 3, attack = 1 }
+THREAT_STATS.T_ROOMMATE = { name = "Your Roommate (Wrong)", hp = 5, attack = 2 }
+THREAT_STATS.T_THE_NEIGHBOR = { name = "The Neighbor", hp = 6, attack = 2 }
+THREAT_STATS.T_HOWLING = { name = "A Howling Outside", hp = 0, attack = 0 }
+THREAT_STATS.T_POWER_FLICKER = { name = "The Power Flickers", hp = 0, attack = 0 }
+THREAT_STATS.T_RUNG_DOORBELL = { name = "The Doorbell Rang", hp = 0, attack = 0 }
+THREAT_STATS.T_FOOD_GONE_WRONG = { name = "Food Gone Wrong", hp = 0, attack = 0 }
+THREAT_STATS.T_WHISPERS = { name = "Whispers Behind the Walls", hp = 0, attack = 0 }
+THREAT_STATS.T_LOST_MEMORIES = { name = "Lost Memories", hp = 0, attack = 0 }
+THREAT_STATS.T_THE_GRUE = { name = "The Grue (Charlie)", hp = 0, attack = 0 }
+THREAT_STATS.T_LURKER = { name = "Lurker", hp = 3, attack = 1 }
+THREAT_STATS.T_HUNGRY_DOG = { name = "Hungry Dog", hp = 2, attack = 1 }
+THREAT_STATS.T_CRACKED_FLOOR = { name = "Cracked Floor", hp = 0, attack = 0 }
+THREAT_STATS.T_BUZZING = { name = "A Buzzing in Your Head", hp = 0, attack = 0 }
+THREAT_STATS.T_LIGHTS_OUT = { name = "The Lights Cut Out", hp = 0, attack = 0 }
+THREAT_STATS.T_VOICES = { name = "Voices Calling Names", hp = 0, attack = 0 }
+THREAT_STATS.T_BREATHING = { name = "Breathing in the Wall", hp = 0, attack = 0 }
+THREAT_STATS.T_PHONE_RINGS = { name = "A Phone Rings", hp = 0, attack = 0 }
+THREAT_STATS.T_ROACHES = { name = "Roaches in the Pantry", hp = 0, attack = 0 }
+THREAT_STATS.T_THE_DOOR = { name = "The Door at the Back", hp = 0, attack = 0 }
+THREAT_STATS.T_CHILD_SHADOW = { name = "A Child's Shadow", hp = 2, attack = 1 }
+THREAT_STATS.T_CRAWLING_HAND = { name = "Crawling Hand", hp = 1, attack = 1 }
+THREAT_STATS.T_BLACK_DOG = { name = "Black Dog", hp = 3, attack = 2 }
+THREAT_STATS.T_SPIRAL = { name = "A Stairway Spiraling Down", hp = 0, attack = 0 }
+THREAT_STATS.T_THE_TWIN = { name = "A Twin Walks Past You", hp = 0, attack = 0 }
+THREAT_STATS.T_FRIEND_BLOOD = { name = "A Friend Bleeding", hp = 0, attack = 0 }
+THREAT_STATS.T_FIRE_OUT = { name = "A Fire That Won't Take", hp = 0, attack = 0 }
+THREAT_STATS.T_FOG_BANK = { name = "Fog Bank", hp = 0, attack = 0 }
+THREAT_STATS.T_NEST = { name = "The Nest", hp = 0, attack = 0 }
+THREAT_STATS.T_CONTAMINATED = { name = "Contaminated Water", hp = 0, attack = 0 }
+THREAT_STATS.T_LOCKED_ROOM = { name = "The Locked Room", hp = 0, attack = 0 }
+THREAT_STATS.T_MIMIC = { name = "The Mimic", hp = 3, attack = 2 }
+THREAT_STATS.T_SWARM = { name = "Rat Swarm", hp = 2, attack = 1 }
+THREAT_STATS.T_SCARECROW = { name = "The Scarecrow", hp = 4, attack = 1 }
+THREAT_STATS.T_CEILING_DRIP = { name = "Something Dripping from Above", hp = 0, attack = 0 }
+THREAT_STATS.T_DOPPELGANGER = { name = "The Doppelganger", hp = 4, attack = 2 }
+THREAT_STATS.T_WALL_CRAWLER = { name = "Wall Crawler", hp = 2, attack = 2 }
+THREAT_STATS.T_GLASS_CHILD = { name = "The Glass Child", hp = 3, attack = 1 }
+THREAT_STATS.T_FURNACE = { name = "The Furnace Woke Up", hp = 0, attack = 0 }
+THREAT_STATS.T_CLOCK_STOPS = { name = "Every Clock Stopped", hp = 0, attack = 0 }
+THREAT_STATS.T_ROOTS = { name = "Roots Through the Floor", hp = 0, attack = 0 }
+THREAT_STATS.T_ECHO = { name = "The Echo", hp = 0, attack = 0 }
+THREAT_STATS.T_MOTH_CLOUD = { name = "Moth Cloud", hp = 0, attack = 0 }
+THREAT_STATS.T_THING_IN_ATTIC = { name = "The Thing in the Attic", hp = 5, attack = 1 }
+THREAT_STATS.T_WATCHER = { name = "The Watcher", hp = 0, attack = 0 }
+THREAT_STATS.T_SEALED_SHED = { name = "The Sealed Shed", hp = 0, attack = 0 }
+THREAT_STATS.T_SEALED_LOCKER = { name = "The Sealed Locker", hp = 0, attack = 0 }
+THREAT_STATS.T_SEALED_CAR = { name = "The Sealed Car", hp = 0, attack = 0 }
+
+-- Nickname mirror, for cards matched by name instead of id tag.
+THREAT_STATS_BY_NAME = {}
+for _, s in pairs(THREAT_STATS) do THREAT_STATS_BY_NAME[s.name] = s end
+
 -- Sealed-thing rewards (Design §13.5), delivered by doPry (actions.lua).
 -- The Sealed Basement is a placed object, not a card — actions.lua adds
 -- SEALED_REWARDS.BASEMENT after this file loads.

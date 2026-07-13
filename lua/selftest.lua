@@ -57,7 +57,7 @@ local function selfTestSteps()
             Setup("White")
             check(gameState.started == true, "Setup marks game started")
             check(gameState.day == 1 and gameState.doom == 0, "Setup: Day 1, Doom 0")
-            check(gameState.subPhase == "Dawn", "Setup leaves subPhase Dawn")
+            check(gameState.subPhase == "PreDawn", "Setup leaves subPhase PreDawn (waiting for Begin Day)")
             local n = 0
             for _ in pairs(gameState.activeChars) do n = n + 1 end
             check(n == gameState.playerCount and n >= 1,

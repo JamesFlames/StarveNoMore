@@ -33,6 +33,7 @@ You are calm when the world isn't. You don't have a house here — you're visiti
 - **Calming Presence:** Allies at your location lose 1 less Sanity at the night Tick.
 - **Touch of Hope (once per game):** Heal any character on the map by 4 Health, regardless of distance. Save this for a crisis.
 - **Light in the Dark:** You never trigger Charlie attacks. Darkness can't touch you.
+- **Wanderer's Gift:** Gain +1 Sanity each time you Move to a new location — travel suits you.
 
 **Constraint**
 - **No Home:** You don't own a house tile. You must end Night at a location with another player. Ending the night alone in a non-house tile costs you 3 Sanity. Stay near friends.

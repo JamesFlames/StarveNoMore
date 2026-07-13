@@ -11,6 +11,16 @@ function resolveTick()
     safecall(function() Audio.playChime() end, "Audio")
     broadcastEvent("phase", "--- TICK (End of Day " .. gameState.day .. ") ---")
 
+    -- Calming Presence (§6.2): allies sharing Coco's tile lose 1 less
+    -- Sanity at Tick (minimum 0). Resolved once, before the decay loop.
+    local cocoLocation = nil
+    for _, char in pairs(gameState.activeChars) do
+        if char.name == "Coco" and not char.down then
+            cocoLocation = char.location
+            break
+        end
+    end
+
     for color, char in pairs(gameState.activeChars) do
         if not char.down then
             -- Base tick: -1 Hunger, -1 Sanity
@@ -39,6 +49,13 @@ function resolveTick()
             -- Doom 20 threshold: +1 Sanity loss
             if gameState.ongoingDawnEffects.doom20 then
                 sanityLoss = sanityLoss + 1
+            end
+
+            -- Calming Presence (§6.2): sharing Coco's tile softens the night.
+            if cocoLocation and char.name ~= "Coco" and char.location == cocoLocation
+                and sanityLoss > 0 then
+                sanityLoss = sanityLoss - 1
+                broadcastEvent("gain", char.name .. " loses 1 less Sanity beside Coco (Calming Presence).")
             end
 
             -- "All Together" bonus: +1 Sanity if sharing tile

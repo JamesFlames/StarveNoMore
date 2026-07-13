@@ -79,6 +79,44 @@ function ResolveNight()
 end
 
 -----------------------------------------------------------------------
+-- Draw N threat cards onto a location tile. Shared by the Night
+-- resolver below and the Eye of Terror's each-Dawn stare (day_loop.lua).
+-----------------------------------------------------------------------
+function drawThreatsAt(location, count)
+    local threatDeck = getThreatDeck()
+    if not threatDeck then return end
+    for t = 1, count do
+        local qty = threatDeck.getQuantity and threatDeck.getQuantity() or 0
+        if qty > 0 then
+            local tile = getLocationTile(location)
+            local targetPos = tile and (tile.getPosition() + Vector(2, 1, t * 0.3)) or Vector(0, 2, 0)
+            threatDeck.takeObject({
+                position = targetPos,
+                rotation = {0, 180, 0},
+                smooth   = true,
+                callback_function = function(threatCard)
+                    local tName = threatCard.getNickname() or "Unknown Threat"
+                    local tDesc = threatCard.getDescription() or ""
+                    broadcastEvent("warn", "THREAT at " .. location .. ": " .. tName)
+                    broadcastEvent("proc", tDesc)
+
+                    -- Auto-resolve soft threats (HP = 0)
+                    local tType = identifyThreatType(threatCard)
+                    if tType == "Soft" then
+                        broadcastEvent("proc", tName .. " is a soft threat — resolves and discards.")
+                    else
+                        broadcastEvent("warn", tName .. " must be fought or fled! Flee: move 1 tile away, pay 1 Sanity (always legal, even starving). A fled threat stays here and festers at Dawn.")
+                    end
+                end
+            })
+        else
+            broadcastEvent("proc", "Threat deck is empty.")
+            break
+        end
+    end
+end
+
+-----------------------------------------------------------------------
 -- Resolve threats at one location
 -----------------------------------------------------------------------
 function resolveNightAtLocation(location, colors)
@@ -179,38 +217,7 @@ function resolveNightAtLocation(location, colors)
 
     if baseRate > 0 then
         broadcastEvent("proc", "Drawing " .. baseRate .. " threat(s) at " .. location .. "...")
-        local threatDeck = getThreatDeck()
-        if threatDeck then
-            for t = 1, baseRate do
-                local qty = threatDeck.getQuantity and threatDeck.getQuantity() or 0
-                if qty > 0 then
-                    local tile = getLocationTile(location)
-                    local targetPos = tile and (tile.getPosition() + Vector(2, 1, t * 0.3)) or Vector(0, 2, 0)
-                    threatDeck.takeObject({
-                        position = targetPos,
-                        rotation = {0, 180, 0},
-                        smooth   = true,
-                        callback_function = function(threatCard)
-                            local tName = threatCard.getNickname() or "Unknown Threat"
-                            local tDesc = threatCard.getDescription() or ""
-                            broadcastEvent("warn", "THREAT at " .. location .. ": " .. tName)
-                            broadcastEvent("proc", tDesc)
-
-                            -- Auto-resolve soft threats (HP = 0)
-                            local tType = identifyThreatType(threatCard)
-                            if tType == "Soft" then
-                                broadcastEvent("proc", tName .. " is a soft threat — resolves and discards.")
-                            else
-                                broadcastEvent("warn", tName .. " must be fought or fled! Flee: move 1 tile away, pay 1 Sanity (always legal, even starving). A fled threat stays here and festers at Dawn.")
-                            end
-                        end
-                    })
-                else
-                    broadcastEvent("proc", "Threat deck is empty.")
-                    break
-                end
-            end
-        end
+        drawThreatsAt(location, baseRate)
     else
         broadcastEvent("proc", "No threats drawn at " .. location .. ".")
     end
@@ -350,14 +357,20 @@ function resolveStorytelling()
     broadcastEvent("phase", "--- STORYTELLING ---")
     broadcastEvent("proc", "Players at house tiles with Comfort/Music/Photo items may use them now for Sanity gains.")
 
-    -- Luca's perk: storytelling gives +1 Sanity to all at his location
+    -- Luca's perk: storytelling gives +1 Sanity to all at his location.
+    -- Needs an Audience (§6.5): alone, there's nobody to tell — and his
+    -- own Sanity doesn't regenerate without company.
     for color, char in pairs(gameState.activeChars) do
         if not char.down and char.name == "Luca" then
-            local loc = char.location
-            for c2, ch2 in pairs(gameState.activeChars) do
-                if not ch2.down and ch2.location == loc then
-                    ch2.sanity = math.min(ch2.maxSanity, ch2.sanity + 1)
-                    broadcastEvent("gain", ch2.name .. " gains +1 Sanity from Luca's storytelling.")
+            if not charHasCompany(color) then
+                broadcastEvent("proc", "Luca has no one to tell stories to tonight (Needs an Audience — no Sanity regen alone).")
+            else
+                local loc = char.location
+                for c2, ch2 in pairs(gameState.activeChars) do
+                    if not ch2.down and ch2.location == loc then
+                        ch2.sanity = math.min(ch2.maxSanity, ch2.sanity + 1)
+                        broadcastEvent("gain", ch2.name .. " gains +1 Sanity from Luca's storytelling.")
+                    end
                 end
             end
         end
@@ -425,13 +438,22 @@ function resolveSleep()
             if floorSleepers[color] then
                 -- Crowded floor: no regen (broadcast already sent above)
             elseif isOwnHome then
-                -- Own house: +1 Sanity, +1 Hunger, +1 Health
+                -- Own house: +1 Sanity, +1 Hunger, +1 Health.
+                -- Needs an Audience (§6.5): Luca alone regains no Sanity —
+                -- the body rests, the mind doesn't.
                 local sanityGain = 1 + (winterBonus and 1 or 0)
+                if char.name == "Luca" and othersHere == 0 then
+                    sanityGain = 0
+                end
                 char.sanity = math.min(char.maxSanity, char.sanity + sanityGain)
                 char.hunger = math.min(char.maxHunger, char.hunger + 1)
                 char.health = math.min(char.maxHealth, char.health + 1)
                 local winterNote = winterBonus and " (+1 Winter huddle)" or ""
-                broadcastEvent("gain", char.name .. " sleeps at home: +1 Health, +1 Hunger, +" .. sanityGain .. " Sanity." .. winterNote)
+                if sanityGain == 0 then
+                    broadcastEvent("gain", char.name .. " sleeps at home alone: +1 Health, +1 Hunger — but no Sanity (Needs an Audience).")
+                else
+                    broadcastEvent("gain", char.name .. " sleeps at home: +1 Health, +1 Hunger, +" .. sanityGain .. " Sanity." .. winterNote)
+                end
             elseif isHouse and othersHere > 0 then
                 -- Someone else's house, with company: +1 Sanity
                 local sanityGain = 1 + (winterBonus and 1 or 0)

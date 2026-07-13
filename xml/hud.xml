@@ -268,6 +268,20 @@
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
               fontSize="14" color="#37233CE6" textColor="#EECCFF"
               text="Signature" />
+      <!-- Per-character perk buttons: Lua shows exactly one of these, and
+           only for the matching character (refreshActionButtonStates). -->
+      <Button id="actPeek"
+              onClick="onActPeek"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#1E2837E6" textColor="#CCE5FF"
+              active="false"
+              text="Peek" />
+      <Button id="actRally"
+              onClick="onActRally"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#2D1E28E6" textColor="#FFCCE5"
+              active="false"
+              text="Rally" />
       <Button id="actPry"
               onClick="onActPry"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"

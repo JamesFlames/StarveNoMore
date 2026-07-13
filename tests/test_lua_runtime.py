@@ -1434,3 +1434,229 @@ class TestDawnEffects:
         assert not failures, "Dawn effects that hard-error:\n" + "\n".join(failures)
         # guard against vacuous passes if the DAWN_EFFECTS shape ever changes
         assert result["ran"] >= 50, f"only {result['ran']} onReveal handlers ran — API shape changed?"
+
+
+# ---------------------------------------------------------------------------
+# Character perks + scripted Fight (2026-07: the briefing promises, delivered)
+# ---------------------------------------------------------------------------
+
+class TestPerks:
+    def test_calming_presence_softens_tick(self, env):
+        # Coco's tile-mates lose 1 less Sanity at Tick; she and the distant do not.
+        add_char(env, "Red", "Coco", location="JamesHouse")
+        add_char(env, "White", "James", location="JamesHouse")
+        add_char(env, "Green", "Ellie", location="RaymanHouse")
+        env.execute("gameState.jamesEnergyDrinkUsed = true")
+        env.globals().resolveTick()
+        assert env.eval("gameState.activeChars.White.sanity") == 10  # -1 +1 aura = 0
+        assert env.eval("gameState.activeChars.Red.sanity") == 11    # Coco herself pays
+        assert env.eval("gameState.activeChars.Green.sanity") == 7   # out of range
+
+    def test_needs_audience_blocks_solo_rest_sanity(self, env):
+        add_char(env, "Blue", "Luca", hunger=5)
+        env.globals().doRest("Blue", "sanity")
+        assert env.eval("gameState.activeChars.Blue.sanity") == 10  # unchanged
+        assert env.eval("gameState.activeChars.Blue.hunger") == 6   # converted to hunger
+
+    def test_rest_sanity_works_with_company(self, env):
+        add_char(env, "Blue", "Luca", sanity=6)
+        add_char(env, "White", "James")  # same tile (JamesHouse default)
+        env.globals().doRest("Blue", "sanity")
+        assert env.eval("gameState.activeChars.Blue.sanity") == 8
+
+    def test_needs_audience_blocks_solo_sleep_sanity(self, env):
+        add_char(env, "Blue", "Luca", location="EllieLucaHouse", sanity=5, hunger=5, health=5)
+        env.globals().resolveSleep()
+        assert env.eval("gameState.activeChars.Blue.sanity") == 5   # no regen alone
+        assert env.eval("gameState.activeChars.Blue.hunger") == 6   # body still rests
+        assert env.eval("gameState.activeChars.Blue.health") == 6
+
+    def test_storyteller_needs_an_audience(self, env):
+        add_char(env, "Blue", "Luca", sanity=5, location="EllieLucaHouse")
+        env.globals().resolveStorytelling()
+        assert env.eval("gameState.activeChars.Blue.sanity") == 5   # alone: no story
+        add_char(env, "Green", "Ellie", sanity=5, location="EllieLucaHouse")
+        env.globals().resolveStorytelling()
+        assert env.eval("gameState.activeChars.Blue.sanity") == 6
+        assert env.eval("gameState.activeChars.Green.sanity") == 6
+
+    def test_particular_eater_blocks_raw_food(self, env):
+        add_char(env, "Green", "Ellie", hunger=4, sanity=8)
+        env.globals().doEatRaw("Green")
+        assert env.eval("gameState.activeChars.Green.hunger") == 4  # refused
+        assert env.eval("gameState.activeChars.Green.sanity") == 8
+        add_char(env, "White", "James", hunger=4)
+        env.globals().doEatRaw("White")
+        assert env.eval("gameState.activeChars.White.hunger") == 5  # others may
+
+    def test_court_master_extra_die_at_basketball_court(self, env):
+        add_char(env, "Yellow", "Rayman", location="BasketballCourt")
+        assert env.globals().getAttackDice("Yellow") == 3  # 1 base +1 Rayman +1 court
+        env.execute('gameState.activeChars.Yellow.location = "BadmintonCourt"')
+        assert env.globals().getAttackDice("Yellow") == 2  # wrong court
+
+    def test_backboard_block_redirects_counter_damage(self, env):
+        add_char(env, "White", "James", health=8)
+        add_char(env, "Yellow", "Rayman", health=12)
+        env.execute("gameState.raymanDefending = true")
+        script_dice(env, [3, 3, 3, 5, 5])  # whiff (no 1s); counter lands twice
+        env.globals().resolveGroupCombat(
+            py_to_lua(env, ["White", "Yellow"]),
+            py_to_lua(env, {"name": "T", "hp": 9, "attack": 2}))
+        assert env.eval("gameState.activeChars.Yellow.health") == 10  # took both
+        assert env.eval("gameState.activeChars.White.health") == 8    # shielded
+
+    def test_gaming_reflexes_rerolls_once_per_turn_on_his_turn(self, env):
+        add_char(env, "White", "James")
+        env.execute('gameState.activeColor = "White"; gameState.jamesRerollUsed = false')
+        script_dice(env, [3, 6])  # miss, rerolled into a kill
+        r = env.globals().resolveCombat("White", py_to_lua(env, {"name": "T", "hp": 1, "attack": 0}))
+        assert lua_to_py(r)["defeated"] is True
+        assert env.eval("gameState.jamesRerollUsed") is True
+        script_dice(env, [3])     # spent: the second whiff stays a whiff
+        r2 = env.globals().resolveCombat("White", py_to_lua(env, {"name": "T2", "hp": 1, "attack": 0}))
+        assert lua_to_py(r2)["defeated"] is False
+
+    def test_pattern_recognition_peek_once_per_day(self, env):
+        add_char(env, "White", "James")
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["ThreatCardDeck"],
+            "contained": [{"nickname": "Shadow Stalker", "guid": "ts1"},
+                          {"nickname": "Lurker", "guid": "ts2"}]}))
+        assert env.globals().doPeek("White", "Threat") is True
+        assert env.eval("gameState.jamesPeekUsed") is True
+        assert any("Shadow Stalker" in b for b in broadcasts(env))
+        assert env.globals().doPeek("White", "Threat") is False  # once per day
+        env.execute("gameState.jamesPeekUsed = false")            # BeginDay resets this
+        assert env.globals().doPeek("White", "Threat") is True
+
+    def test_rally_grants_action_once_per_turn_within_reach(self, env):
+        add_char(env, "Blue", "Luca", location="JamesHouse")
+        add_char(env, "Green", "Ellie", location="EllieLucaHouse", actionsLeft=2)  # adjacent
+        add_char(env, "Yellow", "Rayman", location="RaymanHouse", actionsLeft=2)   # 2 tiles away
+        assert env.globals().doRally("Blue", "Yellow") is False  # out of reach
+        assert env.globals().doRally("Blue", "Green") is True
+        assert env.eval("gameState.activeChars.Green.actionsLeft") == 3
+        assert env.eval("gameState.lucaRallyUsed") is True
+        assert env.globals().doRally("Blue", "Green") is False   # once per turn
+
+    def test_calm_words_negates_group_sanity_loss_at_lucas_tile(self, env):
+        add_char(env, "Blue", "Luca", location="JamesHouse")
+        add_char(env, "White", "James", location="JamesHouse")
+        add_char(env, "Green", "Ellie", location="RaymanHouse", sanity=4)
+        script_dice(env, [4])  # Calm Words d6: 4+ = the tile is spared
+        env.execute('DAWN_EFFECTS["P3_SCREAMS"].onReveal(TTS.makeObject({}))')
+        assert env.eval("gameState.activeChars.Blue.sanity") == 10
+        assert env.eval("gameState.activeChars.White.sanity") == 10
+        assert env.eval("gameState.activeChars.Green.sanity") == 1  # -1, then -2 (lowest)
+
+    def test_calm_words_fizzle_spares_no_one(self, env):
+        add_char(env, "Blue", "Luca", location="JamesHouse")
+        add_char(env, "Green", "Ellie", location="RaymanHouse", sanity=4)
+        script_dice(env, [3])  # 1-3: the words don't land
+        env.execute('DAWN_EFFECTS["P3_SCREAMS"].onReveal(TTS.makeObject({}))')
+        assert env.eval("gameState.activeChars.Blue.sanity") == 9
+        assert env.eval("gameState.activeChars.Green.sanity") == 1
+
+
+class TestFightAction:
+    def _world(self, env):
+        add = env.eval("TTS.addObject")
+        add(py_to_lua(env, {"tags": ["Location:JamesHouse"], "position": [0, 1, 0]}))
+        add(py_to_lua(env, {"tags": ["ThreatCard", "T_LURKER"], "type": "Card",
+                            "nickname": "Lurker", "guid": "lk1", "position": [1, 1, 0]}))
+        return add
+
+    def test_fight_targets_only_fightable_things(self, env):
+        add = self._world(env)
+        # A Soft event card (hp 0) and Charlie's standee are not targets.
+        add(py_to_lua(env, {"tags": ["ThreatCard", "T_HOWLING"], "type": "Card",
+                            "nickname": "A Howling Outside", "position": [0, 1, 1]}))
+        add(py_to_lua(env, {"tags": ["Boss", "Boss:Charlie"], "position": [1, 1, 1]}))
+        add_char(env, "White", "James")
+        targets = lua_to_py(env.execute("""
+            local out = {}
+            for _, t in ipairs(fightTargetsAt("JamesHouse")) do out[#out+1] = t.stats.name end
+            return out"""))
+        assert targets == ["Lurker"]
+
+    def test_fight_persists_chip_damage_then_discards_on_kill(self, env):
+        self._world(env)
+        add_char(env, "White", "James", hunger=6)
+        card = env.globals().getObjectFromGUID("lk1")
+        # Lurker: hp 3, atk 1. Round 1: hit, then stop — counter misses.
+        script_dice(env, [5, 3])
+        env.globals().doFightTarget("White", card, False)
+        env.globals().finishCombat()
+        assert env.eval('gameState.threatDamage["lk1"]') == 1
+        assert env.eval("gameState.activeChars.White.actionsLeft") == 2
+        # Round 2: another hit — 1 HP left.
+        script_dice(env, [5, 3])
+        env.globals().doFightTarget("White", card, False)
+        env.globals().finishCombat()
+        assert env.eval('gameState.threatDamage["lk1"]') == 2
+        # Round 3: the kill. Damage record cleared, +1 victory Sanity.
+        script_dice(env, [5])
+        r = env.globals().doFightTarget("White", card, False)
+        assert lua_to_py(r)["defeated"] is True
+        assert env.eval('gameState.threatDamage["lk1"]') is None
+
+    def test_fight_together_pulls_in_fed_allies(self, env):
+        self._world(env)
+        add_char(env, "White", "James", hunger=6)
+        add_char(env, "Yellow", "Rayman", hunger=6, sanity=4)
+        add_char(env, "Green", "Ellie", hunger=2)  # too hungry to join
+        card = env.globals().getObjectFromGUID("lk1")
+        script_dice(env, [5, 5, 5])  # 3 dice = James 1 + Rayman 2; Ellie sat out
+        r = env.globals().doFightTarget("White", card, True)
+        assert lua_to_py(r)["defeated"] is True
+        assert env.eval("gameState.activeChars.Yellow.sanity") == 5  # 4 +1 victory
+        assert env.eval("gameState.activeChars.Green.sanity") == 8   # not a fighter
+
+    def test_too_hungry_cannot_start_a_fight(self, env):
+        self._world(env)
+        add_char(env, "White", "James", hunger=2)
+        card = env.globals().getObjectFromGUID("lk1")
+        env.globals().doFightTarget("White", card, False)
+        assert env.eval("gameState.activeChars.White.actionsLeft") == 3  # nothing spent
+
+
+class TestBossPlacement:
+    def _pool_and_courts(self, env):
+        add = env.eval("TTS.addObject")
+        add(py_to_lua(env, {"tags": ["BossPool"], "type": "Bag", "contained": [
+            {"nickname": "Deerclops", "tags": ["Boss", "Boss:Deerclops"], "guid": "dc1"},
+            {"nickname": "Eye of Terror", "tags": ["Boss", "Boss:EyeOfTerror"], "guid": "ey1"},
+        ]}))
+        for loc, pos in [("BasketballCourt", [5, 1, 0]), ("JamesHouse", [0, 1, 0]),
+                         ("RaymanHouse", [10, 1, 0]), ("EllieLucaHouse", [15, 1, 0])]:
+            add(py_to_lua(env, {"tags": [f"Location:{loc}"], "position": pos}))
+
+    def test_deerclops_arrival_places_standee_and_tracks_hp(self, env):
+        self._pool_and_courts(env)
+        env.execute('DAWN_EFFECTS["P2_DEERCLOPS_ARRIVES"].onReveal(TTS.makeObject({}))')
+        assert env.eval('findOneByTag("Boss:Deerclops") ~= nil') is True
+        assert env.eval("gameState.bossHP.deerclops") == 6
+        assert env.globals().isBossOnMap("Boss:Deerclops") is True
+
+    def test_eye_arrival_lairs_at_a_house_and_defeat_pools_the_standee(self, env):
+        self._pool_and_courts(env)
+        script_dice(env, [2])  # house pick: RaymanHouse
+        env.execute('DAWN_EFFECTS["P3_EYE_ARRIVES"].onReveal(TTS.makeObject({}))')
+        assert env.eval("gameState.eyeLocation") == "RaymanHouse"
+        assert env.eval("gameState.bossHP.eye") == 8
+        assert env.globals().isBossOnMap("Boss:EyeOfTerror") is True
+        env.execute("gameState.doom = 10")
+        env.globals().markBossDefeated("Eye of Terror")
+        assert env.eval('findOneByTag("Boss:EyeOfTerror")') is None  # back in the pool
+        assert env.eval("gameState.doom") == 7  # -3 rebate
+
+    def test_boss_fight_reads_persistent_hp(self, env):
+        self._pool_and_courts(env)
+        env.execute('DAWN_EFFECTS["P2_DEERCLOPS_ARRIVES"].onReveal(TTS.makeObject({}))')
+        add_char(env, "White", "James", location="BasketballCourt", hunger=6)
+        standee = env.eval('findOneByTag("Boss:Deerclops")')
+        script_dice(env, [5, 3, 3, 3])  # one hit; counter (3 dice) misses
+        env.globals().doFightTarget("White", standee, False)
+        env.globals().finishCombat()
+        assert env.eval("gameState.bossHP.deerclops") == 5  # 6 - 1, remembered

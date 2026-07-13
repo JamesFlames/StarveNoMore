@@ -67,6 +67,7 @@ plain-text provenance notes.)
 ### Asset Pipeline
 - `scripts/generate_card_atlases.py` — Composites card faces from per-card illustrations + text panel; writes deck atlases to `art/decks/*.png`
 - `scripts/generate_assets.py` — Renders tokens, boards, player boards, legends via Pillow
+- `scripts/generate_cover.py` — Renders `saves/StarveNoMore.png` (Coco's front standee on a night-suburb backdrop). A same-basename PNG beside the save is the cover art TTS shows in its Save & Load browser; `iwanttoplay` copies it with the save. Deterministic; rerun only when the cover should change.
 - `scripts/generate_comfyui_assets.py` — Queues board + per-card illustration prompts to local ComfyUI (Flux Dev). Character standees are intentionally excluded (hand-drawn).
 - `scripts/sync_comfyui_output.py` — Copies ComfyUI's `output/snm_*_00001_.png` into the matching `art/<subdir>/<base>.png` (idempotent)
 - `scripts/simulate_balance.py` — Monte Carlo balance probe (policies × rulesets; `--rules old` for pre-fix comparison, `--trace` for a day-by-day log). Standalone; not part of the build.
@@ -101,7 +102,7 @@ StarveNoMore/
 │   ├── telemetry.lua           # Session log (batch 4 W0): chronicle setup/turns/beats, exportSessionLog, Copy Session Log
 │   ├── ui_banner.lua           # Phase Banner + recommendNext + CTA pulse + active-player indicator
 │   ├── ui_actionbar.lua        # Action Bar + click-to-complete targets (Move/Craft/Cook) + trade dialog + undo + market affordability
-│   ├── ui_controls.lua         # Host controls, confirm dialogs, tooltips
+│   ├── ui_controls.lua         # Host controls (contextual — only valid buttons show), confirm dialogs, tooltips
 │   ├── ui_setup.lua            # Guided setup walkthrough (path → variants → characters → briefing) + welcome
 │   ├── ui_help.lua             # Help panel tabs + What-now dispatch
 │   ├── ui_rules.lua            # "Rules in effect" panel + day-cycle strip
@@ -188,6 +189,9 @@ Dawn (Doom advance + Moonlit Salvage + Dawn card) → Day (player turns, 3 actio
 - Ghosts do **not** drain ally Sanity (cut — positive feedback loop).
 
 ### Combat / action rules of note
+- **Fight is click-to-complete** (2026-07): the Fight button spawns FIGHT (solo) and TOGETHER (group: every standing ally at the tile with Hunger ≥ 3) buttons on every fightable thing at the tile — threat cards with `hp > 0` (statlines from the generated `THREAT_STATS`, threat_types.lua) and boss standees (`BOSS_BASE_STATS`, actions.lua; Treeguard via `TREEGUARD_STATS`). `doFightTarget` → `beginCombat`. Threat-card chip damage persists in `gameState.threatDamage[guid]`; every boss's HP is script-tracked (`gameState.bossHP` / `gameState.treeguard.hp`), seeded by the arrival effects. A defeated card discards itself beside the Threat deck; a defeated boss's standee returns to the Boss Pool.
+- **Boss arrivals place their own standee** from the Boss Pool (Deerclops → Basketball Court, Eye → random house recorded in `gameState.eyeLocation` + 1 extra Threat drawn there each Dawn, Source → Ellie & Luca's). On the map they fester and gate victory; in the bag they do neither.
+- **Character perks are scripted** (§6, 2026-07): James — Gaming Reflexes (auto-reroll of the lowest failed die, once per turn on his turn, `maybeJamesReroll`) + Pattern Recognition (`doPeek`, Peek button, once/day, private). Coco — Calming Presence (−1 Sanity loss for tile-mates at Tick) + Wanderer's Gift (+1 Sanity on Move). Rayman — Court Master (+1 die at Basketball Court) + Backboard Block (`doDefend` sets `raymanDefending`; counters redirect to him until his next turn). Ellie — Particular Eater (doEatRaw refuses). Luca — Rally (`doRally`, Rally button: nearby ally +1 action, once per turn), Calm Words (auto d6 in `allPlayersLose` on group Sanity losses — 4+ spares his tile), Needs an Audience (no solo Sanity regen: Rest converts to Hunger, sleep/storytelling skip it; `charHasCompany`, helpers.lua).
 - **Fumble**: a natural 1 deals 1 self-damage only if the roll contains **zero hits**, max 1 per roll (solo and group).
 - **Flee**: always legal (even Hunger < 3): move 1 tile away, pay 1 Sanity; the threat stays and festers (`doFlee`).
 - **Rayman's Loud**: if he moved at all today (`gameState.raymanMovedToday`, incl. Dusk scramble), his Night location draws +1 Threat (once).
@@ -419,6 +423,8 @@ player never has to ask "what now?":
   - **Move** → adjacent tiles glow Green with a MOVE HERE button → `doMove`. Rayman's Speed perk chains a second round of FREE MOVE buttons (`doRaymanBonusMove`).
   - **Craft** → Market deck + slots glow Yellow, **affordable** cards Green (see §4); each displayed card gets a CRAFT button → `doCraft(color, slotIndex)`.
   - **Cook** → Recipe cards glow Orange with a COOK button → `doCook(color, recipeId)` (recipe id read from the card's `R_*` tag).
+  - **Fight** → fightable threats/bosses at the tile glow Red with FIGHT (and, when fed allies share the tile, TOGETHER) buttons → `doFightTarget(color, obj, together)`.
+  - **Peek** (James) / **Rally** (Luca) → per-character bar buttons open the `peekDialog` / `rallyDialog` pickers → `doPeek` / `doRally`.
   - **Cleanse** → required resource bags glow White (confirm dialog, no world button).
   - **Trade** → `tradeDialog` XML panel listing valid partners with the free/1-action cost per row → `doTrade`.
   - **Undo** → `doUndo` (snapshot taken in `spendAction`; also restores `raymanMovedToday`/`raymanBonusMove`; cleared at turn end).

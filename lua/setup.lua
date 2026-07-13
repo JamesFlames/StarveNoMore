@@ -83,7 +83,9 @@ function Setup(hostColor)
     gameState.doom = 0
     gameState.difficulty = gameState.difficulty or "standard"
     gameState.phase = getPhaseForDay(1)
-    gameState.subPhase = "Dawn"
+    -- PreDawn = "waiting for Begin Day": the banner and CTA point the host
+    -- at the Begin Day button instead of implying a Dawn is resolving.
+    gameState.subPhase = "PreDawn"
     gameState.dayLog = {}
     gameState.chronicle = nil          -- fresh Week in Review record
     safecall(function() ensureChronicle() end, "Chronicle")
@@ -91,6 +93,8 @@ function Setup(hostColor)
     gameState.combatContext = nil
     gameState.gameOverCause = nil
     gameState.bossHP = {}
+    gameState.threatDamage = {}
+    gameState.eyeLocation = nil
     gameState.sourceSplit = nil
     gameState.pendingSanityPenalty = {}
     gameState.loudSignature = {}
@@ -242,6 +246,13 @@ function createDayButton()
 end
 
 function onBeginDayClick(obj, playerColor, altClick)
+    -- Begin Day is only valid between days — mid-day it would re-run the
+    -- whole Dawn (double Doom, second Dawn card).
+    if gameState.subPhase ~= "PreDawn" then
+        broadcastToColor("Begin Day is only available between days (currently: " ..
+            tostring(gameState.subPhase) .. ").", playerColor, BROADCAST_COLORS.damage)
+        return
+    end
     safecall(function() BeginDay() end, "BeginDay")
 end
 

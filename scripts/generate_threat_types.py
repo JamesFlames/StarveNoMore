@@ -1,14 +1,20 @@
 """
 Parse content/cards_threats.csv → lua/threat_types.lua
 
-Two tables, both generated straight from the CSV so they can never drift
+Three tables, all generated straight from the CSV so they can never drift
 from the printed cards:
 
 1. THREAT_TYPE_BY_NAME — Night Sounds (design_batch3.md §1) needs the TYPE
    of the top card of a face-down Threat deck; TTS's deck.getObjects()
    exposes nicknames but not tags, so this maps nickname → type.
 
-2. SEALED_REWARDS — what doPry (actions.lua) delivers per sealed threat,
+2. THREAT_STATS — statlines (hp/attack) per card id, for the scripted
+   Fight action (doFightTarget, actions.lua). Cards with hp 0 are not
+   fightable (Soft events, The Grue, and the hp-less Persistents); they
+   are emitted anyway so the Lua can tell "not fightable" from "unknown".
+   THREAT_STATS_BY_NAME mirrors it by nickname for hand-placed cards.
+
+3. SEALED_REWARDS — what doPry (actions.lua) delivers per sealed threat,
    from the `pry_reward` column (empty for non-sealed threats). Grammar,
    directives separated by `|`:
        market=1                        free draws off the Market deck
@@ -69,8 +75,10 @@ def main():
             name = (row.get("name") or "").strip()
             ttype = (row.get("type") or "").strip()
             cid = (row.get("id") or "").strip()
+            hp = int((row.get("hp") or "0").strip() or 0)
+            attack = int((row.get("attack") or "0").strip() or 0)
             if name and ttype:
-                rows.append((cid, name, ttype))
+                rows.append((cid, name, ttype, hp, attack))
             reward = (row.get("pry_reward") or "").strip()
             if reward:
                 sealed.append((cid, parse_pry_reward(reward, cid)))
@@ -86,8 +94,19 @@ def main():
     L.append("")
     L.append("THREAT_TYPE_BY_NAME = {}")
     L.append("")
-    for cid, name, ttype in rows:
+    for cid, name, ttype, _hp, _atk in rows:
         L.append(f"THREAT_TYPE_BY_NAME[{lua_str(name)}] = {lua_str(ttype)}  -- {cid}")
+    L.append("")
+    L.append("-- Statlines per card id, for the scripted Fight action (doFightTarget,")
+    L.append("-- actions.lua). hp 0 = not fightable (Soft events / hp-less Persistents).")
+    L.append("THREAT_STATS = {}")
+    L.append("")
+    for cid, name, _ttype, hp, atk in rows:
+        L.append(f"THREAT_STATS.{cid} = {{ name = {lua_str(name)}, hp = {hp}, attack = {atk} }}")
+    L.append("")
+    L.append("-- Nickname mirror, for cards matched by name instead of id tag.")
+    L.append("THREAT_STATS_BY_NAME = {}")
+    L.append("for _, s in pairs(THREAT_STATS) do THREAT_STATS_BY_NAME[s.name] = s end")
     L.append("")
     L.append("-- Sealed-thing rewards (Design §13.5), delivered by doPry (actions.lua).")
     L.append("-- The Sealed Basement is a placed object, not a card — actions.lua adds")
@@ -112,6 +131,7 @@ def main():
 
     print(f"wrote {os.path.relpath(LUA_PATH, REPO_ROOT)}")
     print(f"  threat names mapped: {len(rows)}")
+    print(f"  statlines: {len(rows)} ({sum(1 for r in rows if r[3] > 0)} fightable)")
     print(f"  sealed rewards: {len(sealed)}")
 
 

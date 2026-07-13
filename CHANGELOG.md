@@ -2,6 +2,17 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## The briefing promises, delivered (2026-07)
+
+Every perk and constraint the character briefings advertise is now actually scripted — plus the Fight action itself, which had been a broadcast-only stub:
+
+- **Fight is click-to-complete** like Move/Craft/Cook: the Fight button spawns a FIGHT button on every fightable thing at your tile (threat cards with real statlines from `cards_threats.csv` via the new generated `THREAT_STATS`, boss standees via their baked statlines), plus a TOGETHER button that pulls in every standing ally with Hunger 3+ (summed dice, shared counters — §12.2). Chip damage on threat cards persists between fights and across saves (`gameState.threatDamage`); a defeated card discards itself beside the Threat deck.
+- **Bosses really arrive.** The arrival Dawn cards now pull the standee out of the Boss Pool onto the map (Deerclops → Basketball Court, Eye → a random house, Source → the center), seed script-tracked HP for every boss (not just the Source), and a defeated boss's standee returns to the pool — so festering, the Source's victory gate, and the Eye's each-Dawn extra-Threat stare (now scripted) all key off reality.
+- **Character perks, implemented as briefed:** James's Gaming Reflexes (auto-reroll of his lowest failed die, once per turn on his turn) and Pattern Recognition (Peek button: top card of any deck, privately, once per day); Coco's Calming Presence (allies at her tile lose 1 less Sanity at Tick); Rayman's Court Master (+1 die at the Basketball Court, matching the sim) and Backboard Block (Defend now actually redirects counter-attack damage to him until his next turn); Ellie's Particular Eater (raw food refused); Luca's Rally (Rally button: a nearby ally gains a free non-movement action, once per turn), Calm Words (auto d6 on scripted group Sanity-loss events — 4+ spares his tile), and Needs an Audience (no solo Sanity regen from Rest, sleep, or storytelling).
+- **Host Controls are contextual**: only the buttons valid in the current sub-phase show (Setup pre-game; Begin Day between days; Resolve Night at Dusk/Night; End Turn during the Day; Restart once started), and Begin Day refuses to re-run mid-day. Setup now parks the game in `PreDawn`, so the banner and CTA point at Begin Day instead of implying a Dawn is resolving.
+- **Cover art**: `scripts/generate_cover.py` renders `saves/StarveNoMore.png` (Coco's hand-drawn standee on a night-suburb backdrop); `iwanttoplay` installs it beside the save so the TTS Save & Load browser shows real cover art.
+- Fixed in passing: the Speed second-step message no longer mislabels itself "Court Master"; Wanderer's Gift (Coco, +1 Sanity on Move — implemented and briefed in-game all along) is now also in the briefing/notebook markdown; the supply-bag tooltip no longer claims Gather is fully automated.
+
 ## Player rulebook, publishable saves, structure pass (2026-07)
 
 - **Player Rules on the table.** `scripts/generate_player_rules.py` assembles `PlayerRules.md` + `PlayerRules.html` from the same `content/` markdown as the in-game Notebook (Quick Start → Full Rules → Characters → Glossary — can't drift). A **Player Rules tablet** object on the table shows the HTML in-game via the local asset server; the same file opens in any desktop browser. Freshness-tested like every other generated artifact.

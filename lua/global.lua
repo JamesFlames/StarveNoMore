@@ -5,7 +5,7 @@
 -----------------------------------------------------------------------
 -- Bump when gameState gains fields a restored save must have; the actual
 -- defaults live in ONE place: migrateGameState() below.
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 gameState = {
     schemaVersion = SCHEMA_VERSION,
@@ -211,6 +211,7 @@ function migrateGameState()
     gs.turnStyle            = gs.turnStyle or "full"
     gs.difficulty           = gs.difficulty or "standard"   -- batch 4
     gs.raymanTilesMovedToday = gs.raymanTilesMovedToday or 0 -- batch 4
+    gs.threatDamage         = gs.threatDamage or {}          -- schema 3: chip damage on threat cards
     for _, char in pairs(gs.activeChars) do
         if char.signatureUsed == nil then char.signatureUsed = false end -- batch 2
     end

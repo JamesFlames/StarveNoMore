@@ -419,7 +419,8 @@ function finalizeGuidedSetup()
     gameState.doom = 0
     gameState.difficulty = gameState.difficulty or "standard"
     gameState.phase = getPhaseForDay(1)   -- Nightmare starts on Strange Days
-    gameState.subPhase = "Dawn"
+    -- PreDawn = "waiting for Begin Day" (banner + CTA point at the button).
+    gameState.subPhase = "PreDawn"
     gameState.dayLog = {}
     gameState.chronicle = nil          -- fresh Week in Review record
     safecall(function() ensureChronicle() end, "Chronicle")
@@ -427,6 +428,8 @@ function finalizeGuidedSetup()
     gameState.combatContext = nil
     gameState.gameOverCause = nil
     gameState.bossHP = {}
+    gameState.threatDamage = {}
+    gameState.eyeLocation = nil
     gameState.sourceSplit = nil
     gameState.pendingSanityPenalty = {}
     gameState.loudSignature = {}

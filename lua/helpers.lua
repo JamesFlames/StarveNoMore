@@ -154,6 +154,20 @@ function getPlayerCarriedObjects(color, charName)
     return out
 end
 
+-- Does another standing character share this character's tile? One
+-- definition for every "alone" rule (Luca's Needs an Audience, Coco's
+-- No Home warning, sleep bonuses), so "company" can't drift.
+function charHasCompany(color)
+    local char = gameState and gameState.activeChars and gameState.activeChars[color]
+    if not char then return false end
+    for c2, ch2 in pairs(gameState.activeChars) do
+        if c2 ~= color and not ch2.down and ch2.location == char.location then
+            return true
+        end
+    end
+    return false
+end
+
 -- Get all active (seated) player colors
 function getActivePlayerColors()
     local colors = {}

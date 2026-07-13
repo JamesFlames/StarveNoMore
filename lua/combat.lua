@@ -87,12 +87,51 @@ local function isSourceName(name)
     return string.find(string.lower(name or ""), "source", 1, true) ~= nil
 end
 
+-- Boss name → persistent-HP key. The Treeguard keeps its HP on
+-- gameState.treeguard (its own subsystem); the phase bosses live in
+-- gameState.bossHP, seeded by their arrival Dawn effects.
+function bossKeyForName(name)
+    local lower = string.lower(name or "")
+    if string.find(lower, "deerclops", 1, true) then return "deerclops" end
+    if string.find(lower, "eye of terror", 1, true) or string.find(lower, "eyeofterror", 1, true) then return "eye" end
+    if isSourceName(lower) then return "source" end
+    if string.find(lower, "treeguard", 1, true) then return "treeguard" end
+    return nil
+end
+
 -- Mirror applied damage onto the persistent record + check the phase beat.
 function syncSourceHP(threatName, hp)
     if not isSourceName(threatName) then return end
     if not (gameState.bossHP and gameState.bossHP.source) then return end
     gameState.bossHP.source = math.max(0, hp)
     checkSourcePhase(hp)
+end
+
+-- Persist every point of boss damage — no honor-system counting on any
+-- boss. Source keeps its phase-beat check; the Treeguard's HP lives on
+-- its own record.
+function syncBossHP(threatName, hp)
+    local key = bossKeyForName(threatName)
+    if not key then return end
+    if key == "source" then
+        syncSourceHP(threatName, hp)
+    elseif key == "treeguard" then
+        if gameState.treeguard then gameState.treeguard.hp = math.max(0, hp) end
+    else
+        gameState.bossHP = gameState.bossHP or {}
+        gameState.bossHP[key] = math.max(0, hp)
+    end
+end
+
+-- Threat-card damage that survives between Fight actions (and saves):
+-- a 4 HP Shadow Stalker chipped for 2 today is a 2 HP fight tomorrow.
+-- Keyed by card GUID; cleared when the card dies.
+function syncThreatHP(threat, hp)
+    if threat.cardGuid and threat.maxHp then
+        gameState.threatDamage = gameState.threatDamage or {}
+        gameState.threatDamage[threat.cardGuid] = math.max(0, threat.maxHp - math.max(0, hp))
+    end
+    syncBossHP(threat.name, hp)
 end
 
 function checkSourcePhase(hp)
@@ -204,6 +243,14 @@ function markBossDefeated(threatName)
         safecall(function() flashVictoryLighting() end, "Light")
         safecall(function() dropBossLoot(key) end, "BossLoot")
         safecall(function() revealTrophy(key) end, "Trophy")
+        -- The fallen boss leaves the map (loot dropped first — it needs the
+        -- standee's position). Back in the pool it stops festering and the
+        -- Source stops blocking victory.
+        safecall(function()
+            local standee = findOneByTag(BOSS_STANDEE_TAG[key] or "")
+            local pool = getBossPool()
+            if standee and pool then pool.putObject(standee) end
+        end, "BossStandee")
     end
 end
 
@@ -250,8 +297,15 @@ function getAttackDice(color)
 
     local dice = 1  -- base attack
 
-    -- Rayman gets +1 base attack
-    if char.name == "Rayman" then dice = dice + 1 end
+    -- Rayman gets +1 base attack; Court Master (§6.3) adds another +1
+    -- when the fight is on his home court.
+    if char.name == "Rayman" then
+        dice = dice + 1
+        if char.location == "BasketballCourt" then
+            dice = dice + 1
+            broadcastEvent("proc", "Court Master: Rayman fights on his own court — +1 attack die.")
+        end
+    end
 
     -- Nothing Left to Lose (Design §15.2): at Doom 25 the survivors stop
     -- being afraid — +1 attack die for everyone, all combat.
@@ -318,6 +372,24 @@ function applyThreatDefeat(threatName, colors)
             checkDownState(color)
         end
     end
+    -- A defeated threat CARD discards itself beside the Threat deck (the
+    -- fight flow put its guid on the combat context); its chip damage is
+    -- forgotten with it. Boss standees are pooled by markBossDefeated.
+    local ctx = gameState.combatContext
+    local guid = ctx and ctx.threat and ctx.threat.cardGuid
+    if guid then
+        if gameState.threatDamage then gameState.threatDamage[guid] = nil end
+        safecall(function()
+            local card = getObjectFromGUID(guid)
+            if card then
+                local deck = getThreatDeck()
+                local pos = deck and (deck.getPosition() + Vector(3, 1.5, 0)) or Vector(14, 1.5, -12)
+                card.setPositionSmooth(pos, false, true)
+                card.setRotationSmooth({0, 180, 0}, false, true)
+                broadcastEvent("proc", threatName .. " discards itself beside the Threat deck.")
+            end
+        end, "ThreatDiscard")
+    end
     safecall(function() markBossDefeated(threatName) end, "BossFlags")
     safecall(function() recordKillInChronicle(threatName, colors) end, "Chronicle")
     local bossKey = Audio and Audio.threatNameToBossKey and Audio.threatNameToBossKey(threatName)
@@ -336,18 +408,72 @@ function applyCounterAttack()
     local defResult = rollAttackDice(threatAtk)
     broadcastEvent("proc", "Enemy: " .. formatRolls(defResult.rolls))
     if defResult.hits > 0 then
+        -- Backboard Block (§6.3): while Rayman Defends, every counter hit
+        -- lands on him instead of whoever it targeted — as long as he is
+        -- still standing in (or adjacent to) the fight.
+        local defenderColor = nil
+        if gameState.raymanDefending then
+            for color, c in pairs(gameState.activeChars) do
+                if c.name == "Rayman" and not c.down then defenderColor = color break end
+            end
+        end
         for i = 1, defResult.hits do
             local color = ctx.colors[((i - 1) % #ctx.colors) + 1]
+            if defenderColor then
+                local ray = gameState.activeChars[defenderColor]
+                if ray and not ray.down then
+                    color = defenderColor
+                    broadcastEvent("proc", "Backboard Block: Rayman takes the hit instead.")
+                else
+                    defenderColor = nil  -- Rayman fell mid-counter; the rest land normally
+                end
+            end
             local c = gameState.activeChars[color]
             if c then
                 c.health = math.max(0, c.health - 1)
                 broadcastEvent("damage", c.name .. " takes 1 counter-attack damage. Health: " .. c.health)
+                if color == defenderColor then checkDownState(color) end
             end
         end
         for _, color in ipairs(ctx.colors) do checkDownState(color) end
     else
         broadcastEvent("proc", tName .. " misses!")
     end
+end
+
+-----------------------------------------------------------------------
+-- Gaming Reflexes (§6.1): once per turn, James may reroll one of his own
+-- dice. Auto-applied on his turn to the lowest non-hit die — a reroll can
+-- only help (a stray 1 rerolled can clear the fumble; a miss can become a
+-- hit; the worst case is the same miss again).
+-----------------------------------------------------------------------
+function maybeJamesReroll(participants, atkResult)
+    if gameState.jamesRerollUsed then return end
+    local active = gameState.activeColor
+    local activeChar = active and gameState.activeChars[active]
+    if not (activeChar and activeChar.name == "James" and not activeChar.down) then return end
+    local isParticipant = false
+    for _, color in ipairs(participants) do
+        if color == active then isParticipant = true break end
+    end
+    if not isParticipant then return end
+    local worstIdx = nil
+    for i, r in ipairs(atkResult.rolls) do
+        if r < 5 and (not worstIdx or r < atkResult.rolls[worstIdx]) then worstIdx = i end
+    end
+    if not worstIdx then return end   -- every die hit; nothing worth fixing
+    gameState.jamesRerollUsed = true
+    local old = atkResult.rolls[worstIdx]
+    local new = gameRoll(1, 6)
+    atkResult.rolls[worstIdx] = new
+    atkResult.hits, atkResult.fumbles = 0, 0
+    for _, r in ipairs(atkResult.rolls) do
+        if r >= 5 then atkResult.hits = atkResult.hits + 1
+        elseif r == 1 then atkResult.fumbles = atkResult.fumbles + 1 end
+    end
+    broadcastEvent(new >= 5 and "gain" or "proc",
+        "Gaming Reflexes: James rerolls a " .. old .. " → " .. new ..
+        (new >= 5 and " — a HIT!" or ". No better.") .. " (once per turn)")
 end
 
 -- Unified combat entry. colors = list of participating seat colors.
@@ -369,11 +495,20 @@ function beginCombat(colors, threatData)
     local threatHP = threatData.hp or 0
 
     -- Persistent boss HP (§12.6): the engine, not the players' memory,
-    -- knows the Source's real HP — mid-fight, across actions, across saves.
-    if isSourceName(threatName) and gameState.bossHP and gameState.bossHP.source then
+    -- knows a boss's real HP — mid-fight, across actions, across saves.
+    local bossKey = bossKeyForName(threatName)
+    if bossKey == "source" and gameState.bossHP and gameState.bossHP.source then
         threatHP = gameState.bossHP.source
         broadcastEvent("proc", "The Source stands at " .. threatHP .. " HP (tracked).")
+    elseif bossKey == "treeguard" and gameState.treeguard and gameState.treeguard.hp then
+        threatHP = gameState.treeguard.hp
+    elseif bossKey and gameState.bossHP and gameState.bossHP[bossKey] then
+        threatHP = gameState.bossHP[bossKey]
+        broadcastEvent("proc", threatName .. " stands at " .. threatHP .. " HP (tracked).")
     end
+
+    -- Dice were rolled in the open: a fight can't be taken back.
+    gameState.undoSnapshot = nil
 
     local totalDice = 0
     for _, color in ipairs(participants) do totalDice = totalDice + getAttackDice(color) end
@@ -383,10 +518,14 @@ function beginCombat(colors, threatData)
     broadcastEvent("proc", (#participants > 1 and "Group rolls " or "Attack: ")
         .. (#participants > 1 and (totalDice .. " dice: ") or "") .. formatRolls(atkResult.rolls))
 
+    -- Gaming Reflexes (§6.1): on James's turn, his once-per-turn reroll
+    -- auto-fixes the lowest non-hit die.
+    safecall(function() maybeJamesReroll(participants, atkResult) end, "Reroll")
+
     threatHP = threatHP - atkResult.hits
     if atkResult.hits > 0 then
         broadcastEvent("gain", atkResult.hits .. " hit(s)! " .. threatName .. " HP: " .. math.max(0, threatHP))
-        syncSourceHP(threatName, threatHP)
+        syncThreatHP(threatData, threatHP)
     end
 
     -- Fumble: only on a complete whiff (no hits at all), max 1, to the healthiest.
@@ -483,7 +622,7 @@ function pressAttack(color, confirmed)
         ctx.threatHP = ctx.threatHP - 1
         ctx.hits = ctx.hits + 1
         broadcastEvent("gain", "Press lands! " .. (ctx.threat.name or "Threat") .. " HP: " .. math.max(0, ctx.threatHP))
-        syncSourceHP(ctx.threat.name, ctx.threatHP)
+        syncThreatHP(ctx.threat, ctx.threatHP)
         checkDownState(color)   -- pressing to 0 Sanity goes Down mid-fight
         if ctx.threatHP <= 0 then
             safecall(function() recordBeat("pressKill") end, "Telemetry")
