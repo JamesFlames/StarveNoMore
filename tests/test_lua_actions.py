@@ -348,3 +348,83 @@ class TestPerks:
         env.execute('DAWN_EFFECTS["P3_SCREAMS"].onReveal(TTS.makeObject({}))')
         assert env.eval("gameState.activeChars.Blue.sanity") == 9
         assert env.eval("gameState.activeChars.Green.sanity") == 1
+
+
+# ---------------------------------------------------------------------------
+# Gather & resource automation (Design §7-8) — players never touch the bags.
+# ---------------------------------------------------------------------------
+
+
+class TestGatherAutomation:
+    def _world(self, env, color, name, loc):
+        add_char(env, color, name, location=loc)
+        add = env.eval("TTS.addObject")
+        add(py_to_lua(env, {"tags": [f"Location:{loc}"], "position": [0, 1, 0]}))
+        add(py_to_lua(env, {"tags": [f"PlayerBoard:{name}"], "position": [20, 1, 20]}))
+        for res in ["Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"]:
+            add(py_to_lua(env, {
+                "tags": [f"ResourceBag:{res}"], "position": [60, 1, 60],
+                "contained": [{"nickname": res, "tags": ["Resource", f"Resource:{res}"]}] * 8}))
+
+    def _held(self, env, color):
+        return lua_to_py(env.globals().getPlayerResources(color))
+
+    def test_gather_delivers_a_token_to_the_board(self, env):
+        self._world(env, "Green", "Rayman", "RaymanHouse")
+        env.globals().doGather("Green")
+        held = self._held(env, "Green")
+        assert sum(held.values()) == 1
+        # Rayman's House yields only Metal / Battery / Food — never Wood or Cloth.
+        assert held["Wood"] == 0 and held["Cloth"] == 0
+        assert held["Metal"] + held["Battery"] + held["Food"] == 1
+
+    def test_gather_spends_one_action(self, env):
+        self._world(env, "Green", "Rayman", "RaymanHouse")
+        env.globals().doGather("Green")
+        assert env.eval("gameState.activeChars.Green.actionsLeft") == 2
+
+    def test_backpack_gathers_two(self, env):
+        self._world(env, "Green", "Rayman", "RaymanHouse")
+        env.execute('TTS.setHand("Green", { TTS.makeObject({tags={"M_BACKPACK"}, nickname="Backpack"}) })')
+        env.globals().doGather("Green")
+        assert sum(self._held(env, "Green").values()) == 2
+
+    def test_stash_confirm_gives_two_energy_drinks(self, env):
+        self._world(env, "Blue", "James", "JamesHouse")
+        env.globals().doGather("Blue")
+        assert env.eval('TTS.ui.visible["confirmDialog"]') is True
+        env.globals().onConfirmYes(py_to_lua(env, {"color": "Blue"}), "", "")
+        held = self._held(env, "Blue")
+        assert held["EnergyDrink"] == 2 and sum(held.values()) == 2
+
+    def test_stash_cancel_takes_the_random_draw(self, env):
+        self._world(env, "Blue", "James", "JamesHouse")
+        env.globals().doGather("Blue")
+        env.globals().onConfirmNo(py_to_lua(env, {"color": "Blue"}), "", "")
+        held = self._held(env, "Blue")
+        assert sum(held.values()) == 1   # one JamesHouse yield, delivered automatically
+
+    def test_ellie_pantry_picker_delivers_her_choice(self, env):
+        self._world(env, "Yellow", "Ellie", "EllieLucaHouse")
+        env.globals().doGather("Yellow")
+        assert env.eval('TTS.ui.visible["resourcePickerDialog"]') is True
+        env.globals().onResourcePickClick(py_to_lua(env, {"color": "Yellow"}), "Battery", "")
+        held = self._held(env, "Yellow")
+        assert held["Battery"] == 2 and sum(held.values()) == 2   # pantry: 2, her pick
+
+    def test_gather_blocked_at_treeguard_lair(self, env):
+        self._world(env, "Green", "Rayman", "BadmintonCourt")
+        env.execute('gameState.treeguard = { active = true, location = "BadmintonCourt" }')
+        env.globals().doGather("Green")
+        assert sum(self._held(env, "Green").values()) == 0
+        assert env.eval("gameState.activeChars.Green.actionsLeft") == 3   # no action spent
+
+    def test_spawn_resource_at_tile_and_treeguard_salvage(self, env):
+        add_char(env, "Green", "Rayman", location="BadmintonCourt")
+        add = env.eval("TTS.addObject")
+        add(py_to_lua(env, {"tags": ["Location:BadmintonCourt"], "position": [10, 1, -10]}))
+        add(py_to_lua(env, {"tags": ["ResourceBag:Wood"], "position": [60, 1, 60],
+                            "contained": [{"nickname": "Wood", "tags": ["Resource", "Resource:Wood"]}] * 8}))
+        env.execute('gameState.treeguard = { active = true, location = "BadmintonCourt" }')
+        env.globals().treeguardDefeated()
+        assert env.eval('#findAllByTag("Resource:Wood")') == 3

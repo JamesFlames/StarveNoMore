@@ -256,7 +256,7 @@ ACTION_TOOLTIP_DELAY = 5  -- seconds of hover before the tooltip appears
 
 ACTION_TOOLTIPS = {
     actMove      = "Move to an adjacent location. Costs 1 action + 1 Hunger.",
-    actGather    = "Gather 1 resource from this location's bag. Costs 1 action.",
+    actGather    = "Gather a resource here — it's delivered to your board automatically. Costs 1 action.",
     actCraft     = "Craft an item from the Market. Costs 1 action + resources.",
     actCook      = "Cook a recipe at a Crockpot location. Costs 1 action + ingredients.",
     actFight     = "Fight a threat or boss at this location — click FIGHT on the target (TOGETHER = group fight). Costs 1 action.",

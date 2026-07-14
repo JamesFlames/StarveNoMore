@@ -115,7 +115,8 @@ function BeginDay()
     for color, char in pairs(gameState.activeChars) do
         if not char.down and (char.location == "BasketballCourt" or char.location == "BadmintonCourt") then
             broadcastEvent("gain", char.name .. " survived the night at " .. char.location ..
-                " — Moonlit Salvage: draw 2 resources from this court's bag now.")
+                " — Moonlit Salvage: 2 resources delivered to your board.")
+            safecall(function() gatherRandomResources(color, char.location, 2) end, "MoonlitSalvage")
             -- Dare — the court floodlights (P1_LIGHTS_FLICKER): survivors
             -- claim the prize. (The flag is cleaned up by revealDawnCard's
             -- dispatch below, so it is still readable here.)

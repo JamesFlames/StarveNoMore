@@ -778,7 +778,7 @@ for res_name, token_url, color, x, y, z in resources:
 
     bag = base_obj("Infinite_Bag", tf(x, y, z),
                    nickname=f"{res_name.replace('EnergyDrink', 'Energy Drink')} Supply",
-                   desc=f"Supply of {res_name.replace('EnergyDrink', 'Energy Drink')} tokens. Take from here when a Gather (or card) tells you to; scripted costs and rewards (Cleanse, Pry, boss loot) pay in and out automatically.",
+                   desc=f"Supply of {res_name.replace('EnergyDrink', 'Energy Drink')} tokens. Fully automated — Gather, salvage, dawn deliveries, and scripted costs/rewards pay tokens in and out for you. No need to touch it.",
                    tags=["ResourceBag", f"ResourceBag:{res_name}"])
     bag["ContainedObjects"] = [token]
     objects.append(bag)

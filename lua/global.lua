@@ -94,6 +94,22 @@ CHARACTER_HOMES = {
     Coco   = nil,
 }
 
+-----------------------------------------------------------------------
+-- Gather yields per location (Design §7-8). A Gather draws one resource
+-- picked uniformly from this list, so Food comes up twice as often at
+-- Ellie & Luca's House. These are the six canonical resource types
+-- (the token/bag tags), so giveResource can pull straight from a bag.
+-- Mirrors scripts/simulate_balance.py's YIELDS (lower-cased there);
+-- tests/test_sim.py::test_location_yields_match guards the two.
+-----------------------------------------------------------------------
+LOCATION_YIELDS = {
+    JamesHouse      = {"EnergyDrink", "Battery", "Food"},
+    RaymanHouse     = {"Metal", "Battery", "Food"},
+    EllieLucaHouse  = {"Food", "Food", "Cloth"},
+    BasketballCourt = {"Wood", "Metal", "Cloth"},
+    BadmintonCourt  = {"Cloth", "Wood", "Metal"},
+}
+
 ACTIONS_PER_TURN = 3
 
 -----------------------------------------------------------------------

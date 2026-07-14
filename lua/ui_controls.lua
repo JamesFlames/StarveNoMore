@@ -4,8 +4,12 @@
 -- G.6 — Confirm-before-spend dialog
 -----------------------------------------------------------------------
 local pendingConfirmCallback = nil
+local pendingConfirmCancel   = nil
 
-function showConfirm(title, body, onConfirm)
+-- onCancel is optional: when given, "Cancel" runs it instead of just
+-- aborting (e.g. the Stash confirm, where Cancel means "take the normal
+-- random draw"). Without UI, the fallback takes the Confirm branch.
+function showConfirm(title, body, onConfirm, onCancel)
     if not UI then
         -- Fallback: just execute
         if onConfirm then onConfirm() end
@@ -14,11 +18,13 @@ function showConfirm(title, body, onConfirm)
     UI.setAttribute("confirmTitle", "text", title)
     UI.setAttribute("confirmBody", "text", body)
     pendingConfirmCallback = onConfirm
+    pendingConfirmCancel   = onCancel
     UI.show("confirmDialog")
 end
 
 function onConfirmYes(player, value, id)
     UI.hide("confirmDialog")
+    pendingConfirmCancel = nil
     if pendingConfirmCallback then
         local cb = pendingConfirmCallback
         pendingConfirmCallback = nil
@@ -29,7 +35,63 @@ end
 function onConfirmNo(player, value, id)
     UI.hide("confirmDialog")
     pendingConfirmCallback = nil
-    broadcastEvent("proc", "Action cancelled.")
+    local cb = pendingConfirmCancel
+    pendingConfirmCancel = nil
+    if cb then
+        safecall(function() cb() end, "ConfirmCancel")
+    else
+        broadcastEvent("proc", "Action cancelled.")
+    end
+end
+
+-----------------------------------------------------------------------
+-- Resource picker — a small 6-button chooser for the rare "pick any
+-- resource" moments (Ellie's Knows the Pantry). Delivers `count` tokens
+-- of the chosen type to the player's board. Without UI (headless), it
+-- falls back to a sensible automatic draw so play never stalls.
+-----------------------------------------------------------------------
+local pendingResourcePick = nil   -- { color=, count= }
+
+function showResourcePicker(color, count, prompt)
+    count = count or 1
+    if not UI then
+        local ch = gameState.activeChars[color]
+        gatherRandomResources(color, (ch and ch.location) or "EllieLucaHouse", count)
+        return
+    end
+    pendingResourcePick = { color = color, count = count }
+    UI.setAttribute("resourcePickTitle", "text", prompt or "Take which resource?")
+    UI.setAttribute("resourcePickBody", "text", "Choose a resource — " .. count ..
+        " token(s) go straight to your board.")
+    UI.show("resourcePickerDialog")
+    broadcastToColor("Pick your resources from the panel — no bag to rummage through.",
+        color, BROADCAST_COLORS.proc)
+end
+
+function onResourcePickClick(player, value, id)
+    UI.hide("resourcePickerDialog")
+    local pick = pendingResourcePick
+    pendingResourcePick = nil
+    if not pick or pick.color ~= player.color then return end
+    local char = gameState.activeChars[pick.color]
+    giveResource(pick.color, value, pick.count)
+    local who = (char and char.name) or pick.color
+    broadcastEvent("gain", who .. " takes " .. pick.count .. " " ..
+        (value == "EnergyDrink" and "Energy Drink" or value) ..
+        " (delivered to your board).")
+    refreshPhaseBanner()
+    updateActivePlayerIndicator()
+end
+
+function onResourcePickCancel(player, value, id)
+    UI.hide("resourcePickerDialog")
+    local pick = pendingResourcePick
+    pendingResourcePick = nil
+    if not pick then return end
+    local char = gameState.activeChars[pick.color]
+    gatherRandomResources(pick.color, (char and char.location) or "EllieLucaHouse", pick.count)
+    refreshPhaseBanner()
+    updateActivePlayerIndicator()
 end
 
 -----------------------------------------------------------------------
@@ -406,7 +468,7 @@ TOOLTIP_DATA = {
     ["VisitorCardDeck"]      = "Visitor Deck. Absent characters may arrive via Dawn cards.",
     -- Supply
     ["TelltaleHeartSupply"]  = "Telltale Hearts (5 max). Cook: 1 Cloth + 1 Battery + 1 Food + 2 Health. Use to revive a Down character.",
-    ["ResourceBag"]          = "Resource supply bag. Take tokens from here when a Gather (or card) tells you to; scripted costs and rewards (Cleanse, Pry, boss loot) pay in and out automatically.",
+    ["ResourceBag"]          = "Resource supply bag. Fully automated — Gather, salvage, dawn deliveries, and scripted costs/rewards (Cleanse, Pry, boss loot) pay tokens in and out for you. No need to touch it.",
     ["PathVariant"]          = "Decorative path tiles for an alternate map layout. Safe to ignore during play.",
     -- Locations
     ["Location:JamesHouse"]       = "James's House. Yields: Energy Drink, Battery, Junk Food. The Den: free trade once/day.",

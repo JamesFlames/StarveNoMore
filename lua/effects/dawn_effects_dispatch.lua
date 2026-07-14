@@ -62,11 +62,9 @@ DAWN_EFFECTS["P3_HUNTS_THE_HERD"] = {
 -----------------------------------------------------------------------
 DAWN_MANUAL_STEPS = {
     P1_PHONES_DEAD      = { "Every player discards 1 Battery (if held)." },
-    P1_FRESH_FOOD       = { "Add 2 Food to Ellie & Luca's House resource bag." },
     P1_SCHOOL_CLOSED    = { "Move every standee at the Basketball Court to an adjacent tile." },
     P1_OLD_FRIEND_VISIT = { "Choose one player: +2 Sanity (use their +S button)." },
     P1_BIKE_FOUND       = { "One player at a sport court may take the Bicycle token." },
-    P1_GARDEN_GROWS     = { "Add 1 Food to every house tile's resource area." },
     P1_SOMETHING_WATCHED = { "Optional DARE: the watched player may lose 1 more Sanity (-S button) to peek at the top Threat card." },
     P1_STRANGE_RADIO    = { "Anyone who rolled a 6: peek at the Market deck for a Clue.",
                             "Optional DARE: spend 2 Battery to peek the next 3 Dawn cards (host: draw + show + return in order)." },
