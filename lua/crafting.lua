@@ -99,10 +99,8 @@ function doCook(color, recipeId)
     local char = gameState.activeChars[color]
     if not char then return end
 
-    -- Check night-only restriction
-    if recipe.canCookAtNight and gameState.subPhase ~= "Night" then
-        -- Midnight Snack can also be cooked during Day
-    end
+    -- Night-only restriction: none here. Midnight Snack (canCookAtNight)
+    -- may be cooked during the Day too, so this cook is never gated by phase.
 
     -- Action cost. The Feast (Ellie's Signature, §6.7) covers every cook
     -- for the rest of her turn in its single action.

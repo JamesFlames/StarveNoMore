@@ -173,11 +173,14 @@
 | 637 | function | `toggleDuskReady` |
 | 666 | function | `beginNight` |
 
-## lua/effects/dawn_effects.lua (3 symbols)
+## lua/effects/dawn_effects.lua (6 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 5 | table | `DAWN_EFFECTS` |
+| 15 | function | `allPlayersLose` |
+| 44 | function | `allPlayersGain` |
+| 53 | function | `lowestStatPlayer` |
 | 70 | function | `placeBossStandee` |
 | 104 | function | `poolBossStandee` |
 
@@ -249,7 +252,7 @@
 | 11 | function | `doCraft` |
 | 60 | function | `refillMarketSlot` |
 | 92 | function | `doCook` |
-| 199 | function | `cookTelltaleHeart` |
+| 197 | function | `cookTelltaleHeart` |
 
 ## lua/night.lua (10 symbols)
 
@@ -387,25 +390,36 @@
 | 375 | function | `getNextCTA` |
 | 404 | function | `pulseHandZone` |
 
-## lua/ui_actionbar_core.lua (4 symbols)
+## lua/ui_actionbar_core.lua (7 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 14 | table | `LOCATION_ADJACENCY` |
+| 22 | function | `_adjacentLocations` |
+| 41 | value | `HIGHLIGHT_DURATION` |
 | 51 | function | `getPlayerResources` |
 | 95 | function | `verifyAndPayResources` |
+| 151 | function | `_cardIdFromTags` |
 | 159 | function | `canAfford` |
 
-## lua/ui_actionbar_targets.lua (6 symbols)
+## lua/ui_actionbar_targets.lua (14 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 39 | function | `clearActionTargets` |
+| 59 | function | `_armTargetTimeout` |
+| 88 | function | `_spawnMoveButtons` |
+| 110 | function | `_spawnCraftButtons` |
+| 141 | function | `_spawnCookButtons` |
+| 173 | function | `_spawnFightButtons` |
 | 204 | function | `onMoveTargetClick` |
 | 239 | function | `onCraftTargetClick` |
 | 256 | function | `onCookTargetClick` |
 | 290 | function | `onFightTargetClick` |
 | 294 | function | `onFightTogetherClick` |
+| 298 | function | `_highlightCraftTargets` |
+| 330 | function | `_highlightCookTargets` |
+| 340 | function | `_highlightCleanseTargets` |
 
 ## lua/ui_actionbar_handlers.lua (26 symbols)
 
@@ -614,6 +628,7 @@
 | `EFFECT_RULE_ORDER` | lua/ui_rules.lua | 68 |
 | `HELP_GLOSSARY` | lua/notebook_data.lua | 243 |
 | `HELP_QUICKSTART` | lua/notebook_data.lua | 207 |
+| `HIGHLIGHT_DURATION` | lua/ui_actionbar_core.lua | 41 |
 | `LIGHTING_PRESETS` | lua/ui_mood.lua | 9 |
 | `LIGHT_SOURCES` | lua/night.lua | 270 |
 | `LOCATION_ADJACENCY` | lua/ui_actionbar_core.lua | 14 |
@@ -645,8 +660,20 @@
 | `TREEGUARD_STATS` | lua/treeguard.lua | 9 |
 | `WEAPON_DICE` | lua/market_data.lua | 114 |
 | `WHATNOW_HINTS` | lua/whatnow_hints.lua | 5 |
+| `_adjacentLocations` | lua/ui_actionbar_core.lua | 22 |
+| `_armTargetTimeout` | lua/ui_actionbar_targets.lua | 59 |
+| `_cardIdFromTags` | lua/ui_actionbar_core.lua | 151 |
 | `_checkIdle` | lua/day_loop.lua | 15 |
+| `_highlightCleanseTargets` | lua/ui_actionbar_targets.lua | 340 |
+| `_highlightCookTargets` | lua/ui_actionbar_targets.lua | 330 |
+| `_highlightCraftTargets` | lua/ui_actionbar_targets.lua | 298 |
+| `_spawnCookButtons` | lua/ui_actionbar_targets.lua | 141 |
+| `_spawnCraftButtons` | lua/ui_actionbar_targets.lua | 110 |
+| `_spawnFightButtons` | lua/ui_actionbar_targets.lua | 173 |
+| `_spawnMoveButtons` | lua/ui_actionbar_targets.lua | 88 |
 | `advanceToNextPlayer` | lua/day_loop.lua | 381 |
+| `allPlayersGain` | lua/effects/dawn_effects.lua | 44 |
+| `allPlayersLose` | lua/effects/dawn_effects.lua | 15 |
 | `applyCounterAttack` | lua/combat_resolve.lua | 133 |
 | `applyRandomScenario` | lua/setup.lua | 343 |
 | `applyScenario` | lua/setup.lua | 353 |
@@ -689,7 +716,7 @@
 | `confirmLastHeart` | lua/ui_mood.lua | 115 |
 | `confirmMoveInjuredToThreat` | lua/ui_mood.lua | 131 |
 | `confirmSleepAloneAtCourt` | lua/ui_mood.lua | 80 |
-| `cookTelltaleHeart` | lua/crafting.lua | 199 |
+| `cookTelltaleHeart` | lua/crafting.lua | 197 |
 | `countDuskReady` | lua/day_loop.lua | 608 |
 | `countFesteringThreats` | lua/day_loop.lua | 203 |
 | `createDayButton` | lua/setup.lua | 230 |
@@ -775,6 +802,7 @@
 | `identifyThreatType` | lua/night.lua | 341 |
 | `isBossOnMap` | lua/day_loop.lua | 196 |
 | `lockdownCriticalObjects` | lua/audit.lua | 25 |
+| `lowestStatPlayer` | lua/effects/dawn_effects.lua | 53 |
 | `markBossDefeated` | lua/combat.lua | 210 |
 | `markTurnStart` | lua/telemetry.lua | 54 |
 | `maybeJamesReroll` | lua/combat_resolve.lua | 182 |

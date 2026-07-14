@@ -12,7 +12,7 @@ DAWN_EFFECTS = {}
 -- Everyone elsewhere still pays. (Card texts that name a single victim
 -- resolve inline in their own effects and stay a table roll.)
 -----------------------------------------------------------------------
-local function allPlayersLose(stat, amount)
+function allPlayersLose(stat, amount)
     local calmedLocation = nil
     if stat == "sanity" then
         for _, char in pairs(gameState.activeChars) do
@@ -41,7 +41,7 @@ local function allPlayersLose(stat, amount)
     end
 end
 
-local function allPlayersGain(stat, amount)
+function allPlayersGain(stat, amount)
     for color, char in pairs(gameState.activeChars) do
         if not char.down then
             char[stat] = math.min(char["max" .. stat:sub(1,1):upper() .. stat:sub(2)], char[stat] + amount)
@@ -50,7 +50,7 @@ local function allPlayersGain(stat, amount)
     end
 end
 
-local function lowestStatPlayer(stat)
+function lowestStatPlayer(stat)
     local lowest, lowestChar = 999, nil
     for color, char in pairs(gameState.activeChars) do
         if not char.down and char[stat] < lowest then

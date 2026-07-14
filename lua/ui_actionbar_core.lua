@@ -19,7 +19,7 @@ LOCATION_ADJACENCY = {
     BadmintonCourt = {"EllieLucaHouse"},
 }
 
-local function _adjacentLocations(loc)
+function _adjacentLocations(loc)
     local out = {}
     for _, n in ipairs(LOCATION_ADJACENCY[loc] or {}) do
         out[#out+1] = n
@@ -38,7 +38,7 @@ end
 -- Uses TTS's per-object highlightOn(color, duration) so it doesn't compete
 -- with the global Phase Banner CTA pulse on XML elements.
 -----------------------------------------------------------------------
-local HIGHLIGHT_DURATION = 30  -- seconds; matches TARGET_TIMEOUT so the glow
+HIGHLIGHT_DURATION = 30  -- seconds; matches TARGET_TIMEOUT so the glow
                                -- never dies while the target buttons remain
 
 -----------------------------------------------------------------------
@@ -148,7 +148,7 @@ function verifyAndPayResources(color, cost, label)
     return true
 end
 
-local function _cardIdFromTags(card)
+function _cardIdFromTags(card)
     if not card or not card.getTags then return nil end
     for _, tag in ipairs(card.getTags()) do
         if tag:match("^M_") then return tag end

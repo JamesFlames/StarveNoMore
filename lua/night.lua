@@ -435,37 +435,39 @@ function resolveSleep()
             -- Winter scenario: houses give +1 Sanity bonus at sleep
             local winterBonus = (gameState.scenarioFlags or {}).housesSanityBonus and isHouse
 
-            if floorSleepers[color] then
-                -- Crowded floor: no regen (broadcast already sent above)
-            elseif isOwnHome then
-                -- Own house: +1 Sanity, +1 Hunger, +1 Health.
-                -- Needs an Audience (§6.5): Luca alone regains no Sanity —
-                -- the body rests, the mind doesn't.
-                local sanityGain = 1 + (winterBonus and 1 or 0)
-                if char.name == "Luca" and othersHere == 0 then
-                    sanityGain = 0
-                end
-                char.sanity = math.min(char.maxSanity, char.sanity + sanityGain)
-                char.hunger = math.min(char.maxHunger, char.hunger + 1)
-                char.health = math.min(char.maxHealth, char.health + 1)
-                local winterNote = winterBonus and " (+1 Winter huddle)" or ""
-                if sanityGain == 0 then
-                    broadcastEvent("gain", char.name .. " sleeps at home alone: +1 Health, +1 Hunger — but no Sanity (Needs an Audience).")
+            -- Crowded-floor sleepers get no regen (broadcast already sent
+            -- above); everyone else settles according to where they slept.
+            if not floorSleepers[color] then
+                if isOwnHome then
+                    -- Own house: +1 Sanity, +1 Hunger, +1 Health.
+                    -- Needs an Audience (§6.5): Luca alone regains no Sanity —
+                    -- the body rests, the mind doesn't.
+                    local sanityGain = 1 + (winterBonus and 1 or 0)
+                    if char.name == "Luca" and othersHere == 0 then
+                        sanityGain = 0
+                    end
+                    char.sanity = math.min(char.maxSanity, char.sanity + sanityGain)
+                    char.hunger = math.min(char.maxHunger, char.hunger + 1)
+                    char.health = math.min(char.maxHealth, char.health + 1)
+                    local winterNote = winterBonus and " (+1 Winter huddle)" or ""
+                    if sanityGain == 0 then
+                        broadcastEvent("gain", char.name .. " sleeps at home alone: +1 Health, +1 Hunger — but no Sanity (Needs an Audience).")
+                    else
+                        broadcastEvent("gain", char.name .. " sleeps at home: +1 Health, +1 Hunger, +" .. sanityGain .. " Sanity." .. winterNote)
+                    end
+                elseif isHouse and othersHere > 0 then
+                    -- Someone else's house, with company: +1 Sanity
+                    local sanityGain = 1 + (winterBonus and 1 or 0)
+                    char.sanity = math.min(char.maxSanity, char.sanity + sanityGain)
+                    local winterNote = winterBonus and " (+1 Winter huddle)" or ""
+                    broadcastEvent("gain", char.name .. " sleeps at a friend's house with company: +" .. sanityGain .. " Sanity." .. winterNote)
+                elseif isHouse and othersHere == 0 then
+                    -- Someone else's house, alone: nothing
+                    broadcastEvent("proc", char.name .. " sleeps alone at someone else's house. No rest bonus.")
                 else
-                    broadcastEvent("gain", char.name .. " sleeps at home: +1 Health, +1 Hunger, +" .. sanityGain .. " Sanity." .. winterNote)
+                    -- Sport court: nothing
+                    broadcastEvent("proc", char.name .. " sleeps at " .. loc .. ". No rest bonus (not a safe space).")
                 end
-            elseif isHouse and othersHere > 0 then
-                -- Someone else's house, with company: +1 Sanity
-                local sanityGain = 1 + (winterBonus and 1 or 0)
-                char.sanity = math.min(char.maxSanity, char.sanity + sanityGain)
-                local winterNote = winterBonus and " (+1 Winter huddle)" or ""
-                broadcastEvent("gain", char.name .. " sleeps at a friend's house with company: +" .. sanityGain .. " Sanity." .. winterNote)
-            elseif isHouse and othersHere == 0 then
-                -- Someone else's house, alone: nothing
-                broadcastEvent("proc", char.name .. " sleeps alone at someone else's house. No rest bonus.")
-            else
-                -- Sport court: nothing
-                broadcastEvent("proc", char.name .. " sleeps at " .. loc .. ". No rest bonus (not a safe space).")
             end
 
             -- Coco's No Home constraint: if sleeping alone at a non-house, -3 Sanity
