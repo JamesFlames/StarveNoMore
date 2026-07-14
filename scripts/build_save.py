@@ -1124,7 +1124,10 @@ LUA_LOAD_ORDER = [
     "crafting.lua",
     "night.lua",
     "tick_victory.lua",
-    "actions.lua",
+    # actions split by verb group (all global fns; order among them is free).
+    "actions.lua",           # undo/snapshot, move/dusk-move, gather, rest
+    "actions_combat.lua",    # threat/boss statlines, fight, flee
+    "actions_social.lua",    # trade, energy, eat-raw, pass, barricade, defend, peek, rally, pry, stabilize
     "treeguard.lua",        # Phase 2.5 mini-boss (wake/appease/defeat)
     "signatures.lua",       # Signature Moves (§6.7) — once-per-game per-character actions
     "telemetry.lua",        # Session log: chronicle setup/turns/beats + Copy Session Log export (batch 4 W0)

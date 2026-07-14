@@ -101,7 +101,9 @@ StarveNoMore/
 │   ├── crafting.lua            # Market craft + Crockpot cook handlers
 │   ├── night.lua               # Night-phase resolver (threat draw, Charlie, sleep)
 │   ├── tick_victory.lua        # Tick decay, victory/defeat, Down state + revival hint
-│   ├── actions.lua             # Player actions (move, gather, fight, rest, cleanse, flee, dusk scramble)
+│   ├── actions.lua             # Player actions core: undo/snapshot, move, dusk-move, gather, rest
+│   ├── actions_combat.lua      # Combat verbs: threat/boss statlines, fight, flee
+│   ├── actions_social.lua      # Trade, energy drink, eat-raw, pass, barricade, defend, peek, rally, pry, stabilize
 │   ├── treeguard.lua           # Phase 2.5 mini-boss (wakes Dusk D4; fight/appease/defeat)
 │   ├── signatures.lua          # Signature Moves (§6.7) — once-per-game per-character actions + button/dialog UX
 │   ├── telemetry.lua           # Session log (batch 4 W0): chronicle setup/turns/beats, exportSessionLog, Copy Session Log
