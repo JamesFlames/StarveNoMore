@@ -123,31 +123,37 @@ sorted order**. Data/definition files must load before their consumers, so:
 After each split: `python scripts/generate_symbol_index.py` (refreshes
 `SYMBOLS.md` + `.luacheckrc`), then `python -m pytest tests`.
 
-- [ ] **`lua/ui_actionbar.lua` (1193)** — split by action group. The handlers
+- [x] **`lua/ui_actionbar.lua` (1193)** — split by action group. The handlers
       already cluster: movement/gather/craft/cook, fight/combat, rest,
       trade/peek/rally/undo. Suggested:
-  - [ ] `ui_actionbar_core.lua` — resource helpers (`getPlayerResources`,
-        `verifyAndPayResources`, `canAfford`), target-button plumbing
-        (`_spawnTargetButton`, `clearActionTargets`, timeout arming).
-  - [ ] `ui_actionbar_move.lua` — move/gather/craft/cook handlers + their
-        target-click + highlight helpers.
-  - [ ] `ui_actionbar_combat.lua` — fight/attack/finish-combat handlers.
-  - [ ] `ui_actionbar_social.lua` — rest, trade, peek, rally, pry, cleanse,
-        pass, undo, dusk-ready.
-  - [ ] Insert all parts into `LUA_LOAD_ORDER` where `ui_actionbar.lua` sat.
-- [ ] **`lua/effects/dawn_effects.lua` (1047)** — one file of per-card event
-      handlers. Split by phase or by event family (e.g.
-      `dawn_effects_phase1.lua` … `phase4.lua`, or a shared `dawn_effects.lua`
-      dispatcher + `dawn_effects_events.lua`). Keep any shared dispatch table in
-      the earlier-loaded file.
-- [ ] **`lua/actions.lua` (990)** — separate the pure rules/mutation logic from
-      any dispatch glue; group by verb if a clean seam exists.
-- [ ] **`lua/combat.lua` (690)** and **`lua/day_loop.lua` (673)** — split only if
-      a clean seam exists (e.g. combat: dice/resolution vs. threat lifecycle;
-      day_loop: phase transitions vs. per-turn bookkeeping). Don't force it.
-- [ ] After all Lua splits: run `iwanttoplay --no-launch` (or the build + full
-      test suite) once to confirm the assembled save still loads and
-      `test_generated_freshness.py` is green.
+  - [x] `ui_actionbar_core.lua` — resource helpers (`getPlayerResources`,
+        `verifyAndPayResources`, `canAfford`) + Move adjacency + highlight duration.
+  - [x] `ui_actionbar_targets.lua` — target-button plumbing (`_spawnTargetButton`,
+        `clearActionTargets`, timeout arming) + move/craft/cook/fight target spawns,
+        click handlers, and highlight helpers.
+  - [x] `ui_actionbar_handlers.lua` — the `onActX` action-bar handlers, Press-the-
+        Attack combat panel, and trade/peek/rally/undo/dusk handlers.
+  - [x] `ui_actionbar_display.lua` — validate, action-bar refresh + cubes, per-button
+        enable/reasons, stat display, action tooltips.
+  - [x] Insert all parts into `LUA_LOAD_ORDER` where `ui_actionbar.lua` sat.
+        *(Cut by concern rather than the exact suggested names, but same intent:
+        4 files, all <500 lines, contiguous + in original order so the bundle is
+        byte-equivalent.)*
+- [x] **`lua/effects/dawn_effects.lua` (1047)** — split by phase: a core
+      `dawn_effects.lua` (the shared `DAWN_EFFECTS` table + chunk-local helpers +
+      boss standee placement), `dawn_effects_phase1..4.lua`, and
+      `dawn_effects_dispatch.lua` (anti-stacking cards + `DAWN_MANUAL_STEPS` +
+      `dispatchDawnEffect`). Shared table stays in the earlier-loaded core.
+- [x] **`lua/actions.lua` (990)** — split by verb group into `actions.lua`
+      (undo, move, dusk-move, gather, rest), `actions_combat.lua` (statlines,
+      fight, flee), `actions_social.lua` (trade, energy, eat-raw, pass,
+      barricade, defend, peek, rally, pry, stabilize).
+- [x] **`lua/combat.lua` (690)** — split at the dice/resolution vs. boss-lifecycle
+      seam the plan names: `combat.lua` (dice roll + boss/Source HP lifecycle +
+      rewards) and `combat_resolve.lua` (fight resolution flow). **`lua/day_loop.lua`
+      (673)** left intact — a tightly-ordered state machine; not forced.
+- [x] After all Lua splits: ran the build + full test suite; the assembled save
+      loads and `test_generated_freshness.py` (and all 322 tests) are green.
 
 ---
 
