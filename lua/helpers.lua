@@ -79,6 +79,67 @@ function getResourceBag(resType)
 end
 
 -----------------------------------------------------------------------
+-- Resource automation: the players never reach into a supply bag by hand.
+-- giveResource pulls tokens from the shared supply and lays them out in a
+-- player's board area (the same padded box getPlayerResources scans, so
+-- they count immediately). spawnResourceAtTile drops them on a location
+-- tile as a free pickup (dawn-card deliveries, Treeguard salvage). Both
+-- are the counterpart to verifyAndPayResources, which puts tokens back.
+-- Each returns the number of tokens actually delivered (0 if the bag or
+-- destination is missing, so callers degrade gracefully in headless play).
+-----------------------------------------------------------------------
+local function _tagResource(tok, resType)
+    if not tok then return end
+    -- Infinite-bag tokens ship pre-tagged (build_save.py); re-tagging is a
+    -- harmless no-op there but makes a token count in headless tests, where
+    -- the stub bag hands back a blank object.
+    pcall(function() tok.addTag("Resource") end)
+    pcall(function() tok.addTag("Resource:" .. resType) end)
+end
+
+function giveResource(color, resType, qty)
+    qty = qty or 1
+    local charName = colorToCharacter(color)
+    if not charName then return 0 end
+    local board = getPlayerBoard(charName)
+    local bag = getResourceBag(resType)
+    if not board or not bag then return 0 end
+    local base = board.getPosition()
+    local given = 0
+    for i = 1, qty do
+        local ok = safecall(function()
+            local tok = bag.takeObject({
+                position = base + Vector(-2.6 + (i % 3) * 0.5, 0.8 + i * 0.4, -1.2),
+                smooth   = true,
+            })
+            _tagResource(tok, resType)
+        end, "GiveResource")
+        if ok then given = given + 1 end
+    end
+    return given
+end
+
+function spawnResourceAtTile(locName, resType, qty)
+    qty = qty or 1
+    local tile = getLocationTile(locName)
+    local bag = getResourceBag(resType)
+    if not tile or not bag then return 0 end
+    local base = tile.getPosition()
+    local given = 0
+    for i = 1, qty do
+        local ok = safecall(function()
+            local tok = bag.takeObject({
+                position = base + Vector(-1.2 + (i % 3) * 1.2, 3, 2 + math.floor((i - 1) / 3) * 1.0),
+                smooth   = true,
+            })
+            _tagResource(tok, resType)
+        end, "SpawnResourceAtTile")
+        if ok then given = given + 1 end
+    end
+    return given
+end
+
+-----------------------------------------------------------------------
 -- Standee placement: every character owns a fixed slot offset on every
 -- tile so standees never stack on top of each other. The offsets mirror
 -- the CharSlot row build_save.py bakes into each location tile (a row

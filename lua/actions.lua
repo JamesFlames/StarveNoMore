@@ -261,8 +261,49 @@ end
 
 -----------------------------------------------------------------------
 -- GATHER (1 action) — Design §8.1
--- Draw 1 resource from the location's resource bag.
+-- Draw resources from the location's supply and lay them by the player's
+-- board automatically — nobody reaches into a bag. Special cases: James's
+-- House Stash (2 Energy Drinks), Ellie's pantry pick, the Backpack (+1),
+-- and the porch-light dare (+2 for -2 Sanity).
 -----------------------------------------------------------------------
+local RES_LABELS = { EnergyDrink = "Energy Drink" }
+local function _resLabel(r) return RES_LABELS[r] or r end
+
+-- One line summarising a gather: { Food = 2, Wood = 1 } -> "2 Food + 1 Wood".
+local function _describeHaul(got)
+    local parts = {}
+    for r, n in pairs(got) do parts[#parts + 1] = n .. " " .. _resLabel(r) end
+    return table.concat(parts, " + ")
+end
+
+-- Does this player carry a Backpack (Persistent tool: gather +1)?
+function playerHasBackpack(color)
+    local charName = colorToCharacter(color)
+    if not charName then return false end
+    for _, obj in ipairs(getPlayerCarriedObjects(color, charName)) do
+        if obj.hasTag and obj.hasTag("M_BACKPACK") then return true end
+        local nick = (obj.getNickname and obj.getNickname()) or ""
+        if nick:lower():find("backpack", 1, true) then return true end
+    end
+    return false
+end
+
+-- Draw `n` random resources from `loc`'s yield table straight to `color`'s
+-- board area, then announce the haul.
+function gatherRandomResources(color, loc, n)
+    local char = gameState.activeChars[color]
+    if not char then return end
+    local yields = LOCATION_YIELDS[loc] or {"Food"}
+    local got = {}
+    for _ = 1, (n or 1) do
+        local resType = yields[gameRoll(#yields)]
+        giveResource(color, resType, 1)
+        got[resType] = (got[resType] or 0) + 1
+    end
+    broadcastEvent("gain", char.name .. " gathers " .. _describeHaul(got) .. " at " .. loc ..
+        " (tokens delivered to your board automatically).")
+end
+
 function doGather(color)
     local char = gameState.activeChars[color]
     if not char then return end
@@ -281,24 +322,27 @@ function doGather(color)
 
     broadcastEvent("proc", char.name .. " gathers at " .. loc .. ".")
 
-    -- Determine which resource bags are available at this location
-    -- Each location has tagged Infinite_Bag objects nearby
-    -- For scripted mode, broadcast instruction; physical pickup is manual
-    broadcastEvent("proc", "Draw 1 resource from " .. loc .. "'s resource bag.")
-
-    -- The Stash (Design §7.1): a gather at James's House may take
-    -- 2 Energy Drinks instead of the random draw.
-    if loc == "JamesHouse" then
-        broadcastEvent("gain", "The Stash: instead of a random draw, you may take 2 Energy Drinks.")
+    local extra = playerHasBackpack(color) and 1 or 0   -- Backpack: gather +1
+    if extra > 0 then
+        broadcastToColor("Your Backpack gathers 1 extra resource.", color, BROADCAST_COLORS.gain)
     end
 
-    -- Dare — the porch light (P2_PORCH_LIGHT, design_batch3.md §2): the
-    -- first Gather at a house today may become 3 resources for 2 Sanity.
-    -- Offered, never imposed: the gather above stands either way.
+    -- Ellie's perk: "Knows the Pantry" (§6.4) — at her own house she picks
+    -- exactly what she needs (no random draw), and takes 1 extra.
+    if char.name == "Ellie" and loc == "EllieLucaHouse" then
+        showResourcePicker(color, 2 + extra, "Ellie knows the pantry — take any resources you want:")
+        return
+    end
+
     local isHouse = (loc == "JamesHouse" or loc == "RaymanHouse" or loc == "EllieLucaHouse")
+
+    -- Dare — the porch light (P2_PORCH_LIGHT, design_batch3.md §2): the base
+    -- draw lands now; the dare offers +2 more for 2 Sanity. Rare, so it — not
+    -- the Stash — owns the confirm dialog on the turn it fires.
     if gameState.ongoingDawnEffects.darePorchLight and isHouse then
+        gatherRandomResources(color, loc, 1 + extra)
         showConfirm("Dare — the porch light",
-            "Upgrade this Gather to 3 resources — and lose 2 Sanity from what you see through the window?",
+            "Draw 2 extra resources — and lose 2 Sanity from what you see through the window?",
             function()
                 if not gameState.ongoingDawnEffects.darePorchLight then return end  -- someone beat you to it
                 gameState.ongoingDawnEffects.darePorchLight = nil
@@ -306,20 +350,32 @@ function doGather(color)
                 if not ch or ch.down then return end
                 safecall(function() recordBeat("dare") end, "Telemetry")
                 ch.sanity = math.max(0, ch.sanity - 2)
-                broadcastEvent("gain", ch.name .. " takes the dare — draw 2 extra resources from " .. loc .. "'s bag (3 total).")
+                gatherRandomResources(color, loc, 2)
+                broadcastEvent("gain", ch.name .. " takes the dare — 2 extra resources from " .. loc .. ".")
                 broadcastEvent("damage", ch.name .. " loses 2 Sanity from what they see through the window. (Now " .. ch.sanity .. ")")
                 checkDownState(color)
                 refreshPhaseBanner()
             end)
+        return
     end
 
-    -- Ellie's perk: "Knows the Pantry" (§6.4) — at her own house she picks
-    -- exactly what she needs (no random draw), and takes 1 extra.
-    if char.name == "Ellie" and loc == "EllieLucaHouse" then
-        broadcastEvent("gain", "Ellie knows the pantry — pick the exact resources you want (no random draw), and take 1 extra!")
+    -- The Stash (Design §7.1): a Gather at James's House may take 2 Energy
+    -- Drinks instead of the random draw. Confirm = the Stash, Cancel = draw.
+    if loc == "JamesHouse" then
+        showConfirm("The Stash",
+            "Take 2 Energy Drinks (The Stash)?\nConfirm = 2 Energy Drinks.  Cancel = 1 random resource.",
+            function()
+                giveResource(color, "EnergyDrink", 2)
+                broadcastEvent("gain", char.name .. " raids the Stash: 2 Energy Drinks (delivered to your board).")
+            end,
+            function()
+                gatherRandomResources(color, loc, 1 + extra)
+            end)
+        return
     end
 
-    -- Backpack item: gather 2 instead of 1 (checked manually)
+    -- Everyone else, everywhere else: an automatic random draw.
+    gatherRandomResources(color, loc, 1 + extra)
 end
 
 -----------------------------------------------------------------------

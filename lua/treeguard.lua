@@ -64,8 +64,9 @@ function treeguardDefeated()
     if not (gameState.treeguard and gameState.treeguard.active) then return end
     gameState.treeguard.active = false
 
-    broadcastEvent("gain", "The TREEGUARD splinters and falls. Salvage 3 Wood from where it stood.")
-    broadcastEvent("proc", "Take 3 Wood from the " .. (gameState.treeguard.location or "court") .. " resource bag.")
+    local where = gameState.treeguard.location or "court"
+    broadcastEvent("gain", "The TREEGUARD splinters and falls. 3 Wood spill out at " .. where .. ".")
+    safecall(function() spawnResourceAtTile(where, "Wood", 3) end, "TreeguardSalvage")
 
     _sleepStandee()
     -- combat.lua already stops the boss audio loop via threatNameToBossKey.

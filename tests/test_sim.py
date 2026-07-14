@@ -89,6 +89,19 @@ def test_cleanse_cost_and_reduction_match(lua_globals):
     assert lua_globals.eval("CLEANSE_REDUCTION") == sim.CLEANSE_REDUCTION
 
 
+def test_location_yields_match(lua_globals):
+    # Gather now spawns tokens straight from LOCATION_YIELDS (global.lua); the
+    # sim's YIELDS drives balance. Same distribution per location (order and
+    # duplicates included, so Food-doubled Ellie & Luca's stays doubled).
+    lua_to_sim = _SIM_RESOURCE_NAMES
+    for loc, sim_names in sim.YIELDS.items():
+        n = lua_globals.eval(f"#LOCATION_YIELDS.{loc}")
+        lua_names = [lua_globals.eval(f"LOCATION_YIELDS.{loc}[{i}]") for i in range(1, n + 1)]
+        assert sorted(lua_to_sim[r] for r in lua_names) == sorted(sim_names), (
+            f"{loc}: lua={lua_names} sim={sim_names} — "
+            "LOCATION_YIELDS (global.lua) drifted from simulate_balance.py YIELDS")
+
+
 # ---------------------------------------------------------------------------
 # Boss statlines: sim BOSSES <-> build_save.py standees <-> lua constants.
 # build_save.py executes its whole build on import, so it is parsed, not

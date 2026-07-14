@@ -56,7 +56,7 @@ function clearActionTargets()
     end
 end
 
-local function _armTargetTimeout()
+function _armTargetTimeout()
     if _targetClearHandle then Wait.stop(_targetClearHandle) end
     _targetClearHandle = Wait.time(function()
         _targetClearHandle = nil
@@ -85,7 +85,7 @@ end
 
 -- Move targets are always 1-step neighbours; Rayman's 2-tile Speed is
 -- delivered as a chained free second hop, so his buttons are 1-step too.
-local function _spawnMoveButtons(color, mode)
+function _spawnMoveButtons(color, mode)
     local char = gameState.activeChars[color]
     if not char or not char.location then return 0 end
     local label = (mode == "bonusmove") and "FREE MOVE" or "MOVE HERE"
@@ -107,7 +107,7 @@ local function _spawnMoveButtons(color, mode)
     return n
 end
 
-local function _spawnCraftButtons()
+function _spawnCraftButtons()
     local n = 0
     for i, slot in ipairs(getMarketSlots()) do
         local slotPos = slot.getPosition()
@@ -138,7 +138,7 @@ local function _recipeIdFromCard(card)
     return nil
 end
 
-local function _spawnCookButtons()
+function _spawnCookButtons()
     local n = 0
     for _, card in ipairs(findAllByTag("RecipeCard")) do
         local rid = _recipeIdFromCard(card)
@@ -170,7 +170,7 @@ local function _alliesCanJoinFight(color)
     return false
 end
 
-local function _spawnFightButtons(color)
+function _spawnFightButtons(color)
     _fightTargetByGuid = {}
     local char = gameState.activeChars[color]
     if not char then return 0 end
@@ -295,7 +295,7 @@ function onFightTogetherClick(obj, clickerColor, altClick)
     _resolveFightClick(obj, clickerColor, true)
 end
 
-local function _highlightCraftTargets(color)
+function _highlightCraftTargets(color)
     local deck = getMarketDeck()
     if deck then deck.highlightOn("Yellow", HIGHLIGHT_DURATION) end
     -- Empty market slots — neutral hint that this is where cards go
@@ -327,7 +327,7 @@ local function _highlightCraftTargets(color)
     end
 end
 
-local function _highlightCookTargets()
+function _highlightCookTargets()
     -- Recipe cards live on a reference rack; tag is "RecipeCard".
     for _, card in ipairs(findAllByTag("RecipeCard")) do
         card.highlightOn("Orange", HIGHLIGHT_DURATION)
@@ -337,7 +337,7 @@ local function _highlightCookTargets()
     if tile then tile.highlightOn("Orange", HIGHLIGHT_DURATION) end
 end
 
-local function _highlightCleanseTargets()
+function _highlightCleanseTargets()
     -- Cleanse cost bundle (CLEANSE_COST, global.lua).
     for resType in pairs(CLEANSE_COST) do
         local bag = getResourceBag(resType)

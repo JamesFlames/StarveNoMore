@@ -60,7 +60,7 @@ This is the in-game reference. The full design intent is in `StarveNoMoreDesignC
 ### Dawn
 - Day Counter advances.
 - Doom advances by phase rate (adjusted by player count, see Help → Doom), **plus +1 for each Threat still on the map** (festering, max +3), **plus +2 for each Boss / +1 for the Treeguard** (no cap).
-- **Moonlit Salvage:** anyone who survived the night at a sport court gathers 2 resources from that court's bag.
+- **Moonlit Salvage:** anyone who survived the night at a sport court gathers 2 resources, delivered to their board automatically at Dawn.
 - **Dares:** some early-week Dawn cards carry an *optional* temptation alongside their effect — extra loot for extra risk. The card states the terms; take it or leave it.
 - **The Wrongness:** one Dawn card places a face-down, unresolved Threat on the map. Enter its tile to resolve it — or it resolves itself at the next Dawn, where it stands.
 - Reveal top of the active Phase deck. Apply effects.
@@ -68,7 +68,7 @@ This is the in-game reference. The full design intent is in `StarveNoMoreDesignC
 ### Day
 Each player has **3 actions**, taken as one turn (default) — or, with the **Rotation turns variant**, you take 1 action and play passes to the next player, circling the table until everyone has used all 3 (pass after acting = keep the rest for your next go; pass without acting = forfeit them). Choose any:
 - **Move (1)** — adjacent tile. Costs 1 Hunger. Rayman moves 2 spaces.
-- **Gather (1)** — draw 1 resource at this tile.
+- **Gather (1)** — take 1 resource at this tile; it's delivered to your board automatically.
 - **Craft (1)** — buy an Item from the Market.
 - **Cook (1)** — at a Crockpot, prepare a Recipe.
 - **Fight (1)** — attack a Threat at this tile.
@@ -188,7 +188,7 @@ Every character has one **Signature** — a once-per-game named move, fired from
 - Stats: Health 8 / Hunger 10 / Sanity 8
 - **Crockpot Master:** Recipes need 1 fewer ingredient (min 1).
 - **Comfort Food:** when Ellie shares cooked food, eaters gain +1 extra Hunger and +1 extra Sanity.
-- **Knows the Pantry:** at her own house, search resource bag for a specific token.
+- **Knows the Pantry:** at her own house, pick the exact resources you want (no random draw) — the picker delivers them to your board.
 - **The Feast (Signature, 1×):** at a Crockpot, cook any number of recipes in a single action (ingredients still required); consumes ALL your held Food.
 - **Particular Eater (constraint):** cannot eat raw food.
 - Starting hand: Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.
@@ -289,7 +289,7 @@ Every character has one **Signature** — a once-per-game named move, fired from
 - A house sleeps **two** comfortably. Each sleeper beyond the second gets the floor: no sleep regeneration. Beds go to owners first, then whoever needs them most.
 
 ## Moonlit Salvage
-- Spend the night at a sport court and survive to Dawn: gather **2 resources** from that court's bag. The courts are richest when the world sleeps.
+- Spend the night at a sport court and survive to Dawn: gather **2 resources**, delivered to your board automatically. The courts are richest when the world sleeps.
 
 ## Victory and Defeat
 - **Survive Day 7** with Doom < 30 to win — and if The Source has arrived, it must be destroyed. While it stands at the end of Day 7, there is no victory.

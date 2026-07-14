@@ -211,8 +211,15 @@ DAWN_EFFECTS["P2_WALLS_BLEED"] = {
 
 DAWN_EFFECTS["P2_SUPPLY_DROP"] = {
     onReveal = function(card)
-        broadcastEvent("gain", "A box on the porch! Add 1 Metal and 1 Cloth to the nearest house tile.")
-        broadcastEvent("warn", "Also draw 1 Threat at that house tile.")
+        -- The box lands on the neighbourhood's central porch: Ellie & Luca's
+        -- House. 1 Metal + 1 Cloth spill out, and the noise draws 1 Threat.
+        broadcastEvent("gain", "A box on Ellie & Luca's porch! 1 Metal + 1 Cloth appear there.")
+        safecall(function()
+            spawnResourceAtTile("EllieLucaHouse", "Metal", 1)
+            spawnResourceAtTile("EllieLucaHouse", "Cloth", 1)
+        end, "SupplyDrop")
+        broadcastEvent("warn", "The clatter draws 1 Threat to Ellie & Luca's House.")
+        safecall(function() drawThreatsAt("EllieLucaHouse", 1) end, "SupplyDropThreat")
     end,
 }
 

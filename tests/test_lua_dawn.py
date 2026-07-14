@@ -238,3 +238,21 @@ class TestDawnEffects:
 # ---------------------------------------------------------------------------
 # Character perks + scripted Fight (2026-07: the briefing promises, delivered)
 # ---------------------------------------------------------------------------
+
+
+class TestSupplyDrop:
+    def test_supply_drop_delivers_tokens_and_draws_a_threat(self, env):
+        add_char(env, "White", "James", location="JamesHouse")
+        add = env.eval("TTS.addObject")
+        add(py_to_lua(env, {"tags": ["Location:EllieLucaHouse"], "position": [0, 1, 8]}))
+        for res in ["Metal", "Cloth"]:
+            add(py_to_lua(env, {"tags": [f"ResourceBag:{res}"], "position": [60, 1, 60],
+                                "contained": [{"nickname": res, "tags": ["Resource", f"Resource:{res}"]}] * 4}))
+        add(py_to_lua(env, {"tags": ["ThreatCardDeck"], "position": [50, 1, 50],
+                            "contained": [{"nickname": "Shadow Stalker", "guid": "sd1",
+                                           "tags": ["ThreatCard"]}]}))
+        env.execute('DAWN_EFFECTS["P2_SUPPLY_DROP"].onReveal(TTS.makeObject({}))')
+        flush(env)
+        assert env.eval('#findAllByTag("Resource:Metal")') == 1
+        assert env.eval('#findAllByTag("Resource:Cloth")') == 1
+        assert env.eval('#findAllByTag("ThreatCard")') == 1   # drawn onto the map
