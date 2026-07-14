@@ -32,7 +32,7 @@ Everything else — pipelines, conventions, the file map — is in [`agents.md`]
 |---|---|
 | The 5-minute pitch | [`content/notebook/quickstart.md`](content/notebook/quickstart.md) |
 | A high-level orientation to the repo (file map, pipelines, conventions) | [`agents.md`](agents.md) |
-| The canonical rules and design intent | [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md) |
+| The canonical rules and design intent | [`docs/design/`](docs/design/README.md) (split by topic; indexed from [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md)) |
 | What changed, per design batch | [`CHANGELOG.md`](CHANGELOG.md) |
 | The blind-playtest protocol | [`playtest/facilitator_script.md`](playtest/facilitator_script.md) |
 

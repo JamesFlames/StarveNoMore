@@ -19,7 +19,8 @@ there are no `require`s; load order is the explicit `LUA_LOAD_ORDER` in
 - **"Where is function/constant X?"** → grep [`SYMBOLS.md`](SYMBOLS.md)
   (function → `file:line`) *before* opening source. One lookup instead of N greps.
 - **Deep reference** (architecture, conventions, pipelines) → [`agents.md`](agents.md).
-- **Rules/design questions** → [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md).
+- **Rules/design questions** → [`docs/design/`](docs/design/README.md) (split by
+  topic), indexed from [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md).
 
 ## Build & test
 

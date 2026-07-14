@@ -81,26 +81,30 @@ immediately by letting the agent *not* read big files.
 sections that are already self-contained. An agent answering a combat question
 should not load the setup, art, and TTS-implementation sections too.
 
-- [ ] Create `docs/design/` and split the doc by its existing `## N.` sections
+- [x] Create `docs/design/` and split the doc by its existing `## N.` sections
       into one file per topic, e.g.:
-  - [ ] `01-pitch-pillars.md` (§1–4)
-  - [ ] `02-components-characters.md` (§5–6)
-  - [ ] `03-locations-economy.md` (§7–8)
-  - [ ] `04-decks.md` (§9)
-  - [ ] `05-stats-turn-structure.md` (§10–11)
-  - [ ] `06-combat-crafting.md` (§12–13)
-  - [ ] `07-week-arc-doom.md` (§14–15)
-  - [ ] `08-victory-setup.md` (§16–17)
-  - [ ] `09-tts-implementation.md` (§18 — the largest section, ~350 lines)
-  - [ ] `10-rationale-balancing.md` (§19–20)
-- [ ] Replace `StarveNoMoreDesignConcept.md` with a **thin index** (keep the
+  - [x] `01-pitch-pillars.md` (§1–4)
+  - [x] `02-components-characters.md` (§5–6)
+  - [x] `03-locations-economy.md` (§7–8)
+  - [x] `04-decks.md` (§9)
+  - [x] `05-stats-turn-structure.md` (§10–11)
+  - [x] `06-combat-crafting.md` (§12–13)
+  - [x] `07-week-arc-doom.md` (§14–15)
+  - [x] `08-victory-setup.md` (§16–17)
+  - [x] `09-tts-implementation.md` (§18 — the largest section, ~350 lines)
+  - [x] `10-rationale-balancing.md` (§19–20 + Closing Notes)
+- [x] Replace `StarveNoMoreDesignConcept.md` with a **thin index** (keep the
       filename so existing links/`README.md`/`agents.md` don't 404): the doc
-      purpose + a table of contents linking into `docs/design/*`.
-- [ ] Update the Documentation Map in `agents.md` and the "Where to start
+      purpose + a table of contents linking into `docs/design/*`. *(Added a
+      `docs/design/README.md` sub-index too; `Archive/`/`playtest/` links inside
+      the moved sections were re-based to `../../`.)*
+- [x] Update the Documentation Map in `agents.md` and the "Where to start
       reading" table in `README.md` to point at the split files.
-- [ ] Grep for cross-references to section numbers (e.g. `§6.7`, `§18`) in `lua/`
+- [x] Grep for cross-references to section numbers (e.g. `§6.7`, `§18`) in `lua/`
       and `scripts/`; those stay valid as prose but note the new file home in the
-      index so an agent can jump straight there.
+      index so an agent can jump straight there. *(The index's Section → file
+      table and `docs/design/README.md` are that jump map; §N prose refs in code
+      are unchanged.)*
 
 ---
 
