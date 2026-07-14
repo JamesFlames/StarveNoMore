@@ -205,7 +205,7 @@
 | line | kind | symbol |
 |---|---|---|
 | 63 | table | `DAWN_MANUAL_STEPS` |
-| 95 | function | `dispatchDawnEffect` |
+| 93 | function | `dispatchDawnEffect` |
 
 ## lua/combat.lua (15 symbols)
 
@@ -696,7 +696,7 @@
 | `createSetupButton` | lua/global.lua | 286 |
 | `dealMarketDisplay` | lua/setup.lua | 171 |
 | `dealStartingHands` | lua/setup.lua | 130 |
-| `dispatchDawnEffect` | lua/effects/dawn_effects_dispatch.lua | 95 |
+| `dispatchDawnEffect` | lua/effects/dawn_effects_dispatch.lua | 93 |
 | `doAppeaseTreeguard` | lua/treeguard.lua | 77 |
 | `doBarricade` | lua/actions_social.lua | 98 |
 | `doCleanse` | lua/tick_victory.lua | 311 |

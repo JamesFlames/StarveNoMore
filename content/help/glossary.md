@@ -82,7 +82,7 @@
 - A house sleeps **two** comfortably. Each sleeper beyond the second gets the floor: no sleep regeneration. Beds go to owners first, then whoever needs them most.
 
 ## Moonlit Salvage
-- Spend the night at a sport court and survive to Dawn: gather **2 resources** from that court's bag. The courts are richest when the world sleeps.
+- Spend the night at a sport court and survive to Dawn: gather **2 resources**, delivered to your board automatically. The courts are richest when the world sleeps.
 
 ## Victory and Defeat
 - **Survive Day 7** with Doom < 30 to win — and if The Source has arrived, it must be destroyed. While it stands at the end of Day 7, there is no victory.

@@ -72,8 +72,6 @@ DAWN_MANUAL_STEPS = {
     P2_FOOD_SPOILS      = { "Every player discards 1 Food.",
                             "Optional DARE: eat it anyway — announce it: +2 Hunger and -1 Health instead of discarding." },
     P2_VISITOR          = { "Resolve the revealed Visitor card's instructions." },
-    P2_SUPPLY_DROP      = { "Add 1 Metal + 1 Cloth to the nearest house tile.",
-                            "Draw 1 Threat at that house tile." },
     P2_MIRROR_CRACK     = { "Every player discards 1 Battery (if held)." },
     P3_POWER_OUT        = { "Return all Battery tokens to the supply." },
     P3_FRIEND_CHANGED   = { "Player to your left: -2 Sanity and reveals one Item." },

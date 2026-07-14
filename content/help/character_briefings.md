@@ -74,7 +74,7 @@ The kitchen is your domain. You feed the team, and when you cook, everyone feels
 **Strengths**
 - **Crockpot Master:** Recipes you cook require 1 fewer ingredient (minimum 1).
 - **Comfort Food:** When you share cooked food, eaters gain +1 extra Hunger and +1 extra Sanity.
-- **Knows the Pantry:** At your own house, search the resource bag for a specific Food token instead of drawing randomly.
+- **Knows the Pantry:** At your own house, pick the exact resources you want instead of drawing randomly — the picker delivers them to your board.
 
 **Constraint**
 - **Particular Eater:** You cannot eat raw food. Others can eat a Food token raw for partial Hunger; you must cook first. Keep ingredients stocked.
