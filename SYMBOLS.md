@@ -170,17 +170,39 @@
 | 636 | function | `toggleDuskReady` |
 | 665 | function | `beginNight` |
 
-## lua/effects/dawn_effects.lua (7 symbols)
+## lua/effects/dawn_effects.lua (3 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 5 | table | `DAWN_EFFECTS` |
 | 70 | function | `placeBossStandee` |
 | 104 | function | `poolBossStandee` |
-| 353 | function | `resolveWrongness` |
-| 379 | function | `checkWrongnessEntry` |
-| 969 | table | `DAWN_MANUAL_STEPS` |
-| 1003 | function | `dispatchDawnEffect` |
+
+## lua/effects/dawn_effects_phase1.lua (0 symbols)
+
+*(no top-level globals)*
+
+## lua/effects/dawn_effects_phase2.lua (2 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 79 | function | `resolveWrongness` |
+| 105 | function | `checkWrongnessEntry` |
+
+## lua/effects/dawn_effects_phase3.lua (0 symbols)
+
+*(no top-level globals)*
+
+## lua/effects/dawn_effects_phase4.lua (0 symbols)
+
+*(no top-level globals)*
+
+## lua/effects/dawn_effects_dispatch.lua (2 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 63 | table | `DAWN_MANUAL_STEPS` |
+| 97 | function | `dispatchDawnEffect` |
 
 ## lua/combat.lua (25 symbols)
 
@@ -558,7 +580,7 @@
 | `CLEANSE_REDUCTION` | lua/global.lua | 116 |
 | `COMBAT_SPECIALS` | lua/actions.lua | 393 |
 | `DAWN_EFFECTS` | lua/effects/dawn_effects.lua | 5 |
-| `DAWN_MANUAL_STEPS` | lua/effects/dawn_effects.lua | 969 |
+| `DAWN_MANUAL_STEPS` | lua/effects/dawn_effects_dispatch.lua | 63 |
 | `DAY_FLAVOR` | lua/ui_banner.lua | 16 |
 | `DEATH_NARRATIONS` | lua/tick_victory.lua | 158 |
 | `DIFFICULTY_PARAMS` | lua/global.lua | 129 |
@@ -634,7 +656,7 @@
 | `checkPlayerHasLight` | lua/night.lua | 288 |
 | `checkSourcePhase` | lua/combat.lua | 137 |
 | `checkVictory` | lua/tick_victory.lua | 366 |
-| `checkWrongnessEntry` | lua/effects/dawn_effects.lua | 379 |
+| `checkWrongnessEntry` | lua/effects/dawn_effects_phase2.lua | 105 |
 | `clearActionTargets` | lua/ui_actionbar_targets.lua | 39 |
 | `clearHighlight` | lua/ui_banner.lua | 330 |
 | `clearSignatureTargets` | lua/signatures.lua | 179 |
@@ -650,7 +672,7 @@
 | `createSetupButton` | lua/global.lua | 270 |
 | `dealMarketDisplay` | lua/setup.lua | 171 |
 | `dealStartingHands` | lua/setup.lua | 130 |
-| `dispatchDawnEffect` | lua/effects/dawn_effects.lua | 1003 |
+| `dispatchDawnEffect` | lua/effects/dawn_effects_dispatch.lua | 97 |
 | `doAppeaseTreeguard` | lua/treeguard.lua | 76 |
 | `doBarricade` | lua/actions.lua | 664 |
 | `doCleanse` | lua/tick_victory.lua | 311 |
@@ -841,7 +863,7 @@
 | `resolveSleep` | lua/night.lua | 383 |
 | `resolveStorytelling` | lua/night.lua | 356 |
 | `resolveTick` | lua/tick_victory.lua | 8 |
-| `resolveWrongness` | lua/effects/dawn_effects.lua | 353 |
+| `resolveWrongness` | lua/effects/dawn_effects_phase2.lua | 79 |
 | `revealDawnCard` | lua/day_loop.lua | 301 |
 | `revealLastDawn` | lua/day_loop.lua | 278 |
 | `revealTrophy` | lua/combat.lua | 265 |

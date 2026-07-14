@@ -1112,7 +1112,14 @@ LUA_LOAD_ORDER = [
     "notebook_data.lua",    # auto-gen by scripts/generate_notebook.py — Notebook/Help text from content/*.md
     "setup.lua",
     "day_loop.lua",
+    # dawn_effects split by phase; core (DAWN_EFFECTS table + chunk-local helpers)
+    # first, then the per-phase entry files, then the dispatcher. Keep this order.
     "effects/dawn_effects.lua",
+    "effects/dawn_effects_phase1.lua",
+    "effects/dawn_effects_phase2.lua",
+    "effects/dawn_effects_phase3.lua",
+    "effects/dawn_effects_phase4.lua",
+    "effects/dawn_effects_dispatch.lua",
     "combat.lua",
     "crafting.lua",
     "night.lua",

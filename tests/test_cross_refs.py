@@ -3,6 +3,7 @@
 This is where the drift bugs live (e.g. the threat-deck atlas overflow):
 one artifact changes and its mirror doesn't.
 """
+import glob
 import json as _json
 import os
 import re
@@ -19,7 +20,11 @@ DAWN_CSVS = ["cards_phase1.csv", "cards_phase2.csv", "cards_phase3.csv", "cards_
 
 
 def dawn_effects_source():
-    return read_text(os.path.join(LUA_DIR, "effects", "dawn_effects.lua"))
+    """The whole dawn_effects module, concatenated. It is split across
+    effects/dawn_effects*.lua (core + per-phase + dispatch), so read them all
+    so the DAWN_EFFECTS / DAWN_MANUAL_STEPS checks see every entry."""
+    parts = sorted(glob.glob(os.path.join(LUA_DIR, "effects", "dawn_effects*.lua")))
+    return "\n".join(read_text(p) for p in parts)
 
 
 def dawn_card_ids():
