@@ -205,46 +205,52 @@ data files means the agent reads 30 lines, not 1,200.
 
 Smaller top-level docs = cheaper to load the parts an agent *does* need.
 
-- [ ] **De-duplicate `README.md` ↔ `agents.md`.** Both carry a repo layout and a
-      pipeline description. Make `README.md` the human landing page (pitch +
-      quickstart + "where to start" table) and let `agents.md` own the
-      exhaustive file map and conventions; have each link to the other rather
-      than repeating.
-- [ ] **Slim `agents.md` (639) toward an index.** Now that the design doc is
-      split (Phase 1) and generator/load-order facts are data files (Phase 4),
-      `agents.md` can shrink to: architecture summary, the Documentation Map,
-      the Task→files routing table, and links out. Move any long narrative into
-      the relevant `docs/` file.
-- [ ] **Keep `SYMBOLS.md` as-is** — it's auto-generated and *is* the index that
-      makes all of the above work. Just ensure it's regenerated in every commit
-      that moves Lua (it's covered by `test_generated_freshness.py`).
+- [x] **De-duplicate `README.md` ↔ `agents.md`.** The navigation layer from
+      Phases 0–1 already resolved this: `CLAUDE.md` is the lean start-here card,
+      `README.md` stays the human landing page (pitch + quickstart + "where to
+      start" table, deferring to `agents.md` for the file-by-file breakdown), and
+      `agents.md` owns the exhaustive map + conventions. Links are bidirectional
+      (README ⇄ agents.md); the design-doc rows now point at `docs/design/`.
+- [x] **Slim `agents.md` toward an index.** Added a navigation-layer banner at the
+      top framing `agents.md` as the *deep reference* and routing quick lookups to
+      `CLAUDE.md` / `TASKMAP.md` / `SYMBOLS.md` / `docs/design/` /
+      `load_order.json` / `generators.json`. The load-bearing reference narrative
+      (UX program, audio pipeline, combat rules-of-note, test-suite map, sim
+      docs) is kept in place rather than gutted — it isn't duplicated elsewhere,
+      and several conventions here are mechanically enforced by tests.
+- [x] **Keep `SYMBOLS.md` as-is** — regenerated in every Lua-moving commit this
+      phase (`test_generated_freshness.py` / the freshness gate stayed green).
 
 ---
 
 ## Phase 6 — Guardrails so context stays small over time
 
-- [ ] Add a **"file size budget" note** to `lua/CLAUDE.md` and `scripts/CLAUDE.md`:
-      *"If a file passes ~500 lines, split it before adding more."*
-- [ ] Optionally add a **soft lint/CI check** (in `.github/workflows/tests.yml`)
-      that warns (not fails) when a tracked source file exceeds a threshold, so
-      regressions are visible in PRs.
-- [ ] Add a one-line **"start here" pointer** at the very top of `CLAUDE.md`:
+- [x] Added a **"file size budget" note** to `lua/CLAUDE.md` and
+      `scripts/CLAUDE.md`: *"If a file passes ~500 lines, split it before adding
+      more."* (done in Phase 0).
+- [x] Added a **soft CI check** (`filesize` job in `.github/workflows/tests.yml`)
+      that emits `::warning` (never fails) when a tracked `*.lua` / `scripts/*.py`
+      / `tests/*.py` file exceeds the ~500-line budget; auto-generated Lua is
+      exempt. Regressions show up in the PR without blocking.
+- [x] Added the one-line **"start here" pointer** at the very top of `CLAUDE.md`:
       *"For any task: (1) find the file via `TASKMAP.md`/`SYMBOLS.md`, (2) open
-      only that file, (3) regenerate + `pytest tests` before you finish."*
+      only that file, (3) regenerate + `pytest tests` before you finish."* (done
+      in Phase 0).
 
 ---
 
 ## Verification checklist (run after each phase that moves code)
 
-- [ ] `python scripts/generate_symbol_index.py` (Lua moves) and any other
-      affected generators.
-- [ ] `python scripts/build_save.py` succeeds (no missing-file warnings, no
-      card-count mismatch).
-- [ ] `python -m pytest tests` is green (~285 tests), especially
+- [x] `python scripts/generate_symbol_index.py` (Lua moves) and any other
+      affected generators — rerun after every Lua split.
+- [x] `python scripts/build_save.py` succeeds (no missing-file warnings, no
+      card-count mismatch) — verified after each split.
+- [x] `python -m pytest tests` is green (**324 passed, 1 skipped**), including
       `test_generated_freshness.py`, `test_doc_links.py`, and
-      `test_build_output.py`.
-- [ ] Spot-check that a fresh agent can answer "where do I change X?" from
-      `TASKMAP.md` + `SYMBOLS.md` alone, without opening a 1000-line file.
+      `test_build_output.py`. `ruff check scripts tests` also clean.
+- [x] Spot-check: `TASKMAP.md` + `SYMBOLS.md` answer "where do I change X?"
+      without opening a 1000-line file — the biggest gameplay files are now
+      split under ~500 lines and routed from `TASKMAP.md`.
 
 ---
 

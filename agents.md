@@ -4,6 +4,16 @@
 
 **Starve No More** is a cooperative survival board game built as a Tabletop Simulator (TTS) mod. Players control 5 teenagers (James, Coco, Rayman, Ellie, Luca) surviving 7 days in a Don't Starve-inspired suburban setting. The game uses a 3-stat economy (Health, Hunger, Sanity), a Doom track (0–30), 4 escalating phases, and a day/night cycle with Dawn card events.
 
+> **This file is the deep reference** (architecture, conventions, pipelines,
+> per-file map). For fast navigation start higher up:
+> [`CLAUDE.md`](CLAUDE.md) (start-here card) → [`TASKMAP.md`](TASKMAP.md)
+> ("where do I change X?" → files) → [`SYMBOLS.md`](SYMBOLS.md) ("where is
+> function X?" → `file:line`). Rules/design questions live in
+> [`docs/design/`](docs/design/README.md); the build manifest is
+> [`scripts/load_order.json`](scripts/load_order.json) and the generator map is
+> [`scripts/generators.json`](scripts/generators.json). README.md is the human
+> landing page; this file owns the exhaustive detail.
+
 ## Documentation Map
 
 Quick index of every Markdown doc in the repo, so you know which to open for which task.
