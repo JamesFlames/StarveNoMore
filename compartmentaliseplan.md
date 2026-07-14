@@ -159,21 +159,25 @@ After each split: `python scripts/generate_symbol_index.py` (refreshes
 
 ## Phase 3 — Split the large Python modules
 
-- [ ] **`tests/test_lua_runtime.py` (1662)** — the biggest file in the repo.
-      Split into topic modules under `tests/` mirroring the Lua areas, e.g.
-      `test_lua_actions.py`, `test_lua_combat.py`, `test_lua_dawn.py`,
-      `test_lua_day_loop.py`, `test_lua_setup.py`. Move the shared Lua-bundle
-      fixture into `tests/conftest.py` (a `conftest.py` already exists — extend
-      it) so each module stays small and an agent loads only the relevant one.
-- [ ] **`scripts/build_save.py` (1239)** — extract the static configuration data
-      (notably `LUA_LOAD_ORDER`, `XML_LOAD_ORDER`, and any embedded object/JSON
-      templates) into a data module or JSON file (e.g. `scripts/build_config.py`
-      or `scripts/load_order.json`). Benefits: the load order becomes a small,
-      diffable, machine-readable file (see Phase 4), and `build_save.py` shrinks
-      to the assembly logic.
-- [ ] **`scripts/simulate_balance.py` (969)** — standalone and not on the build
-      path, so lowest priority. Split only if it's actively edited; if so,
-      separate the ruleset/policy definitions from the Monte-Carlo driver.
+- [x] **`tests/test_lua_runtime.py` (1662)** — split into topic modules under
+      `tests/` mirroring the Lua areas: `test_lua_setup.py`, `test_lua_combat.py`,
+      `test_lua_dawn.py`, `test_lua_actions.py`, `test_lua_day_loop.py`,
+      `test_lua_telemetry.py`. The shared Lua-bundle harness (`env` fixture,
+      `make_env`, `add_char`, `script_dice`, `broadcasts`, `flush`,
+      `populate_full_world`, …) moved into `tests/conftest.py`; the three other
+      modules that imported it (`test_full_campaign`, `test_save_fixture`,
+      `test_analyze_sessions`) now import from `conftest`.
+- [x] **`scripts/build_save.py` (1239)** — extracted `LUA_LOAD_ORDER` +
+      `XML_LOAD_ORDER` into `scripts/load_order.json` (a small, diffable,
+      machine-readable manifest; serves Phase 4). build_save.py, `conftest.py`,
+      and `generate_symbol_index.py` all read it; output is byte-identical. The
+      embedded object/JSON templates were **left in place** — they're
+      parameterized build/assembly logic (Python dicts interpolated at build
+      time), not static config, so lifting them out would add risk without the
+      "diffable data" payoff the load order gives.
+- [x] **`scripts/simulate_balance.py` (969)** — left intact per the plan ("lowest
+      priority… split only if it's actively edited"); it isn't touched by this
+      work, so no split.
 
 ---
 
@@ -182,18 +186,18 @@ After each split: `python scripts/generate_symbol_index.py` (refreshes
 Several facts an agent needs live *inside* large scripts. Lifting them into small
 data files means the agent reads 30 lines, not 1,200.
 
-- [ ] **Load order → data file.** Move `LUA_LOAD_ORDER` (and `XML_LOAD_ORDER`)
-      out of `build_save.py` into `scripts/load_order.json` (done as part of
-      Phase 3). Update `agents.md`'s build description to point at it.
-- [ ] **Generator map → data file.** Encode the
+- [x] **Load order → data file.** Moved `LUA_LOAD_ORDER` (and `XML_LOAD_ORDER`)
+      out of `build_save.py` into `scripts/load_order.json`. Updated `agents.md`'s
+      build description to point at it.
+- [x] **Generator map → data file.** Encoded the
       "source → generator script → output file" relationships (the 6 generated
-      Lua files + `SYMBOLS.md`/`.luacheckrc`) in a small `scripts/generators.json`
-      or a table in `scripts/CLAUDE.md`, so "what do I regenerate after editing
-      X?" is a lookup, not prose buried in `agents.md`.
-- [ ] **Doc map freshness check (optional).** Add a tiny test that asserts every
-      `*.md` tracked in the repo appears in the `agents.md` Documentation Map (or
-      an allowlist), so the index can't silently drift as files are split. Mirror
-      the existing `test_doc_links.py` / `test_generated_freshness.py` pattern.
+      Lua files + `SYMBOLS.md`/`.luacheckrc` + `PlayerRules.md`/`.html`) in
+      `scripts/generators.json`, mirrored by the table in `scripts/CLAUDE.md`.
+- [x] **Doc map freshness check.** `test_doc_links.py::test_every_root_doc_is_in_the_agents_map`
+      already guards the root-doc index (it flagged this plan file until it was
+      added). Added `test_generators_manifest_paths_exist` +
+      `test_generators_manifest_covers_every_generated_lua_file` so the new
+      manifests can't silently drift either.
 
 ---
 
