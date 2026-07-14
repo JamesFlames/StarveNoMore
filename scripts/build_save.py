@@ -1100,37 +1100,15 @@ save = {
 # Order matters: helpers first, then global, then the rest.
 # ---------------------------------------------------------------------------
 
-LUA_LOAD_ORDER = [
-    "helpers.lua",
-    "global.lua",
-    "audio_manifest.lua",   # auto-gen by scripts/generate_audio_manifest.py — defines AUDIO
-    "audio.lua",            # defines Audio.* (depends on AUDIO)
-    "whatnow_hints.lua",    # auto-gen by scripts/generate_whatnow_hints.py — defines WHATNOW_HINTS
-    "market_data.lua",      # auto-gen by scripts/generate_market_data.py — defines MARKET_COSTS
-    "threat_types.lua",     # auto-gen by scripts/generate_threat_types.py — defines THREAT_TYPE_BY_NAME + SEALED_REWARDS
-    "recipe_data.lua",      # auto-gen by scripts/generate_recipe_data.py — defines RECIPE_DATA
-    "notebook_data.lua",    # auto-gen by scripts/generate_notebook.py — Notebook/Help text from content/*.md
-    "setup.lua",
-    "day_loop.lua",
-    "effects/dawn_effects.lua",
-    "combat.lua",
-    "crafting.lua",
-    "night.lua",
-    "tick_victory.lua",
-    "actions.lua",
-    "treeguard.lua",        # Phase 2.5 mini-boss (wake/appease/defeat)
-    "signatures.lua",       # Signature Moves (§6.7) — once-per-game per-character actions
-    "telemetry.lua",        # Session log: chronicle setup/turns/beats + Copy Session Log export (batch 4 W0)
-    "ui_banner.lua",
-    "ui_actionbar.lua",
-    "ui_controls.lua",
-    "ui_setup.lua",
-    "ui_help.lua",
-    "ui_rules.lua",         # "Rules in effect" panel + day-cycle strip
-    "ui_mood.lua",
-    "audit.lua",
-    "selftest.lua",         # runSelfTest() — scripted in-TTS smoke test (J.11)
-]
+# The Lua + XML load order lives in scripts/load_order.json (a small, diffable,
+# machine-readable manifest) so an agent can read the build order without
+# scanning this script. Order matters — a file that defines something used at
+# load time must precede its consumers. See scripts/CLAUDE.md.
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "load_order.json"),
+          "r", encoding="utf-8") as _f:
+    _MANIFEST = json.load(_f)
+
+LUA_LOAD_ORDER = _MANIFEST["lua"]
 
 lua_parts = []
 for lua_file in LUA_LOAD_ORDER:
@@ -1158,11 +1136,7 @@ print(f"Lua script assembled: {len(LUA_LOAD_ORDER)} files, {len(save['LuaScript'
 # Load XML UI from xml/ directory
 # ---------------------------------------------------------------------------
 
-XML_LOAD_ORDER = [
-    "hud.xml",      # persistent HUD: banner, cycle strip, host controls, action bar, stats, roster
-    "setup.xml",    # guided setup walkthrough: steps 1/1.5/2 + character briefing
-    "dialogs.xml",  # modal dialogs: confirm, summary, week review, help, trade, combat, dusk
-]
+XML_LOAD_ORDER = _MANIFEST["xml"]  # from scripts/load_order.json (see above)
 
 xml_parts = []
 for xml_file in XML_LOAD_ORDER:

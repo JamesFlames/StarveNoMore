@@ -20,7 +20,7 @@ try:
 except ImportError:  # pragma: no cover
     lua52 = None
 
-from test_lua_runtime import make_env, populate_full_world, flush, lua_to_py
+from conftest import make_env, populate_full_world, flush, lua_to_py
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
 

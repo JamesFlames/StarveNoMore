@@ -4,14 +4,27 @@
 
 **Starve No More** is a cooperative survival board game built as a Tabletop Simulator (TTS) mod. Players control 5 teenagers (James, Coco, Rayman, Ellie, Luca) surviving 7 days in a Don't Starve-inspired suburban setting. The game uses a 3-stat economy (Health, Hunger, Sanity), a Doom track (0–30), 4 escalating phases, and a day/night cycle with Dawn card events.
 
+> **This file is the deep reference** (architecture, conventions, pipelines,
+> per-file map). For fast navigation start higher up:
+> [`CLAUDE.md`](CLAUDE.md) (start-here card) → [`TASKMAP.md`](TASKMAP.md)
+> ("where do I change X?" → files) → [`SYMBOLS.md`](SYMBOLS.md) ("where is
+> function X?" → `file:line`). Rules/design questions live in
+> [`docs/design/`](docs/design/README.md); the build manifest is
+> [`scripts/load_order.json`](scripts/load_order.json) and the generator map is
+> [`scripts/generators.json`](scripts/generators.json). README.md is the human
+> landing page; this file owns the exhaustive detail.
+
 ## Documentation Map
 
 Quick index of every Markdown doc in the repo, so you know which to open for which task.
 
 ### Top-level
 
-- [StarveNoMoreDesignConcept.md](StarveNoMoreDesignConcept.md) — **the canonical design doc** (~1300 lines). Pitch, pillars, character/location/deck specs, turn structure, combat, Doom track, victory conditions, TTS implementation plan, and the UX program that makes the game playable without reading rules. Open this for any rules or design question.
+- [CLAUDE.md](CLAUDE.md) — the lean start-here card Claude Code auto-loads: project summary, build/test commands, the never-hand-edit list, and pointers to `TASKMAP.md` / `SYMBOLS.md` / this file. Per-directory `CLAUDE.md` stubs (`lua/`, `scripts/`, `tests/`, `content/`) carry the local conventions for scoped tasks.
+- [TASKMAP.md](TASKMAP.md) — the "job → files to open" routing table. Start here for "where do I change X?"; use `SYMBOLS.md` for "where is function X?".
+- [StarveNoMoreDesignConcept.md](StarveNoMoreDesignConcept.md) — **the canonical design doc**, now a thin index (Document Purpose + a Section → file jump table). The 20 numbered sections live one-topic-per-file under [docs/design/](docs/design/README.md): pitch/pillars, components/characters, locations/economy, decks, stats/turns, combat/crafting, week-arc/doom, victory/setup, TTS implementation, rationale/balancing. Open the specific `docs/design/*.md` for any rules or design question — prose cross-refs like "§6.7" map to files via the index table.
 - [README.md](README.md) — short orientation for the GitHub landing page, dev quickstart, and the script-by-script build table.
+- [compartmentaliseplan.md](compartmentaliseplan.md) — the working plan for making the repo AI-friendly at small context (navigation layer, file splits, manifests). A process/checklist doc, not a design doc.
 - [CHANGELOG.md](CHANGELOG.md) — the rule-change history, one entry per design batch. The retired planning docs (improvements.md, design_batch1–4.md, frameworkimprovements.md) live on as these entries + git history.
 - [SYMBOLS.md](SYMBOLS.md) — AUTO-GENERATED index of every Lua global (function/constant → file:line). Regenerate with `scripts/generate_symbol_index.py`.
 - [PlayerRules.md](PlayerRules.md) / [PlayerRules.html](PlayerRules.html) — AUTO-GENERATED player rulebook (`scripts/generate_player_rules.py`), assembled from the same `content/` markdown as the in-game Notebook. The HTML is what the in-TTS **Player Rules tablet** shows (served by `scripts/serve_art.bat`) and opens in any browser.
@@ -53,7 +66,7 @@ plain-text provenance notes.)
 - **Save format**: Single JSON file with embedded Lua + XML
 
 ### Build Pipeline
-- `scripts/build_save.py` — Concatenates the Lua files in `LUA_LOAD_ORDER` + the `XML_LOAD_ORDER` files under `xml/` (hud / setup / dialogs) into the TTS save JSON. Deck `NumWidth/NumHeight` come from `art/decks/atlas_manifest.json` (written by the atlas generator; a card-count mismatch is a hard stop — rerun the atlas generator). `--publish BASE_URL [--out path]` writes a separate shareable save with every `file:///`/`localhost` asset URL rewritten to the hosted base (refuses to write if any local URL survives).
+- `scripts/build_save.py` — Concatenates the Lua files in `LUA_LOAD_ORDER` + the `XML_LOAD_ORDER` files under `xml/` (hud / setup / dialogs) into the TTS save JSON. **Both load orders live in [`scripts/load_order.json`](scripts/load_order.json)** (`lua[]` + `xml[]`), a small machine-readable manifest build_save.py, `conftest.py`, and `generate_symbol_index.py` all read — so the build order is a diffable data file, not buried in the script. Deck `NumWidth/NumHeight` come from `art/decks/atlas_manifest.json` (written by the atlas generator; a card-count mismatch is a hard stop — rerun the atlas generator). `--publish BASE_URL [--out path]` writes a separate shareable save with every `file:///`/`localhost` asset URL rewritten to the hosted base (refuses to write if any local URL survives).
 - Six of the Lua files in that list are **auto-generated** and should never be edited by hand:
   - `lua/audio_manifest.lua`  — built by `scripts/generate_audio_manifest.py` from the `sounds/` tree
   - `lua/whatnow_hints.lua`   — built by `scripts/generate_whatnow_hints.py` from `content/help/whatnow_hints.md`
@@ -91,12 +104,17 @@ StarveNoMore/
 │   ├── setup.lua               # Bare gameplay setup (deals/shuffles/places)
 │   ├── day_loop.lua            # Day/Dusk/Night advance, turn management, idle nudge
 │   ├── effects/
-│   │   └── dawn_effects.lua    # Dawn card effect dispatch table (incl. boss arrivals)
-│   ├── combat.lua              # Combat resolution; calls Audio.stopBossLoop on defeat
+│   │   ├── dawn_effects.lua           # Core: DAWN_EFFECTS table + shared helpers + boss standee placement
+│   │   ├── dawn_effects_phase1..4.lua # Per-phase Dawn card effects (add to DAWN_EFFECTS)
+│   │   └── dawn_effects_dispatch.lua  # Anti-stacking cards + DAWN_MANUAL_STEPS + dispatchDawnEffect
+│   ├── combat.lua              # Dice roll + boss/Source HP lifecycle + rewards/trophies (SOURCE_MAX_HP etc.)
+│   ├── combat_resolve.lua      # Fight resolution flow (beginCombat..finishCombat, Charlie); calls Audio.stopBossLoop on defeat
 │   ├── crafting.lua            # Market craft + Crockpot cook handlers
 │   ├── night.lua               # Night-phase resolver (threat draw, Charlie, sleep)
 │   ├── tick_victory.lua        # Tick decay, victory/defeat, Down state + revival hint
-│   ├── actions.lua             # Player actions (move, gather, fight, rest, cleanse, flee, dusk scramble)
+│   ├── actions.lua             # Player actions core: undo/snapshot, move, dusk-move, gather, rest
+│   ├── actions_combat.lua      # Combat verbs: threat/boss statlines, fight, flee
+│   ├── actions_social.lua      # Trade, energy drink, eat-raw, pass, barricade, defend, peek, rally, pry, stabilize
 │   ├── treeguard.lua           # Phase 2.5 mini-boss (wakes Dusk D4; fight/appease/defeat)
 │   ├── signatures.lua          # Signature Moves (§6.7) — once-per-game per-character actions + button/dialog UX
 │   ├── telemetry.lua           # Session log (batch 4 W0): chronicle setup/turns/beats, exportSessionLog, Copy Session Log
@@ -545,7 +563,7 @@ CI runs it on every push (`.github/workflows/tests.yml`). What it covers:
 - **`test_publish_build.py`** — a `--publish` build contains no `file:///` or `localhost` URL anywhere and never touches the committed dev save.
 - **`test_lua_statics.py`** — no global function/constant is defined twice across the concatenated bundle (the later definition would silently win); every lua file is deliberately placed in `LUA_LOAD_ORDER`.
 - **`test_build_output.py`** — rebuilds the save, validates the JSON, and fails if `saves/StarveNoMore.json` is stale relative to the sources (restores committed bytes; run `python scripts/build_save.py` to fix).
-- **`test_lua_runtime.py`** — runs the real concatenated bundle headlessly under Lua 5.2 (`lupa`) with `tests/tts_stub.lua` faking the TTS API: load smoke, `onLoad`/`onSave` round-trip, combat fumble rules, Charlie escalation/reset, Tick decay + Down + victory/defeat, revive, night light checks, and an `apply()`/`expire()` sweep over every Dawn effect. When adding gameplay rules, add a test here; extend the stub in `tts_stub.lua` if the code uses a TTS API it doesn't cover yet.
+- **`test_lua_*.py`** (`test_lua_setup` / `test_lua_combat` / `test_lua_dawn` / `test_lua_actions` / `test_lua_day_loop` / `test_lua_telemetry`) — run the real concatenated bundle headlessly under Lua 5.2 (`lupa`) with `tests/tts_stub.lua` faking the TTS API: load smoke, `onLoad`/`onSave` round-trip, combat fumble rules, Charlie escalation/reset, Tick decay + Down + victory/defeat, revive, night light checks, and an `apply()`/`expire()` sweep over every Dawn effect. The shared bundle harness (`env` fixture, `make_env`, `add_char`, `script_dice`, `broadcasts`, `flush`, `populate_full_world`, …) lives in `tests/conftest.py`. When adding gameplay rules, add a test to the matching topic module; extend the stub in `tts_stub.lua` if the code uses a TTS API it doesn't cover yet. (Split 2026-07 from the former single 1,662-line `test_lua_runtime.py`.)
 - **`test_sim.py`** — enforces the sim maintenance rule mechanically (sim constants must equal `global.lua`'s: stats, homes, Doom rates/thresholds, Cleanse, boss statlines vs build_save + combat.lua, difficulty invariants), asserts per-game invariants over seeded batches, and checks policy win rates stay inside bands around the baseline table above. If you change a rule intentionally: update the sim, rerun the 3000-sim baseline, update the table above **and** the bands in `test_sim.py`.
 - **`test_full_campaign.py`** — a trivial bot plays whole games headlessly at every difficulty (invariants only: no hard error, stats in range, a verdict is reached), plus seeded random-verb fuzz games and adversarial sequences (undo spam, re-entrant setup on all three UI paths, restart-then-re-setup). The net for cross-feature breakage.
 - **`test_save_fixture.py`** — loads the frozen `saves/fixtures/midgame_v1.json` (and a stripped old-schema variant) into the current bundle and plays a full day. Guards `migrateGameState()`.

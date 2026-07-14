@@ -16,6 +16,7 @@ Run: python scripts/generate_symbol_index.py
 Output: SYMBOLS.md, .luacheckrc (repo root)
 """
 
+import json
 import os
 import re
 
@@ -39,13 +40,13 @@ TTS_API = [
 
 
 def load_order():
-    """File order from build_save.py's LUA_LOAD_ORDER, so the index reads in
-    the same order the bundle loads."""
-    src = open(os.path.join(REPO_ROOT, "scripts", "build_save.py"), encoding="utf-8").read()
-    m = re.search(r"LUA_LOAD_ORDER = \[(.*?)\]", src, re.S)
-    if not m:
-        raise SystemExit("LUA_LOAD_ORDER not found in build_save.py")
-    return re.findall(r'"([\w./]+\.lua)"', m.group(1))
+    """File order from scripts/load_order.json (the build manifest), so the
+    index reads in the same order the bundle loads."""
+    with open(os.path.join(REPO_ROOT, "scripts", "load_order.json"), encoding="utf-8") as f:
+        files = json.load(f)["lua"]
+    if not files:
+        raise SystemExit("load_order.json 'lua' list is empty")
+    return files
 
 
 def scan(rel_path):
