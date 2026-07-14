@@ -56,7 +56,7 @@ plain-text provenance notes.)
 - **Save format**: Single JSON file with embedded Lua + XML
 
 ### Build Pipeline
-- `scripts/build_save.py` — Concatenates the Lua files in `LUA_LOAD_ORDER` + the `XML_LOAD_ORDER` files under `xml/` (hud / setup / dialogs) into the TTS save JSON. Deck `NumWidth/NumHeight` come from `art/decks/atlas_manifest.json` (written by the atlas generator; a card-count mismatch is a hard stop — rerun the atlas generator). `--publish BASE_URL [--out path]` writes a separate shareable save with every `file:///`/`localhost` asset URL rewritten to the hosted base (refuses to write if any local URL survives).
+- `scripts/build_save.py` — Concatenates the Lua files in `LUA_LOAD_ORDER` + the `XML_LOAD_ORDER` files under `xml/` (hud / setup / dialogs) into the TTS save JSON. **Both load orders live in [`scripts/load_order.json`](scripts/load_order.json)** (`lua[]` + `xml[]`), a small machine-readable manifest build_save.py, `conftest.py`, and `generate_symbol_index.py` all read — so the build order is a diffable data file, not buried in the script. Deck `NumWidth/NumHeight` come from `art/decks/atlas_manifest.json` (written by the atlas generator; a card-count mismatch is a hard stop — rerun the atlas generator). `--publish BASE_URL [--out path]` writes a separate shareable save with every `file:///`/`localhost` asset URL rewritten to the hosted base (refuses to write if any local URL survives).
 - Six of the Lua files in that list are **auto-generated** and should never be edited by hand:
   - `lua/audio_manifest.lua`  — built by `scripts/generate_audio_manifest.py` from the `sounds/` tree
   - `lua/whatnow_hints.lua`   — built by `scripts/generate_whatnow_hints.py` from `content/help/whatnow_hints.md`

@@ -5,6 +5,10 @@ gets packaged into the TTS save (`LUA_LOAD_ORDER` + `XML_LOAD_ORDER` + spawned
 objects). The rest are generators (source → output) plus the standalone
 `simulate_balance.py` (Monte Carlo, **not** on the build path).
 
+The build load order (`lua[]` + `xml[]`) is data: [`load_order.json`](load_order.json).
+The generator map below is mirrored machine-readably in [`generators.json`](generators.json)
+(a freshness test keeps the two honest).
+
 ## Generator map — "what do I regenerate after editing X?"
 
 | Edit this source | Run this generator | It writes |

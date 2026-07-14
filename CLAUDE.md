@@ -42,4 +42,6 @@ Each carries an `AUTO-GENERATED` banner; regenerate its source instead:
 - `SYMBOLS.md` + `.luacheckrc` — `python scripts/generate_symbol_index.py`
   (rerun after **any** `lua/` change; a freshness test enforces it).
 
-Which generator rebuilds what → the table in [`scripts/CLAUDE.md`](scripts/CLAUDE.md).
+Which generator rebuilds what → [`scripts/generators.json`](scripts/generators.json)
+(or the table in [`scripts/CLAUDE.md`](scripts/CLAUDE.md)). Build load order →
+[`scripts/load_order.json`](scripts/load_order.json).
