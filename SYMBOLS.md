@@ -204,7 +204,7 @@
 | 63 | table | `DAWN_MANUAL_STEPS` |
 | 97 | function | `dispatchDawnEffect` |
 
-## lua/combat.lua (25 symbols)
+## lua/combat.lua (15 symbols)
 
 | line | kind | symbol |
 |---|---|---|
@@ -223,16 +223,21 @@
 | 155 | function | `sourceSplitIntoBeaks` |
 | 210 | function | `markBossDefeated` |
 | 265 | function | `revealTrophy` |
-| 294 | function | `getAttackDice` |
-| 365 | function | `applyThreatDefeat` |
-| 401 | function | `applyCounterAttack` |
-| 450 | function | `maybeJamesReroll` |
-| 480 | function | `beginCombat` |
-| 576 | function | `resolveCombat` |
-| 580 | function | `resolveGroupCombat` |
-| 592 | function | `pressAttack` |
-| 644 | function | `finishCombat` |
-| 658 | function | `resolveCharlieAttack` |
+
+## lua/combat_resolve.lua (10 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 26 | function | `getAttackDice` |
+| 97 | function | `applyThreatDefeat` |
+| 133 | function | `applyCounterAttack` |
+| 182 | function | `maybeJamesReroll` |
+| 212 | function | `beginCombat` |
+| 308 | function | `resolveCombat` |
+| 312 | function | `resolveGroupCombat` |
+| 324 | function | `pressAttack` |
+| 376 | function | `finishCombat` |
+| 390 | function | `resolveCharlieAttack` |
 
 ## lua/crafting.lua (4 symbols)
 
@@ -633,16 +638,16 @@
 | `WHATNOW_HINTS` | lua/whatnow_hints.lua | 5 |
 | `_checkIdle` | lua/day_loop.lua | 15 |
 | `advanceToNextPlayer` | lua/day_loop.lua | 380 |
-| `applyCounterAttack` | lua/combat.lua | 401 |
+| `applyCounterAttack` | lua/combat_resolve.lua | 133 |
 | `applyRandomScenario` | lua/setup.lua | 343 |
 | `applyScenario` | lua/setup.lua | 353 |
-| `applyThreatDefeat` | lua/combat.lua | 365 |
+| `applyThreatDefeat` | lua/combat_resolve.lua | 97 |
 | `applyTooltips` | lua/ui_controls.lua | 421 |
 | `auditFirstLoad` | lua/audit.lua | 181 |
 | `auditHintCoverage` | lua/audit.lua | 109 |
 | `auditObjectCount` | lua/audit.lua | 7 |
 | `auditTooltips` | lua/audit.lua | 67 |
-| `beginCombat` | lua/combat.lua | 480 |
+| `beginCombat` | lua/combat_resolve.lua | 212 |
 | `beginDayPhase` | lua/day_loop.lua | 353 |
 | `beginDusk` | lua/day_loop.lua | 485 |
 | `beginNight` | lua/day_loop.lua | 665 |
@@ -716,13 +721,13 @@
 | `findAllByTag` | lua/helpers.lua | 4 |
 | `findOneByTag` | lua/helpers.lua | 14 |
 | `findOneByTags` | lua/helpers.lua | 21 |
-| `finishCombat` | lua/combat.lua | 644 |
+| `finishCombat` | lua/combat_resolve.lua | 376 |
 | `flashSplitLighting` | lua/combat.lua | 146 |
 | `flashVictoryLighting` | lua/combat.lua | 62 |
 | `gameRoll` | lua/helpers.lua | 208 |
 | `gameState` | lua/global.lua | 10 |
 | `getActivePlayerColors` | lua/helpers.lua | 172 |
-| `getAttackDice` | lua/combat.lua | 294 |
+| `getAttackDice` | lua/combat_resolve.lua | 26 |
 | `getBossPool` | lua/helpers.lua | 39 |
 | `getCharSlotPosition` | lua/helpers.lua | 89 |
 | `getCharacterStandee` | lua/helpers.lua | 52 |
@@ -761,7 +766,7 @@
 | `lockdownCriticalObjects` | lua/audit.lua | 25 |
 | `markBossDefeated` | lua/combat.lua | 210 |
 | `markTurnStart` | lua/telemetry.lua | 54 |
-| `maybeJamesReroll` | lua/combat.lua | 450 |
+| `maybeJamesReroll` | lua/combat_resolve.lua | 182 |
 | `migrateGameState` | lua/global.lua | 200 |
 | `moveDoomMarker` | lua/setup.lua | 195 |
 | `noteInteraction` | lua/day_loop.lua | 11 |
@@ -838,7 +843,7 @@
 | `playerPryTool` | lua/actions_social.lua | 262 |
 | `poolBossStandee` | lua/effects/dawn_effects.lua | 104 |
 | `populateNotebook` | lua/ui_help.lua | 382 |
-| `pressAttack` | lua/combat.lua | 592 |
+| `pressAttack` | lua/combat_resolve.lua | 324 |
 | `pulseHandZone` | lua/ui_banner.lua | 404 |
 | `rallyTargets` | lua/actions_social.lua | 199 |
 | `raymanLoudTonight` | lua/night.lua | 25 |
@@ -866,9 +871,9 @@
 | `refreshRulesPanel` | lua/ui_rules.lua | 196 |
 | `refreshStandeeTooltips` | lua/ui_banner.lua | 160 |
 | `refreshStatDisplay` | lua/ui_actionbar_display.lua | 190 |
-| `resolveCharlieAttack` | lua/combat.lua | 658 |
-| `resolveCombat` | lua/combat.lua | 576 |
-| `resolveGroupCombat` | lua/combat.lua | 580 |
+| `resolveCharlieAttack` | lua/combat_resolve.lua | 390 |
+| `resolveCombat` | lua/combat_resolve.lua | 308 |
+| `resolveGroupCombat` | lua/combat_resolve.lua | 312 |
 | `resolveNightAtLocation` | lua/night.lua | 122 |
 | `resolveSleep` | lua/night.lua | 383 |
 | `resolveStorytelling` | lua/night.lua | 356 |

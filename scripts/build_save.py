@@ -1120,7 +1120,8 @@ LUA_LOAD_ORDER = [
     "effects/dawn_effects_phase3.lua",
     "effects/dawn_effects_phase4.lua",
     "effects/dawn_effects_dispatch.lua",
-    "combat.lua",
+    "combat.lua",           # dice roll + boss/Source HP lifecycle + rewards/trophies
+    "combat_resolve.lua",   # fight resolution flow (beginCombat..finishCombat, Charlie)
     "crafting.lua",
     "night.lua",
     "tick_victory.lua",

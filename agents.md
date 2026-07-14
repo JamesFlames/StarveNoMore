@@ -97,7 +97,8 @@ StarveNoMore/
 │   │   ├── dawn_effects.lua           # Core: DAWN_EFFECTS table + shared helpers + boss standee placement
 │   │   ├── dawn_effects_phase1..4.lua # Per-phase Dawn card effects (add to DAWN_EFFECTS)
 │   │   └── dawn_effects_dispatch.lua  # Anti-stacking cards + DAWN_MANUAL_STEPS + dispatchDawnEffect
-│   ├── combat.lua              # Combat resolution; calls Audio.stopBossLoop on defeat
+│   ├── combat.lua              # Dice roll + boss/Source HP lifecycle + rewards/trophies (SOURCE_MAX_HP etc.)
+│   ├── combat_resolve.lua      # Fight resolution flow (beginCombat..finishCombat, Charlie); calls Audio.stopBossLoop on defeat
 │   ├── crafting.lua            # Market craft + Crockpot cook handlers
 │   ├── night.lua               # Night-phase resolver (threat draw, Charlie, sleep)
 │   ├── tick_victory.lua        # Tick decay, victory/defeat, Down state + revival hint
