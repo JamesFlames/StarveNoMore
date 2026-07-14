@@ -150,3 +150,127 @@ def card_ids():
         r["id"] for r in read_csv_rows("resources.csv")
     }
     return ids
+
+
+# --------------------------------------------------------------------------
+# Headless Lua runtime harness (shared by tests/test_lua_*.py)
+#
+# Moved here from the former monolithic test_lua_runtime.py so each topic
+# module (test_lua_combat, test_lua_dawn, ...) shares one bundle harness.
+# --------------------------------------------------------------------------
+import json as _json
+
+try:
+    import lupa.lua52 as lua52
+except ImportError:  # pragma: no cover
+    lua52 = None
+
+
+def lua_to_py(v):
+    if lua52.lua_type(v) == "table":
+        keys = list(v.keys())
+        if keys and all(isinstance(k, (int, float)) for k in keys) and sorted(keys) == list(
+                range(1, len(keys) + 1)):
+            return [lua_to_py(v[k]) for k in sorted(keys)]
+        return {str(k): lua_to_py(val) for k, val in v.items()}
+    return v
+
+
+def py_to_lua(rt, v):
+    if isinstance(v, dict):
+        return rt.table_from({k: py_to_lua(rt, x) for k, x in v.items()})
+    if isinstance(v, list):
+        return rt.table_from([py_to_lua(rt, x) for x in v])
+    return v
+
+
+def make_env():
+    rt = lua52.LuaRuntime(unpack_returned_tuples=False)
+    rt.execute(read_text(os.path.join(TESTS, "tts_stub.lua")))
+    # JSON backed by Python's json module (mirrors TTS's JSON global)
+    g = rt.globals()
+    g.JSON = rt.table_from({
+        "encode": lambda v: _json.dumps(lua_to_py(v)),
+        "encode_pretty": lambda v: _json.dumps(lua_to_py(v), indent=2),
+        "decode": lambda s: py_to_lua(rt, _json.loads(s)) if s else None,
+    })
+    rt.execute(lua_bundle())
+    return rt
+
+
+@pytest.fixture()
+def env():
+    return make_env()
+
+
+def flush(rt):
+    rt.eval("TTS.flushWaits")()
+
+
+def broadcasts(rt):
+    return [b["message"] for b in lua_to_py(rt.eval("TTS.broadcasts"))]
+
+
+def script_dice(rt, rolls):
+    """Make gameRoll — the gameplay RNG seam (helpers.lua) — return this exact
+    sequence (asserts if exhausted). math.random itself is left alone, so the
+    stub's internals and cosmetic randomness never eat scripted rolls."""
+    rt.execute(
+        "local seq = {%s}; local i = 0\n"
+        "gameRoll = function(...) i = i + 1\n"
+        "  assert(seq[i], 'scripted dice exhausted at roll ' .. i)\n"
+        "  return seq[i] end" % ",".join(str(r) for r in rolls)
+    )
+
+
+def add_char(rt, color, name, **overrides):
+    """Install a character into gameState.activeChars[color] with sane defaults."""
+    stats = {"James": (8, 6, 10), "Coco": (6, 8, 12), "Rayman": (12, 10, 6),
+             "Ellie": (8, 10, 8), "Luca": (7, 8, 10)}[name]
+    char = {
+        "name": name,
+        "health": stats[0], "maxHealth": stats[0],
+        "hunger": stats[1], "maxHunger": stats[1],
+        "sanity": stats[2], "maxSanity": stats[2],
+        "actionsLeft": 3, "down": False, "briefed": True,
+        "location": "JamesHouse",
+    }
+    char.update(overrides)
+    rt.globals().gameState.activeChars[color] = py_to_lua(rt, char)
+    return rt.globals().gameState.activeChars[color]
+
+
+def populate_full_world(env):
+    """Every component auditFirstLoad() checks for, plus playable decks."""
+    add = env.eval("TTS.addObject")
+
+    def obj(tags, **kw):
+        spec = {"tags": tags, "position": kw.pop("position", [0, 1, 0])}
+        spec.update(kw)
+        add(py_to_lua(env, spec))
+
+    positions = {"JamesHouse": [-10, 1, 0], "RaymanHouse": [10, 1, 0],
+                 "EllieLucaHouse": [0, 1, 8], "BasketballCourt": [-10, 1, -10],
+                 "BadmintonCourt": [10, 1, -10]}
+    obj(["MainBoard"])
+    for loc, pos in positions.items():
+        obj([f"Location:{loc}"], position=pos)
+    obj(["DoomMarker"])
+    obj(["DayCounter"])
+    obj(["SeverityLegend"])
+    obj(["TelltaleHeartSupply"])
+    obj(["BossPool"])
+    for name in ["James", "Coco", "Rayman", "Ellie", "Luca"]:
+        obj([f"Character:{name}"])
+        obj([f"PlayerBoard:{name}"], position=[20, 1, 20])
+    for res in ["Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"]:
+        obj([f"ResourceBag:{res}"])
+    for i in range(5):
+        obj([f"MarketSlot:{i}"])
+    # Decks with enough contained cards to draw from
+    for p in range(1, 5):
+        cards = [{"nickname": f"P{p}_TEST_CARD_{i}", "tags": [f"P{p}_TEST_CARD_{i}"]} for i in range(6)]
+        obj([f"PhaseCard:P{p}Deck"], contained=cards)
+    obj(["MarketCardDeck"], contained=[{"nickname": f"M_TEST_{i}"} for i in range(10)])
+    obj(["ThreatCardDeck"], contained=[{"nickname": f"T_TEST_{i}"} for i in range(10)])
+    obj(["VisitorCardDeck"], contained=[{"nickname": f"V_TEST_{i}"} for i in range(4)])

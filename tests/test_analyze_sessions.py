@@ -57,7 +57,7 @@ def test_analyze_aggregates():
 def test_real_export_shape_is_accepted():
     """The synthetic shape must match the actual lua exporter: drive the real
     bundle, export, and feed the result through the analyzer."""
-    from test_lua_runtime import make_env, add_char
+    from conftest import make_env, add_char
     env = make_env()
     add_char(env, "White", "James")
     env.execute('gameState.gameOverCause = "victory"; gameState.day = 7')
