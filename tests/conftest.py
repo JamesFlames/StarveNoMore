@@ -15,7 +15,6 @@ Run:  python -m pytest tests
 import csv
 import json as _json
 import os
-import re
 import sys
 
 import pytest
@@ -159,7 +158,6 @@ def card_ids():
 # Moved here from the former monolithic test_lua_runtime.py so each topic
 # module (test_lua_combat, test_lua_dawn, ...) shares one bundle harness.
 # --------------------------------------------------------------------------
-import json as _json
 
 try:
     import lupa.lua52 as lua52

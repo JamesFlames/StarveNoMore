@@ -4,14 +4,11 @@ Headless execution of the real game Lua under Lua 5.2 (lupa) with the TTS
 stub. The bundle harness (env fixture, add_char, script_dice, ...) lives in
 tests/conftest.py; split out of the former monolithic test_lua_runtime.py.
 """
-import json as _json
-import os
 
 import pytest
 
 from conftest import (
-    lua52, make_env, add_char, broadcasts, flush, lua_to_py, py_to_lua,
-    script_dice, populate_full_world,
+    lua52, add_char, broadcasts, flush, lua_to_py, py_to_lua,
 )
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
