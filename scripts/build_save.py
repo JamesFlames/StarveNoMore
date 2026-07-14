@@ -1122,7 +1122,12 @@ LUA_LOAD_ORDER = [
     "signatures.lua",       # Signature Moves (§6.7) — once-per-game per-character actions
     "telemetry.lua",        # Session log: chronicle setup/turns/beats + Copy Session Log export (batch 4 W0)
     "ui_banner.lua",
-    "ui_actionbar.lua",
+    # ui_actionbar split into four parts (core defines chunk-locals the rest use;
+    # keep this order): resources/affordability -> targets -> handlers -> display.
+    "ui_actionbar_core.lua",
+    "ui_actionbar_targets.lua",
+    "ui_actionbar_handlers.lua",
+    "ui_actionbar_display.lua",
     "ui_controls.lua",
     "ui_setup.lua",
     "ui_help.lua",

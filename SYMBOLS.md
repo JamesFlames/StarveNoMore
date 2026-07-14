@@ -345,57 +345,72 @@
 | 375 | function | `getNextCTA` |
 | 404 | function | `pulseHandZone` |
 
-## lua/ui_actionbar.lua (47 symbols)
+## lua/ui_actionbar_core.lua (4 symbols)
 
 | line | kind | symbol |
 |---|---|---|
-| 9 | table | `LOCATION_ADJACENCY` |
-| 46 | function | `getPlayerResources` |
-| 90 | function | `verifyAndPayResources` |
-| 154 | function | `canAfford` |
-| 205 | function | `clearActionTargets` |
-| 370 | function | `onMoveTargetClick` |
-| 405 | function | `onCraftTargetClick` |
-| 422 | function | `onCookTargetClick` |
-| 456 | function | `onFightTargetClick` |
-| 460 | function | `onFightTogetherClick` |
-| 517 | function | `onActMove` |
-| 539 | function | `onActGather` |
-| 547 | function | `onActCraft` |
-| 570 | function | `onActCook` |
-| 604 | function | `onActFight` |
-| 632 | function | `onActRest` |
-| 640 | function | `onRestHunger` |
-| 651 | function | `onRestSanity` |
-| 662 | function | `onActPry` |
-| 670 | function | `onActCleanse` |
-| 686 | function | `onActPass` |
-| 699 | function | `refreshCombatPanel` |
-| 712 | function | `onPressAttack` |
-| 733 | function | `onFinishCombat` |
-| 744 | function | `onActTrade` |
-| 782 | function | `onTradeTargetClick` |
-| 792 | function | `onTradeCancel` |
-| 802 | function | `onActPeek` |
-| 813 | function | `onPeekDeckClick` |
-| 819 | function | `onPeekCancel` |
-| 829 | function | `onActRally` |
-| 854 | function | `onRallyTargetClick` |
-| 864 | function | `onRallyCancel` |
-| 874 | function | `onActUndo` |
-| 887 | function | `onDuskReadyClick` |
-| 892 | function | `onDuskMoveClick` |
-| 906 | function | `validateActivePlayer` |
-| 929 | function | `refreshActionBar` |
-| 957 | function | `setActionCubes` |
-| 971 | function | `refreshActionButtonStates` |
-| 1064 | function | `setActionEnabled` |
-| 1079 | table | `CHAR_TRAIT_LINES` |
-| 1087 | function | `refreshStatDisplay` |
-| 1152 | value | `ACTION_TOOLTIP_DELAY` |
-| 1154 | table | `ACTION_TOOLTIPS` |
-| 1173 | function | `onActionTooltipEnter` |
-| 1186 | function | `onActionTooltipExit` |
+| 14 | table | `LOCATION_ADJACENCY` |
+| 51 | function | `getPlayerResources` |
+| 95 | function | `verifyAndPayResources` |
+| 159 | function | `canAfford` |
+
+## lua/ui_actionbar_targets.lua (6 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 39 | function | `clearActionTargets` |
+| 204 | function | `onMoveTargetClick` |
+| 239 | function | `onCraftTargetClick` |
+| 256 | function | `onCookTargetClick` |
+| 290 | function | `onFightTargetClick` |
+| 294 | function | `onFightTogetherClick` |
+
+## lua/ui_actionbar_handlers.lua (26 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 8 | function | `onActMove` |
+| 30 | function | `onActGather` |
+| 38 | function | `onActCraft` |
+| 61 | function | `onActCook` |
+| 95 | function | `onActFight` |
+| 123 | function | `onActRest` |
+| 131 | function | `onRestHunger` |
+| 142 | function | `onRestSanity` |
+| 153 | function | `onActPry` |
+| 161 | function | `onActCleanse` |
+| 177 | function | `onActPass` |
+| 190 | function | `refreshCombatPanel` |
+| 203 | function | `onPressAttack` |
+| 224 | function | `onFinishCombat` |
+| 235 | function | `onActTrade` |
+| 273 | function | `onTradeTargetClick` |
+| 283 | function | `onTradeCancel` |
+| 293 | function | `onActPeek` |
+| 304 | function | `onPeekDeckClick` |
+| 310 | function | `onPeekCancel` |
+| 320 | function | `onActRally` |
+| 345 | function | `onRallyTargetClick` |
+| 355 | function | `onRallyCancel` |
+| 365 | function | `onActUndo` |
+| 378 | function | `onDuskReadyClick` |
+| 383 | function | `onDuskMoveClick` |
+
+## lua/ui_actionbar_display.lua (11 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 9 | function | `validateActivePlayer` |
+| 32 | function | `refreshActionBar` |
+| 60 | function | `setActionCubes` |
+| 74 | function | `refreshActionButtonStates` |
+| 167 | function | `setActionEnabled` |
+| 182 | table | `CHAR_TRAIT_LINES` |
+| 190 | function | `refreshStatDisplay` |
+| 255 | value | `ACTION_TOOLTIP_DELAY` |
+| 257 | table | `ACTION_TOOLTIPS` |
+| 276 | function | `onActionTooltipEnter` |
+| 289 | function | `onActionTooltipExit` |
 
 ## lua/ui_controls.lua (20 symbols)
 
@@ -510,8 +525,8 @@
 | symbol | file | line |
 |---|---|---|
 | `ACTIONS_PER_TURN` | lua/global.lua | 97 |
-| `ACTION_TOOLTIPS` | lua/ui_actionbar.lua | 1154 |
-| `ACTION_TOOLTIP_DELAY` | lua/ui_actionbar.lua | 1152 |
+| `ACTION_TOOLTIPS` | lua/ui_actionbar_display.lua | 257 |
+| `ACTION_TOOLTIP_DELAY` | lua/ui_actionbar_display.lua | 255 |
 | `AUDIO` | lua/audio_manifest.lua | 6 |
 | `Audio` | lua/audio.lua | 22 |
 | `Audio.playBossLoop` | lua/audio.lua | 154 |
@@ -538,7 +553,7 @@
 | `CHARACTER_STATS` | lua/global.lua | 67 |
 | `CHAR_BRIEFINGS` | lua/ui_setup.lua | 276 |
 | `CHAR_SLOT_INDEX` | lua/helpers.lua | 87 |
-| `CHAR_TRAIT_LINES` | lua/ui_actionbar.lua | 1079 |
+| `CHAR_TRAIT_LINES` | lua/ui_actionbar_display.lua | 182 |
 | `CLEANSE_COST` | lua/global.lua | 115 |
 | `CLEANSE_REDUCTION` | lua/global.lua | 116 |
 | `COMBAT_SPECIALS` | lua/actions.lua | 393 |
@@ -556,7 +571,7 @@
 | `HELP_QUICKSTART` | lua/notebook_data.lua | 207 |
 | `LIGHTING_PRESETS` | lua/ui_mood.lua | 9 |
 | `LIGHT_SOURCES` | lua/night.lua | 270 |
-| `LOCATION_ADJACENCY` | lua/ui_actionbar.lua | 9 |
+| `LOCATION_ADJACENCY` | lua/ui_actionbar_core.lua | 14 |
 | `LOCATION_THREAT_RATE` | lua/night.lua | 12 |
 | `MARKET_COSTS` | lua/market_data.lua | 9 |
 | `NOTEBOOK_CHARACTERS` | lua/notebook_data.lua | 155 |
@@ -604,7 +619,7 @@
 | `bossStatsFor` | lua/actions.lua | 413 |
 | `broadcastEvent` | lua/global.lua | 186 |
 | `buildSessionLog` | lua/telemetry.lua | 75 |
-| `canAfford` | lua/ui_actionbar.lua | 154 |
+| `canAfford` | lua/ui_actionbar_core.lua | 159 |
 | `canFight` | lua/actions.lua | 454 |
 | `canPeek` | lua/actions.lua | 714 |
 | `canPry` | lua/actions.lua | 888 |
@@ -620,7 +635,7 @@
 | `checkSourcePhase` | lua/combat.lua | 137 |
 | `checkVictory` | lua/tick_victory.lua | 366 |
 | `checkWrongnessEntry` | lua/effects/dawn_effects.lua | 379 |
-| `clearActionTargets` | lua/ui_actionbar.lua | 205 |
+| `clearActionTargets` | lua/ui_actionbar_targets.lua | 39 |
 | `clearHighlight` | lua/ui_banner.lua | 330 |
 | `clearSignatureTargets` | lua/signatures.lua | 179 |
 | `colorToCharacter` | lua/helpers.lua | 185 |
@@ -700,7 +715,7 @@
 | `getPhaseForDay` | lua/global.lua | 145 |
 | `getPlayerBoard` | lua/helpers.lua | 56 |
 | `getPlayerCarriedObjects` | lua/helpers.lua | 130 |
-| `getPlayerResources` | lua/ui_actionbar.lua | 46 |
+| `getPlayerResources` | lua/ui_actionbar_core.lua | 51 |
 | `getResourceBag` | lua/helpers.lua | 77 |
 | `getSeverityLegend` | lua/helpers.lua | 41 |
 | `getThreatDeck` | lua/helpers.lua | 37 |
@@ -722,36 +737,36 @@
 | `nudgeCameraToBoss` | lua/ui_mood.lua | 177 |
 | `nudgeCameraToDawnCard` | lua/ui_mood.lua | 186 |
 | `nudgeCameraToDoom` | lua/ui_mood.lua | 193 |
-| `onActCleanse` | lua/ui_actionbar.lua | 670 |
-| `onActCook` | lua/ui_actionbar.lua | 570 |
-| `onActCraft` | lua/ui_actionbar.lua | 547 |
-| `onActFight` | lua/ui_actionbar.lua | 604 |
-| `onActGather` | lua/ui_actionbar.lua | 539 |
-| `onActMove` | lua/ui_actionbar.lua | 517 |
-| `onActPass` | lua/ui_actionbar.lua | 686 |
-| `onActPeek` | lua/ui_actionbar.lua | 802 |
-| `onActPry` | lua/ui_actionbar.lua | 662 |
-| `onActRally` | lua/ui_actionbar.lua | 829 |
-| `onActRest` | lua/ui_actionbar.lua | 632 |
+| `onActCleanse` | lua/ui_actionbar_handlers.lua | 161 |
+| `onActCook` | lua/ui_actionbar_handlers.lua | 61 |
+| `onActCraft` | lua/ui_actionbar_handlers.lua | 38 |
+| `onActFight` | lua/ui_actionbar_handlers.lua | 95 |
+| `onActGather` | lua/ui_actionbar_handlers.lua | 30 |
+| `onActMove` | lua/ui_actionbar_handlers.lua | 8 |
+| `onActPass` | lua/ui_actionbar_handlers.lua | 177 |
+| `onActPeek` | lua/ui_actionbar_handlers.lua | 293 |
+| `onActPry` | lua/ui_actionbar_handlers.lua | 153 |
+| `onActRally` | lua/ui_actionbar_handlers.lua | 320 |
+| `onActRest` | lua/ui_actionbar_handlers.lua | 123 |
 | `onActSignature` | lua/signatures.lua | 288 |
-| `onActTrade` | lua/ui_actionbar.lua | 744 |
-| `onActUndo` | lua/ui_actionbar.lua | 874 |
-| `onActionTooltipEnter` | lua/ui_actionbar.lua | 1173 |
-| `onActionTooltipExit` | lua/ui_actionbar.lua | 1186 |
+| `onActTrade` | lua/ui_actionbar_handlers.lua | 235 |
+| `onActUndo` | lua/ui_actionbar_handlers.lua | 365 |
+| `onActionTooltipEnter` | lua/ui_actionbar_display.lua | 276 |
+| `onActionTooltipExit` | lua/ui_actionbar_display.lua | 289 |
 | `onBeginDayClick` | lua/setup.lua | 248 |
 | `onBriefBack` | lua/ui_setup.lua | 312 |
 | `onBriefDismiss` | lua/ui_setup.lua | 325 |
 | `onConfirmNo` | lua/ui_controls.lua | 29 |
 | `onConfirmYes` | lua/ui_controls.lua | 20 |
-| `onCookTargetClick` | lua/ui_actionbar.lua | 422 |
+| `onCookTargetClick` | lua/ui_actionbar_targets.lua | 256 |
 | `onCopySessionLog` | lua/telemetry.lua | 113 |
-| `onCraftTargetClick` | lua/ui_actionbar.lua | 405 |
+| `onCraftTargetClick` | lua/ui_actionbar_targets.lua | 239 |
 | `onDawnStepClick` | lua/ui_rules.lua | 289 |
-| `onDuskMoveClick` | lua/ui_actionbar.lua | 892 |
-| `onDuskReadyClick` | lua/ui_actionbar.lua | 887 |
-| `onFightTargetClick` | lua/ui_actionbar.lua | 456 |
-| `onFightTogetherClick` | lua/ui_actionbar.lua | 460 |
-| `onFinishCombat` | lua/ui_actionbar.lua | 733 |
+| `onDuskMoveClick` | lua/ui_actionbar_handlers.lua | 383 |
+| `onDuskReadyClick` | lua/ui_actionbar_handlers.lua | 378 |
+| `onFightTargetClick` | lua/ui_actionbar_targets.lua | 290 |
+| `onFightTogetherClick` | lua/ui_actionbar_targets.lua | 294 |
+| `onFinishCombat` | lua/ui_actionbar_handlers.lua | 224 |
 | `onHelpClick` | lua/ui_help.lua | 97 |
 | `onHelpClose` | lua/ui_help.lua | 107 |
 | `onHelpTab` | lua/ui_help.lua | 111 |
@@ -761,17 +776,17 @@
 | `onHostRestart` | lua/ui_controls.lua | 112 |
 | `onHostSetupGuided` | lua/ui_setup.lua | 491 |
 | `onLoad` | lua/global.lua | 228 |
-| `onMoveTargetClick` | lua/ui_actionbar.lua | 370 |
-| `onPeekCancel` | lua/ui_actionbar.lua | 819 |
-| `onPeekDeckClick` | lua/ui_actionbar.lua | 813 |
+| `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 204 |
+| `onPeekCancel` | lua/ui_actionbar_handlers.lua | 310 |
+| `onPeekDeckClick` | lua/ui_actionbar_handlers.lua | 304 |
 | `onPickChar` | lua/ui_setup.lua | 241 |
 | `onPickPath` | lua/ui_setup.lua | 46 |
 | `onPosterizeTargetClick` | lua/signatures.lua | 220 |
-| `onPressAttack` | lua/ui_actionbar.lua | 712 |
-| `onRallyCancel` | lua/ui_actionbar.lua | 864 |
-| `onRallyTargetClick` | lua/ui_actionbar.lua | 854 |
-| `onRestHunger` | lua/ui_actionbar.lua | 640 |
-| `onRestSanity` | lua/ui_actionbar.lua | 651 |
+| `onPressAttack` | lua/ui_actionbar_handlers.lua | 203 |
+| `onRallyCancel` | lua/ui_actionbar_handlers.lua | 355 |
+| `onRallyTargetClick` | lua/ui_actionbar_handlers.lua | 345 |
+| `onRestHunger` | lua/ui_actionbar_handlers.lua | 131 |
+| `onRestSanity` | lua/ui_actionbar_handlers.lua | 142 |
 | `onRulesToggle` | lua/ui_rules.lua | 243 |
 | `onSave` | lua/global.lua | 263 |
 | `onSetupClick` | lua/global.lua | 293 |
@@ -781,8 +796,8 @@
 | `onToggleDifficulty` | lua/ui_setup.lua | 99 |
 | `onToggleRotation` | lua/ui_setup.lua | 76 |
 | `onToggleScenario` | lua/ui_setup.lua | 83 |
-| `onTradeCancel` | lua/ui_actionbar.lua | 792 |
-| `onTradeTargetClick` | lua/ui_actionbar.lua | 782 |
+| `onTradeCancel` | lua/ui_actionbar_handlers.lua | 283 |
+| `onTradeTargetClick` | lua/ui_actionbar_handlers.lua | 273 |
 | `onVariantsContinue` | lua/ui_setup.lua | 111 |
 | `onWeekReviewClose` | lua/ui_controls.lua | 384 |
 | `onWhatNowClick` | lua/ui_help.lua | 182 |
@@ -804,11 +819,11 @@
 | `recordSetupInChronicle` | lua/telemetry.lua | 36 |
 | `recordTurnEnd` | lua/telemetry.lua | 58 |
 | `refillMarketSlot` | lua/crafting.lua | 60 |
-| `refreshActionBar` | lua/ui_actionbar.lua | 929 |
+| `refreshActionBar` | lua/ui_actionbar_display.lua | 32 |
 | `refreshActionButtonReasons` | lua/ui_help.lua | 327 |
-| `refreshActionButtonStates` | lua/ui_actionbar.lua | 971 |
+| `refreshActionButtonStates` | lua/ui_actionbar_display.lua | 74 |
 | `refreshCharRoster` | lua/ui_banner.lua | 107 |
-| `refreshCombatPanel` | lua/ui_actionbar.lua | 699 |
+| `refreshCombatPanel` | lua/ui_actionbar_handlers.lua | 190 |
 | `refreshCycleStrip` | lua/ui_rules.lua | 311 |
 | `refreshDawnChecklist` | lua/ui_rules.lua | 256 |
 | `refreshDuskReadyLabel` | lua/day_loop.lua | 625 |
@@ -818,7 +833,7 @@
 | `refreshPhaseBanner` | lua/ui_banner.lua | 29 |
 | `refreshRulesPanel` | lua/ui_rules.lua | 196 |
 | `refreshStandeeTooltips` | lua/ui_banner.lua | 160 |
-| `refreshStatDisplay` | lua/ui_actionbar.lua | 1087 |
+| `refreshStatDisplay` | lua/ui_actionbar_display.lua | 190 |
 | `resolveCharlieAttack` | lua/combat.lua | 658 |
 | `resolveCombat` | lua/combat.lua | 576 |
 | `resolveGroupCombat` | lua/combat.lua | 580 |
@@ -834,8 +849,8 @@
 | `rollAttackDice` | lua/combat.lua | 10 |
 | `runSelfTest` | lua/selftest.lua | 139 |
 | `safecall` | lua/helpers.lua | 214 |
-| `setActionCubes` | lua/ui_actionbar.lua | 957 |
-| `setActionEnabled` | lua/ui_actionbar.lua | 1064 |
+| `setActionCubes` | lua/ui_actionbar_display.lua | 60 |
+| `setActionEnabled` | lua/ui_actionbar_display.lua | 167 |
 | `setActionTooltip` | lua/ui_help.lua | 371 |
 | `setPhaseMood` | lua/ui_mood.lua | 38 |
 | `showCharBriefing` | lua/ui_setup.lua | 300 |
@@ -863,6 +878,6 @@
 | `toggleDuskReady` | lua/day_loop.lua | 636 |
 | `treeguardDefeated` | lua/treeguard.lua | 63 |
 | `updateActivePlayerIndicator` | lua/ui_banner.lua | 229 |
-| `validateActivePlayer` | lua/ui_actionbar.lua | 906 |
-| `verifyAndPayResources` | lua/ui_actionbar.lua | 90 |
+| `validateActivePlayer` | lua/ui_actionbar_display.lua | 9 |
+| `verifyAndPayResources` | lua/ui_actionbar_core.lua | 95 |
 | `wakeTreeguard` | lua/treeguard.lua | 15 |
