@@ -13,6 +13,7 @@ The suite has no dependency on Tabletop Simulator. It tests:
 Run:  python -m pytest tests
 """
 import csv
+import json as _json
 import os
 import re
 import sys
@@ -41,14 +42,17 @@ def read_csv_rows(filename):
         return list(csv.DictReader(f))
 
 
+def _load_manifest():
+    """The build manifest scripts/load_order.json (the source of truth for the
+    Lua + XML concatenation order, read by build_save.py at build time)."""
+    with open(os.path.join(SCRIPTS, "load_order.json"), "r", encoding="utf-8") as f:
+        return _json.load(f)
+
+
 def parse_lua_load_order():
-    """Parse LUA_LOAD_ORDER out of build_save.py without importing it
-    (importing would execute the build)."""
-    src = read_text(os.path.join(SCRIPTS, "build_save.py"))
-    m = re.search(r"LUA_LOAD_ORDER\s*=\s*\[(.*?)\]", src, re.S)
-    assert m, "LUA_LOAD_ORDER not found in build_save.py"
-    files = re.findall(r'"([^"]+\.lua)"', m.group(1))
-    assert files, "LUA_LOAD_ORDER parsed empty"
+    """The Lua concatenation order from scripts/load_order.json."""
+    files = _load_manifest()["lua"]
+    assert files, "load_order.json 'lua' list is empty"
     return files
 
 
@@ -94,12 +98,9 @@ def bundle():
 
 
 def parse_xml_load_order():
-    """Parse XML_LOAD_ORDER out of build_save.py (same reason as the Lua one)."""
-    src = read_text(os.path.join(SCRIPTS, "build_save.py"))
-    m = re.search(r"XML_LOAD_ORDER\s*=\s*\[(.*?)\]", src, re.S)
-    assert m, "XML_LOAD_ORDER not found in build_save.py"
-    files = re.findall(r'"([^"]+\.xml)"', m.group(1))
-    assert files, "XML_LOAD_ORDER parsed empty"
+    """The XML concatenation order from scripts/load_order.json."""
+    files = _load_manifest()["xml"]
+    assert files, "load_order.json 'xml' list is empty"
     return files
 
 
