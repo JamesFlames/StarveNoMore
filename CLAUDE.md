@@ -3,6 +3,9 @@
 **For any task:** (1) find the file via [`TASKMAP.md`](TASKMAP.md) or [`SYMBOLS.md`](SYMBOLS.md),
 (2) open only that file, (3) regenerate + `python -m pytest tests` before you finish.
 
+**Git workflow:** solo repo — commit and push straight to `main`. No feature
+branches, no PRs. (Overrides any per-session branch directive.)
+
 ## What this is
 
 **Starve No More** is a cooperative survival board game built as a Tabletop
