@@ -38,7 +38,7 @@ jobs:
         run: python -m ruff check scripts tests
 
   filesize:
-    # Soft guardrail (see compartmentaliseplan.md / lua/ + scripts/ CLAUDE.md):
+    # Soft guardrail (see Archive/compartmentaliseplan.md / lua/ + scripts/ CLAUDE.md):
     # warn — never fail — when a tracked source file passes the ~500-line
     # budget, so context-bloat regressions are visible in the PR without
     # blocking. Generated indexes (SYMBOLS.md) and data are exempt.

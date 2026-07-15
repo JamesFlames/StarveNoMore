@@ -2,6 +2,24 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Repo structure follow-ups (2026-07)
+
+Tooling/docs only — no rule changes. The next layer after the completed
+compartmentalise program (now retired to `Archive/compartmentaliseplan.md`):
+
+- **One-command rebuild.** `scripts/regenerate_all.py` runs every generator (in
+  `generators.json` order) then `build_save.py`, so you no longer have to
+  remember which generator matches your edit. Generators whose sources are
+  absent (e.g. `sounds/` on a clean clone) are skipped instead of erroring.
+- **Doc-map self-healing.** `tests/test_doc_file_refs.py` fails if a
+  navigation-layer doc (agents.md / README / TASKMAP / CLAUDE stubs) names a
+  `lua/*.lua` file that doesn't exist — the gap that had left four stale
+  `ui_actionbar.lua` references in agents.md after that file was split. Those
+  references are now fixed.
+- **Retired the finished plan.** `compartmentaliseplan.md` (all phases shipped)
+  moved to `Archive/`; the standing improvement punch-list is
+  `structuralimprovements.md`.
+
 ## The briefing promises, delivered (2026-07)
 
 Every perk and constraint the character briefings advertise is now actually scripted — plus the Fight action itself, which had been a broadcast-only stub:

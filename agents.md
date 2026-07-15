@@ -24,9 +24,9 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 - [TASKMAP.md](TASKMAP.md) — the "job → files to open" routing table. Start here for "where do I change X?"; use `SYMBOLS.md` for "where is function X?".
 - [StarveNoMoreDesignConcept.md](StarveNoMoreDesignConcept.md) — **the canonical design doc**, now a thin index (Document Purpose + a Section → file jump table). The 20 numbered sections live one-topic-per-file under [docs/design/](docs/design/README.md): pitch/pillars, components/characters, locations/economy, decks, stats/turns, combat/crafting, week-arc/doom, victory/setup, TTS implementation, rationale/balancing. Open the specific `docs/design/*.md` for any rules or design question — prose cross-refs like "§6.7" map to files via the index table.
 - [README.md](README.md) — short orientation for the GitHub landing page, dev quickstart, and the script-by-script build table.
-- [compartmentaliseplan.md](compartmentaliseplan.md) — the working plan for making the repo AI-friendly at small context (navigation layer, file splits, manifests). A process/checklist doc, not a design doc.
 - [CHANGELOG.md](CHANGELOG.md) — the rule-change history, one entry per design batch. The retired planning docs (improvements.md, design_batch1–4.md, frameworkimprovements.md) live on as these entries + git history.
 - [SYMBOLS.md](SYMBOLS.md) — AUTO-GENERATED index of every Lua global (function/constant → file:line). Regenerate with `scripts/generate_symbol_index.py`.
+- [structuralimprovements.md](structuralimprovements.md) — standing punch-list of proposed structure/code/data/flow/doc improvements (the layer *after* the completed `compartmentaliseplan.md`), each tagged with a priority and the files it touches. A working doc, not a design doc.
 - [PlayerRules.md](PlayerRules.md) / [PlayerRules.html](PlayerRules.html) — AUTO-GENERATED player rulebook (`scripts/generate_player_rules.py`), assembled from the same `content/` markdown as the in-game Notebook. The HTML is what the in-TTS **Player Rules tablet** shows (served by `scripts/serve_art.bat`) and opens in any browser.
 - [playtest/facilitator_script.md](playtest/facilitator_script.md) + [playtest/feedback_form.md](playtest/feedback_form.md) — the blind-playtest protocol and per-player form (batch 4 W4). Session data comes from the Week in Review panel's **Copy Session Log** button; logs collect in [playtest/sessions/](playtest/sessions/README.md) and aggregate via `scripts/analyze_sessions.py`.
 - agents.md — this file.
@@ -39,6 +39,7 @@ historical references; do not link to them from new documentation.
 
 - `Archive/HowToCreateGamesInTabletopSimulator.md` — TTS API notes used to scaffold the Lua/XML.
 - `Archive/PrinciplesOfGoodBoardGames.md`, `DontStarveVideoGamePrinciples.md` — design-theory sources.
+- `Archive/compartmentaliseplan.md` — the completed "make the repo AI-friendly at small context" program (navigation layer, file splits, manifests). Every phase shipped; retired here in 2026-07. Its outcome is the current `CLAUDE.md`/`TASKMAP.md`/`SYMBOLS.md`/`docs/design/` navigation layer.
 
 (Deleted 2026-07, all recoverable from git history: the commission brief
 `StarveNoMoreRequirements.md`; the phased build checklist
@@ -119,7 +120,10 @@ StarveNoMore/
 │   ├── signatures.lua          # Signature Moves (§6.7) — once-per-game per-character actions + button/dialog UX
 │   ├── telemetry.lua           # Session log (batch 4 W0): chronicle setup/turns/beats, exportSessionLog, Copy Session Log
 │   ├── ui_banner.lua           # Phase Banner + recommendNext + CTA pulse + active-player indicator
-│   ├── ui_actionbar.lua        # Action Bar + click-to-complete targets (Move/Craft/Cook) + trade dialog + undo + market affordability
+│   ├── ui_actionbar_core.lua      # Resource helpers (getPlayerResources, verifyAndPayResources, canAfford) + Move adjacency + highlight duration
+│   ├── ui_actionbar_targets.lua   # Target-button plumbing + move/craft/cook/fight target spawns, click handlers, highlights
+│   ├── ui_actionbar_handlers.lua  # onActX action-bar handlers, Press-the-Attack panel, trade/peek/rally/undo/dusk handlers
+│   ├── ui_actionbar_display.lua   # Validate, action-bar refresh + cubes, per-button enable/reasons, stat display, action tooltips
 │   ├── ui_controls.lua         # Host controls (contextual — only valid buttons show), confirm dialogs, tooltips
 │   ├── ui_setup.lua            # Guided setup walkthrough (path → variants → characters → briefing) + welcome
 │   ├── ui_help.lua             # Help panel tabs + What-now dispatch
@@ -218,7 +222,7 @@ Dawn (Doom advance + Moonlit Salvage + Dawn card) → Day (player turns, 3 actio
 - **Doom 15 = Scarcity**: crafts cost +1 extra resource of the crafter's choice (Market refills at full speed; `canAfford` accounts for it).
 - **Visitors**: one-shot aid, depart at next Dawn — the adoption rule was cut.
 - **Night light check is automated**: `checkPlayerHasLight` (night.lua) scans the player's hand + player-board area for Flashlight / Lantern / Fire Kit (matched by `M_*` card tag or nickname; fire-only nights ignore the Flashlight) and the character's tile for a Campfire (tile-wide, radius 7). No manual confirmation.
-- **Fixed resource costs are auto-paid**: `verifyAndPayResources` (ui_actionbar.lua) verifies tokens beside the payer's board, returns them to their supply bags, and blocks the action (with an action refund) if short. Used by Cleanse, Appease-Treeguard, Barricade. Craft remains honor-system (Scarcity's "+1 any resource" needs a player choice).
+- **Fixed resource costs are auto-paid**: `verifyAndPayResources` (ui_actionbar_core.lua) verifies tokens beside the payer's board, returns them to their supply bags, and blocks the action (with an action refund) if short. Used by Cleanse, Appease-Treeguard, Barricade. Craft remains honor-system (Scarcity's "+1 any resource" needs a player choice).
 - **Dusk ready-check**: each seated player with a living character clicks Ready on the Dusk panel (`toggleDuskReady`, day_loop.lua); Night begins automatically at full count. Host's Resolve Night is the override / hotseat path.
 - **Signature Moves** (§6.7, `lua/signatures.lua`): one once-per-game named move per character (`char.signatureUsed`), fired from the action bar's Signature button with a confirm. James All-Nighter (+3 actions, −3 Sanity at Tick via `gameState.pendingSanityPenalty`), Coco Touch of Hope (+4 Health any tile, dialog target-pick), Rayman Posterize (delete a non-boss threat at his tile; `gameState.loudSignature[loc]` = +1 night draw there), Ellie The Feast (1 action, all held Food consumed, `char.feastActive` makes cooking free until turn end), Luca The Speech (+2 Sanity to all; gated on an ally Down or Sanity < 3).
 - **Pry** (§13.5, `doPry` in actions.lua): free action; needs a tool (M_CROWBAR / M_LOCKPICK / M_PRY_BAR in hand or by the board) and a sealed thing at the tile — sealed Threat cards (`SEALED_REWARDS` keys) or the `SealedBasement` object placed at Ellie & Luca's House by build_save.py (`gameState.basementOpened`). The actPry button lights only when both hold.
@@ -437,7 +441,7 @@ player never has to ask "what now?":
 - Adding a hint: edit the markdown, run `python scripts/generate_whatnow_hints.py`, rebuild.
 
 ### 3. Action targets — highlights + click-to-complete buttons
-- When the active player clicks an action button, `lua/ui_actionbar.lua` highlights world objects via `obj.highlightOn(color, 8)` AND spawns a clickable 3D `createButton` on every legal target. Clicking the button consumes `gameState.pendingAction` and calls the matching `do*` handler:
+- When the active player clicks an action button, `lua/ui_actionbar_targets.lua` highlights world objects via `obj.highlightOn(color, 8)` AND spawns a clickable 3D `createButton` on every legal target. Clicking the button consumes `gameState.pendingAction` and calls the matching `do*` handler:
   - **Move** → adjacent tiles glow Green with a MOVE HERE button → `doMove`. Rayman's Speed perk chains a second round of FREE MOVE buttons (`doRaymanBonusMove`).
   - **Craft** → Market deck + slots glow Yellow, **affordable** cards Green (see §4); each displayed card gets a CRAFT button → `doCraft(color, slotIndex)`.
   - **Cook** → Recipe cards glow Orange with a COOK button → `doCook(color, recipeId)` (recipe id read from the card's `R_*` tag).
@@ -450,7 +454,7 @@ player never has to ask "what now?":
 
 ### 4. Market affordability
 - `lua/market_data.lua` (auto-loaded) defines `MARKET_COSTS[<id>] = {Wood=2, Metal=1, ...}` for every Market card.
-- `getPlayerResources(color)` in `lua/ui_actionbar.lua` counts `Resource:*` tagged tokens within a padded bounding box around that player's `PlayerBoard:<charName>` object.
+- `getPlayerResources(color)` in `lua/ui_actionbar_core.lua` counts `Resource:*` tagged tokens within a padded bounding box around that player's `PlayerBoard:<charName>` object.
 - `canAfford(color, cardId)` compares. Affordable Market cards get a Green highlight when Craft is selected, plus a `printToColor` summary of the player's bag contents.
 
 ### 5. Auto-broadcast urgent hints

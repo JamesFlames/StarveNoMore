@@ -25,6 +25,12 @@ The generator map below is mirrored machine-readably in [`generators.json`](gene
 Generators are idempotent and order-independent; `tests/test_generated_freshness.py`
 fails if any output is stale. After regenerating, run `python scripts/build_save.py`.
 
+**Or just run everything:** `python scripts/regenerate_all.py` runs every
+generator (in manifest order) then `build_save.py` — one command instead of
+remembering which generator matches your edit. It reads `generators.json`, so it
+can't drift; generators whose sources are absent (e.g. `sounds/` on a clean
+clone) are skipped rather than erroring. `--no-build` / `--list` are available.
+
 ## Conventions
 
 - **File-size budget:** if a file passes ~500 lines, split it before adding more.

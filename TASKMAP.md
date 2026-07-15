@@ -27,3 +27,5 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 
 **Always finish with:** `python scripts/build_save.py` then `python -m pytest tests`.
 A stale generated file (or a Lua move without a fresh `SYMBOLS.md`) fails the suite.
+Unsure which generator to run? `python scripts/regenerate_all.py` runs them all
+(in dependency order) and rebuilds the save in one command.
