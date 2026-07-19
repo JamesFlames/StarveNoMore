@@ -10,16 +10,21 @@ Walks `sounds/` and emits a Lua table grouping URLs + durations by category:
 
 Durations:
   - .wav files: read precisely via stdlib `wave` module
-  - .mp3 files: estimated from file size assuming ~128 kbps (16 KB/s).
-    The estimate only needs to be roughly right — we use it as a Wait.time
-    after which we schedule the next track. A few seconds off-by means a
-    few seconds of dead air before the next ambient track starts.
+  - .mp3/.ogg files: read via ffprobe when available, else estimated from
+    file size. The estimate only needs to be roughly right — we use it as
+    a Wait.time after which we schedule the next track. A few seconds
+    off-by means a few seconds of dead air before the next track starts.
+
+(2026-07: compressed clips are OGG Vorbis — TTS rejected several of the
+original MP3s with "Unsupported file format".)
 
 Run: python scripts/generate_audio_manifest.py
 Output: lua/audio_manifest.lua
 """
 
 import os
+import shutil
+import subprocess
 import wave
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -27,8 +32,11 @@ SOUNDS_DIR = os.path.join(REPO_ROOT, "sounds")
 OUT_LUA = os.path.join(REPO_ROOT, "lua", "audio_manifest.lua")
 URL_BASE = "http://localhost:8080"
 
-# Estimate for VBR/CBR mp3 average bitrate (bytes/sec). 128 kbps ≈ 16000 B/s.
-MP3_AVG_BPS = 16000
+# Size-estimate fallbacks (bytes/sec) when ffprobe is unavailable.
+MP3_AVG_BPS = 16000   # 128 kbps
+OGG_AVG_BPS = 14000   # Vorbis q4 ≈ 112 kbps
+
+_FFPROBE = shutil.which("ffprobe")
 
 
 def wav_duration(path):
@@ -38,8 +46,18 @@ def wav_duration(path):
         return frames / float(rate) if rate else 0.0
 
 
-def mp3_duration_estimate(path):
-    return os.path.getsize(path) / float(MP3_AVG_BPS)
+def probe_duration(path):
+    """Precise duration via ffprobe, or None if unavailable/unreadable."""
+    if not _FFPROBE:
+        return None
+    try:
+        out = subprocess.run(
+            [_FFPROBE, "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", path],
+            capture_output=True, text=True, timeout=30)
+        return float(out.stdout.strip())
+    except (ValueError, subprocess.SubprocessError, OSError):
+        return None
 
 
 def duration_for(path):
@@ -49,8 +67,12 @@ def duration_for(path):
             return wav_duration(path)
         except wave.Error:
             return os.path.getsize(path) / 88200.0  # fallback: 16-bit 44.1k mono
-    if p.endswith(".mp3"):
-        return mp3_duration_estimate(path)
+    if p.endswith((".mp3", ".ogg")):
+        d = probe_duration(path)
+        if d:
+            return d
+        bps = MP3_AVG_BPS if p.endswith(".mp3") else OGG_AVG_BPS
+        return os.path.getsize(path) / float(bps)
     return None
 
 

@@ -514,7 +514,8 @@ TOOLTIP_DATA = {
     ["VisitorCardDeck"]      = "Visitor Deck. Absent characters may arrive via Dawn cards.",
     -- Supply
     ["TelltaleHeartSupply"]  = "Telltale Hearts (5 max). Cook: 1 Cloth + 1 Battery + 1 Food + 2 Health. Use to revive a Down character.",
-    ["ResourceBag"]          = "Resource supply bag. Fully automated — Gather, salvage, dawn deliveries, and scripted costs/rewards (Cleanse, Pry, boss loot) pay tokens in and out for you. No need to touch it.",
+    ["ResourceBag"]          = "Resource supply bag (kept under the table). Fully automated — Gather delivers tokens to your board, and the Discard Tray returns what you spend.",
+    ["DiscardTray"]          = "Discard Tray. Spending resources (craft costs, cook ingredients)? Drop the tokens here — they return to the supply by themselves.",
     ["PathVariant"]          = "Decorative path tiles for an alternate map layout. Safe to ignore during play.",
     -- Locations
     ["Location:JamesHouse"]       = "James's House. Yields: Energy Drink, Battery, Junk Food. The Den: free trade once/day.",

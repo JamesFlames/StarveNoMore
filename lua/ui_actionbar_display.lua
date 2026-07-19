@@ -57,8 +57,9 @@ function refreshActionBar()
             local left = char.actionsLeft or 0
             setActionCubes(left)
 
-            -- Dim buttons based on availability
-            refreshActionButtonStates(gameState.activeColor)
+            -- Show/hide buttons based on availability. safecall: one bad
+            -- precondition check must not blank the whole bar.
+            safecall(function() refreshActionButtonStates(gameState.activeColor) end, "ActionButtons")
         end
     else
         UI.hide("actionBar")

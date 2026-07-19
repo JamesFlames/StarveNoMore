@@ -492,16 +492,22 @@ for loc_key, (name, url, pos) in loc_data.items():
 # E.5  Path-edge variant cards (3 sets stored in trays off-board)
 # ---------------------------------------------------------------------------
 
-# All supply containers live on a locked "supply shelf" along the table's
-# east edge, well clear of the play area: every token flow is scripted
-# (giveResource / verifyAndPayResources / boss arrivals), so players never
-# reach into a bag — the shelf just keeps the machinery out of sight.
+# Everything players never touch lives UNDER the table (playtest: "players
+# should not see decks/tokens unless actively relevant"). Scripts find
+# objects by tag wherever they sit, and every card reveal/discard position
+# is authored in absolute board coordinates, so the machinery works from
+# down there. Unlocked objects (a deck sheds its container when it shrinks
+# to one card) rest on a locked catch shelf so nothing falls into the void.
+LIBRARY_Y = -2.5             # resting height for hidden components
 SUPPLY_SHELF_X = 25.0        # resource bags / dice / hearts / boss pool
 SUPPLY_SHELF_X2 = 28.0       # decorative path-variant trays, one row further out
+LIBRARY_X = -25.0            # decks / trophies / legend (west column)
+LIBRARY_X2 = -28.0           # trophy cards + starting decks
+BENCH_X = -23.0              # unused character standees (see lua/helpers.lua)
 
 for variant in ["Compact", "Sprawl", "Linear", "Ring", "Star"]:
     bag = base_obj("Bag",
-                   tf(SUPPLY_SHELF_X2, 2, 2 + ["Compact","Sprawl","Linear","Ring","Star"].index(variant) * 3),
+                   tf(SUPPLY_SHELF_X2, LIBRARY_Y, 2 + ["Compact","Sprawl","Linear","Ring","Star"].index(variant) * 3),
                    nickname=f"Path Edges: {variant}",
                    desc=f"Decorative path tiles for the {variant} map layout. Purely cosmetic — safe to ignore during play.",
                    tags=["PathVariant", f"PathVariant:{variant}"],
@@ -546,11 +552,13 @@ objects.append(doom)
 # E.7  Day Counter
 # ---------------------------------------------------------------------------
 
-# ry=180 so the digits read right-side-up from the players' side (matches
-# the card rotation convention). The script alone advances it: onLoad /
-# lockdownCriticalObjects set interactable=false so players can't click
-# the counter's +/- buttons.
-day_counter = base_obj("Counter", tf(-10, 1.2, 8, ry=180),
+# ry=0: playtest showed the Counter's digits render right-side-up at 0
+# (unlike flat tiles/cards, whose art needs the 180 treatment). y=1.4
+# keeps it clear of the board's top surface — spawned lower, it clipped
+# into the board and was invisible until physics nudged it out. The
+# script alone advances it: onLoad / lockdownCriticalObjects set
+# interactable=false so players can't click the counter's +/- buttons.
+day_counter = base_obj("Counter", tf(-10, 1.4, 8),
                        nickname="Day Counter",
                        desc="Current day. Advances each Dawn.",
                        tags=["DayCounter"],
@@ -580,12 +588,12 @@ for pi, (deck_num, cards, name) in enumerate(phase_decks):
         id_field="id", name_field="title",
         desc_func=phase_desc,
         tags_base=["PhaseCard", f"PhaseCard:P{deck_num}"],
-        transform=tf(-7, 1.5, 12),
+        # In the under-table library — the drawn Dawn card appears at the
+        # fixed DAWN_REVEAL_POS on the board (day_loop.lua).
+        transform=tf(LIBRARY_X, LIBRARY_Y, 8 - pi * 3),
         nickname=name,
         face_down=True
     )
-    # Stack the phase decks on top of each other (Phase 1 on top)
-    deck["Transform"]["posY"] = 1.5 + (3 - pi) * 0.4
     objects.append(deck)
 
 # ---------------------------------------------------------------------------
@@ -602,7 +610,7 @@ market_deck = make_deck(
     id_field="id", name_field="name",
     desc_func=market_desc,
     tags_base=["MarketCard"],
-    transform=tf(2, 1.5, 12),
+    transform=tf(LIBRARY_X, LIBRARY_Y, -10),
     nickname="Market Deck",
     face_down=True
 )
@@ -655,7 +663,7 @@ threat_deck = make_deck(
     id_field="id", name_field="name",
     desc_func=threat_desc,
     tags_base=["ThreatCard"],
-    transform=tf(-4, 1.5, 12),
+    transform=tf(LIBRARY_X, LIBRARY_Y, -4),
     nickname="Threat Deck",
     face_down=True
 )
@@ -681,7 +689,7 @@ visitor_deck = make_deck(
     id_field="id", name_field="character",
     desc_func=visitor_desc,
     tags_base=["VisitorCard"],
-    transform=tf(-1, 1.5, 12),
+    transform=tf(LIBRARY_X, LIBRARY_Y, -7),
     nickname="Visitor Deck",
     face_down=True
 )
@@ -692,7 +700,7 @@ objects.append(visitor_deck)
 # ---------------------------------------------------------------------------
 
 for i, row in enumerate(trophies):
-    card = base_obj("Card", tf(5 + i * 1.5, 1.2, 12, rz=180, ry=180),
+    card = base_obj("Card", tf(LIBRARY_X2, LIBRARY_Y, 8 - i * 3, rz=180, ry=180),
                     nickname=row["boss"] if "boss" in row else row.get("id",""),
                     desc=trophy_desc(row),
                     tags=["TrophyCard", row["id"]])
@@ -750,7 +758,7 @@ for si, start_char in enumerate(["James", "Coco", "Rayman", "Ellie", "Luca"]):
     # The StartingHand:<name> tag lives on the DECK only (not its cards), so
     # dealStartingHands can never mistake an already-dealt card for the deck.
     start_deck = base_obj("DeckCustom",
-                          tf(16.5, 1.5 + si * 0.35, 4, ry=180, rz=180),
+                          tf(LIBRARY_X2, LIBRARY_Y, -5 - si * 2.5, ry=180, rz=180),
                           nickname=f"{start_char}'s Starting Hand",
                           desc=f"{start_char}'s personal items. Dealt to {start_char}'s player automatically during Setup.",
                           tags=["StartingHandDeck", f"StartingHand:{start_char}"])
@@ -766,12 +774,12 @@ for si, start_char in enumerate(["James", "Coco", "Rayman", "Ellie", "Luca"]):
 # ---------------------------------------------------------------------------
 
 resources = [
-    ("Wood",         ph("token_wood"),    "Brown", SUPPLY_SHELF_X, 1.5,  0),
-    ("Metal",        ph("token_metal"),   "Grey",  SUPPLY_SHELF_X, 1.5,  2.5),
-    ("Cloth",        ph("token_cloth"),   "White", SUPPLY_SHELF_X, 1.5,  5),
-    ("Food",         ph("token_food"),    "Red",   SUPPLY_SHELF_X, 1.5,  7.5),
-    ("EnergyDrink",  ph("token_energy"),  "Yellow",SUPPLY_SHELF_X, 1.5, 10),
-    ("Battery",      ph("token_battery"), "Blue",  SUPPLY_SHELF_X, 1.5, 12.5),
+    ("Wood",         ph("token_wood"),    "Brown", SUPPLY_SHELF_X, LIBRARY_Y,  0),
+    ("Metal",        ph("token_metal"),   "Grey",  SUPPLY_SHELF_X, LIBRARY_Y,  2.5),
+    ("Cloth",        ph("token_cloth"),   "White", SUPPLY_SHELF_X, LIBRARY_Y,  5),
+    ("Food",         ph("token_food"),    "Red",   SUPPLY_SHELF_X, LIBRARY_Y,  7.5),
+    ("EnergyDrink",  ph("token_energy"),  "Yellow",SUPPLY_SHELF_X, LIBRARY_Y, 10),
+    ("Battery",      ph("token_battery"), "Blue",  SUPPLY_SHELF_X, LIBRARY_Y, 12.5),
 ]
 
 for res_name, token_url, color, x, y, z in resources:
@@ -800,7 +808,7 @@ for res_name, token_url, color, x, y, z in resources:
 # ---------------------------------------------------------------------------
 
 # 6 standard d6 in a combat tray (decorative — combat is script-rolled)
-dice_tray = base_obj("Bag", tf(SUPPLY_SHELF_X, 1.5, -2.5),
+dice_tray = base_obj("Bag", tf(SUPPLY_SHELF_X, LIBRARY_Y, -2.5),
                      nickname="Combat Dice Tray",
                      desc="6 combat d6. Combat rolls are automated — these are here for house rules.",
                      tags=["DiceTray"],
@@ -813,11 +821,12 @@ for di in range(6):
     dice_tray["ContainedObjects"].append(d6)
 objects.append(dice_tray)
 
-# Sanity d8 (custom)
-sanity_d8 = base_obj("Custom_Dice", tf(SUPPLY_SHELF_X, 1.5, -5),
+# Sanity d8 (custom; locked in the library — Sanity rolls are automated)
+sanity_d8 = base_obj("Custom_Dice", tf(SUPPLY_SHELF_X, LIBRARY_Y, -5),
                      nickname="Sanity d8",
                      desc="Roll for Sanity-loss events. Face value = damage dealt.",
-                     tags=["SanityD8"])
+                     tags=["SanityD8"],
+                     locked=True)
 sanity_d8["CustomImage"] = {
     "ImageURL": ph("sanity_d8"),
     "ImageSecondaryURL": "",
@@ -946,7 +955,7 @@ bosses = [
     ("Treeguard", 5, 2),   # Phase 2.5 mini-boss — wakes at Dusk of Day 4 (lua/treeguard.lua)
 ]
 
-boss_pool = base_obj("Bag", tf(SUPPLY_SHELF_X, 2, 17.5),
+boss_pool = base_obj("Bag", tf(SUPPLY_SHELF_X, LIBRARY_Y, 17.5),
                      nickname="Boss Pool",
                      desc="Boss standees. Placed on the map by Dawn card effects — fully automated, no need to touch it.",
                      tags=["BossPool"],
@@ -984,7 +993,7 @@ basement = base_obj("BlockSquare",
 basement["ColorDiffuse"] = {"r": 0.28, "g": 0.22, "b": 0.15}
 objects.append(basement)
 
-heart_bag = base_obj("Bag", tf(SUPPLY_SHELF_X, 1.5, 15),
+heart_bag = base_obj("Bag", tf(SUPPLY_SHELF_X, LIBRARY_Y, 15),
                      nickname="Telltale Heart Supply",
                      desc="5 Telltale Hearts. Cook to create; spend to revive a Down character.",
                      tags=["TelltaleHeartSupply"],
@@ -1008,7 +1017,8 @@ objects.append(heart_bag)
 # E.19  Severity Legend card
 # ---------------------------------------------------------------------------
 
-legend = base_obj("Card", tf(-3.5, 1.2, 13, rz=0, ry=180, sx=1.5, sy=1, sz=1.5),
+# In the library: the same ladder is printed on the board's NE corner.
+legend = base_obj("Card", tf(LIBRARY_X, LIBRARY_Y, -13, rz=0, ry=180, sx=1.5, sy=1, sz=1.5),
                   nickname="Severity Legend",
                   desc="●○○○○ Atmospheric\n●●○○○ Minor stat hit\n●●●○○ Combat/lasting\n●●●●○ Phase-shift\n●●●●● Boss/apocalyptic",
                   tags=["SeverityLegend"],
@@ -1034,11 +1044,39 @@ objects.append(legend)
 with open(os.path.join(CONTENT, "notebook", "quickstart.md"), "r", encoding="utf-8") as _f:
     quickstart_text = md_to_text(_f.read())
 
-notecard = base_obj("Notecard", tf(12, 1.2, -14),
+# On the board's clear SE patch — it used to sit at the board's very edge,
+# where it slid under the board and turned invisible. ry=180 so its text
+# reads from the players' side (the card convention).
+notecard = base_obj("Notecard", tf(10.5, 1.3, -9.2, ry=180),
                     nickname="Quick Start",
                     desc=quickstart_text,
                     tags=["QuickStart"])
 objects.append(notecard)
+
+# Discard Tray — the visible counterpart of the hidden supply: every
+# honor-system payment (craft costs, cook ingredients) is made by dropping
+# tokens here; a background sweep (startDiscardTraySweep, helpers.lua)
+# returns them to the right supply bag.
+tray = base_obj("BlockSquare",
+                tf(9.5, 0.95, -15, sx=2.6, sy=0.18, sz=2.6),
+                nickname="Discard Tray",
+                desc="Spending resources? Drop the tokens here — they return to the supply by themselves.",
+                tags=["DiscardTray"],
+                locked=True)
+tray["ColorDiffuse"] = {"r": 0.32, "g": 0.16, "b": 0.12}
+objects.append(tray)
+
+# Catch shelf under the west library column: unlocked objects (decks shed
+# their container at one card left) rest here instead of falling forever.
+shelf = base_obj("BlockSquare",
+                 tf(-26.5, -3.6, -3, sx=9, sy=0.4, sz=30),
+                 nickname="",
+                 desc="",
+                 tags=["LibraryShelf"],
+                 locked=True,
+                 extra={"Tooltip": False})
+shelf["ColorDiffuse"] = {"r": 0.1, "g": 0.1, "b": 0.1}
+objects.append(shelf)
 
 # ---------------------------------------------------------------------------
 # Player Rules tablet — an in-TTS browser showing PlayerRules.html (generated

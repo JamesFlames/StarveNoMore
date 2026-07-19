@@ -27,8 +27,12 @@ DAWN_EFFECTS["P1_LIGHTS_FLICKER"] = {
 
 DAWN_EFFECTS["P1_PHONES_DEAD"] = {
     onReveal = function(card)
-        broadcastEvent("proc", "Phones are dead. All players discard 1 Battery (if held).")
-        -- Resource discard is manual in this phase; broadcast the instruction
+        broadcastEvent("proc", "Phones are dead. Each player loses 1 Battery (if held) — taken automatically.")
+        for color, char in pairs(gameState.activeChars) do
+            if not char.down and takeResourceFromPlayer(color, "Battery", 1) > 0 then
+                broadcastEvent("damage", char.name .. " loses 1 Battery.")
+            end
+        end
     end,
 }
 
@@ -38,6 +42,20 @@ DAWN_EFFECTS["P1_SOMETHING_WATCHED"] = {
         if target then
             target.sanity = math.max(0, target.sanity - 1)
             broadcastEvent("damage", target.name .. " (lowest Sanity) loses 1 more Sanity.")
+            -- Dare (scripted — the Threat deck is out of reach): look closer.
+            showConfirm("Dare — look closer?",
+                target.name .. " may lose 1 MORE Sanity to make out what's watching: the top Threat card is revealed to everyone.",
+                function()
+                    local ch = lowestStatPlayer("sanity") or target
+                    ch.sanity = math.max(0, ch.sanity - 1)
+                    broadcastEvent("damage", ch.name .. " stares back. (-1 Sanity, now " .. ch.sanity .. ")")
+                    local deck = getThreatDeck()
+                    local top = deck and deck.getObjects and deck.getObjects()[1]
+                    local name = top and ((top.nickname ~= "" and top.nickname) or top.name) or "???"
+                    broadcastEvent("warn", "In the dark: " .. name .. " is the next Threat to come.")
+                    safecall(function() recordBeat("dare") end, "Telemetry")
+                    refreshPhaseBanner()
+                end)
         end
     end,
 }
@@ -68,8 +86,15 @@ DAWN_EFFECTS["P1_SCHOOL_CLOSED"] = {
 
 DAWN_EFFECTS["P1_OLD_FRIEND_VISIT"] = {
     onReveal = function(card)
-        broadcastEvent("proc", "An old friend calls. Choose one player — they gain +2 Sanity.")
-        -- Player choice is manual
+        -- Scripted default: the call goes to whoever needs it most.
+        local target = lowestStatPlayer("sanity")
+        if target then
+            target.sanity = math.min(target.maxSanity, target.sanity + 2)
+            broadcastEvent("gain", "An old friend calls " .. target.name ..
+                " (lowest Sanity): +2 Sanity. (Now " .. target.sanity .. ")")
+        else
+            broadcastEvent("proc", "An old friend calls... but nobody picks up.")
+        end
     end,
 }
 
@@ -131,7 +156,24 @@ DAWN_EFFECTS["P1_STRANGE_RADIO"] = {
             if not char.down then
                 local roll = gameRoll(1, 6)
                 if roll == 6 then
-                    broadcastEvent("gain", char.name .. " rolls 6 — peek at Market deck for a Clue card!")
+                    -- Scripted peek (the Market deck is out of reach):
+                    -- privately learn how deep the nearest Clue sits.
+                    broadcastEvent("gain", char.name .. " rolls 6 — the static whispers about a Clue...")
+                    safecall(function()
+                        local deck = getMarketDeck()
+                        local msg = "The signal fades — no Clue left in the Market deck."
+                        if deck and deck.getObjects then
+                            for i, o in ipairs(deck.getObjects()) do
+                                local nick = (o.nickname ~= "" and o.nickname) or o.name or ""
+                                if nick:find("Clue") then
+                                    msg = "The radio whispers: " .. nick .. " is " .. i ..
+                                        " card(s) down the Market deck. Tell the team — or don't."
+                                    break
+                                end
+                            end
+                        end
+                        printToColor(msg, color, {0.5, 1, 0.5})
+                    end, "RadioClue")
                 elseif roll == 1 then
                     char.sanity = math.max(0, char.sanity - 1)
                     broadcastEvent("damage", char.name .. " rolls 1 — loses 1 Sanity.")
@@ -140,12 +182,44 @@ DAWN_EFFECTS["P1_STRANGE_RADIO"] = {
                 end
             end
         end
+        -- Dare (scripted): decode the rest of the broadcast.
+        showConfirm("Dare — decode the signal?",
+            "Any player drops 2 Battery on the Discard Tray (honor system), and the next 3 Dawn cards are announced to everyone.",
+            function()
+                local deck = getPhaseDeck(gameState.phase)
+                local names = {}
+                if deck and deck.getObjects then
+                    for i, o in ipairs(deck.getObjects()) do
+                        if i > 3 then break end
+                        table.insert(names, (o.nickname ~= "" and o.nickname) or o.name or "???")
+                    end
+                end
+                if #names > 0 then
+                    broadcastEvent("warn", "The signal decodes. Coming Dawns: " .. table.concat(names, "  >  "))
+                else
+                    broadcastEvent("proc", "The signal decodes into static — nothing left in this phase's deck.")
+                end
+                safecall(function() recordBeat("dare") end, "Telemetry")
+            end)
     end,
 }
 
 DAWN_EFFECTS["P1_PHOTO_FOUND"] = {
     onReveal = function(card)
-        broadcastEvent("proc", "An old photograph. Choose one player — they gain +1 Sanity and may peek at the top Threat card.")
+        -- Scripted default: comfort goes to whoever needs it most, and the
+        -- photo's warning is read out for everyone.
+        local target = lowestStatPlayer("sanity")
+        if target then
+            target.sanity = math.min(target.maxSanity, target.sanity + 1)
+            broadcastEvent("gain", "An old photograph steadies " .. target.name ..
+                " (lowest Sanity): +1 Sanity. (Now " .. target.sanity .. ")")
+        end
+        local deck = getThreatDeck()
+        local top = deck and deck.getObjects and deck.getObjects()[1]
+        if top then
+            local name = (top.nickname ~= "" and top.nickname) or top.name or "???"
+            broadcastEvent("warn", "Something in the photo's background: " .. name .. " is the next Threat to come.")
+        end
     end,
 }
 
@@ -156,7 +230,8 @@ DAWN_EFFECTS["P1_RUMOR"] = {
         local deck = getPhaseDeck(phase)
         if deck and deck.getQuantity and deck.getQuantity() > 0 then
             deck.takeObject({
-                position = deck.getPosition() + Vector(5, 2, 0),
+                -- Fixed board spot (the deck lives in the under-table library)
+                position = {-7.5, 2.5, 7},
                 rotation = {0, 180, 0},
                 smooth   = true,
                 callback_function = function(peeked)

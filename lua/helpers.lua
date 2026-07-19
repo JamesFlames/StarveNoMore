@@ -140,6 +140,83 @@ function spawnResourceAtTile(locName, resType, qty)
 end
 
 -----------------------------------------------------------------------
+-- Best-effort discard: pull up to qty tokens of resType out of a player's
+-- board area back into the supply. Returns the number actually taken —
+-- 0 tokens is fine (dawn cards say "discard 1 Battery IF HELD").
+-- verifyAndPayResources (ui_actionbar_core.lua) is the all-or-nothing
+-- variant for fixed costs.
+-----------------------------------------------------------------------
+function takeResourceFromPlayer(color, resType, qty)
+    qty = qty or 1
+    local charName = colorToCharacter(color)
+    local board = charName and getPlayerBoard(charName)
+    if not board then return 0 end
+    local pos = board.getPosition()
+    local b = board.getBoundsNormalized()
+    local pad = 1.5
+    local taken = 0
+    for _, obj in ipairs(findAllByTag("Resource:" .. resType)) do
+        if taken >= qty then break end
+        local p = obj.getPosition()
+        if p.x >= pos.x - b.size.x * 0.5 - pad and p.x <= pos.x + b.size.x * 0.5 + pad
+            and p.z >= pos.z - b.size.z * 0.5 - pad and p.z <= pos.z + b.size.z * 0.5 + pad then
+            local bag = getResourceBag(resType)
+            local ok = pcall(function()
+                if bag then bag.putObject(obj) else obj.destruct() end
+            end)
+            if ok then taken = taken + 1 end
+        end
+    end
+    return taken
+end
+
+-----------------------------------------------------------------------
+-- Discard Tray: the supply bags live under the table (players never see
+-- them), so every honor-system payment — craft costs, cook ingredients,
+-- dawn-card discards — is made by dropping tokens on the visible tray.
+-- A background sweep returns whatever lands there to the right supply.
+-----------------------------------------------------------------------
+DISCARD_SWEEP_INTERVAL = 4   -- seconds between sweeps
+
+local _discardSweepHandle = nil
+
+local function _sweepDiscardTray()
+    local tray = findOneByTag("DiscardTray")
+    if not tray then return end
+    local tp = tray.getPosition()
+    local b = tray.getBoundsNormalized()
+    local hx = b.size.x * 0.5 + 0.3
+    local hz = b.size.z * 0.5 + 0.3
+    for _, obj in ipairs(getAllObjects()) do
+        local isRes = obj.hasTag("Resource")
+        local isHeart = obj.hasTag("TelltaleHeart")
+        if (isRes or isHeart) and not obj.held_by_color then
+            local p = obj.getPosition()
+            if math.abs(p.x - tp.x) <= hx and math.abs(p.z - tp.z) <= hz
+                and p.y < tp.y + 3 then
+                local bag = nil
+                if isHeart then
+                    bag = getHeartSupply()
+                else
+                    for _, tag in ipairs(obj.getTags()) do
+                        local rt = tag:match("^Resource:(.+)$")
+                        if rt then bag = getResourceBag(rt) break end
+                    end
+                end
+                pcall(function()
+                    if bag then bag.putObject(obj) else obj.destruct() end
+                end)
+            end
+        end
+    end
+end
+
+function startDiscardTraySweep()
+    if _discardSweepHandle then Wait.stop(_discardSweepHandle) end
+    _discardSweepHandle = Wait.time(_sweepDiscardTray, DISCARD_SWEEP_INTERVAL, -1)
+end
+
+-----------------------------------------------------------------------
 -- Standee placement: every character owns a fixed slot offset on every
 -- tile so standees never stack on top of each other. The offsets mirror
 -- the CharSlot row build_save.py bakes into each location tile (a row
@@ -163,9 +240,11 @@ function placeCharacterAtTile(charName, locName)
     return false
 end
 
--- Characters that aren't in the current game wait on a bench off the
--- board's right edge instead of cluttering the map.
-BENCH_POSITION = { x = 18.5, z = 7 }   -- slots run toward -z from here
+-- Characters that aren't in the current game wait on the under-table
+-- library shelf (out of sight, like every inactive component) instead of
+-- cluttering the map. A later placeCharacterAtTile (e.g. a Visitor
+-- arrival) brings them back — smooth moves pass through the table.
+BENCH_POSITION = { x = -23, y = -2.5, z = 8 }   -- slots run toward -z from here
 
 function benchUnusedCharacters()
     local inPlay = {}
@@ -176,7 +255,7 @@ function benchUnusedCharacters()
         if not inPlay[name] then
             local standee = getCharacterStandee(name)
             if standee then
-                standee.setPositionSmooth(Vector(BENCH_POSITION.x, 1.5, BENCH_POSITION.z - i * 3))
+                standee.setPositionSmooth(Vector(BENCH_POSITION.x, BENCH_POSITION.y, BENCH_POSITION.z - i * 3))
             end
         end
     end

@@ -40,11 +40,12 @@ function doCraft(color, marketSlotIndex)
     end
 
     local itemName = card.getNickname() or "Unknown Item"
-    broadcastEvent("proc", char.name .. " crafts " .. itemName .. "!")
+    broadcastEvent("proc", char.name .. " crafts " .. itemName ..
+        "! Drop the resource cost on the Discard Tray — it returns to the supply by itself.")
 
     -- Doom threshold 15 (Scarcity): every craft costs +1 extra resource
     if gameState.ongoingDawnEffects.doom15 then
-        broadcastEvent("warn", "Scarcity (Doom ≥ 15): also discard 1 extra resource of any type you hold.")
+        broadcastEvent("warn", "Scarcity (Doom ≥ 15): also drop 1 extra resource of any type you hold on the Discard Tray.")
     end
 
     -- Move card to the player's hand zone
@@ -123,7 +124,8 @@ function doCook(color, recipeId)
         gameState.usedRecipes[recipeId] = true
     end
 
-    broadcastEvent("proc", char.name .. " cooks " .. recipe.name .. "!")
+    broadcastEvent("proc", char.name .. " cooks " .. recipe.name ..
+        "! Drop the ingredients on the Discard Tray — they return to the supply by themselves.")
     safecall(function() recordMealInChronicle(char.name) end, "Chronicle")
 
     -- Cook penalty (e.g., Battery Acid Soup costs health, Telltale Heart costs 2 health)

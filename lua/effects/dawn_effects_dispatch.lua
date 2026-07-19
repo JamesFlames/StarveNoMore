@@ -61,25 +61,17 @@ DAWN_EFFECTS["P3_HUNTS_THE_HERD"] = {
 -- don't just scroll away in chat. Cards absent here are fully scripted.
 -----------------------------------------------------------------------
 DAWN_MANUAL_STEPS = {
-    P1_PHONES_DEAD      = { "Every player discards 1 Battery (if held)." },
+    -- (2026-07: most token/deck steps became fully scripted when the
+    -- supply and decks moved to the under-table library — discards are
+    -- taken automatically, deck searches and peeks resolve themselves.
+    -- What remains is genuinely the players': standee moves, hand-card
+    -- reveals, and group votes.)
     P1_SCHOOL_CLOSED    = { "Move every standee at the Basketball Court to an adjacent tile." },
-    P1_OLD_FRIEND_VISIT = { "Choose one player: +2 Sanity (use their +S button)." },
-    P1_BIKE_FOUND       = { "One player at a sport court may take the Bicycle token." },
-    P1_SOMETHING_WATCHED = { "Optional DARE: the watched player may lose 1 more Sanity (-S button) to peek at the top Threat card." },
-    P1_STRANGE_RADIO    = { "Anyone who rolled a 6: peek at the Market deck for a Clue.",
-                            "Optional DARE: spend 2 Battery to peek the next 3 Dawn cards (host: draw + show + return in order)." },
-    P1_PHOTO_FOUND      = { "Choose one player: +1 Sanity and peek at the top Threat card." },
-    P2_FOOD_SPOILS      = { "Every player discards 1 Food.",
-                            "Optional DARE: eat it anyway — announce it: +2 Hunger and -1 Health instead of discarding." },
+    P1_BIKE_FOUND       = { "One player at a sport court claims the bike: announce it — your Moves cost 0 Hunger today." },
     P2_VISITOR          = { "Resolve the revealed Visitor card's instructions." },
-    P2_MIRROR_CRACK     = { "Every player discards 1 Battery (if held)." },
-    P3_POWER_OUT        = { "Return all Battery tokens to the supply." },
-    P3_FRIEND_CHANGED   = { "Player to your left: -2 Sanity and reveals one Item." },
-    P3_TRUTH_GLIMPSE    = { "Search the Market deck for a Clue card; reveal it face-up (claimable Day 6+)." },
+    P3_FRIEND_CHANGED   = { "The named player: show the table one Item from your hand." },
     P3_WALLS_CLOSE      = { "If a house holds more than its capacity, excess players move now." },
     P3_ALLY_MISSING     = { "Player with fewest items: discard all items, move their standee to a random tile." },
-    P3_OFFERING         = { "Team choice: sacrifice 3 Food for Doom -2, OR everyone loses 1 Sanity." },
-    P3_EYE_SPLITS       = { "Place 3 Terror Beak threat cards at tiles adjacent to the Eye." },
     P4_SACRIFICE_OPTION = { "Optional: one player may go Down to reduce Doom by 5." },
     P4_GROUND_SPLITS    = { "Destroy a random location tile; players there flee; its resources are lost." },
     P4_LAST_MEAL        = { "Remove all Food tokens from every location." },

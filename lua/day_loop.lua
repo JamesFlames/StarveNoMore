@@ -121,7 +121,13 @@ function BeginDay()
             -- claim the prize. (The flag is cleaned up by revealDawnCard's
             -- dispatch below, so it is still readable here.)
             if gameState.ongoingDawnEffects.dareCourtGlow then
-                broadcastEvent("gain", char.name .. " braved the glowing court — the dare pays: draw 2 Market cards now.")
+                broadcastEvent("gain", char.name .. " braved the glowing court — the dare pays: 2 Market cards, dealt to their hand.")
+                safecall(function()
+                    local mdeck = getMarketDeck()
+                    if mdeck and (mdeck.getQuantity and mdeck.getQuantity() or 0) >= 2 then
+                        mdeck.deal(2, color)
+                    end
+                end, "DareClaim")
                 safecall(function() recordBeat("dare") end, "Telemetry")
             end
         end
@@ -259,11 +265,12 @@ end
 -- campaign lands on the same held breath. Pure tone, no penalty: the
 -- first Dawn all week that isn't a threat.
 -----------------------------------------------------------------------
--- Where the drawn Dawn card is displayed (in front of the phase decks) and
--- where yesterday's card is stacked when the next one is drawn. Cards
--- dropped on the same spot pile into a face-up discard deck, so nobody
--- ever has to tidy Dawn cards by hand.
-local DAWN_REVEAL_OFFSET = Vector(0, 1, -2.5)   -- relative to the phase deck
+-- Where the drawn Dawn card is displayed and where yesterday's card is
+-- stacked when the next one is drawn. Both are FIXED board positions —
+-- the phase decks live in the under-table library, so nothing can be
+-- placed relative to them. Cards dropped on the discard spot pile into a
+-- face-up deck, so nobody ever has to tidy Dawn cards by hand.
+local DAWN_REVEAL_POS    = {x = -7.5, y = 1.5, z = 9.5}
 local DAWN_DISCARD_POS   = {x = -4.5, y = 1.5, z = 9.5}
 
 local function discardActiveDawnCard()
@@ -327,9 +334,7 @@ function revealDawnCard()
     safecall(discardActiveDawnCard, "DawnDiscard")
 
     deck.takeObject({
-        -- In front of the deck row — the old +x offset dropped the card
-        -- on top of the Threat deck.
-        position = deck.getPosition() + DAWN_REVEAL_OFFSET,
+        position = {DAWN_REVEAL_POS.x, DAWN_REVEAL_POS.y, DAWN_REVEAL_POS.z},
         rotation = {0, 180, 0},  -- face up
         smooth   = true,
         callback_function = function(card)
@@ -414,6 +419,12 @@ function advanceToNextPlayer()
             pulseHandZone(color)
             -- Audible turn-start cue for players watching the board, not the banner
             safecall(function() Audio.playTurnPing() end, "Audio")
+            -- If the custom panels are toggled off, the new active player
+            -- has no action bar — say how to get it back.
+            if customUIHidden then
+                printToColor("Your controls are hidden — click 'Show UI' (top right) to bring back the action bar.",
+                             color, {1, 0.85, 0.4})
+            end
             return
         end
         gameState.turnIndex = gameState.turnIndex + 1

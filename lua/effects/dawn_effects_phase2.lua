@@ -37,8 +37,12 @@ DAWN_EFFECTS["P2_SHADOWS_MOVE"] = {
 
 DAWN_EFFECTS["P2_FOOD_SPOILS"] = {
     onReveal = function(card)
-        broadcastEvent("proc", "Food goes bad. Each player discards 1 Food.")
-        -- Resource discard is manual
+        broadcastEvent("proc", "Food goes bad. Each player loses 1 Food (if held) — taken automatically.")
+        for color, char in pairs(gameState.activeChars) do
+            if not char.down and takeResourceFromPlayer(color, "Food", 1) > 0 then
+                broadcastEvent("damage", char.name .. " loses 1 Food to rot.")
+            end
+        end
     end,
 }
 
@@ -170,7 +174,8 @@ DAWN_EFFECTS["P2_VISITOR"] = {
         local vDeck = getVisitorDeck()
         if vDeck and vDeck.getQuantity and vDeck.getQuantity() > 0 then
             vDeck.takeObject({
-                position = vDeck.getPosition() + Vector(3, 1, 0),
+                -- Fixed board spot (the deck lives in the under-table library)
+                position = {-7.5, 1.5, 6.5},
                 rotation = {0, 180, 0},
                 smooth   = true,
                 callback_function = function(vCard)
@@ -225,7 +230,12 @@ DAWN_EFFECTS["P2_SUPPLY_DROP"] = {
 
 DAWN_EFFECTS["P2_MIRROR_CRACK"] = {
     onReveal = function(card)
-        broadcastEvent("proc", "Every mirror cracked. All players discard 1 Battery (if held).")
+        broadcastEvent("proc", "Every mirror cracked. Each player loses 1 Battery (if held) — taken automatically.")
+        for color, char in pairs(gameState.activeChars) do
+            if not char.down and takeResourceFromPlayer(color, "Battery", 1) > 0 then
+                broadcastEvent("damage", char.name .. " loses 1 Battery.")
+            end
+        end
         -- Find player with most items for the Sanity loss
         local most, target = -1, nil
         for color, char in pairs(gameState.activeChars) do

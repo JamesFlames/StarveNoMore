@@ -114,11 +114,12 @@ function applyThreatDefeat(threatName, colors)
         safecall(function()
             local card = getObjectFromGUID(guid)
             if card then
-                local deck = getThreatDeck()
-                local pos = deck and (deck.getPosition() + Vector(3, 1.5, 0)) or Vector(14, 1.5, -12)
-                card.setPositionSmooth(pos, false, true)
+                -- Fixed spot NW of the board (the Threat deck itself lives
+                -- in the under-table library) — defeated threats pile up
+                -- face-up where everyone can see the kill count.
+                card.setPositionSmooth(Vector(-10.5, 1.5, 10.8), false, true)
                 card.setRotationSmooth({0, 180, 0}, false, true)
-                broadcastEvent("proc", threatName .. " discards itself beside the Threat deck.")
+                broadcastEvent("proc", threatName .. " discards itself to the trophy pile (NW corner).")
             end
         end, "ThreatDiscard")
     end

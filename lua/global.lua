@@ -271,6 +271,8 @@ function onLoad(savedState)
             refreshDynamicTooltips()
             safecall(function() lockdownCriticalObjects() end, "Lockdown")
         end
+        -- Discard Tray: returns dropped tokens to the hidden supply.
+        safecall(function() startDiscardTraySweep() end, "DiscardTray")
         -- J.10: Run first-load component audit
         safecall(function() auditFirstLoad() end, "FirstLoadAudit")
     end, 1.0)
