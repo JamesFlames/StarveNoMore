@@ -195,23 +195,26 @@ end
 
 function refreshRulesPanel()
     if not UI then return end
+    if customUIHidden then return end
     if not gameState.started then
+        UI.setAttribute("rulesPanel", "active", "false")
+        return
+    end
+    local sp = gameState.subPhase or "PreGame"
+    local header = SUBPHASE_RULES[sp] or ""
+    local rules = collectActiveRules()
+
+    -- Nothing special in force → no panel at all. The sub-phase header
+    -- alone is already covered by the day-cycle strip and the banner.
+    if #rules == 0 then
         UI.setAttribute("rulesPanel", "active", "false")
         return
     end
     UI.setAttribute("rulesPanel", "active", "true")
 
-    local sp = gameState.subPhase or "PreGame"
-    local header = SUBPHASE_RULES[sp] or ""
-    local rules = collectActiveRules()
-
     local body = header
-    if #rules == 0 then
-        body = body .. "\n\nNo special rules active."
-    else
-        for _, line in ipairs(rules) do
-            body = body .. "\n\n• " .. line
-        end
+    for _, line in ipairs(rules) do
+        body = body .. "\n\n• " .. line
     end
 
     UI.setAttribute("rulesBody", "text", body)
@@ -255,6 +258,7 @@ local DAWN_CHECK_MAX_ROWS = 4
 
 function refreshDawnChecklist()
     if not UI then return end
+    if customUIHidden then return end
     local list = gameState.dawnChecklist or {}
     local remaining = 0
 
@@ -310,6 +314,7 @@ local CYCLE_LIT  = "#FFDD66"
 
 function refreshCycleStrip()
     if not UI then return end
+    if customUIHidden then return end
     local sp = gameState.subPhase or "PreGame"
     if not gameState.started or sp == "PreGame" or sp == "GameOver" then
         UI.setAttribute("cycleStrip", "active", "false")

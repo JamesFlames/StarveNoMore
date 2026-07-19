@@ -6,6 +6,7 @@
 -- State tracking for the walkthrough
 local setupState = {
     step = 0,             -- 0=not started, 1=path pick, 1.5=variants, 2=char pick, 3=briefing, 4=done
+    inProgress = false,   -- true from startGuidedSetup until finalize/cancel
     hostColor = nil,
     pickedPath = nil,
     rotationTurns = false, -- §11.2 rotation variant (1 action per visit)
@@ -14,7 +15,47 @@ local setupState = {
     pendingColors = {},   -- colors still needing to pick
 }
 
+-- Host Controls hide the Setup button while this is true (refreshHostControls).
+function isGuidedSetupRunning()
+    return setupState.inProgress == true
+end
+
+-- Re-open whatever step the walkthrough is on (used when someone clicks
+-- Setup again mid-walkthrough — usually because they lost the window).
+function reshowSetupStep()
+    local s = setupState.step
+    if s == 1 then UI.show("setupStep1")
+    elseif s == 1.5 then UI.show("setupStepVariants")
+    elseif s == 2 then showCharPickForNextPlayer()
+    elseif s == 3 then UI.show("charBriefing")
+    end
+end
+
+-- Abandon a half-finished walkthrough (called from Restart).
+function cancelGuidedSetup()
+    setupState.inProgress = false
+    setupState.step = 0
+    setupState.charPicks = {}
+    setupState.pendingColors = {}
+    if UI then
+        UI.hide("setupStep1")
+        UI.hide("setupStepVariants")
+        UI.hide("setupStep2")
+        UI.hide("charBriefing")
+    end
+end
+
 function startGuidedSetup(hostColor)
+    -- Re-entrant guard: a second "Setup Game" click used to silently restart
+    -- the walkthrough (wiping picks mid-flow). Now it just re-opens the
+    -- current step.
+    if setupState.inProgress then
+        broadcastEvent("proc", "Guided setup is already running — reopening the current step.")
+        reshowSetupStep()
+        return
+    end
+
+    setupState.inProgress = true
     setupState.step = 1
     setupState.hostColor = hostColor
     setupState.pickedPath = nil
@@ -35,6 +76,9 @@ function startGuidedSetup(hostColor)
     end
 
     broadcastEvent("phase", "Starting guided setup...")
+
+    -- The XML Setup button hides itself while the walkthrough runs.
+    safecall(function() refreshHostControls() end, "HostControls")
 
     -- Step 1: Show path pick to host
     UI.show("setupStep1")
@@ -88,8 +132,10 @@ function onToggleScenario(player, value, id)
 end
 
 -- Difficulty selector (Design §17.2, batch 4 W3): cycles through the
--- DIFFICULTY_PARAMS modes. Standard unless changed.
-local DIFFICULTY_CYCLE = { "standard", "weekend", "nightmare" }
+-- DIFFICULTY_PARAMS modes, ordered easiest → hardest so each click steps
+-- up in difficulty (wrapping from Nightmare back to the teaching game).
+-- Standard unless changed.
+local DIFFICULTY_CYCLE = { "weekend", "standard", "nightmare" }
 local DIFFICULTY_BLURBS = {
     standard  = "Difficulty: STANDARD\n(the full 7-day week)",
     weekend   = "Difficulty: LONG WEEKEND\n(3 days, Doom track halved — good for teaching)",
@@ -152,6 +198,19 @@ local CHAR_CARD_STYLE = {
 local CARD_TAKEN_BG   = "#CFCBC2AA"
 local CARD_TAKEN_NAME = "#8A857B"
 
+-- "Blue (PlayerName)" when someone is seated there, else just the colour.
+local function _seatLabel(color)
+    local name
+    pcall(function()
+        local p = Player[color]
+        if p and p.seated and p.steam_name and p.steam_name ~= "" then
+            name = p.steam_name
+        end
+    end)
+    if name then return color .. " (" .. name .. ")" end
+    return color
+end
+
 function showCharPickForNextPlayer()
     if #setupState.pendingColors == 0 then
         -- All players picked — finalize setup
@@ -159,10 +218,14 @@ function showCharPickForNextPlayer()
         return
     end
 
-    local color = setupState.pendingColors[1]
-    UI.setAttribute("step2Title", "text", "Step 2 — " .. color .. " Player: Pick Your Character")
+    local waiting = {}
+    for _, c in ipairs(setupState.pendingColors) do
+        table.insert(waiting, _seatLabel(c))
+    end
+    UI.setAttribute("step2Title", "text",
+        "Step 2 — Pick Characters.  Still to pick: " .. table.concat(waiting, ", "))
     UI.setAttribute("step2Subtitle", "text",
-        "Click a card to choose — taken characters are greyed out. Hover a card for the full briefing. HP = Health, HU = Hunger, SA = Sanity.")
+        "Click YOUR character — your seat colour changes to match it. The host can click to pick for the next player in the list. Hover a card for the full briefing. HP = Health, HU = Hunger, SA = Sanity.")
 
     -- Grey out already-picked characters
     local taken = {}
@@ -194,53 +257,72 @@ end
 -- A player's colour is determined by the character they pick
 -- (CHARACTER_COLORS, global.lua): picking reseats the player onto the
 -- character's colour so pointer, hand zone, standee holder and roster
--- all match. Anyone parked on the target seat is shifted to a spare
--- seat — their own pick will reseat them properly in turn.
+-- all match. If another (not-yet-picked) player is parked on the target
+-- seat, the two players SWAP seats through a spare — nobody is ever left
+-- on a spare seat, because a player stranded off the five character
+-- seats has no hand zone and TTS keeps prompting them to "Choose Color"
+-- (the stray coloured circles that used to appear mid-game).
 -----------------------------------------------------------------------
 local SPARE_SEATS = { "Orange", "Purple", "Pink", "Teal", "Brown" }
 
-local function _renameSetupColor(oldColor, newColor)
-    for i, c in ipairs(setupState.pendingColors) do
-        if c == oldColor then setupState.pendingColors[i] = newColor end
+local function _freeSpareSeat()
+    for _, s in ipairs(SPARE_SEATS) do
+        local seated = false
+        pcall(function()
+            local p = Player[s]
+            seated = (p and p.seated) or false
+        end)
+        if not seated then return s end
     end
-    if setupState.hostColor == oldColor then setupState.hostColor = newColor end
-    if setupState.charPicks[oldColor] then
-        setupState.charPicks[newColor] = setupState.charPicks[oldColor]
-        setupState.charPicks[oldColor] = nil
-    end
+    return nil
 end
 
 local function reseatPlayerForCharacter(color, charName)
     local target = CHARACTER_COLORS and CHARACTER_COLORS[charName]
-    if not target or target == color then return color end
+    if not target or target == color then return target or color end
+    local mover = Player[color]
+    if not (mover and mover.seated) then return color end
 
-    -- Free the target seat if another player is parked on it.
     local occupant = Player[target]
     if occupant and occupant.seated then
-        for _, spare in ipairs(SPARE_SEATS) do
-            if not Player[spare].seated then
-                if occupant.changeColor(spare) then
-                    _renameSetupColor(target, spare)
-                end
-                break
-            end
+        -- Three-step swap through a spare seat (TTS can't swap directly).
+        local spare = _freeSpareSeat()
+        if not spare or not occupant.changeColor(spare) then
+            return color   -- can't clear the seat; colours stay as they are
         end
-    end
-
-    local mover = Player[color]
-    if mover and mover.seated and mover.changeColor(target) then
-        _renameSetupColor(color, target)
-        broadcastEvent("proc", charName .. " plays as " .. target .. " — seat colours follow characters.")
+        if not Player[color].changeColor(target) then
+            pcall(function() Player[spare].changeColor(target) end)  -- undo
+            return color
+        end
+        pcall(function() Player[spare].changeColor(color) end)
+        -- Bookkeeping: the displaced player's waiting entry follows them
+        -- onto the picker's old seat. (The picker's own entry was already
+        -- removed by onPickChar; nobody who picked sits off their seat.)
+        for i, c in ipairs(setupState.pendingColors) do
+            if c == target then setupState.pendingColors[i] = color end
+        end
+        if setupState.hostColor == target then setupState.hostColor = color
+        elseif setupState.hostColor == color then setupState.hostColor = target end
+        broadcastEvent("proc", charName .. " plays as " .. target ..
+            " — seats swapped so colours follow characters.")
         return target
     end
-    -- Reseat refused (seat still occupied / engine edge): keep the old
-    -- colour — the game works either way, the colours just won't match.
+
+    if mover.changeColor(target) then
+        if setupState.hostColor == color then setupState.hostColor = target end
+        broadcastEvent("proc", charName .. " plays as " .. target ..
+            " — your seat colour now matches your character.")
+        return target
+    end
+    -- Reseat refused (engine edge): keep the old colour — the game works
+    -- either way, the colours just won't match.
     return color
 end
 
 function onPickChar(player, value, id)
     local charName = CHAR_BUTTON_MAP[id]
     if not charName then return end
+    if setupState.step ~= 2 then return end
 
     -- Verify this character isn't taken
     for _, name in pairs(setupState.charPicks) do
@@ -250,18 +332,34 @@ function onPickChar(player, value, id)
         end
     end
 
-    local color = setupState.pendingColors[1]
+    -- Whose pick is this? Any player still waiting picks for themself —
+    -- no fixed order. A click from the host (or from a player who already
+    -- picked) assigns the character to the next waiting seat instead:
+    -- that's the hotseat path, where one person clicks through everyone.
+    local color = player.color
+    local waiting = false
+    for _, c in ipairs(setupState.pendingColors) do
+        if c == color then waiting = true break end
+    end
+    if not waiting then
+        color = setupState.pendingColors[1]
+        if not color then return end
+        if player.color ~= setupState.hostColor and not setupState.charPicks[player.color] then
+            broadcastToColor("You're not in this game's seat list — ask the host to pick for you.",
+                player.color, BROADCAST_COLORS.damage)
+            return
+        end
+        broadcastEvent("proc", tostring(player.steam_name or player.color) ..
+            " picks " .. charName .. " for the " .. color .. " seat.")
+    end
 
-    -- Allow the correct player OR the host to pick
-    if player.color ~= color and player.color ~= setupState.hostColor then
-        broadcastToColor("It's " .. color .. "'s turn to pick.", player.color, BROADCAST_COLORS.damage)
-        return
+    for i, c in ipairs(setupState.pendingColors) do
+        if c == color then table.remove(setupState.pendingColors, i) break end
     end
 
     local finalColor = color
     safecall(function() finalColor = reseatPlayerForCharacter(color, charName) end, "Reseat")
     setupState.charPicks[finalColor] = charName
-    table.remove(setupState.pendingColors, 1)
     broadcastEvent("proc", charName .. " assigned to " .. finalColor .. ".")
 
     UI.hide("setupStep2")
@@ -345,6 +443,7 @@ end
 -----------------------------------------------------------------------
 function finalizeGuidedSetup()
     setupState.step = 4
+    setupState.inProgress = false
 
     -- Run the actual Setup logic with the picked characters
     broadcastEvent("phase", "Setting up Starve No More...")
@@ -462,6 +561,7 @@ function showWelcomeSequence()
     if gameState.started or gameState.welcomed then return end
 
     broadcastToAll("Welcome to Starve No More.", {0.9, 0.7, 0.3})
+    broadcastToAll("Sit at any colour for now — when you pick your character during Setup, your seat colour changes to match it (James=Blue, Coco=White, Rayman=Green, Ellie=Yellow, Luca=Red).", {0.9, 0.7, 0.3})
     broadcastToAll("Click 'Setup Game' on the Host Controls panel (top-left), or hover anything to see what it does.", {0.9, 0.7, 0.3})
     broadcastToAll("Press '?' anytime for help. Press 'What now?' if you're stuck.", {0.7, 0.8, 0.6})
 

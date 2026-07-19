@@ -13,7 +13,21 @@
 function getHelpCharContent(player)
     local color = player and player.color or gameState.activeColor
     local char = color and gameState.activeChars[color]
-    if not char then return "No character assigned yet. Complete Setup first." end
+    if not char then
+        if not gameState.started then
+            return "No character assigned yet. Complete Setup first."
+        end
+        -- Mid-game but this SEAT has no character (common in hotseat: one
+        -- person on one seat driving several characters). Point at the fix
+        -- instead of implying setup never happened.
+        local lines = { "The " .. tostring(color) .. " seat has no character. This game's seats:" }
+        for c, ch in pairs(gameState.activeChars) do
+            table.insert(lines, "  " .. ch.name .. " — " .. c .. " seat")
+        end
+        table.insert(lines, "")
+        table.insert(lines, "To act as one of them, switch to their seat: click your name in the player list (top right) and Change Color.")
+        return table.concat(lines, "\n")
+    end
 
     local text = char.name .. " — Current Stats:\n"
     text = text .. "Health: " .. char.health .. "/" .. char.maxHealth

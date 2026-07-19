@@ -95,6 +95,41 @@ function onResourcePickCancel(player, value, id)
 end
 
 -----------------------------------------------------------------------
+-- Custom-UI toggle: one always-visible button hides/shows every panel
+-- this mod draws, so the default TTS controls underneath (chat, drawing
+-- tools, object context menus) are reachable. The refresh functions all
+-- early-out while customUIHidden is true, so a phase change can't
+-- resurrect a panel behind the player's back.
+-----------------------------------------------------------------------
+customUIHidden = false
+
+CUSTOM_UI_PANELS = {
+    "phaseBanner", "cycleStrip", "dawnChecklist", "hostControls",
+    "rulesPanel", "actionBar", "actionTooltip", "statDisplay",
+    "charRoster", "duskPanel", "combatPanel",
+}
+
+function onToggleCustomUI(player, value, id)
+    customUIHidden = not customUIHidden
+    if customUIHidden then
+        for _, panelId in ipairs(CUSTOM_UI_PANELS) do
+            UI.setAttribute(panelId, "active", "false")
+        end
+        UI.setAttribute("uiToggle", "text", "Show UI")
+        broadcastEvent("proc", "Custom panels hidden — the standard Tabletop Simulator controls are free. Click 'Show UI' (top right) to bring them back.")
+    else
+        UI.setAttribute("uiToggle", "text", "Hide UI")
+        -- Panels that are always on come straight back; the state-driven
+        -- ones return via the normal refresh path.
+        UI.setAttribute("phaseBanner", "active", "true")
+        UI.setAttribute("hostControls", "active", "true")
+        if gameState.subPhase == "Dusk" then UI.show("duskPanel") end
+        refreshPhaseBanner()
+        safecall(function() refreshCombatPanel() end, "CombatPanel")
+    end
+end
+
+-----------------------------------------------------------------------
 -- G.10 — Host control panel handlers
 -- (The old onHostSetup, which ran the bare seat-order Setup(), is gone:
 -- every UI path now goes through the guided walkthrough. The bare
@@ -115,9 +150,13 @@ end
 -----------------------------------------------------------------------
 function refreshHostControls()
     if not UI then return end
+    if customUIHidden then return end
     local sp = gameState.subPhase or "PreGame"
     local show = {
-        btnSetup        = not gameState.started,
+        -- Hidden while the guided walkthrough runs: showing "Setup Game"
+        -- next to "Pick Your Character" read as two competing instructions.
+        btnSetup        = not gameState.started
+                          and not (isGuidedSetupRunning and isGuidedSetupRunning()),
         btnBeginDay     = gameState.started and sp == "PreDawn",
         btnResolveNight = sp == "Dusk" or sp == "Night",
         btnEndTurn      = sp == "Day" and gameState.activeColor ~= nil,
@@ -191,6 +230,7 @@ function onHostRestart(player, value, id)
                 activeChars = {},
                 chronicle = nil,   -- lazily rebuilt by ensureChronicle()
             }
+            safecall(function() cancelGuidedSetup() end, "CancelSetup")
             UI.hide("weekReviewPanel")
             UI.hide("combatPanel")
             broadcastEvent("phase", "Game reset. Click Setup to begin a new game.")

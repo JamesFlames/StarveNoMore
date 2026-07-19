@@ -206,8 +206,10 @@ def test_reentrant_setup_is_refused():
 def test_guided_setup_reseats_players_to_character_colors():
     """A player's colour is determined by the character they pick: the
     guided walkthrough reseats each picker onto CHARACTER_COLORS' seat for
-    that character, displacing anyone parked there to a spare seat until
-    their own pick."""
+    that character. Anyone parked on the target seat SWAPS onto the
+    picker's old seat — never a spare seat, because a player stranded off
+    the five character seats has no hand zone and TTS re-prompts them to
+    choose a colour mid-game."""
     env = make_env()
     populate_full_world(env)
     env.globals().onLoad("")
@@ -219,11 +221,12 @@ def test_guided_setup_reseats_players_to_character_colors():
     flush(env)
 
     # White player picks James -> James plays Blue; the pending player
-    # parked on Blue is displaced to the first spare seat (Orange).
+    # parked on Blue swaps onto White (the picker's old seat).
     env.execute('onPickChar(Player["White"], "-1", "pickJames")')
     env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
-    # The displaced player (now Orange) picks Coco -> Coco plays White.
-    env.execute('onPickChar(Player["Orange"], "-1", "pickCoco")')
+    # The displaced player (now White) picks Coco -> Coco plays White,
+    # already their seat, so no further move happens.
+    env.execute('onPickChar(Player["White"], "-1", "pickCoco")')
     env.execute('onBriefDismiss(Player["White"], "-1", "briefDismiss")')
     flush(env)
 

@@ -54,12 +54,14 @@ PAL = {
     "dark_red": (100, 30, 30),
 }
 
+# Matches the seat scheme (CHARACTER_COLORS in lua/global.lua): a player's
+# seat colour follows their character.
 CHAR_COLORS = {
     "James":  PAL["blue"],
-    "Coco":   PAL["red"],
-    "Rayman": PAL["yellow"],
-    "Ellie":  PAL["green"],
-    "Luca":   PAL["purple"],
+    "Coco":   PAL["white"],
+    "Rayman": PAL["green"],
+    "Ellie":  PAL["yellow"],
+    "Luca":   PAL["red"],
 }
 
 RESOURCE_COLORS = {
@@ -97,11 +99,15 @@ FONT_TINY  = load_font(9)
 
 # Board-specific fonts
 FONT_BOARD_TITLE = load_font(72, bold=True)
+FONT_BOARD_NAME  = load_font(120, bold=True)   # location names — readable from table height
+FONT_BOARD_YIELD = load_font(52)               # yields line under each name
 FONT_BOARD_LOC   = load_font(40, bold=True)
 FONT_BOARD_LABEL = load_font(28)
 FONT_BOARD_SM    = load_font(22)
 FONT_BOARD_XS    = load_font(16)
 FONT_BOARD_TINY  = load_font(13)
+FONT_BOARD_NUM   = load_font(26, bold=True)    # doom-track step numbers
+FONT_BOARD_RIB   = load_font(28, bold=True)    # doom-track threshold ribbons
 
 # ---------------------------------------------------------------------------
 # Drawing helpers
@@ -220,6 +226,8 @@ def generate_resource_token(name, color, symbol):
     label = RESOURCE_LABELS[name]
     centered_text(draw, 128, 192, label, FONT_SM, color)
 
+    img = img.rotate(180)   # tokens at rotY=0 render 180° in the default view
+
     img.save(os.path.join(DIRS["tokens"], f"resource_{name}.png"))
     return img
 
@@ -263,6 +271,8 @@ def generate_stat_tokens():
         label = name.upper()
         centered_text(draw, 128, 200, label, FONT_SM, color)
 
+        img = img.rotate(180)   # tokens at rotY=0 render 180° in the default view
+
         img.save(os.path.join(DIRS["icons"], f"icon_{name}.png"))
         print(f"  Stat token: icon_{name}.png")
 
@@ -293,6 +303,10 @@ def generate_doom_marker():
 
     centered_text(draw, 128, 200, "DOOM", FONT_MD, (200, 50, 40))
 
+    # The marker is locked at rotY=0 by moveDoomMarker, so its art carries
+    # the 180° pre-rotation (same convention as the board).
+    img = img.rotate(180)
+
     img.save(os.path.join(DIRS["tokens"], "doom_marker.png"))
     print("  Doom marker: doom_marker.png")
 
@@ -314,6 +328,8 @@ def generate_heart_token():
 
     centered_text(draw, 128, 195, "TELLTALE", FONT_SM, (200, 150, 100))
     centered_text(draw, 128, 215, "HEART", FONT_SM, (200, 150, 100))
+
+    img = img.rotate(180)   # tokens at rotY=0 render 180° in the default view
 
     img.save(os.path.join(DIRS["tokens"], "telltale_heart.png"))
     print("  Heart token: telltale_heart.png")
@@ -412,30 +428,30 @@ def generate_severity_legend():
 # PLAYER BOARDS (5 x 1024x512)
 # ---------------------------------------------------------------------------
 CHARACTER_DATA = {
-    "James":  {"hp": 8, "hu": 6, "sa": 10, "seat": "White",
+    "James":  {"hp": 8, "hu": 6, "sa": 10, "seat": "Blue",
                "perks": ["Gaming Reflexes: reroll 1 die/turn",
                          "Pattern Recognition: peek deck top/day"],
                "flaw": "Wired: 1 Energy Drink/day or -2 Sanity",
                "hand": "Energy Drink x2, Pocketknife, Flashlight, Headphones"},
-    "Coco":   {"hp": 6, "hu": 8, "sa": 12, "seat": "Red",
+    "Coco":   {"hp": 6, "hu": 8, "sa": 12, "seat": "White",
                "perks": ["Calming Presence: allies -1 Sanity loss",
                          "Touch of Hope (1x): heal any +4 HP",
                          "Light in the Dark: immune to Charlie"],
                "flaw": "No Home: alone non-house at night = -3 Sanity",
                "hand": "First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Battery, Bracelet"},
-    "Rayman": {"hp": 12, "hu": 10, "sa": 6, "seat": "Yellow",
+    "Rayman": {"hp": 12, "hu": 10, "sa": 6, "seat": "Green",
                "perks": ["Speed: move 2 tiles per Move",
                          "Court Master: +1 atk at Basketball",
                          "Backboard Block: Defend shields adj."],
                "flaw": "Big Appetite: -2 Hunger/Tick. Loud: +1 Threat on move.",
                "hand": "Basketball, Sports Drink x2, Athletic Tape, Whistle"},
-    "Ellie":  {"hp": 8, "hu": 10, "sa": 8, "seat": "Green",
+    "Ellie":  {"hp": 8, "hu": 10, "sa": 8, "seat": "Yellow",
                "perks": ["Crockpot Master: -1 ingredient (min 1)",
                          "Comfort Food: shared meal +1 Hu/Sa",
                          "Knows the Pantry: pick resource at home"],
                "flaw": "Particular Eater: can't eat raw food",
                "hand": "Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron"},
-    "Luca":   {"hp": 7, "hu": 8, "sa": 10, "seat": "Blue",
+    "Luca":   {"hp": 7, "hu": 8, "sa": 10, "seat": "Red",
                "perks": ["Rally: free ally action/turn",
                          "Calm Words: d6 4+= negate Sanity loss",
                          "Storyteller: allies +1 Sanity at Night"],
@@ -530,6 +546,11 @@ def generate_player_board(char_name, data):
     # Footer
     centered_text(draw, W//2, H - 16, "STARVE NO MORE", FONT_TINY, PAL["border"])
 
+    # Custom_Tile at rotY=0 renders its image rotated 180 degrees in the
+    # default table view (same convention as the main board) — rotate the
+    # finished image once so the board reads upright in play.
+    img = img.rotate(180)
+
     img.save(os.path.join(DIRS["chars"], f"board_{char_name.lower()}.png"))
     print(f"  Player board: board_{char_name.lower()}.png")
 
@@ -547,12 +568,23 @@ def generate_main_board():
                      outline=(38, 35, 31), width=1)
 
     # --- LOCATION NODES ---
+    # Authored from the location tiles' WORLD positions (loc_positions in
+    # build_save.py) via board_geometry.world_to_px/py, so the printed
+    # rings sit exactly under the physical tiles. Each ring is larger than
+    # its 5x5-unit tile, and the name is printed OUTSIDE the tile footprint
+    # in a big font — that's what makes the location names readable on the
+    # table (the tile itself is pure illustration).
+    #   (world x, world z, ring colour, label side)
     locations = {
-        "James's House":       (1200, 1400, PAL["blue"],   "JH"),
-        "Ellie & Luca's House":(2048, 2048, PAL["green"],  "EL"),
-        "Rayman's House":      (2900, 1400, PAL["yellow"], "RH"),
-        "Basketball Court":    (2048, 900,  PAL["orange"], "BC"),
-        "Badminton Court":     (2048, 3200, PAL["purple"], "BD"),
+        "James's House":       (-8, -4, PAL["blue"],   "below"),
+        "Ellie & Luca's House":( 0,  0, PAL["orange"], "below"),
+        "Rayman's House":      ( 8, -4, PAL["green"],  "below"),
+        "Basketball Court":    ( 0, -8, PAL["grey"],   "above"),
+        "Badminton Court":     ( 0,  8, PAL["teal"],   "below"),
+    }
+    node_px = {
+        name: (int(board_geometry.world_to_px(wx)), int(board_geometry.world_to_py(wz)))
+        for name, (wx, wz, _c, _side) in locations.items()
     }
 
     # --- PATH EDGES (connections) ---
@@ -569,8 +601,8 @@ def generate_main_board():
 
     # Draw paths first (behind nodes)
     for loc_a, loc_b in paths:
-        xa, ya = locations[loc_a][0], locations[loc_a][1]
-        xb, yb = locations[loc_b][0], locations[loc_b][1]
+        xa, ya = node_px[loc_a]
+        xb, yb = node_px[loc_b]
         # Thick path line
         draw.line([xa, ya, xb, yb], fill=(55, 50, 42), width=18)
         # Dotted center line
@@ -584,67 +616,65 @@ def generate_main_board():
             py2 = int(ya + (yb - ya) * t2)
             draw.line([px1, py1, px2, py2], fill=(75, 68, 58), width=4)
 
-    # Draw location nodes
-    node_r = 220
-    for name, (cx, cy, color, abbr) in locations.items():
+    # Draw location nodes. The tile (5x5 world units) covers the ring
+    # centre, so everything readable goes in the ring's annulus (between
+    # the 2.5-unit tile half-width and the 3.8-unit ring): the name sits
+    # on the arc nearest the open side, the yields line just outside it.
+    PX_PER_UNIT = S / (2.0 * board_geometry.BOARD_SCALE)
+    node_r = int(3.8 * PX_PER_UNIT)          # ring peeks out around the tile
+    name_off = int(3.05 * PX_PER_UNIT)       # name line, in the annulus
+    info_off = int(3.6 * PX_PER_UNIT)        # yields line, just outside
+
+    yield_info = {
+        "James's House":       "Energy, Battery, Food",
+        "Ellie & Luca's House":"Food, Food, Cloth + Crockpot",
+        "Rayman's House":      "Metal, Battery, Food",
+        "Basketball Court":    "Wood, Metal, Cloth",
+        "Badminton Court":     "Cloth, Wood, Metal",
+    }
+
+    for name, (wx, wz, color, side) in locations.items():
+        cx, cy = node_px[name]
         # Outer glow ring
         draw_circle(draw, cx, cy, node_r + 15, fill=None,
                     outline=(color[0]//3, color[1]//3, color[2]//3), width=6)
         # Main circle
-        draw_circle(draw, cx, cy, node_r, fill=(40, 38, 34), outline=color, width=8)
+        draw_circle(draw, cx, cy, node_r, fill=(40, 38, 34), outline=color, width=10)
         # Inner ring
-        draw_circle(draw, cx, cy, node_r - 30, fill=None, outline=(50, 48, 42), width=2)
+        draw_circle(draw, cx, cy, node_r - 34, fill=None, outline=(50, 48, 42), width=3)
 
-        # Location name (multi-line if needed)
-        words = name.split()
-        if len(words) <= 2:
-            centered_text(draw, cx, cy - 20, name, FONT_BOARD_LOC, color)
+        # Name + yields on the open side ("above" = north, for the
+        # Basketball Court whose south side is the board edge). The name
+        # always reads first (higher on the table) with yields under it.
+        if side == "above":
+            ny, iy = cy - info_off, cy - name_off
         else:
-            line1 = " ".join(words[:len(words)//2 + 1])
-            line2 = " ".join(words[len(words)//2 + 1:])
-            centered_text(draw, cx, cy - 35, line1, FONT_BOARD_LOC, color)
-            centered_text(draw, cx, cy + 15, line2, FONT_BOARD_LOC, color)
+            ny, iy = cy + name_off, cy + info_off
+        centered_text(draw, cx, ny, name, FONT_BOARD_NAME, color)
+        centered_text(draw, cx, iy, yield_info.get(name, ""), FONT_BOARD_YIELD, PAL["text"])
 
-        # Abbreviated tag
-        centered_text(draw, cx, cy + 70, f"[ {abbr} ]", FONT_BOARD_SM, PAL["border"])
-
-        # House vs Court indicator
-        is_court = "Court" in name
-        tag = "COURT" if is_court else "HOUSE"
-        tag_color = PAL["orange"] if is_court else PAL["green"]
-        centered_text(draw, cx, cy + 105, tag, FONT_BOARD_XS, tag_color)
-
-        # Yield / defense info
-        yield_info = {
-            "James's House":       ("Energy, Battery, Junk", "Def +0  Sa +0"),
-            "Ellie & Luca's House":("Food, Cloth, Pantry",   "Def +0  Sa +1"),
-            "Rayman's House":      ("Sports, Drink, Tape",   "Def +1  Sa +0"),
-            "Basketball Court":    ("Wood, Metal, Cloth",    "Def -1  Sa -1"),
-            "Badminton Court":     ("Cloth, Wood, Metal",    "Def +1  Sa -1"),
-        }
-        yield_text, stat_text = yield_info.get(name, ("", ""))
-        centered_text(draw, cx, cy + 140, yield_text, FONT_BOARD_TINY, PAL["text"])
-        centered_text(draw, cx, cy + 165, stat_text, FONT_BOARD_TINY, tag_color)
-
-    # --- DOOM TRACK (right side, vertical) ---
-    # Pixel geometry comes from board_geometry so the Doom-marker snap
-    # points in build_save.py always land on the printed track.
-    doom_x = board_geometry.DOOM_TRACK_PX_X
-    doom_top = board_geometry.DOOM_TRACK_PX_TOP
-    doom_bot = board_geometry.DOOM_TRACK_PX_BOTTOM
-    step_h = board_geometry.DOOM_STEP_PX
+    # --- DOOM TRACK — horizontal strip along the SOUTH edge (the only band
+    # clear of rings and labels). Pixel geometry comes from board_geometry
+    # so the Doom-marker snap points in build_save.py always land on the
+    # printed track. ---
+    step_w = board_geometry.DOOM_STEP_PX
+    doom_y = int(board_geometry.DOOM_TRACK_PX_Y)
+    x0 = int(board_geometry.DOOM_STEP0_PX_X - step_w / 2)
+    x30 = int(board_geometry.DOOM_STEP0_PX_X + 30.5 * step_w)
+    cell_h = int(0.5 * PX_PER_UNIT)   # half a world unit tall each side
 
     # Track background
-    draw.rounded_rectangle([doom_x - 80, doom_top - 60, doom_x + 80, doom_bot + 60],
+    draw.rounded_rectangle([x0 - 30, doom_y - cell_h - 30, x30 + 30, doom_y + cell_h + 30],
                            radius=20, fill=(35, 25, 25), outline=(100, 40, 40), width=4)
 
-    # Title
-    centered_text(draw, doom_x, doom_top - 30, "D O O M", FONT_BOARD_LOC, PAL["red"])
+    # Title above the quiet west end of the track
+    centered_text(draw, int(board_geometry.world_to_px(-9)),
+                  doom_y - cell_h - 120, "D O O M", FONT_BOARD_LOC, PAL["red"])
 
     # Steps 0-30
     thresholds = {10: "Threats +1", 15: "Crafts +1 cost", 20: "+1 Sa loss", 25: "Bosses any", 30: "DEFEAT"}
     for step in range(31):
-        sy = doom_top + int(step * step_h)
+        sx = int(board_geometry.DOOM_STEP0_PX_X + step * step_w)
         # Color gradient: cool to warm
         t = step / 30
         r_val = int(40 + t * 180)
@@ -652,62 +682,60 @@ def generate_main_board():
         b_val = int(80 - t * 60)
         step_color = (r_val, g_val, b_val)
 
-        # Step marker
-        draw.rounded_rectangle([doom_x - 55, sy, doom_x - 10, sy + int(step_h) - 2],
+        # Step cell
+        half = int(step_w / 2) - 3
+        draw.rounded_rectangle([sx - half, doom_y - cell_h, sx + half, doom_y + cell_h],
                                radius=3, fill=step_color)
         # Number
-        draw.text((doom_x - 50, sy + 2), str(step), fill=PAL["text"], font=FONT_BOARD_TINY)
+        centered_text(draw, sx, doom_y, str(step), FONT_BOARD_NUM, PAL["text"])
 
-        # Threshold ribbons
+        # Threshold ribbons above their step
         if step in thresholds:
-            draw.rounded_rectangle([doom_x + 5, sy - 5, doom_x + 78, sy + int(step_h) + 3],
-                                   radius=4, fill=(80, 25, 25), outline=PAL["red"], width=2)
-            draw.text((doom_x + 10, sy), thresholds[step], fill=(255, 200, 150), font=FONT_BOARD_TINY)
+            ribbon_y = doom_y - cell_h - 96
+            tw = draw.textbbox((0, 0), thresholds[step], font=FONT_BOARD_RIB)[2]
+            draw.rounded_rectangle([sx - tw // 2 - 14, ribbon_y - 26, sx + tw // 2 + 14, ribbon_y + 26],
+                                   radius=6, fill=(80, 25, 25), outline=PAL["red"], width=2)
+            centered_text(draw, sx, ribbon_y, thresholds[step], FONT_BOARD_RIB, (255, 200, 150))
 
-    # --- TITLE ---
-    centered_text(draw, S // 2, 200, "STARVE NO MORE", FONT_BOARD_TITLE, PAL["gold"])
-    centered_text(draw, S // 2, 280, "Survive 7 Nights. Hold the Doom.", FONT_BOARD_LABEL, PAL["text"])
+    # --- TITLE (north-west corner, clear of the Badminton ring) ---
+    t_x = int(board_geometry.world_to_px(-7.5))
+    t_y = int(board_geometry.world_to_py(11.0))
+    centered_text(draw, t_x, t_y, "STARVE NO MORE", FONT_BOARD_TITLE, PAL["gold"])
+    centered_text(draw, t_x, t_y + 80, "Survive 7 Nights. Hold the Doom.", FONT_BOARD_LABEL, PAL["text"])
 
-    # --- DAY COUNTER area (top left) ---
-    draw.rounded_rectangle([100, 100, 500, 280], radius=15, fill=(40, 38, 34), outline=PAL["border"], width=3)
-    centered_text(draw, 300, 140, "DAY COUNTER", FONT_BOARD_SM, PAL["gold"])
-    centered_text(draw, 300, 180, "1  2  3  4  5  6  7", FONT_BOARD_LOC, PAL["text"])
-    centered_text(draw, 300, 240, "Phase: I   II   III   IV", FONT_BOARD_XS, PAL["border"])
+    # --- DAY COUNTER frame — drawn around the physical Day Counter's real
+    # position (world (-10, 8), see build_save.py) so the printed frame and
+    # the object actually line up on the table. ---
+    dc_x = int(board_geometry.world_to_px(-10))
+    dc_y = int(board_geometry.world_to_py(8))
+    draw.rounded_rectangle([dc_x - 300, dc_y - 140, dc_x + 300, dc_y + 140],
+                           radius=15, fill=None, outline=PAL["border"], width=4)
+    centered_text(draw, dc_x, dc_y + 190, "DAY COUNTER", FONT_BOARD_YIELD, PAL["gold"])
 
-    # --- MARKET DISPLAY area (bottom) ---
-    market_y = 3650
-    draw.rounded_rectangle([400, market_y - 30, 2700, market_y + 200],
-                           radius=15, fill=(40, 38, 34), outline=PAL["green"], width=3)
-    centered_text(draw, 1550, market_y, "MARKET  ( 5 face-up cards )", FONT_BOARD_SM, PAL["green"])
-    for i in range(5):
-        sx = 520 + i * 400
-        draw.rounded_rectangle([sx, market_y + 30, sx + 280, market_y + 170],
-                               radius=8, fill=(30, 28, 26), outline=PAL["border"], width=2)
-        centered_text(draw, sx + 140, market_y + 100, f"Slot {i+1}", FONT_BOARD_XS, PAL["border"])
+    # (No printed market/deck boxes: the Market slots are physical notecards
+    # west of the board and the decks sit on the north edge; the old printed
+    # frames pointed at empty felt and just confused people.)
 
-    # --- DECK SLOTS (top, near day counter) ---
-    deck_y = 350
-    deck_labels = ["Phase\nDeck", "Threat\nDeck", "Visitor\nDeck", "Market\nDeck"]
-    for i, label in enumerate(deck_labels):
-        dx = 150 + i * 250
-        draw.rounded_rectangle([dx, deck_y, dx + 180, deck_y + 250],
-                               radius=8, fill=(30, 28, 26), outline=PAL["border"], width=2)
-        lines = label.split("\n")
-        for j, ln in enumerate(lines):
-            centered_text(draw, dx + 90, deck_y + 100 + j * 30, ln, FONT_BOARD_XS, PAL["border"])
-
-    # --- LEGEND REMINDER (bottom right) ---
-    draw.rounded_rectangle([3300, 3650, 3980, 3950], radius=12, fill=(40, 38, 34), outline=PAL["border"], width=2)
-    draw.text((3320, 3670), "SEVERITY DOTS:", fill=PAL["gold"], font=FONT_BOARD_XS)
+    # --- LEGEND REMINDER (north-east corner) ---
+    lg_x0 = int(board_geometry.world_to_px(7.0))
+    lg_y0 = int(board_geometry.world_to_py(11.6))
+    draw.rounded_rectangle([lg_x0, lg_y0, lg_x0 + 680, lg_y0 + 300],
+                           radius=12, fill=(40, 38, 34), outline=PAL["border"], width=2)
+    draw.text((lg_x0 + 20, lg_y0 + 20), "SEVERITY DOTS:", fill=PAL["gold"], font=FONT_BOARD_XS)
     sev_info = ["1 dot = Flavor", "2 dots = Minor", "3 dots = Combat",
                 "4 dots = Phase-shift", "5 dots = Boss"]
     for i, si in enumerate(sev_info):
         # Dots
         for d in range(i + 1):
-            draw_circle(draw, 3340 + d * 18, 3718 + i * 46, 6, fill=PAL["red"])
+            draw_circle(draw, lg_x0 + 40 + d * 18, lg_y0 + 68 + i * 46, 6, fill=PAL["red"])
         for d in range(i + 1, 5):
-            draw_circle(draw, 3340 + d * 18, 3718 + i * 46, 6, fill=PAL["border"])
-        draw.text((3445, 3708 + i * 46), si, fill=PAL["text"], font=FONT_BOARD_TINY)
+            draw_circle(draw, lg_x0 + 40 + d * 18, lg_y0 + 68 + i * 46, 6, fill=PAL["border"])
+        draw.text((lg_x0 + 145, lg_y0 + 58 + i * 46), si, fill=PAL["text"], font=FONT_BOARD_TINY)
+
+    # A Custom_Board at rotY=0 renders its image rotated 180 degrees in the
+    # default table view (see board_geometry docstring), so the finished
+    # image is rotated here once — everything above reads upright in play.
+    img = img.rotate(180)
 
     img.save(os.path.join(DIRS["board"], "main_board.png"))
     print(f"  Main board: main_board.png ({S}x{S})")

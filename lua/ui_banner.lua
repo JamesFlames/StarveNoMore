@@ -65,7 +65,9 @@ function refreshPhaseBanner()
     if gameState.activeColor then
         local char = gameState.activeChars[gameState.activeColor]
         if char then
-            activeText = char.name .. "'s turn"
+            -- Include the seat colour so "whose turn" is unambiguous even
+            -- when one person drives several characters (hotseat).
+            activeText = char.name .. "'s turn (" .. gameState.activeColor .. ")"
         end
     end
     UI.setAttribute("bannerActive", "text", activeText)
@@ -106,6 +108,7 @@ end
 
 function refreshCharRoster()
     if not UI then return end
+    if customUIHidden then return end
     if not gameState.started then
         UI.hide("charRoster")
         return

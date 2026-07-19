@@ -595,7 +595,7 @@ function beginDusk()
     -- Open the Dusk scramble window. Night begins when the host clicks
     -- Resolve Night (the banner CTA pulses it) — no auto-advance, so the
     -- table has time to argue about who sleeps where.
-    if UI then UI.show("duskPanel") end
+    if UI and not customUIHidden then UI.show("duskPanel") end
     broadcastEvent("proc", "Scramble now if you must (Dusk panel, 1 tile, 1 Hunger each). Click 'Ready for Night' when settled — Night begins when everyone has. (Host's Resolve Night also works.)")
 end
 

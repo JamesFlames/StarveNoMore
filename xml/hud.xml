@@ -75,6 +75,21 @@
 </Panel>
 
 <!-- ================================================================== -->
+<!-- UI TOGGLE — always visible; hides/shows every custom panel so the  -->
+<!-- default TTS controls underneath stay reachable (onToggleCustomUI). -->
+<!-- ================================================================== -->
+<Button id="uiToggle"
+        rectAlignment="UpperRight"
+        offsetXY="-10 -84"
+        width="88" height="26"
+        onClick="onToggleCustomUI"
+        fontSize="12"
+        color="#282828E6" textColor="#CCCCCC"
+        tooltip="Hide or show all of this game's panels, so the standard Tabletop Simulator controls underneath are easy to reach."
+        tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
+        text="Hide UI" />
+
+<!-- ================================================================== -->
 <!-- DAY-CYCLE STRIP — Dawn ▸ Day ▸ Dusk ▸ Night ▸ Tick, current lit    -->
 <!-- Updated by refreshCycleStrip() in ui_rules.lua                     -->
 <!-- ================================================================== -->

@@ -465,8 +465,11 @@ for loc_key, (name, url, pos) in loc_data.items():
         "Tags": ["Snap:ThreatSlot"]
     })
 
+    # ry=180: a Custom_Tile at rotY=0 renders its illustration rotated 180°
+    # in the default view (the day-counter/cards convention) — this keeps
+    # the house/court art upright for the players.
     tile = base_obj("Custom_Tile",
-                    tf(pos["x"], 1.05, pos["z"], sx=2.5, sy=1, sz=2.5),
+                    tf(pos["x"], 1.05, pos["z"], ry=180, sx=2.5, sy=1, sz=2.5),
                     nickname=name,
                     desc=tooltips[loc_key],
                     tags=["Location", f"Location:{loc_key}"],
@@ -489,12 +492,20 @@ for loc_key, (name, url, pos) in loc_data.items():
 # E.5  Path-edge variant cards (3 sets stored in trays off-board)
 # ---------------------------------------------------------------------------
 
+# All supply containers live on a locked "supply shelf" along the table's
+# east edge, well clear of the play area: every token flow is scripted
+# (giveResource / verifyAndPayResources / boss arrivals), so players never
+# reach into a bag — the shelf just keeps the machinery out of sight.
+SUPPLY_SHELF_X = 25.0        # resource bags / dice / hearts / boss pool
+SUPPLY_SHELF_X2 = 28.0       # decorative path-variant trays, one row further out
+
 for variant in ["Compact", "Sprawl", "Linear", "Ring", "Star"]:
     bag = base_obj("Bag",
-                   tf(-16, 2, 12 + ["Compact","Sprawl","Linear","Ring","Star"].index(variant) * 3),
+                   tf(SUPPLY_SHELF_X2, 2, 2 + ["Compact","Sprawl","Linear","Ring","Star"].index(variant) * 3),
                    nickname=f"Path Edges: {variant}",
                    desc=f"Decorative path tiles for the {variant} map layout. Purely cosmetic — safe to ignore during play.",
-                   tags=["PathVariant", f"PathVariant:{variant}"])
+                   tags=["PathVariant", f"PathVariant:{variant}"],
+                   locked=True)
     bag["ContainedObjects"] = []
     # 3 decorative path tiles per variant
     for pi in range(3):
@@ -755,12 +766,12 @@ for si, start_char in enumerate(["James", "Coco", "Rayman", "Ellie", "Luca"]):
 # ---------------------------------------------------------------------------
 
 resources = [
-    ("Wood",         ph("token_wood"),    "Brown", 14, 1.5, -4),
-    ("Metal",        ph("token_metal"),   "Grey",  14, 1.5, -2),
-    ("Cloth",        ph("token_cloth"),   "White", 14, 1.5,  0),
-    ("Food",         ph("token_food"),    "Red",   14, 1.5,  2),
-    ("EnergyDrink",  ph("token_energy"),  "Yellow",14, 1.5,  4),
-    ("Battery",      ph("token_battery"), "Blue",  14, 1.5,  6),
+    ("Wood",         ph("token_wood"),    "Brown", SUPPLY_SHELF_X, 1.5,  0),
+    ("Metal",        ph("token_metal"),   "Grey",  SUPPLY_SHELF_X, 1.5,  2.5),
+    ("Cloth",        ph("token_cloth"),   "White", SUPPLY_SHELF_X, 1.5,  5),
+    ("Food",         ph("token_food"),    "Red",   SUPPLY_SHELF_X, 1.5,  7.5),
+    ("EnergyDrink",  ph("token_energy"),  "Yellow",SUPPLY_SHELF_X, 1.5, 10),
+    ("Battery",      ph("token_battery"), "Blue",  SUPPLY_SHELF_X, 1.5, 12.5),
 ]
 
 for res_name, token_url, color, x, y, z in resources:
@@ -779,7 +790,8 @@ for res_name, token_url, color, x, y, z in resources:
     bag = base_obj("Infinite_Bag", tf(x, y, z),
                    nickname=f"{res_name.replace('EnergyDrink', 'Energy Drink')} Supply",
                    desc=f"Supply of {res_name.replace('EnergyDrink', 'Energy Drink')} tokens. Fully automated — Gather, salvage, dawn deliveries, and scripted costs/rewards pay tokens in and out for you. No need to touch it.",
-                   tags=["ResourceBag", f"ResourceBag:{res_name}"])
+                   tags=["ResourceBag", f"ResourceBag:{res_name}"],
+                   locked=True)
     bag["ContainedObjects"] = [token]
     objects.append(bag)
 
@@ -787,11 +799,12 @@ for res_name, token_url, color, x, y, z in resources:
 # E.15  Dice
 # ---------------------------------------------------------------------------
 
-# 6 standard d6 in a combat tray
-dice_tray = base_obj("Bag", tf(14, 1.5, -8),
+# 6 standard d6 in a combat tray (decorative — combat is script-rolled)
+dice_tray = base_obj("Bag", tf(SUPPLY_SHELF_X, 1.5, -2.5),
                      nickname="Combat Dice Tray",
-                     desc="6 combat d6. Roll for attacks.",
-                     tags=["DiceTray"])
+                     desc="6 combat d6. Combat rolls are automated — these are here for house rules.",
+                     tags=["DiceTray"],
+                     locked=True)
 dice_tray["ContainedObjects"] = []
 for di in range(6):
     d6 = base_obj("Die_6", tf(),
@@ -801,7 +814,7 @@ for di in range(6):
 objects.append(dice_tray)
 
 # Sanity d8 (custom)
-sanity_d8 = base_obj("Custom_Dice", tf(14, 1.5, -10),
+sanity_d8 = base_obj("Custom_Dice", tf(SUPPLY_SHELF_X, 1.5, -5),
                      nickname="Sanity d8",
                      desc="Roll for Sanity-loss events. Face value = damage dealt.",
                      tags=["SanityD8"])
@@ -873,19 +886,21 @@ for char_name, color, bx, bz, stats in characters:
         standee["ColorDiffuse"] = STANDEE_COLORS[char_name]
     objects.append(standee)
 
-    # Player board
+    # Player board. Its art is pre-rotated 180° by generate_assets (same
+    # render convention as the main board), so the printed stat bars sit in
+    # the board's north-west quadrant; snaps and markers are placed to match.
     board_snaps_pb = []
-    # Stat marker snaps (3 stats)
+    # Stat marker snaps (3 stats, beside the printed Health/Hunger/Sanity bars)
     for si, stat_name in enumerate(["Health", "Hunger", "Sanity"]):
         board_snaps_pb.append({
-            "Position": {"x": -1.2, "y": 0.2, "z": -0.6 + si * 0.6},
+            "Position": {"x": -0.69, "y": 0.2, "z": 0.555 - si * 0.235},
             "Rotation": {"x": 0, "y": 0, "z": 0},
             "Tags": [f"Snap:Stat:{stat_name}"]
         })
-    # Action cube snaps (3)
+    # Action cube snaps (3, on the printed cube row)
     for ai in range(3):
         board_snaps_pb.append({
-            "Position": {"x": -0.3 + ai * 0.4, "y": 0.2, "z": 0.8},
+            "Position": {"x": -0.27 + ai * 0.06, "y": 0.2, "z": -0.09},
             "Rotation": {"x": 0, "y": 0, "z": 0},
             "Tags": [f"Snap:ActionCube:{ai}"]
         })
@@ -904,10 +919,10 @@ for char_name, color, bx, bz, stats in characters:
     pboard["AttachedSnapPoints"] = board_snaps_pb
     objects.append(pboard)
 
-    # Stat markers (3 per character)
+    # Stat markers (3 per character), on the printed bars (see snap comment)
     for si, (stat_name, stat_val) in enumerate(stats.items()):
         marker = base_obj("Custom_Token",
-                         tf(bx - 1.2, 1.4, bz - 0.6 + si * 0.6, sx=0.3, sy=0.3, sz=0.3),
+                         tf(bx - 2.06, 1.4, bz + 1.11 - si * 0.47, sx=0.3, sy=0.3, sz=0.3),
                          nickname=f"{char_name} {stat_name.title()}",
                          desc=f"{stat_name.title()}: {stat_val}",
                          tags=["StatMarker", f"StatMarker:{char_name}:{stat_name}"])
@@ -931,10 +946,11 @@ bosses = [
     ("Treeguard", 5, 2),   # Phase 2.5 mini-boss — wakes at Dusk of Day 4 (lua/treeguard.lua)
 ]
 
-boss_pool = base_obj("Bag", tf(16, 2, 10),
+boss_pool = base_obj("Bag", tf(SUPPLY_SHELF_X, 2, 17.5),
                      nickname="Boss Pool",
-                     desc="Boss standees. Placed on the map by Dawn card effects.",
-                     tags=["BossPool"])
+                     desc="Boss standees. Placed on the map by Dawn card effects — fully automated, no need to touch it.",
+                     tags=["BossPool"],
+                     locked=True)
 boss_pool["ContainedObjects"] = []
 
 for boss_name, hp, atk in bosses:
@@ -968,10 +984,11 @@ basement = base_obj("BlockSquare",
 basement["ColorDiffuse"] = {"r": 0.28, "g": 0.22, "b": 0.15}
 objects.append(basement)
 
-heart_bag = base_obj("Bag", tf(14, 1.5, 8),
+heart_bag = base_obj("Bag", tf(SUPPLY_SHELF_X, 1.5, 15),
                      nickname="Telltale Heart Supply",
                      desc="5 Telltale Hearts. Cook to create; spend to revive a Down character.",
-                     tags=["TelltaleHeartSupply"])
+                     tags=["TelltaleHeartSupply"],
+                     locked=True)
 heart_bag["ContainedObjects"] = []
 for hi in range(5):
     heart = base_obj("Custom_Token", tf(),
@@ -1056,7 +1073,9 @@ save = {
     "Tags": ["Card Games", "Strategy", "Cooperative", "Survival"],
     "Gravity": 0.5,
     "PlayArea": 1.0,
-    "Table": "Table_Hexagon",
+    # Flat table: the hexagon table's raised wooden rim served no purpose
+    # and read as a game component ("what is that barrier for?").
+    "Table": "Table_Glass",
     "Sky": "Sky_Museum",
     "Note": "Starve No More — cooperative survival board game for 3-5 players.",
     "TabStates": {},

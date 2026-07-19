@@ -25,8 +25,14 @@ Audio = {
         ambientPhase = "suburban",   -- "suburban" (first track of day) | "varied"
         bossName     = nil,          -- key into AUDIO.CREATURES when mode=="boss"
         nextHandle   = nil,          -- Wait.time handle for next scheduled clip
+        watchHandle  = nil,          -- Wait.time handle for the load watchdog
     },
 }
+
+-- Clips whose URL failed to load this session ("Error: AudioClip could not
+-- be loaded"). Blacklisted so a bad file costs one skip, not a silent
+-- track-length hole in the soundscape every time it comes up.
+local _failedUrls = {}
 
 -- ---------------- internal helpers ----------------
 
@@ -35,11 +41,20 @@ local function _cancel()
         Wait.stop(Audio.state.nextHandle)
         Audio.state.nextHandle = nil
     end
+    if Audio.state.watchHandle then
+        Wait.stop(Audio.state.watchHandle)
+        Audio.state.watchHandle = nil
+    end
 end
 
+-- Random pick that skips clips already known to fail.
 local function _pickRandom(list)
-    if not list or #list == 0 then return nil end
-    return list[math.random(1, #list)]
+    local playable = {}
+    for _, c in ipairs(list or {}) do
+        if c.url and not _failedUrls[c.url] then playable[#playable + 1] = c end
+    end
+    if #playable == 0 then return nil end
+    return playable[math.random(1, #playable)]
 end
 
 local function _playClip(clip)
@@ -50,6 +65,26 @@ local function _playClip(clip)
         artist = "Starve No More",
     })
     MusicPlayer.play()
+end
+
+-- Load watchdog: a few seconds after starting a clip, a MusicPlayer left in
+-- "Stop" means the URL failed to load. Blacklist it and move on immediately
+-- instead of sitting in silence until the scheduled track change. Only a
+-- literal "Stop" counts — unknown/absent status (older TTS, headless stub)
+-- is left alone.
+local function _watchClip(clip, retryFn)
+    if Audio.state.watchHandle then Wait.stop(Audio.state.watchHandle) end
+    Audio.state.watchHandle = Wait.time(function()
+        Audio.state.watchHandle = nil
+        local status = nil
+        pcall(function() status = MusicPlayer and MusicPlayer.player_status end)
+        if status == "Stop" and clip and clip.url then
+            _failedUrls[clip.url] = true
+            log("Audio clip failed to load, skipping from now on: " .. tostring(clip.url),
+                "WARN", "Audio")
+            if retryFn then retryFn() end
+        end
+    end, 6)
 end
 
 -- Schedule the function `fn` to run after `delay` seconds. Replaces any
@@ -67,6 +102,7 @@ local function _playNextVaried()
     if not clip then return end
     _playClip(clip)
     _scheduleNext(_playNextVaried, clip.duration or 180)
+    _watchClip(clip, _playNextVaried)
 end
 
 -- Play one night drone and schedule the next while mode=="night".
@@ -76,6 +112,7 @@ local function _playNextNight()
     if not clip then return end
     _playClip(clip)
     _scheduleNext(_playNextNight, clip.duration or 72)
+    _watchClip(clip, _playNextNight)
 end
 
 -- Boss loop: random roar, wait roar+10s, repeat while mode=="boss".
@@ -88,6 +125,7 @@ local function _bossStep()
     if not clip then return end
     _playClip(clip)
     _scheduleNext(_bossStep, (clip.duration or 4) + 10.0)
+    _watchClip(clip, _bossStep)
 end
 
 -- Resume ambient at the right phase (used after chime / boss-defeat).
@@ -100,6 +138,7 @@ local function _resumeAmbient()
             _playClip(clip)
             Audio.state.ambientPhase = "varied"  -- next track will be varied
             _scheduleNext(_playNextVaried, clip.duration or 180)
+            _watchClip(clip, _playNextVaried)
         end
     else
         _playNextVaried()

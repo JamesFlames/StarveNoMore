@@ -12,7 +12,21 @@ function validateActivePlayer(color)
         return false
     end
     if color ~= gameState.activeColor then
-        broadcastToColor("It's not your turn.", color, BROADCAST_COLORS.damage)
+        -- Say WHOSE turn it is and how to become them (hotseat players sit
+        -- on one seat but drive several characters).
+        local active = gameState.activeColor
+        local activeChar = active and gameState.activeChars[active]
+        local msg
+        if activeChar then
+            msg = "It's " .. activeChar.name .. "'s turn (the " .. active ..
+                " seat) — you're on the " .. tostring(color) .. " seat. " ..
+                "Playing " .. activeChar.name .. " yourself? Switch seats: click your name " ..
+                "in the player list (top right) and Change Color to " .. active ..
+                ". Or use Host Controls > End Turn / Pass to move the turn along."
+        else
+            msg = "It's not your turn."
+        end
+        broadcastToColor(msg, color, BROADCAST_COLORS.damage)
         return false
     end
     local char = gameState.activeChars[color]
@@ -31,6 +45,7 @@ end
 -----------------------------------------------------------------------
 function refreshActionBar()
     if not UI then return end
+    if customUIHidden then return end
 
     -- Show/hide action bar based on game state
     if gameState.subPhase == "Day" and gameState.activeColor then
@@ -164,13 +179,16 @@ function refreshActionButtonStates(color)
     safecall(function() refreshActionButtonReasons(color) end, "ActionTooltips")
 end
 
+-- Unavailable actions are HIDDEN, not dimmed: a bar of grey buttons made
+-- players wonder which ones they could click. What remains is exactly
+-- what the player can do right now.
 function setActionEnabled(buttonId, enabled)
     if enabled then
+        UI.setAttribute(buttonId, "active", "true")
         UI.setAttribute(buttonId, "interactable", "true")
         UI.setAttribute(buttonId, "color", "#1E3228E6")
     else
-        UI.setAttribute(buttonId, "interactable", "false")
-        UI.setAttribute(buttonId, "color", "#14141499")
+        UI.setAttribute(buttonId, "active", "false")
     end
 end
 

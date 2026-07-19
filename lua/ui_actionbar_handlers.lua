@@ -189,6 +189,7 @@ end
 -----------------------------------------------------------------------
 function refreshCombatPanel()
     if not UI then return end
+    if customUIHidden then return end
     local ctx = gameState.combatContext
     if ctx and ctx.open then
         UI.setAttribute("combatStatus", "text",
