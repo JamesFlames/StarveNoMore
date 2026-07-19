@@ -146,7 +146,7 @@
 <!-- ================================================================== -->
 <Panel id="hostControls"
        rectAlignment="UpperLeft"
-       offsetXY="360 -122"
+       offsetXY="360 -150"
        width="200" height="310"
        color="#000000B2"
        outline="#FFC8644C"

@@ -176,6 +176,21 @@ end
 
 function onActPass(player, value, id)
     local color = player.color
+    -- Hotseat convenience: when the HOST clicks Pass on someone else's
+    -- turn, it ends the ACTIVE player's turn (same as Host Controls >
+    -- End Turn) — ending turns is the most-used control when one person
+    -- drives several characters, so it lives on the big bottom bar too.
+    if player.host and gameState.subPhase == "Day" and gameState.activeColor
+        and color ~= gameState.activeColor then
+        local activeChar = gameState.activeChars[gameState.activeColor]
+        broadcastEvent("proc", "Host ends " ..
+            ((activeChar and activeChar.name) or gameState.activeColor) .. "'s turn.")
+        clearActionTargets()
+        safecall(function() endPlayerTurn(gameState.activeColor) end, "EndTurn")
+        refreshPhaseBanner()
+        updateActivePlayerIndicator()
+        return
+    end
     if not validateActivePlayer(color) then return end
     clearActionTargets()
     safecall(function() doPass(color) end, "Pass")

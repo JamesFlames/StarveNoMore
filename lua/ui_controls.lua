@@ -119,10 +119,9 @@ function onToggleCustomUI(player, value, id)
         broadcastEvent("proc", "Custom panels hidden — the standard Tabletop Simulator controls are free. Click 'Show UI' (top right) to bring them back.")
     else
         UI.setAttribute("uiToggle", "text", "Hide UI")
-        -- Panels that are always on come straight back; the state-driven
-        -- ones return via the normal refresh path.
+        -- The banner is always on; every state-driven panel (including
+        -- Host Controls) returns via the normal refresh path.
         UI.setAttribute("phaseBanner", "active", "true")
-        UI.setAttribute("hostControls", "active", "true")
         if gameState.subPhase == "Dusk" then UI.show("duskPanel") end
         refreshPhaseBanner()
         safecall(function() refreshCombatPanel() end, "CombatPanel")
@@ -167,6 +166,13 @@ function refreshHostControls()
         UI.setAttribute(id, "active", on and "true" or "false")
         if on then count = count + 1 end
     end
+    -- No valid buttons right now (e.g. mid-walkthrough, auto-advancing
+    -- phases before the first Restart) → no panel at all.
+    if count == 0 then
+        UI.setAttribute("hostControls", "active", "false")
+        return
+    end
+    UI.setAttribute("hostControls", "active", "true")
     -- Title (~38px incl. padding) + one 38px button + 6px gap per row.
     UI.setAttribute("hostControls", "height", tostring(46 + count * 44))
 end

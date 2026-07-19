@@ -286,7 +286,7 @@ ACTION_TOOLTIPS = {
     actSignature = "Your character's Signature Move — once per game.",
     actPry       = "Pry open a sealed thing at your tile (free action; needs a Crowbar, Lockpick, or Pry Bar).",
     actUndo      = "Undo your last action's stat, position, and Doom changes (once per action).",
-    actPass      = "End your turn. Remaining actions are forfeited.",
+    actPass      = "End your turn. Remaining actions are forfeited. (Host: clicking this on someone else's turn ends THEIR turn — handy in hotseat.)",
 }
 
 local actionTooltipWaits = {}  -- hovering player's color -> pending Wait id
