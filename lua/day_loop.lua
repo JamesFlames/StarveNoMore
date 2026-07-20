@@ -36,6 +36,8 @@ function stopIdleWatcher()
 end
 
 function BeginDay()
+    -- TTS's built-in Turns system stays off — this mod runs its own turns.
+    pcall(function() if Turns then Turns.enable = false end end)
     -- Phase 1: Dawn
     gameState.subPhase = "Dawn"
     gameState.dayLog = {}

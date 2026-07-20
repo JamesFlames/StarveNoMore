@@ -271,6 +271,15 @@ function onLoad(savedState)
             refreshDynamicTooltips()
             safecall(function() lockdownCriticalObjects() end, "Lockdown")
         end
+        -- TTS's built-in Turns system stays OFF: this mod tracks turns
+        -- itself (banner + action bar), and the built-in turn plate just
+        -- sat behind the phase banner confusing everyone.
+        pcall(function()
+            if Turns and Turns.enable then
+                Turns.enable = false
+                broadcastToAll("Tabletop Simulator's built-in turn tracker is off — this game runs its own turns (see the top banner).", {0.7, 0.7, 0.7})
+            end
+        end)
         -- Discard Tray: returns dropped tokens to the hidden supply.
         safecall(function() startDiscardTraySweep() end, "DiscardTray")
         -- J.10: Run first-load component audit

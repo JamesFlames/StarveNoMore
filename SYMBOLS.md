@@ -70,9 +70,9 @@
 | 202 | function | `broadcastEvent` |
 | 216 | function | `migrateGameState` |
 | 244 | function | `onLoad` |
-| 281 | function | `onSave` |
-| 288 | function | `createSetupButton` |
-| 311 | function | `onSetupClick` |
+| 290 | function | `onSave` |
+| 297 | function | `createSetupButton` |
+| 320 | function | `onSetupClick` |
 
 ## lua/audio_manifest.lua (1 symbols)
 
@@ -161,20 +161,20 @@
 | 29 | function | `startIdleWatcher` |
 | 34 | function | `stopIdleWatcher` |
 | 38 | function | `BeginDay` |
-| 202 | function | `isBossOnMap` |
-| 209 | function | `countFesteringThreats` |
-| 239 | function | `checkDoomThresholds` |
-| 286 | function | `revealLastDawn` |
-| 309 | function | `revealDawnCard` |
-| 359 | function | `beginDayPhase` |
-| 386 | function | `advanceToNextPlayer` |
-| 443 | function | `endPlayerTurn` |
-| 467 | function | `spendAction` |
-| 497 | function | `beginDusk` |
-| 619 | function | `countDuskReady` |
-| 637 | function | `refreshDuskReadyLabel` |
-| 648 | function | `toggleDuskReady` |
-| 677 | function | `beginNight` |
+| 204 | function | `isBossOnMap` |
+| 211 | function | `countFesteringThreats` |
+| 241 | function | `checkDoomThresholds` |
+| 288 | function | `revealLastDawn` |
+| 311 | function | `revealDawnCard` |
+| 361 | function | `beginDayPhase` |
+| 388 | function | `advanceToNextPlayer` |
+| 445 | function | `endPlayerTurn` |
+| 469 | function | `spendAction` |
+| 499 | function | `beginDusk` |
+| 621 | function | `countDuskReady` |
+| 639 | function | `refreshDuskReadyLabel` |
+| 650 | function | `toggleDuskReady` |
+| 679 | function | `beginNight` |
 
 ## lua/effects/dawn_effects.lua (6 symbols)
 
@@ -515,15 +515,15 @@
 | 127 | function | `onToggleScenario` |
 | 145 | function | `onToggleDifficulty` |
 | 157 | function | `onVariantsContinue` |
-| 214 | function | `showCharPickForNextPlayer` |
-| 330 | function | `onPickChar` |
-| 382 | table | `CHAR_BRIEFINGS` |
-| 406 | function | `showCharBriefing` |
-| 418 | function | `onBriefBack` |
-| 431 | function | `onBriefDismiss` |
-| 452 | function | `finalizeGuidedSetup` |
-| 568 | function | `showWelcomeSequence` |
-| 599 | function | `onHostSetupGuided` |
+| 216 | function | `showCharPickForNextPlayer` |
+| 332 | function | `onPickChar` |
+| 384 | table | `CHAR_BRIEFINGS` |
+| 408 | function | `showCharBriefing` |
+| 420 | function | `onBriefBack` |
+| 433 | function | `onBriefDismiss` |
+| 454 | function | `finalizeGuidedSetup` |
+| 570 | function | `showWelcomeSequence` |
+| 601 | function | `onHostSetupGuided` |
 
 ## lua/ui_help.lua (12 symbols)
 
@@ -619,7 +619,7 @@
 | `CHARACTER_COLORS` | lua/global.lua | 81 |
 | `CHARACTER_HOMES` | lua/global.lua | 89 |
 | `CHARACTER_STATS` | lua/global.lua | 67 |
-| `CHAR_BRIEFINGS` | lua/ui_setup.lua | 382 |
+| `CHAR_BRIEFINGS` | lua/ui_setup.lua | 384 |
 | `CHAR_SLOT_INDEX` | lua/helpers.lua | 225 |
 | `CHAR_TRAIT_LINES` | lua/ui_actionbar_display.lua | 201 |
 | `CLEANSE_COST` | lua/global.lua | 131 |
@@ -682,7 +682,7 @@
 | `_spawnCraftButtons` | lua/ui_actionbar_targets.lua | 110 |
 | `_spawnFightButtons` | lua/ui_actionbar_targets.lua | 173 |
 | `_spawnMoveButtons` | lua/ui_actionbar_targets.lua | 88 |
-| `advanceToNextPlayer` | lua/day_loop.lua | 386 |
+| `advanceToNextPlayer` | lua/day_loop.lua | 388 |
 | `allPlayersGain` | lua/effects/dawn_effects.lua | 44 |
 | `allPlayersLose` | lua/effects/dawn_effects.lua | 15 |
 | `applyCounterAttack` | lua/combat_resolve.lua | 134 |
@@ -695,9 +695,9 @@
 | `auditObjectCount` | lua/audit.lua | 7 |
 | `auditTooltips` | lua/audit.lua | 67 |
 | `beginCombat` | lua/combat_resolve.lua | 213 |
-| `beginDayPhase` | lua/day_loop.lua | 359 |
-| `beginDusk` | lua/day_loop.lua | 497 |
-| `beginNight` | lua/day_loop.lua | 677 |
+| `beginDayPhase` | lua/day_loop.lua | 361 |
+| `beginDusk` | lua/day_loop.lua | 499 |
+| `beginNight` | lua/day_loop.lua | 679 |
 | `benchUnusedCharacters` | lua/helpers.lua | 249 |
 | `bossKeyForName` | lua/combat.lua | 93 |
 | `bossStatsFor` | lua/actions_combat.lua | 46 |
@@ -714,7 +714,7 @@
 | `characterToColor` | lua/helpers.lua | 334 |
 | `checkBonusVictories` | lua/tick_victory.lua | 400 |
 | `checkDefeat` | lua/tick_victory.lua | 332 |
-| `checkDoomThresholds` | lua/day_loop.lua | 239 |
+| `checkDoomThresholds` | lua/day_loop.lua | 241 |
 | `checkDownState` | lua/tick_victory.lua | 181 |
 | `checkPlayerHasLight` | lua/night.lua | 288 |
 | `checkSourcePhase` | lua/combat.lua | 137 |
@@ -729,10 +729,10 @@
 | `confirmMoveInjuredToThreat` | lua/ui_mood.lua | 131 |
 | `confirmSleepAloneAtCourt` | lua/ui_mood.lua | 80 |
 | `cookTelltaleHeart` | lua/crafting.lua | 199 |
-| `countDuskReady` | lua/day_loop.lua | 619 |
-| `countFesteringThreats` | lua/day_loop.lua | 209 |
+| `countDuskReady` | lua/day_loop.lua | 621 |
+| `countFesteringThreats` | lua/day_loop.lua | 211 |
 | `createDayButton` | lua/setup.lua | 230 |
-| `createSetupButton` | lua/global.lua | 288 |
+| `createSetupButton` | lua/global.lua | 297 |
 | `customUIHidden` | lua/ui_controls.lua | 104 |
 | `dealMarketDisplay` | lua/setup.lua | 171 |
 | `dealStartingHands` | lua/setup.lua | 130 |
@@ -762,11 +762,11 @@
 | `doUndo` | lua/actions.lua | 23 |
 | `drawThreatsAt` | lua/night.lua | 85 |
 | `dropBossLoot` | lua/combat.lua | 45 |
-| `endPlayerTurn` | lua/day_loop.lua | 443 |
+| `endPlayerTurn` | lua/day_loop.lua | 445 |
 | `ensureChronicle` | lua/ui_controls.lua | 339 |
 | `exportSessionLog` | lua/telemetry.lua | 107 |
 | `fightTargetsAt` | lua/actions_combat.lua | 59 |
-| `finalizeGuidedSetup` | lua/ui_setup.lua | 452 |
+| `finalizeGuidedSetup` | lua/ui_setup.lua | 454 |
 | `findAllByTag` | lua/helpers.lua | 4 |
 | `findOneByTag` | lua/helpers.lua | 14 |
 | `findOneByTags` | lua/helpers.lua | 21 |
@@ -813,7 +813,7 @@
 | `giveResource` | lua/helpers.lua | 100 |
 | `highlightCTA` | lua/ui_banner.lua | 347 |
 | `identifyThreatType` | lua/night.lua | 341 |
-| `isBossOnMap` | lua/day_loop.lua | 202 |
+| `isBossOnMap` | lua/day_loop.lua | 204 |
 | `isGuidedSetupRunning` | lua/ui_setup.lua | 19 |
 | `lockdownCriticalObjects` | lua/audit.lua | 25 |
 | `lowestStatPlayer` | lua/effects/dawn_effects.lua | 53 |
@@ -844,8 +844,8 @@
 | `onActionTooltipEnter` | lua/ui_actionbar_display.lua | 295 |
 | `onActionTooltipExit` | lua/ui_actionbar_display.lua | 308 |
 | `onBeginDayClick` | lua/setup.lua | 248 |
-| `onBriefBack` | lua/ui_setup.lua | 418 |
-| `onBriefDismiss` | lua/ui_setup.lua | 431 |
+| `onBriefBack` | lua/ui_setup.lua | 420 |
+| `onBriefDismiss` | lua/ui_setup.lua | 433 |
 | `onConfirmNo` | lua/ui_controls.lua | 35 |
 | `onConfirmYes` | lua/ui_controls.lua | 25 |
 | `onCookTargetClick` | lua/ui_actionbar_targets.lua | 256 |
@@ -864,12 +864,12 @@
 | `onHostEndTurn` | lua/ui_controls.lua | 209 |
 | `onHostResolveNight` | lua/ui_controls.lua | 196 |
 | `onHostRestart` | lua/ui_controls.lua | 219 |
-| `onHostSetupGuided` | lua/ui_setup.lua | 599 |
+| `onHostSetupGuided` | lua/ui_setup.lua | 601 |
 | `onLoad` | lua/global.lua | 244 |
 | `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 204 |
 | `onPeekCancel` | lua/ui_actionbar_handlers.lua | 326 |
 | `onPeekDeckClick` | lua/ui_actionbar_handlers.lua | 320 |
-| `onPickChar` | lua/ui_setup.lua | 330 |
+| `onPickChar` | lua/ui_setup.lua | 332 |
 | `onPickPath` | lua/ui_setup.lua | 90 |
 | `onPosterizeTargetClick` | lua/signatures.lua | 220 |
 | `onPressAttack` | lua/ui_actionbar_handlers.lua | 219 |
@@ -880,8 +880,8 @@
 | `onRestHunger` | lua/ui_actionbar_handlers.lua | 131 |
 | `onRestSanity` | lua/ui_actionbar_handlers.lua | 142 |
 | `onRulesToggle` | lua/ui_rules.lua | 246 |
-| `onSave` | lua/global.lua | 281 |
-| `onSetupClick` | lua/global.lua | 311 |
+| `onSave` | lua/global.lua | 290 |
+| `onSetupClick` | lua/global.lua | 320 |
 | `onSignatureCancel` | lua/signatures.lua | 279 |
 | `onSignatureTargetClick` | lua/signatures.lua | 264 |
 | `onSummaryClose` | lua/ui_controls.lua | 328 |
@@ -920,7 +920,7 @@
 | `refreshCombatPanel` | lua/ui_actionbar_handlers.lua | 205 |
 | `refreshCycleStrip` | lua/ui_rules.lua | 315 |
 | `refreshDawnChecklist` | lua/ui_rules.lua | 259 |
-| `refreshDuskReadyLabel` | lua/day_loop.lua | 637 |
+| `refreshDuskReadyLabel` | lua/day_loop.lua | 639 |
 | `refreshDynamicTooltips` | lua/ui_controls.lua | 549 |
 | `refreshHelpPanel` | lua/ui_help.lua | 136 |
 | `refreshHostControls` | lua/ui_controls.lua | 150 |
@@ -937,8 +937,8 @@
 | `resolveStorytelling` | lua/night.lua | 356 |
 | `resolveTick` | lua/tick_victory.lua | 8 |
 | `resolveWrongness` | lua/effects/dawn_effects_phase2.lua | 83 |
-| `revealDawnCard` | lua/day_loop.lua | 309 |
-| `revealLastDawn` | lua/day_loop.lua | 286 |
+| `revealDawnCard` | lua/day_loop.lua | 311 |
+| `revealLastDawn` | lua/day_loop.lua | 288 |
 | `revealTrophy` | lua/combat.lua | 265 |
 | `reviveCharacter` | lua/tick_victory.lua | 232 |
 | `rollAttackDice` | lua/combat.lua | 10 |
@@ -948,19 +948,19 @@
 | `setActionEnabled` | lua/ui_actionbar_display.lua | 186 |
 | `setActionTooltip` | lua/ui_help.lua | 385 |
 | `setPhaseMood` | lua/ui_mood.lua | 38 |
-| `showCharBriefing` | lua/ui_setup.lua | 406 |
-| `showCharPickForNextPlayer` | lua/ui_setup.lua | 214 |
+| `showCharBriefing` | lua/ui_setup.lua | 408 |
+| `showCharPickForNextPlayer` | lua/ui_setup.lua | 216 |
 | `showConfirm` | lua/ui_controls.lua | 12 |
 | `showEndOfDaySummary` | lua/ui_controls.lua | 261 |
 | `showResourcePicker` | lua/ui_controls.lua | 55 |
 | `showSignatureTargetDialog` | lua/signatures.lua | 243 |
 | `showWeekInReview` | lua/ui_controls.lua | 425 |
-| `showWelcomeSequence` | lua/ui_setup.lua | 568 |
+| `showWelcomeSequence` | lua/ui_setup.lua | 570 |
 | `snapshotForUndo` | lua/actions.lua | 7 |
 | `sourceSplitIntoBeaks` | lua/combat.lua | 155 |
 | `spawnPosterizeTargets` | lua/signatures.lua | 188 |
 | `spawnResourceAtTile` | lua/helpers.lua | 122 |
-| `spendAction` | lua/day_loop.lua | 467 |
+| `spendAction` | lua/day_loop.lua | 469 |
 | `startDiscardTraySweep` | lua/helpers.lua | 214 |
 | `startGuidedSetup` | lua/ui_setup.lua | 48 |
 | `startIdleWatcher` | lua/day_loop.lua | 29 |
@@ -974,7 +974,7 @@
 | `syncThreatHP` | lua/combat.lua | 129 |
 | `takeResourceFromPlayer` | lua/helpers.lua | 149 |
 | `threatStatsForCard` | lua/actions_combat.lua | 30 |
-| `toggleDuskReady` | lua/day_loop.lua | 648 |
+| `toggleDuskReady` | lua/day_loop.lua | 650 |
 | `treeguardDefeated` | lua/treeguard.lua | 63 |
 | `updateActivePlayerIndicator` | lua/ui_banner.lua | 232 |
 | `validateActivePlayer` | lua/ui_actionbar_display.lua | 9 |

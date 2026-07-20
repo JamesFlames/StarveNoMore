@@ -198,7 +198,10 @@ local CHAR_CARD_STYLE = {
 local CARD_TAKEN_BG   = "#CFCBC2AA"
 local CARD_TAKEN_NAME = "#8A857B"
 
--- "Blue (PlayerName)" when someone is seated there, else just the colour.
+-- The player's NAME when someone is seated there, else the seat colour.
+-- Never lead with the colour: a player's colour is decided by the
+-- character they pick, so naming their pre-pick seat colour ("Blue
+-- picks...") reads as if the colour already mattered.
 local function _seatLabel(color)
     local name
     pcall(function()
@@ -207,8 +210,7 @@ local function _seatLabel(color)
             name = p.steam_name
         end
     end)
-    if name then return color .. " (" .. name .. ")" end
-    return color
+    return name or ("the " .. tostring(color) .. " seat")
 end
 
 function showCharPickForNextPlayer()
