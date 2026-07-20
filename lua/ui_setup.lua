@@ -218,14 +218,22 @@ function showCharPickForNextPlayer()
         return
     end
 
-    local waiting = {}
-    for _, c in ipairs(setupState.pendingColors) do
-        table.insert(waiting, _seatLabel(c))
+    -- Lead with WHO picks now (the head of the queue — the seat a host
+    -- click picks for); the rest of the queue is listed underneath.
+    local current = _seatLabel(setupState.pendingColors[1])
+    local others = {}
+    for i = 2, #setupState.pendingColors do
+        table.insert(others, _seatLabel(setupState.pendingColors[i]))
     end
     UI.setAttribute("step2Title", "text",
-        "Step 2 — Pick Characters.  Still to pick: " .. table.concat(waiting, ", "))
-    UI.setAttribute("step2Subtitle", "text",
-        "Click YOUR character — your seat colour changes to match it. The host can click to pick for the next player in the list. Hover a card for the full briefing. HP = Health, HU = Hunger, SA = Sanity.")
+        "Step 2 — " .. current .. " picks a character")
+    local sub = "Click a card to choose — your seat colour changes to match your character. A host click also picks for " .. current .. "."
+    if #others > 0 then
+        sub = sub .. "\nUp next: " .. table.concat(others, ", ") ..
+            " (anyone waiting may click their own card early)."
+    end
+    sub = sub .. "\nHover a card for the full briefing. HP = Health, HU = Hunger, SA = Sanity."
+    UI.setAttribute("step2Subtitle", "text", sub)
 
     -- Grey out already-picked characters
     local taken = {}
