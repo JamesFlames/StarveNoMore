@@ -1124,14 +1124,20 @@ save = {
         "Type": 0, "Lines": False, "Color": {"r": 0, "g": 0, "b": 0},
         "Offset": False, "BothSnapping": False, "xSize": 2, "ySize": 2
     },
+    # Baseline lighting shown before the first BeginDay (setup / PreGame),
+    # where players pick characters and read the standees. Raised ~45% from
+    # the original dim values (playtest: standees read too dark against the
+    # night-suburb board). ui_mood.LIGHTING_PRESETS override this per phase
+    # once play starts — those were lifted to match.
     "Lighting": {
-        "LightIntensity": 0.55,
+        "LightIntensity": 0.80,
         "LightColor": {"r": 1.0, "g": 0.95, "b": 0.85},
-        "AmbientIntensity": 1.0,
+        "AmbientIntensity": 1.3,
         "AmbientType": 1,
-        "AmbientSkyColor": {"r": 0.35, "g": 0.4, "b": 0.55},
-        "AmbientEquatorColor": {"r": 0.45, "g": 0.4, "b": 0.35},
-        "AmbientGroundColor": {"r": 0.25, "g": 0.2, "b": 0.18},
+        "AmbientSkyColor": {"r": 0.5, "g": 0.54, "b": 0.66},
+        "AmbientEquatorColor": {"r": 0.55, "g": 0.5, "b": 0.45},
+        # Brighter ground bounce lifts the underside of the standees.
+        "AmbientGroundColor": {"r": 0.38, "g": 0.33, "b": 0.30},
         "ReflectionIntensity": 0.5,
         "LutIndex": 0,
         "LutContribution": 1.0

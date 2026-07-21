@@ -5,32 +5,36 @@
 -- Design §18.18: subtle environment shifts per sub-phase.
 -----------------------------------------------------------------------
 
--- Baseline lighting set in D.3
+-- Per-phase lighting (overrides the save's baseline Lighting block once
+-- play starts). Lifted ~45% from the original dim values so the character
+-- standees read clearly against the night-suburb board, while keeping the
+-- Day > Dusk > Night gradient so the mood still darkens toward night.
+-- Mirror of the raise in build_save.py's Lighting block.
 LIGHTING_PRESETS = {
     Dawn = {
-        LightIntensity = 0.60,
-        AmbientIntensity = 1.0,
-        AmbientSkyColor = {r=0.40, g=0.42, b=0.55},
+        LightIntensity = 0.85,
+        AmbientIntensity = 1.30,
+        AmbientSkyColor = {r=0.52, g=0.54, b=0.66},
     },
     Day = {
-        LightIntensity = 0.55,
-        AmbientIntensity = 1.0,
-        AmbientSkyColor = {r=0.35, g=0.40, b=0.55},
+        LightIntensity = 0.80,
+        AmbientIntensity = 1.30,
+        AmbientSkyColor = {r=0.50, g=0.54, b=0.66},
     },
     Dusk = {
-        LightIntensity = 0.50,
-        AmbientIntensity = 0.95,
-        AmbientSkyColor = {r=0.30, g=0.32, b=0.50},
+        LightIntensity = 0.68,
+        AmbientIntensity = 1.15,
+        AmbientSkyColor = {r=0.42, g=0.44, b=0.60},
     },
     Night = {
-        LightIntensity = 0.38,
-        AmbientIntensity = 0.85,
-        AmbientSkyColor = {r=0.18, g=0.20, b=0.40},
+        LightIntensity = 0.55,
+        AmbientIntensity = 1.05,
+        AmbientSkyColor = {r=0.32, g=0.34, b=0.52},
     },
     Tick = {
-        LightIntensity = 0.45,
-        AmbientIntensity = 0.90,
-        AmbientSkyColor = {r=0.25, g=0.28, b=0.45},
+        LightIntensity = 0.62,
+        AmbientIntensity = 1.10,
+        AmbientSkyColor = {r=0.38, g=0.40, b=0.56},
     },
 }
 
@@ -40,7 +44,7 @@ function setPhaseMood(subPhase)
 
     -- Dawn gets a brief intensity flash before settling
     if subPhase == "Dawn" then
-        Lighting.LightIntensity = 0.70
+        Lighting.LightIntensity = 0.95
         Wait.time(function()
             Lighting.LightIntensity = preset.LightIntensity
         end, 0.5)

@@ -560,16 +560,16 @@
 
 | line | kind | symbol |
 |---|---|---|
-| 9 | table | `LIGHTING_PRESETS` |
-| 38 | function | `setPhaseMood` |
-| 60 | function | `confirmEndDayEarly` |
-| 80 | function | `confirmSleepAloneAtCourt` |
-| 115 | function | `confirmLastHeart` |
-| 131 | function | `confirmMoveInjuredToThreat` |
-| 159 | function | `nudgeCameraAll` |
-| 177 | function | `nudgeCameraToBoss` |
-| 186 | function | `nudgeCameraToDawnCard` |
-| 193 | function | `nudgeCameraToDoom` |
+| 13 | table | `LIGHTING_PRESETS` |
+| 42 | function | `setPhaseMood` |
+| 64 | function | `confirmEndDayEarly` |
+| 84 | function | `confirmSleepAloneAtCourt` |
+| 119 | function | `confirmLastHeart` |
+| 135 | function | `confirmMoveInjuredToThreat` |
+| 163 | function | `nudgeCameraAll` |
+| 181 | function | `nudgeCameraToBoss` |
+| 190 | function | `nudgeCameraToDawnCard` |
+| 197 | function | `nudgeCameraToDoom` |
 
 ## lua/audit.lua (5 symbols)
 
@@ -640,7 +640,7 @@
 | `HELP_GLOSSARY` | lua/notebook_data.lua | 243 |
 | `HELP_QUICKSTART` | lua/notebook_data.lua | 207 |
 | `HIGHLIGHT_DURATION` | lua/ui_actionbar_core.lua | 41 |
-| `LIGHTING_PRESETS` | lua/ui_mood.lua | 9 |
+| `LIGHTING_PRESETS` | lua/ui_mood.lua | 13 |
 | `LIGHT_SOURCES` | lua/night.lua | 270 |
 | `LOCATION_ADJACENCY` | lua/ui_actionbar_core.lua | 14 |
 | `LOCATION_THREAT_RATE` | lua/night.lua | 12 |
@@ -724,10 +724,10 @@
 | `clearHighlight` | lua/ui_banner.lua | 333 |
 | `clearSignatureTargets` | lua/signatures.lua | 179 |
 | `colorToCharacter` | lua/helpers.lua | 325 |
-| `confirmEndDayEarly` | lua/ui_mood.lua | 60 |
-| `confirmLastHeart` | lua/ui_mood.lua | 115 |
-| `confirmMoveInjuredToThreat` | lua/ui_mood.lua | 131 |
-| `confirmSleepAloneAtCourt` | lua/ui_mood.lua | 80 |
+| `confirmEndDayEarly` | lua/ui_mood.lua | 64 |
+| `confirmLastHeart` | lua/ui_mood.lua | 119 |
+| `confirmMoveInjuredToThreat` | lua/ui_mood.lua | 135 |
+| `confirmSleepAloneAtCourt` | lua/ui_mood.lua | 84 |
 | `cookTelltaleHeart` | lua/crafting.lua | 199 |
 | `countDuskReady` | lua/day_loop.lua | 621 |
 | `countFesteringThreats` | lua/day_loop.lua | 211 |
@@ -823,10 +823,10 @@
 | `migrateGameState` | lua/global.lua | 216 |
 | `moveDoomMarker` | lua/setup.lua | 195 |
 | `noteInteraction` | lua/day_loop.lua | 11 |
-| `nudgeCameraAll` | lua/ui_mood.lua | 159 |
-| `nudgeCameraToBoss` | lua/ui_mood.lua | 177 |
-| `nudgeCameraToDawnCard` | lua/ui_mood.lua | 186 |
-| `nudgeCameraToDoom` | lua/ui_mood.lua | 193 |
+| `nudgeCameraAll` | lua/ui_mood.lua | 163 |
+| `nudgeCameraToBoss` | lua/ui_mood.lua | 181 |
+| `nudgeCameraToDawnCard` | lua/ui_mood.lua | 190 |
+| `nudgeCameraToDoom` | lua/ui_mood.lua | 197 |
 | `onActCleanse` | lua/ui_actionbar_handlers.lua | 161 |
 | `onActCook` | lua/ui_actionbar_handlers.lua | 61 |
 | `onActCraft` | lua/ui_actionbar_handlers.lua | 38 |
@@ -947,7 +947,7 @@
 | `setActionCubes` | lua/ui_actionbar_display.lua | 76 |
 | `setActionEnabled` | lua/ui_actionbar_display.lua | 186 |
 | `setActionTooltip` | lua/ui_help.lua | 385 |
-| `setPhaseMood` | lua/ui_mood.lua | 38 |
+| `setPhaseMood` | lua/ui_mood.lua | 42 |
 | `showCharBriefing` | lua/ui_setup.lua | 408 |
 | `showCharPickForNextPlayer` | lua/ui_setup.lua | 216 |
 | `showConfirm` | lua/ui_controls.lua | 12 |
