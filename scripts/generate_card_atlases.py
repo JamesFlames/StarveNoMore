@@ -11,7 +11,7 @@ If an illustration is missing, the art region falls back to a flat colored
 rectangle so partial generations don't break the atlas build.
 
 Run: python scripts/generate_card_atlases.py
-Output: art/decks/*.png
+Output: art/decks/*_face.jpg (atlases) + art/decks/*_back.png (backs)
 """
 
 import csv
@@ -495,9 +495,12 @@ def main():
     def build_deck(csv_name, face_base, label, cards):
         cols, rows_n = grid_for(len(cards))
         atlas = build_atlas(cards, cols, rows_n)
-        atlas.save(os.path.join(OUT, f"{face_base}_face.png"))
+        # JPEG at q88 with 4:4:4 chroma (no subsampling) keeps card text crisp
+        # at ~1/5 the bytes of PNG; the atlases have no alpha so nothing is lost.
+        atlas.save(os.path.join(OUT, f"{face_base}_face.jpg"),
+                   quality=88, subsampling=0, optimize=True)
         manifest[csv_name] = {"cards": len(cards), "cols": cols, "rows": rows_n,
-                              "face": f"{face_base}_face.png"}
+                              "face": f"{face_base}_face.jpg"}
         print(f"{label} face: {len(cards)} cards -> {cols}x{rows_n} atlas "
               f"({atlas.size[0]}x{atlas.size[1]})")
 

@@ -43,23 +43,23 @@ All visual assets the mod references. Each row gives the asset ID (used in `lua/
 
 | Asset ID | Local path | Final URL | Grid |
 |---|---|---|---|
-| `DECK_PHASE1_FACE` | `art/decks/phase1_face.png` | placeholder | 4x4 |
+| `DECK_PHASE1_FACE` | `art/decks/phase1_face.jpg` | placeholder | 4x4 |
 | `DECK_PHASE1_BACK` | `art/decks/phase1_back.png` | placeholder | 1x1 |
-| `DECK_PHASE2_FACE` | `art/decks/phase2_face.png` | placeholder | 4x4 |
+| `DECK_PHASE2_FACE` | `art/decks/phase2_face.jpg` | placeholder | 4x4 |
 | `DECK_PHASE2_BACK` | `art/decks/phase2_back.png` | placeholder | 1x1 |
-| `DECK_PHASE3_FACE` | `art/decks/phase3_face.png` | placeholder | 4x4 |
+| `DECK_PHASE3_FACE` | `art/decks/phase3_face.jpg` | placeholder | 4x4 |
 | `DECK_PHASE3_BACK` | `art/decks/phase3_back.png` | placeholder | 1x1 |
-| `DECK_PHASE4_FACE` | `art/decks/phase4_face.png` | placeholder | 4x4 |
+| `DECK_PHASE4_FACE` | `art/decks/phase4_face.jpg` | placeholder | 4x4 |
 | `DECK_PHASE4_BACK` | `art/decks/phase4_back.png` | placeholder | 1x1 |
-| `DECK_MARKET_FACE` | `art/decks/market_face.png` | placeholder | 7x8 |
+| `DECK_MARKET_FACE` | `art/decks/market_face.jpg` | placeholder | 7x8 |
 | `DECK_MARKET_BACK` | `art/decks/market_back.png` | placeholder | 1x1 |
-| `DECK_RECIPE_FACE` | `art/decks/recipe_face.png` | placeholder | 5x4 |
+| `DECK_RECIPE_FACE` | `art/decks/recipe_face.jpg` | placeholder | 5x4 |
 | `DECK_RECIPE_BACK` | `art/decks/recipe_back.png` | placeholder | 1x1 |
-| `DECK_THREAT_FACE` | `art/decks/threat_face.png` | placeholder | 6x8 |
+| `DECK_THREAT_FACE` | `art/decks/threat_face.jpg` | placeholder | 6x8 |
 | `DECK_THREAT_BACK` | `art/decks/threat_back.png` | placeholder | 1x1 |
-| `DECK_VISITOR_FACE` | `art/decks/visitor_face.png` | placeholder | 3x2 |
+| `DECK_VISITOR_FACE` | `art/decks/visitor_face.jpg` | placeholder | 3x2 |
 | `DECK_VISITOR_BACK` | `art/decks/visitor_back.png` | placeholder | 1x1 |
-| `DECK_TROPHY_FACE` | `art/decks/trophy_face.png` | placeholder | 2x2 |
+| `DECK_TROPHY_FACE` | `art/decks/trophy_face.jpg` | placeholder | 2x2 |
 | `DECK_TROPHY_BACK` | `art/decks/trophy_back.png` | placeholder | 1x1 |
 
 ## Token / icon images
@@ -121,12 +121,12 @@ runtime source of truth for the URLs and per-track durations. See
 
 | Asset path | Purpose |
 |---|---|
-| `sounds/ambient/suburban/*.wav` | Day-start tracks (random pick once per day) |
-| `sounds/ambient/varied/*.wav` and `*.mp3` | Chained ambient tracks until Night |
-| `sounds/creatures/bearger/*.mp3` | Bearger boss roar loop (forward-looking — not yet spawned in code) |
-| `sounds/creatures/deerclops/*.mp3` | Deerclops boss roar loop (P2 boss) |
-| `sounds/creatures/eye_of_terror/*.mp3` | Eye of Terror roar loop (P3 boss) |
-| `sounds/creatures/treeguard/*.mp3` | Treeguard roar loop (forward-looking) |
+| `sounds/ambient/suburban/*.ogg` | Day-start tracks (random pick once per day) |
+| `sounds/ambient/varied/*.ogg` | Chained ambient tracks until Night |
+| `sounds/creatures/bearger/*.ogg` | Bearger boss roar loop (forward-looking — not yet spawned in code) |
+| `sounds/creatures/deerclops/*.ogg` | Deerclops boss roar loop (P2 boss) |
+| `sounds/creatures/eye_of_terror/*.ogg` | Eye of Terror roar loop (P3 boss) |
+| `sounds/creatures/treeguard/*.ogg` | Treeguard roar loop (forward-looking) |
 | `sounds/sfx/tick_chime.wav` | End-of-day Tick chime (synthesized bell) |
 
 ## Notes

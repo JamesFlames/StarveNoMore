@@ -130,16 +130,16 @@ def test_effect_rule_order_covers_all_rules():
 # --------------------------------------------------------------------------
 
 DECK_FACES = {
-    "cards_phase1.csv": "phase1_face.png",
-    "cards_phase2.csv": "phase2_face.png",
-    "cards_phase3.csv": "phase3_face.png",
-    "cards_phase4.csv": "phase4_face.png",
-    "cards_market.csv": "market_face.png",
-    "cards_recipes.csv": "recipe_face.png",
-    "cards_threats.csv": "threat_face.png",
-    "cards_visitors.csv": "visitor_face.png",
-    "cards_trophies.csv": "trophy_face.png",
-    "cards_starting.csv": "starting_face.png",
+    "cards_phase1.csv": "phase1_face.jpg",
+    "cards_phase2.csv": "phase2_face.jpg",
+    "cards_phase3.csv": "phase3_face.jpg",
+    "cards_phase4.csv": "phase4_face.jpg",
+    "cards_market.csv": "market_face.jpg",
+    "cards_recipes.csv": "recipe_face.jpg",
+    "cards_threats.csv": "threat_face.jpg",
+    "cards_visitors.csv": "visitor_face.jpg",
+    "cards_trophies.csv": "trophy_face.jpg",
+    "cards_starting.csv": "starting_face.jpg",
 }
 
 

@@ -6,18 +6,18 @@
 AUDIO = {}
 
 AUDIO.AMBIENT_SUBURBAN = {
-    { url = "http://localhost:8080/sounds/ambient/suburban/dontstarve_dlc003_amb_temperate_interior_city_day.wav", duration = 51.26, name = "dontstarve_dlc003_amb_temperate_interior_city_day.wav" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_fall_day_amb_dsh.wav", duration = 113.53, name = "suburbs_fall_day_amb_dsh.wav" },
+    { url = "http://localhost:8080/sounds/ambient/suburban/dontstarve_dlc003_amb_temperate_interior_city_day.ogg", duration = 51.26, name = "dontstarve_dlc003_amb_temperate_interior_city_day.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_fall_day_amb_dsh.ogg", duration = 113.53, name = "suburbs_fall_day_amb_dsh.ogg" },
 }
 
 AUDIO.AMBIENT_VARIED = {
     { url = "http://localhost:8080/sounds/ambient/varied/badland_summer_lp.ogg", duration = 109.77, name = "badland_summer_lp.ogg" },
     { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds fall night_ds_amb.wav", duration = 99.08, name = "battlegrounds fall night_ds_amb.wav" },
     { url = "http://localhost:8080/sounds/ambient/varied/cave_lp.ogg", duration = 91.48, name = "cave_lp.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/deep_jungle_fall_night.wav", duration = 112.88, name = "deep_jungle_fall_night.wav" },
+    { url = "http://localhost:8080/sounds/ambient/varied/deep_jungle_fall_night.ogg", duration = 112.88, name = "deep_jungle_fall_night.ogg" },
     { url = "http://localhost:8080/sounds/ambient/varied/forest_summer_lp.ogg", duration = 150.80, name = "forest_summer_lp.ogg" },
     { url = "http://localhost:8080/sounds/ambient/varied/grasslandry_day_lp.ogg", duration = 95.01, name = "grasslandry_day_lp.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/hamlet_amb_cave_st_lp.wav", duration = 116.64, name = "hamlet_amb_cave_st_lp.wav" },
+    { url = "http://localhost:8080/sounds/ambient/varied/hamlet_amb_cave_st_lp.ogg", duration = 116.64, name = "hamlet_amb_cave_st_lp.ogg" },
     { url = "http://localhost:8080/sounds/ambient/varied/jungle_wet_night_lp.ogg", duration = 92.87, name = "jungle_wet_night_lp.ogg" },
     { url = "http://localhost:8080/sounds/ambient/varied/mangrove_dry_day.ogg", duration = 93.15, name = "mangrove_dry_day.ogg" },
     { url = "http://localhost:8080/sounds/ambient/varied/mangrove_hurricane_day.ogg", duration = 92.50, name = "mangrove_hurricane_day.ogg" },
@@ -27,9 +27,9 @@ AUDIO.AMBIENT_VARIED = {
 }
 
 AUDIO.AMBIENT_NIGHT = {
-    { url = "http://localhost:8080/sounds/ambient/night/night_drone_cold.wav", duration = 72.00, name = "night_drone_cold.wav" },
-    { url = "http://localhost:8080/sounds/ambient/night/night_drone_hollow.wav", duration = 72.00, name = "night_drone_hollow.wav" },
-    { url = "http://localhost:8080/sounds/ambient/night/night_drone_low.wav", duration = 72.00, name = "night_drone_low.wav" },
+    { url = "http://localhost:8080/sounds/ambient/night/night_drone_cold.ogg", duration = 72.00, name = "night_drone_cold.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/night/night_drone_hollow.ogg", duration = 72.00, name = "night_drone_hollow.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/night/night_drone_low.ogg", duration = 72.00, name = "night_drone_low.ogg" },
 }
 
 AUDIO.CREATURES = {}

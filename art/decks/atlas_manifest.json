@@ -2,61 +2,61 @@
   "cards_market.csv": {
     "cards": 49,
     "cols": 7,
-    "face": "market_face.png",
+    "face": "market_face.jpg",
     "rows": 7
   },
   "cards_phase1.csv": {
     "cards": 15,
     "cols": 4,
-    "face": "phase1_face.png",
+    "face": "phase1_face.jpg",
     "rows": 4
   },
   "cards_phase2.csv": {
     "cards": 16,
     "cols": 4,
-    "face": "phase2_face.png",
+    "face": "phase2_face.jpg",
     "rows": 4
   },
   "cards_phase3.csv": {
     "cards": 16,
     "cols": 4,
-    "face": "phase3_face.png",
+    "face": "phase3_face.jpg",
     "rows": 4
   },
   "cards_phase4.csv": {
     "cards": 15,
     "cols": 4,
-    "face": "phase4_face.png",
+    "face": "phase4_face.jpg",
     "rows": 4
   },
   "cards_recipes.csv": {
     "cards": 20,
     "cols": 5,
-    "face": "recipe_face.png",
+    "face": "recipe_face.jpg",
     "rows": 4
   },
   "cards_starting.csv": {
     "cards": 22,
     "cols": 5,
-    "face": "starting_face.png",
+    "face": "starting_face.jpg",
     "rows": 5
   },
   "cards_threats.csv": {
     "cards": 51,
     "cols": 8,
-    "face": "threat_face.png",
+    "face": "threat_face.jpg",
     "rows": 7
   },
   "cards_trophies.csv": {
     "cards": 4,
     "cols": 2,
-    "face": "trophy_face.png",
+    "face": "trophy_face.jpg",
     "rows": 2
   },
   "cards_visitors.csv": {
     "cards": 6,
     "cols": 3,
-    "face": "visitor_face.png",
+    "face": "visitor_face.jpg",
     "rows": 2
   }
 }
