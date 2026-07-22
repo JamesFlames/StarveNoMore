@@ -38,22 +38,29 @@ LIGHTING_PRESETS = {
     },
 }
 
--- Smoothly transition lighting to match the current sub-phase
+-- Transition lighting to match the current sub-phase.
+-- NOTE: the runtime Lighting API uses snake_case properties + setters +
+-- apply() — the PascalCase names (LightIntensity etc.) exist only in the
+-- save JSON and throw "cannot access field" at runtime.
 function setPhaseMood(subPhase)
+    if not Lighting then return end
     local preset = LIGHTING_PRESETS[subPhase] or LIGHTING_PRESETS["Day"]
+
+    local function applyPreset(intensity)
+        Lighting.light_intensity = intensity
+        Lighting.ambient_intensity = preset.AmbientIntensity
+        local c = preset.AmbientSkyColor
+        Lighting.setAmbientSkyColor({r = c.r, g = c.g, b = c.b})
+        Lighting.apply()
+    end
 
     -- Dawn gets a brief intensity flash before settling
     if subPhase == "Dawn" then
-        Lighting.LightIntensity = 0.95
-        Wait.time(function()
-            Lighting.LightIntensity = preset.LightIntensity
-        end, 0.5)
+        applyPreset(0.95)
+        Wait.time(function() applyPreset(preset.LightIntensity) end, 0.5)
     else
-        Lighting.LightIntensity = preset.LightIntensity
+        applyPreset(preset.LightIntensity)
     end
-
-    Lighting.AmbientIntensity = preset.AmbientIntensity
-    Lighting.AmbientSkyColor = Color(preset.AmbientSkyColor.r, preset.AmbientSkyColor.g, preset.AmbientSkyColor.b)
 end
 
 -----------------------------------------------------------------------

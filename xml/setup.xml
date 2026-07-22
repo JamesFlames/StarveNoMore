@@ -70,10 +70,10 @@
           preferredHeight="30" />
     <Button id="toggleDifficulty"
             onClick="onToggleDifficulty"
-            fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
+            fontSize="14" color="#CFE6C2FF" textColor="#1E5A1E"
             preferredHeight="64"
-            tooltip="Cycle: Standard (7 days) / Long Weekend (3 days, Doom to 15 — teaching game) / Nightmare (Doom +1 per phase, starts on Strange Days)."
-            text="Difficulty: STANDARD&#10;(the full 7-day week)" />
+            tooltip="Each click steps UP in difficulty: Long Weekend (3 days, Doom to 15 — the teaching game) / Standard (the full 7-day week) / Nightmare (Doom +1 per phase, starts on Strange Days)."
+            text="Difficulty: LONG WEEKEND&#10;(3 days, Doom track halved — recommended for your first game)" />
     <Button id="toggleRotation"
             onClick="onToggleRotation"
             fontSize="14" color="#ECE6D8FF" textColor="#3A362E"

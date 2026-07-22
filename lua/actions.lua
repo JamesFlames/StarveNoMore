@@ -276,6 +276,22 @@ local function _describeHaul(got)
     return table.concat(parts, " + ")
 end
 
+-- After tokens land, whisper the player's full stock so "what do I have
+-- now?" never needs counting tokens by eye. Delayed so the smooth-moving
+-- tokens are actually beside the board when getPlayerResources scans.
+function announceInventory(color)
+    Wait.time(function()
+        safecall(function()
+            local res = getPlayerResources(color)
+            printToColor(string.format(
+                "You now hold: Wood %d · Metal %d · Cloth %d · Food %d · Energy Drink %d · Battery %d  (tokens sit beside your player board; the panel on the left tracks them live).",
+                res.Wood or 0, res.Metal or 0, res.Cloth or 0, res.Food or 0,
+                res.EnergyDrink or 0, res.Battery or 0), color, {0.7, 1.0, 0.7})
+            refreshStatDisplay()
+        end, "InvSummary")
+    end, 1.6)
+end
+
 -- Does this player carry a Backpack (Persistent tool: gather +1)?
 function playerHasBackpack(color)
     local charName = colorToCharacter(color)
@@ -302,6 +318,7 @@ function gatherRandomResources(color, loc, n)
     end
     broadcastEvent("gain", char.name .. " gathers " .. _describeHaul(got) .. " at " .. loc ..
         " (tokens delivered to your board automatically).")
+    announceInventory(color)
 end
 
 function doGather(color)
@@ -367,6 +384,7 @@ function doGather(color)
             function()
                 giveResource(color, "EnergyDrink", 2)
                 broadcastEvent("gain", char.name .. " raids the Stash: 2 Energy Drinks (delivered to your board).")
+                announceInventory(color)
             end,
             function()
                 gatherRandomResources(color, loc, 1 + extra)

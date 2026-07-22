@@ -95,17 +95,25 @@ function drawThreatsAt(location, count)
                 rotation = {0, 180, 0},
                 smooth   = true,
                 callback_function = function(threatCard)
-                    local tName = threatCard.getNickname() or "Unknown Threat"
-                    local tDesc = threatCard.getDescription() or ""
-                    broadcastEvent("warn", "THREAT at " .. location .. ": " .. tName)
-                    broadcastEvent("proc", tDesc)
+                    -- pcall: the handle is dead if the card merged with
+                    -- another threat on the tile mid-flight — touching any
+                    -- field then throws "cannot access field of userdata".
+                    local ok = pcall(function()
+                        local tName = threatCard.getNickname() or "Unknown Threat"
+                        local tDesc = threatCard.getDescription() or ""
+                        broadcastEvent("warn", "THREAT at " .. location .. ": " .. tName)
+                        broadcastEvent("proc", tDesc)
 
-                    -- Auto-resolve soft threats (HP = 0)
-                    local tType = identifyThreatType(threatCard)
-                    if tType == "Soft" then
-                        broadcastEvent("proc", tName .. " is a soft threat — resolves and discards.")
-                    else
-                        broadcastEvent("warn", tName .. " must be fought or fled! Flee: move 1 tile away, pay 1 Sanity (always legal, even starving). A fled threat stays here and festers at Dawn.")
+                        -- Auto-resolve soft threats (HP = 0)
+                        local tType = identifyThreatType(threatCard)
+                        if tType == "Soft" then
+                            broadcastEvent("proc", tName .. " is a soft threat — resolves and discards.")
+                        else
+                            broadcastEvent("warn", tName .. " must be fought or fled! Flee: move 1 tile away, pay 1 Sanity (always legal, even starving). A fled threat stays here and festers at Dawn.")
+                        end
+                    end)
+                    if not ok then
+                        broadcastEvent("warn", "A Threat appears at " .. location .. " — its card stacked with another there; check the tile.")
                     end
                 end
             })

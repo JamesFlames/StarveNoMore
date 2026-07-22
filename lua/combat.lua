@@ -62,8 +62,14 @@ end
 function flashVictoryLighting()
     if not Lighting then return end
     local base = Lighting.light_intensity or 0.6
-    Lighting.setLightIntensity(math.min(1.2, base + 0.4))
-    Wait.time(function() safecall(function() Lighting.setLightIntensity(base) end, "Light") end, 0.6)
+    -- Runtime API: assign light_intensity then apply() (there is no
+    -- setLightIntensity function).
+    Lighting.light_intensity = math.min(1.2, base + 0.4)
+    Lighting.apply()
+    Wait.time(function() safecall(function()
+        Lighting.light_intensity = base
+        Lighting.apply()
+    end, "Light") end, 0.6)
 end
 
 -----------------------------------------------------------------------
@@ -146,8 +152,12 @@ end
 function flashSplitLighting()
     if not Lighting then return end
     local base = Lighting.light_intensity or 0.6
-    Lighting.setLightIntensity(math.max(0.05, base - 0.4))
-    Wait.time(function() safecall(function() Lighting.setLightIntensity(base) end, "Light") end, 0.8)
+    Lighting.light_intensity = math.max(0.05, base - 0.4)
+    Lighting.apply()
+    Wait.time(function() safecall(function()
+        Lighting.light_intensity = base
+        Lighting.apply()
+    end, "Light") end, 0.8)
 end
 
 local SPLIT_LOCATIONS = {"JamesHouse", "RaymanHouse", "EllieLucaHouse", "BasketballCourt", "BadmintonCourt"}

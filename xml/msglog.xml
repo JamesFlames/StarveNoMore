@@ -1,0 +1,66 @@
+<!-- msglog.xml — the persistent Message Log panel (ui_msglog.lua) and the
+     "What now?" hint panel (ui_help.lua). Both exist because TTS broadcast
+     text fades fast and renders behind the Phase Banner. -->
+
+<!-- Message Log: every public game message, newest at the bottom. Stays
+     until cleared/hidden; the banner's "Log" button reopens it. -->
+<Panel id="msgLog"
+       rectAlignment="LowerRight"
+       offsetXY="-10 130"
+       width="440" height="250"
+       color="#000000CC"
+       outline="#8CA0B44C"
+       outlineSize="1"
+       allowDragging="true"
+       returnToOriginalPositionWhenReleased="false"
+       active="false">
+  <VerticalLayout spacing="4" padding="8 8 6 6"
+                  childForceExpandHeight="false">
+    <HorizontalLayout spacing="6" preferredHeight="22"
+                      childForceExpandWidth="false">
+      <Text fontSize="13" fontStyle="Bold" color="#AACCEE"
+            text="Message log" preferredWidth="290" alignment="MiddleLeft" />
+      <Button id="msgLogClear" onClick="onMsgLogClear"
+              fontSize="11" color="#28282CE6" textColor="#CCCCCC"
+              preferredWidth="56" preferredHeight="20"
+              tooltip="Empty the log."
+              text="Clear" />
+      <Button id="msgLogHide" onClick="onMsgLogHide"
+              fontSize="11" color="#28282CE6" textColor="#CCCCCC"
+              preferredWidth="56" preferredHeight="20"
+              tooltip="Hide this panel. The 'Log' button on the top banner brings it back."
+              text="Hide" />
+    </HorizontalLayout>
+    <Text id="msgLogBody" fontSize="12" color="#CCCCCC"
+          alignment="LowerLeft"
+          text="" preferredHeight="200" />
+  </VerticalLayout>
+</Panel>
+
+<!-- "What now?" hint panel — per-player (visibility is set to the clicking
+     player's colour). Replaces the old broadcast, which rendered behind
+     the Phase Banner and faded before it could be read. -->
+<Panel id="whatNowPanel"
+       rectAlignment="MiddleCenter"
+       offsetXY="0 120"
+       width="540" height="250"
+       color="#0A140AF5"
+       outline="#64B464CC"
+       outlineSize="2"
+       allowDragging="true"
+       returnToOriginalPositionWhenReleased="false"
+       active="false">
+  <VerticalLayout spacing="6" padding="12 12 10 10"
+                  childForceExpandHeight="false">
+    <Text fontSize="16" fontStyle="Bold" color="#BBFFBB"
+          text="What now?" preferredHeight="22" />
+    <Text id="whatNowBody" fontSize="13" color="#DDF5DD"
+          alignment="UpperLeft"
+          text="" preferredHeight="156" />
+    <Button id="whatNowClose" onClick="onWhatNowClose"
+            fontSize="14" fontStyle="Bold"
+            color="#1E501EE6" textColor="#88FF88"
+            preferredHeight="34"
+            text="Got it" />
+  </VerticalLayout>
+</Panel>

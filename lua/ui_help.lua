@@ -318,7 +318,20 @@ function onWhatNowClick(player, value, id)
         end
     end
 
-    broadcastToColor(hint, color, BROADCAST_COLORS.gain)
+    -- Into the What-now panel, not a broadcast: broadcasts render behind
+    -- the Phase Banner and fade before they can be read. The panel stays
+    -- until "Got it", and is visible only to the asking player.
+    if UI then
+        UI.setAttribute("whatNowBody", "text", hint)
+        UI.setAttribute("whatNowPanel", "visibility", color)
+        UI.show("whatNowPanel")
+    end
+    -- Chat copy so the hint also survives in the persistent chat log.
+    printToColor(hint, color, BROADCAST_COLORS.gain)
+end
+
+function onWhatNowClose(player, value, id)
+    UI.hide("whatNowPanel")
 end
 
 function substitutePlaceholders(text, char)

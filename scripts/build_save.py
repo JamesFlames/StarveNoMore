@@ -150,6 +150,16 @@ ph = art
 # helpers
 # ---------------------------------------------------------------------------
 
+# The glass table's playing surface sits at world y ≈ 1.55 (measured from
+# object resting heights in live saves), and the main board's top surface is
+# roughly flush with it. Anything authored below this line starts EMBEDDED
+# in the tabletop: locked objects stay invisible inside the glass, unlocked
+# flat ones fall through the table's partial-hull collider ("player boards
+# were invisible until I picked them up"). Every surface-level spawn height
+# below is authored relative to this.
+TABLE_SURFACE_Y = 1.55
+SURFACE_Y = TABLE_SURFACE_Y + 0.1   # safe spawn height for flat pieces
+
 _guid_counter = [0]
 def guid():
     _guid_counter[0] += 1
@@ -469,7 +479,7 @@ for loc_key, (name, url, pos) in loc_data.items():
     # in the default view (the day-counter/cards convention) — this keeps
     # the house/court art upright for the players.
     tile = base_obj("Custom_Tile",
-                    tf(pos["x"], 1.05, pos["z"], ry=180, sx=2.5, sy=1, sz=2.5),
+                    tf(pos["x"], SURFACE_Y, pos["z"], ry=180, sx=2.5, sy=1, sz=2.5),
                     nickname=name,
                     desc=tooltips[loc_key],
                     tags=["Location", f"Location:{loc_key}"],
@@ -532,10 +542,11 @@ for variant in ["Compact", "Sprawl", "Linear", "Ring", "Star"]:
 # ---------------------------------------------------------------------------
 
 # Spawns locked on step 0 of the printed Doom track; only moveDoomMarker
-# (setup.lua) moves it — players can't drag it. y=1.2 mirrors the marker
-# rest height in moveDoomMarker.
+# (setup.lua) moves it — players can't drag it. y=1.68 mirrors
+# DOOM_MARKER_Y in moveDoomMarker (above the ~1.55 table surface; the old
+# 1.2 left the marker buried inside the glass tabletop).
 _doom_x, _doom_z = board_geometry.doom_step_world(0)
-doom = base_obj("Custom_Token", tf(_doom_x, 1.2, _doom_z),
+doom = base_obj("Custom_Token", tf(_doom_x, 1.68, _doom_z),
                 nickname="Doom Marker",
                 desc="Doom: 0 / 30. Next threshold at 10: night threats +1.",
                 tags=["DoomMarker"],
@@ -553,12 +564,13 @@ objects.append(doom)
 # ---------------------------------------------------------------------------
 
 # ry=0: playtest showed the Counter's digits render right-side-up at 0
-# (unlike flat tiles/cards, whose art needs the 180 treatment). y=1.4
-# keeps it clear of the board's top surface — spawned lower, it clipped
-# into the board and was invisible until physics nudged it out. The
-# script alone advances it: onLoad / lockdownCriticalObjects set
-# interactable=false so players can't click the counter's +/- buttons.
-day_counter = base_obj("Counter", tf(-10, 1.4, 8),
+# (unlike flat tiles/cards, whose art needs the 180 treatment). y=1.8
+# keeps the whole gadget above the ~1.55 playing surface, inside the
+# printed DAY COUNTER frame — spawned lower, it clipped into the surface
+# and was half-invisible. The script alone advances it: onLoad /
+# lockdownCriticalObjects set interactable=false so players can't click
+# the counter's +/- buttons.
+day_counter = base_obj("Counter", tf(-10, 1.8, 8),
                        nickname="Day Counter",
                        desc="Current day. Advances each Dawn.",
                        tags=["DayCounter"],
@@ -619,12 +631,36 @@ objects.append(market_deck)
 # 5 market display slots (the setup script deals a face-up card onto each).
 # Locked notecards so physics can never wedge them under the board.
 for i, (msx, msz) in enumerate(MARKET_SLOT_POSITIONS):
-    slot = base_obj("Notecard", tf(msx, 1.05, msz),
+    slot = base_obj("Notecard", tf(msx, SURFACE_Y, msz),
                     nickname=f"Market Slot {i+1}",
                     desc="A Market card is dealt face-up here during Setup. Craft claims the card; the deck refills the slot.",
                     tags=["MarketSlot", f"MarketSlot:{i}"],
                     locked=True)
     objects.append(slot)
+
+# Table labels for the two unowned face-up card rows — playtest: "who do
+# these cards belong to?". Flat 3DText (rx=90, ry=0: the gadget-text
+# convention, same as the Day Counter digits).
+def table_label(x, z, text, guid_tag, font_size=64, color=(0.85, 0.78, 0.55)):
+    lbl = base_obj("3DText", tf(x, TABLE_SURFACE_Y + 0.05, z, rx=90, ry=0),
+                   nickname="", desc="",
+                   tags=[guid_tag], locked=True,
+                   extra={"Tooltip": False})
+    lbl["Text"] = {
+        "Text": text,
+        "colorstate": {"r": color[0], "g": color[1], "b": color[2]},
+        "fontSize": font_size,
+    }
+    return lbl
+
+objects.append(table_label(
+    -12.5, 11.4,
+    "MARKET — shared shop.\nBuy with the Craft action.",
+    "Label:Market", 48))
+objects.append(table_label(
+    -7.0, -8.3,
+    "RECIPES — reference only.\nCook them at a Crockpot.",
+    "Label:Recipes", 48))
 
 # ---------------------------------------------------------------------------
 # E.10  Recipe cards (face-up reference)
@@ -632,7 +668,7 @@ for i, (msx, msz) in enumerate(MARKET_SLOT_POSITIONS):
 
 _rw, _rh = atlas_grid("cards_recipes.csv", recipes)
 for i, row in enumerate(recipes):
-    card = base_obj("Card", tf(-14 + (i % 10) * 1.5, 1.2, -10 - (i // 10) * 2.2, rz=0, ry=180),
+    card = base_obj("Card", tf(-14 + (i % 10) * 1.5, SURFACE_Y + 0.1, -10 - (i // 10) * 2.2, rz=0, ry=180),
                     nickname=row["name"],
                     desc=recipe_desc(row),
                     tags=["RecipeCard", row["id"]])
@@ -879,7 +915,7 @@ for char_name, color, bx, bz, stats in characters:
     _home = loc_positions[CHAR_HOME_TILE[char_name]]
     standee = base_obj("Figurine_Custom",
                        tf(_home["x"] + CHAR_SLOT_X[char_name],
-                          1.5,
+                          SURFACE_Y + 0.35,
                           _home["z"] + CHAR_SLOT_Z),
                        nickname=char_name,
                        desc=f"{char_name} — character standee. Health {stats['health']} / Hunger {stats['hunger']} / Sanity {stats['sanity']}.",
@@ -914,10 +950,14 @@ for char_name, color, bx, bz, stats in characters:
             "Tags": [f"Snap:ActionCube:{ai}"]
         })
 
+    # SURFACE_Y+0.1: spawned at the old 1.1 the boards started inside the
+    # glass tabletop and fell through its partial-hull collider — invisible
+    # until a player fished them out by hand.
     pboard = base_obj("Custom_Tile",
-                      tf(bx, 1.1, bz, sx=3, sy=1, sz=2),
+                      tf(bx, SURFACE_Y + 0.1, bz, sx=3, sy=1, sz=2),
                       nickname=f"{char_name}'s Player Board",
-                      desc=f"Health {stats['health']} | Hunger {stats['hunger']} | Sanity {stats['sanity']}",
+                      desc=f"{char_name}'s reference board. Stats are tracked automatically "
+                           f"(left panel + Party roster); resource tokens are delivered beside this board.",
                       tags=["PlayerBoard", f"PlayerBoard:{char_name}"])
     pboard["CustomImage"] = {
         "ImageURL": ph(f"board_{char_name.lower()}"),
@@ -928,20 +968,9 @@ for char_name, color, bx, bz, stats in characters:
     pboard["AttachedSnapPoints"] = board_snaps_pb
     objects.append(pboard)
 
-    # Stat markers (3 per character), on the printed bars (see snap comment)
-    for si, (stat_name, stat_val) in enumerate(stats.items()):
-        marker = base_obj("Custom_Token",
-                         tf(bx - 2.06, 1.4, bz + 1.11 - si * 0.47, sx=0.3, sy=0.3, sz=0.3),
-                         nickname=f"{char_name} {stat_name.title()}",
-                         desc=f"{stat_name.title()}: {stat_val}",
-                         tags=["StatMarker", f"StatMarker:{char_name}:{stat_name}"])
-        marker["CustomImage"] = {
-            "ImageURL": ph(f"icon_{stat_name}"),
-            "ImageSecondaryURL": "",
-            "WidthScale": 0,
-            "CustomToken": {"Thickness": 0.1, "MergeDistancePixels": 15, "StandUp": False, "Stackable": False}
-        }
-        objects.append(marker)
+    # (No stat markers or action cubes: every stat and action is tracked by
+    # the automated UI — the three tokens per board only made players ask
+    # what they were supposed to do with them.)
 
 # ---------------------------------------------------------------------------
 # E.17  Boss standees (off-board in a tray)
@@ -986,7 +1015,7 @@ objects.append(boss_pool)
 # guaranteed early-game goal for whoever crafts a Pry tool.
 _elh = loc_positions["EllieLucaHouse"]
 basement = base_obj("BlockSquare",
-                    tf(_elh["x"] - 3.5, 1, _elh["z"] - 3.5, sx=1.4, sy=0.5, sz=1.4),
+                    tf(_elh["x"] - 3.5, SURFACE_Y + 0.15, _elh["z"] - 3.5, sx=1.4, sy=0.5, sz=1.4),
                     nickname="The Sealed Basement",
                     desc="A padlocked hatch under Ellie & Luca's House. Someone stocked it before the week began.\n\nPry (free action + Crowbar / Lockpick / Pry Bar): a free Market Item, plus 2 Food + 1 Wood + 1 Battery.",
                     tags=["SealedBasement"])
@@ -1045,9 +1074,10 @@ with open(os.path.join(CONTENT, "notebook", "quickstart.md"), "r", encoding="utf
     quickstart_text = md_to_text(_f.read())
 
 # On the board's clear SE patch — it used to sit at the board's very edge,
-# where it slid under the board and turned invisible. ry=180 so its text
-# reads from the players' side (the card convention).
-notecard = base_obj("Notecard", tf(10.5, 1.3, -9.2, ry=180),
+# where it slid under the board and turned invisible. ry=0: a Notecard's
+# printed text follows the gadget convention (like the Day Counter), so
+# the old ry=180 rendered it upside down in the default view.
+notecard = base_obj("Notecard", tf(10.5, SURFACE_Y + 0.1, -9.2, ry=0),
                     nickname="Quick Start",
                     desc=quickstart_text,
                     tags=["QuickStart"])
@@ -1058,7 +1088,7 @@ objects.append(notecard)
 # tokens here; a background sweep (startDiscardTraySweep, helpers.lua)
 # returns them to the right supply bag.
 tray = base_obj("BlockSquare",
-                tf(9.5, 0.95, -15, sx=2.6, sy=0.18, sz=2.6),
+                tf(9.5, SURFACE_Y + 0.08, -15, sx=2.6, sy=0.18, sz=2.6),
                 nickname="Discard Tray",
                 desc="Spending resources? Drop the tokens here — they return to the supply by themselves.",
                 tags=["DiscardTray"],
@@ -1085,7 +1115,7 @@ objects.append(shelf)
 # builds. The same page opens in any desktop browser.
 # ---------------------------------------------------------------------------
 
-tablet = base_obj("Tablet", tf(17, 1.2, -13.5, ry=180),
+tablet = base_obj("Tablet", tf(17, SURFACE_Y + 0.2, -13.5, ry=180),
                   nickname="Player Rules",
                   desc="The full player rulebook, right here on the table.\n\n"
                        "Zoom in (hover + Z) to read; scroll with the tablet's own controls.\n\n"

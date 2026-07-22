@@ -203,6 +203,9 @@ function broadcastEvent(category, message)
     local color = BROADCAST_COLORS[category] or {1, 1, 1}
     broadcastToAll(message, color)
     table.insert(gameState.dayLog, {category=category, message=message})
+    -- Every public message also lands in the persistent Message Log panel
+    -- (ui_msglog.lua) — broadcasts fade too fast to read.
+    if logMessage then pcall(function() logMessage(category, message) end) end
 end
 
 -----------------------------------------------------------------------
@@ -228,6 +231,7 @@ function migrateGameState()
     gs.difficulty           = gs.difficulty or "standard"   -- batch 4
     gs.raymanTilesMovedToday = gs.raymanTilesMovedToday or 0 -- batch 4
     gs.threatDamage         = gs.threatDamage or {}          -- schema 3: chip damage on threat cards
+    gs.messageLog           = gs.messageLog or {}            -- Message Log panel (ui_msglog.lua)
     for _, char in pairs(gs.activeChars) do
         if char.signatureUsed == nil then char.signatureUsed = false end -- batch 2
     end
@@ -304,7 +308,9 @@ function createSetupButton()
         click_function = "onSetupClick",
         function_owner = Global,
         label          = "Setup Game",
-        position       = {0, 0.5, 0},
+        -- Local y 0.75 ≈ world 1.71: the glass table's playing surface is
+        -- at ~y 1.55, and a plate at the old 0.5 sat half-sunk in it.
+        position       = {0, 0.75, 0},
         rotation       = {0, 0, 0},
         width          = 2400,
         height         = 600,

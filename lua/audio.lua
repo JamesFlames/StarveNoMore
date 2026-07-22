@@ -2,10 +2,12 @@
 -- Game audio for Starve No More.
 --
 -- Behaviour:
---   - Day starts with a randomly-selected suburban ambient track.
---   - When that track finishes, varied ambient tracks play one after another.
---   - Night switches to low drone tracks (sounds/ambient/night/), chained
---     one after another. Cozy dread needs a heartbeat, not silence.
+--   - Each Dawn picks ONE ambient track (suburban pool, varied pool as a
+--     fallback) and loops it until the day ends. Playtest: a mid-day track
+--     change read as "did something just happen?" — repetition is the
+--     cozy baseline, and a new day gets a new track.
+--   - Night picks ONE low drone (sounds/ambient/night/) and loops it the
+--     same way. Cozy dread needs a heartbeat, not silence.
 --   - When a boss appears, ambient is suspended and a random sound from that
 --     boss's folder plays. After the sound + 10s, if the boss is still alive,
 --     another random sound plays. Loops until Audio.stopBossLoop() is called.
@@ -22,7 +24,8 @@
 Audio = {
     state = {
         mode         = "idle",       -- "idle" | "ambient" | "night" | "boss"
-        ambientPhase = "suburban",   -- "suburban" (first track of day) | "varied"
+        dayClip      = nil,          -- the ONE ambient clip looped all day
+        nightClip    = nil,          -- the ONE drone looped all night
         bossName     = nil,          -- key into AUDIO.CREATURES when mode=="boss"
         nextHandle   = nil,          -- Wait.time handle for next scheduled clip
         watchHandle  = nil,          -- Wait.time handle for the load watchdog
@@ -94,21 +97,38 @@ local function _scheduleNext(fn, delay)
     Audio.state.nextHandle = Wait.time(fn, delay)
 end
 
--- Play one varied ambient track and schedule the one after.
-local function _playNextVaried()
-    if Audio.state.mode ~= "ambient" then return end
-    Audio.state.ambientPhase = "varied"
-    local clip = _pickRandom(AUDIO.AMBIENT_VARIED)
-    if not clip then return end
-    _playClip(clip)
-    _scheduleNext(_playNextVaried, clip.duration or 180)
-    _watchClip(clip, _playNextVaried)
+-- Day-ambience pool: suburban tracks, or the varied pool if none exist.
+local function _dayPool()
+    local pool = {}
+    for _, c in ipairs(AUDIO.AMBIENT_SUBURBAN or {}) do pool[#pool + 1] = c end
+    if #pool == 0 then
+        for _, c in ipairs(AUDIO.AMBIENT_VARIED or {}) do pool[#pool + 1] = c end
+    end
+    return pool
 end
 
--- Play one night drone and schedule the next while mode=="night".
+-- Loop the day's single ambient clip (repick only if it failed to load).
+local function _playNextDay()
+    if Audio.state.mode ~= "ambient" then return end
+    local clip = Audio.state.dayClip
+    if not clip or not clip.url or _failedUrls[clip.url] then
+        clip = _pickRandom(_dayPool())
+        Audio.state.dayClip = clip
+    end
+    if not clip then return end
+    _playClip(clip)
+    _scheduleNext(_playNextDay, clip.duration or 180)
+    _watchClip(clip, _playNextDay)
+end
+
+-- Loop the night's single drone while mode=="night".
 local function _playNextNight()
     if Audio.state.mode ~= "night" then return end
-    local clip = _pickRandom(AUDIO.AMBIENT_NIGHT)
+    local clip = Audio.state.nightClip
+    if not clip or not clip.url or _failedUrls[clip.url] then
+        clip = _pickRandom(AUDIO.AMBIENT_NIGHT)
+        Audio.state.nightClip = clip
+    end
     if not clip then return end
     _playClip(clip)
     _scheduleNext(_playNextNight, clip.duration or 72)
@@ -128,39 +148,33 @@ local function _bossStep()
     _watchClip(clip, _bossStep)
 end
 
--- Resume ambient at the right phase (used after chime / boss-defeat).
+-- Resume the day's looped ambient (used after chime / boss-defeat).
 local function _resumeAmbient()
     Audio.state.mode = "ambient"
     Audio.state.bossName = nil
-    if Audio.state.ambientPhase == "suburban" then
-        local clip = _pickRandom(AUDIO.AMBIENT_SUBURBAN)
-        if clip then
-            _playClip(clip)
-            Audio.state.ambientPhase = "varied"  -- next track will be varied
-            _scheduleNext(_playNextVaried, clip.duration or 180)
-            _watchClip(clip, _playNextVaried)
-        end
-    else
-        _playNextVaried()
-    end
+    _playNextDay()
 end
 
 -- ---------------- public API ----------------
 
--- Called at the start of a new in-game day (Dawn).
--- A live boss loop keeps the soundscape — the roars don't stop for sunrise.
+-- Called at the start of a new in-game day (Dawn). A fresh day picks a
+-- fresh track — then loops it until nightfall. A live boss loop keeps
+-- the soundscape — the roars don't stop for sunrise.
 function Audio.startDayAmbience()
     if Audio.state.mode == "boss" then return end
-    Audio.state.ambientPhase = "suburban"  -- fresh day -> start with suburban
+    _cancel()
+    Audio.state.dayClip = _pickRandom(_dayPool())
+    Audio.state.nightClip = nil
     _resumeAmbient()
 end
 
--- Called at Night start. Switches to the low night drones; a live boss
+-- Called at Night start. Picks one low drone and loops it; a live boss
 -- loop keeps priority (the thing outside is louder than the wind).
 function Audio.startNightAmbience()
     if Audio.state.mode == "boss" then return end
     _cancel()
     Audio.state.mode = "night"
+    Audio.state.nightClip = _pickRandom(AUDIO.AMBIENT_NIGHT)
     _playNextNight()
 end
 

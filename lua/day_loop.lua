@@ -272,16 +272,19 @@ end
 -- the phase decks live in the under-table library, so nothing can be
 -- placed relative to them. Cards dropped on the discard spot pile into a
 -- face-up deck, so nobody ever has to tidy Dawn cards by hand.
-local DAWN_REVEAL_POS    = {x = -7.5, y = 1.5, z = 9.5}
-local DAWN_DISCARD_POS   = {x = -4.5, y = 1.5, z = 9.5}
+local DAWN_REVEAL_POS    = {x = -7.5, y = 1.9, z = 9.5}
+local DAWN_DISCARD_POS   = {x = -4.5, y = 1.9, z = 9.5}
 
 local function discardActiveDawnCard()
     local guid = gameState.activeDawn and gameState.activeDawn.cardGuid
     if not guid then return end
     local card = getObjectFromGUID(guid)
     if card then
-        card.setPositionSmooth({DAWN_DISCARD_POS.x, DAWN_DISCARD_POS.y + 1, DAWN_DISCARD_POS.z}, false, true)
-        card.setRotationSmooth({0, 180, 0}, false, true)  -- face up on the pile
+        -- Instant, not smooth: while the old card glided away, the new
+        -- card could land on it mid-flight and merge into a deck — which
+        -- destroyed the new card's handle and killed the reveal callback.
+        card.setPosition({DAWN_DISCARD_POS.x, DAWN_DISCARD_POS.y + 1, DAWN_DISCARD_POS.z})
+        card.setRotation({0, 180, 0})  -- face up on the pile
     end
 end
 
@@ -340,22 +343,51 @@ function revealDawnCard()
         rotation = {0, 180, 0},  -- face up
         smooth   = true,
         callback_function = function(card)
-            local name = card.getNickname() or "Unknown Dawn"
-            local desc = card.getDescription() or ""
-            broadcastEvent("phase", "DAWN: " .. name)
-            broadcastEvent("proc", desc)
-
-            gameState.activeDawn = {
-                id = name,
-                title = name,
-                description = desc,
-                cardGuid = card.getGUID and card.getGUID() or card.guid,
-            }
-
-            -- Dispatch dawn effect
-            dispatchDawnEffect(card)
+            -- The handle can be dead by the time this fires (the card
+            -- merged with something at the reveal spot) — touching any
+            -- field then throws "cannot access field getNickname of
+            -- userdata". Recover by re-finding the card at the spot.
+            local ok = pcall(function() _dawnCardRevealed(card) end)
+            if not ok then
+                Wait.time(function()
+                    local found = _findCardAtDawnRevealSpot()
+                    if found then
+                        safecall(function() _dawnCardRevealed(found) end, "DawnReveal")
+                    else
+                        broadcastEvent("proc", "The Dawn card landed oddly — check the reveal spot by the Dawn discard pile.")
+                    end
+                end, 0.6)
+            end
         end
     })
+end
+
+function _findCardAtDawnRevealSpot()
+    for _, obj in ipairs(findAllByTag("PhaseCard")) do
+        if obj.type == "Card" then
+            local p = obj.getPosition()
+            local dx, dz = p.x - DAWN_REVEAL_POS.x, p.z - DAWN_REVEAL_POS.z
+            if (dx * dx + dz * dz) < 4 then return obj end
+        end
+    end
+    return nil
+end
+
+function _dawnCardRevealed(card)
+    local name = card.getNickname() or "Unknown Dawn"
+    local desc = card.getDescription() or ""
+    broadcastEvent("phase", "DAWN: " .. name)
+    broadcastEvent("proc", desc)
+
+    gameState.activeDawn = {
+        id = name,
+        title = name,
+        description = desc,
+        cardGuid = card.getGUID and card.getGUID() or card.guid,
+    }
+
+    -- Dispatch dawn effect
+    dispatchDawnEffect(card)
 end
 
 function beginDayPhase()
@@ -645,6 +677,10 @@ function refreshDuskReadyLabel()
     else
         UI.setAttribute("duskReadyBtn", "text", "Host: click Resolve Night when settled")
     end
+    -- TTS resets a Button's styling when its text is set from Lua — the
+    -- label came back near-black on the dark green plate. Re-assert it.
+    UI.setAttribute("duskReadyBtn", "textColor", "#AAFFCC")
+    UI.setAttribute("duskReadyBtn", "color", "#192D23F2")
 end
 
 function toggleDuskReady(color)

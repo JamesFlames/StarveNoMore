@@ -185,14 +185,25 @@ function dealMarketDisplay()
                 })
             end
         end
+        -- Playtest: "who do these cards belong to?" — say it out loud.
+        broadcastEvent("proc", "The 5 face-up cards west of the map are the shared MARKET — they belong to nobody until someone buys one with the Craft action. The card row south of the map is the RECIPE reference for the Cook action.")
     end, 0.5)
 end
 
 -- Rest height of the locked Doom marker on the board top (mirrors the
--- marker's spawn transform in build_save.py).
-local DOOM_MARKER_Y = 1.2
+-- marker's spawn transform in build_save.py). The glass table's playing
+-- surface is at ~y 1.55 — the old 1.2 left the marker inside the table.
+local DOOM_MARKER_Y = 1.68
+
+-- Last step the marker was sent to: refreshPhaseBanner calls
+-- moveDoomMarker on every UI refresh so the marker can never lag the
+-- doom value, and this guard makes the repeat calls free.
+local _doomMarkerStep = nil
 
 function moveDoomMarker(targetStep)
+    -- The printed track has steps 0..30; pin overshoot to the last cell.
+    targetStep = math.max(0, math.min(30, targetStep or 0))
+    if _doomMarkerStep == targetStep then return end
     local marker = getDoomMarker()
     if not marker then return end
     local board = getMainBoard()
@@ -211,6 +222,7 @@ function moveDoomMarker(targetStep)
     end
     if not worldPos then return end
     worldPos.y = DOOM_MARKER_Y
+    _doomMarkerStep = targetStep
 
     -- The marker stays locked so players can't drag it; only this function
     -- moves it. Unlock for the smooth slide (locked objects don't smooth-
@@ -234,7 +246,9 @@ function createDayButton()
         click_function = "onBeginDayClick",
         function_owner = Global,
         label          = "Begin Day",
-        position       = {0, 0.5, -0.95},  -- board-local; scaled x12 → just south of the courts
+        -- Board-local; x/z scaled x12 → just south of the courts. Local y
+        -- 0.75 ≈ world 1.71, clear of the glass table's ~1.55 surface.
+        position       = {0, 0.75, -0.95},
         rotation       = {0, 0, 0},
         width          = 2000,
         height         = 500,

@@ -9,7 +9,7 @@
 <Panel id="phaseBanner"
        rectAlignment="UpperCenter"
        offsetXY="0 -42"
-       width="1400" height="64"
+       width="1470" height="64"
        color="#000000BF"
        outline="#50B4DC66"
        outlineSize="1"
@@ -71,6 +71,16 @@
             textColor="#BBFFBB"
             preferredWidth="100" preferredHeight="44"
             text="What now?" />
+    <!-- Message Log toggle -->
+    <Button id="logBtn"
+            onClick="onMsgLogToggle"
+            fontSize="14"
+            color="#28323CE6"
+            textColor="#BBDDFF"
+            preferredWidth="60" preferredHeight="44"
+            tooltip="Show or hide the Message Log — every game message stays there until you clear it."
+            tooltipPosition="Below" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
+            text="Log" />
   </HorizontalLayout>
 </Panel>
 
@@ -335,7 +345,7 @@
 <Panel id="actionTooltip"
        rectAlignment="LowerCenter"
        offsetXY="0 126"
-       width="760" height="54"
+       width="920" height="72"
        color="#0A140AFF"
        outline="#64B464CC"
        outlineSize="1"
@@ -353,7 +363,7 @@
 <Panel id="statDisplay"
        rectAlignment="MiddleLeft"
        offsetXY="10 0"
-       width="180" height="262"
+       width="180" height="298"
        color="#000000B2"
        outline="#9696964C"
        outlineSize="1"
@@ -402,6 +412,13 @@
     <!-- Location -->
     <Text id="statLocation" fontSize="12" color="#AAAAAA"
           text="Location: —" preferredHeight="20" />
+
+    <!-- Live resource counts (tokens beside your player board) -->
+    <Text id="statResources" fontSize="11" color="#CCC8A0"
+          alignment="UpperLeft"
+          tooltip="Your resource tokens, counted live. They physically sit beside your player board."
+          tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
+          text="" preferredHeight="32" />
 
     <!-- Perks + constraint, always visible (briefing shows only once) -->
     <!-- No manual +/- stat buttons here: every stat change is automated

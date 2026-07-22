@@ -164,6 +164,8 @@ function refreshActionButtonStates(color)
         local sigOk, sigWhy = canUseSignature(color)
         setActionEnabled("actSignature", sigOk and true or false)
         UI.setAttribute("actSignature", "text", sig.name)
+        -- Setting a Button's text from Lua resets its styling — re-assert.
+        UI.setAttribute("actSignature", "textColor", "#EECCFF")
         setActionTooltip("actSignature",
             sigOk and (sig.desc .. " " .. sig.cost .. " Once per game.")
                   or (sig.desc .. " Unavailable: " .. (sigWhy or "")))
@@ -257,6 +259,16 @@ function refreshStatDisplay()
     local locName = char.location or "Unknown"
     UI.setAttribute("statLocation", "text", "Location: " .. locName)
 
+    -- What you hold: live count of the resource tokens by your board, so
+    -- nobody has to eyeball-count tokens after a Gather.
+    safecall(function()
+        local res = getPlayerResources(showColor)
+        UI.setAttribute("statResources", "text", string.format(
+            "Holding: Wood %d · Metal %d · Cloth %d\nFood %d · Energy %d · Battery %d",
+            res.Wood or 0, res.Metal or 0, res.Cloth or 0,
+            res.Food or 0, res.EnergyDrink or 0, res.Battery or 0))
+    end, "StatResources")
+
     -- Perks + constraint reminder
     UI.setAttribute("statPerks", "text", CHAR_TRAIT_LINES[char.name] or "")
 end
@@ -271,7 +283,7 @@ end
 -- (The manual +/- stat buttons that used to live here are gone: every
 -- stat change is automated by the action/night/tick handlers.)
 -----------------------------------------------------------------------
-ACTION_TOOLTIP_DELAY = 5  -- seconds of hover before the tooltip appears
+ACTION_TOOLTIP_DELAY = 2  -- seconds of hover before the tooltip appears
 
 ACTION_TOOLTIPS = {
     actMove      = "Move to an adjacent location. Costs 1 action + 1 Hunger.",

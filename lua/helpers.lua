@@ -227,7 +227,9 @@ CHAR_SLOT_INDEX = { James = 0, Coco = 1, Rayman = 2, Ellie = 3, Luca = 4 }
 function getCharSlotPosition(tile, charName)
     local i = CHAR_SLOT_INDEX[charName] or 0
     -- A row along the tile's near edge, clear of the printed name/yields.
-    return tile.getPosition() + Vector(-1.8 + i * 0.9, 1.5, -1.7)
+    -- y is ABOVE the tile top (tiles sit on the ~1.55-high glass surface);
+    -- the unlocked standee settles the last stretch itself.
+    return tile.getPosition() + Vector(-1.8 + i * 0.9, 1.0, -1.7)
 end
 
 function placeCharacterAtTile(charName, locName)

@@ -37,6 +37,7 @@
     "ui_controls.lua",
     "ui_setup.lua",
     "ui_help.lua",
+    "ui_msglog.lua",
     "ui_rules.lua",
     "ui_mood.lua",
     "audit.lua",
@@ -45,6 +46,7 @@
   "xml": [
     "hud.xml",
     "setup.xml",
-    "dialogs.xml"
+    "dialogs.xml",
+    "msglog.xml"
   ]
 }

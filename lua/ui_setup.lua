@@ -62,6 +62,15 @@ function startGuidedSetup(hostColor)
     setupState.charPicks = {}
     setupState.pendingColors = {}
 
+    -- Difficulty defaults to the teaching game (Long Weekend, easiest);
+    -- each click on the toggle steps UP: Standard, then Nightmare.
+    setupState.difficulty = "weekend"
+    if UI then
+        UI.setAttribute("toggleDifficulty", "text", DIFFICULTY_BLURBS.weekend)
+        UI.setAttribute("toggleDifficulty", "color", "#CFE6C2FF")
+        UI.setAttribute("toggleDifficulty", "textColor", "#1E5A1E")
+    end
+
     -- Remove the board's 3D "Setup Game" button on every entry path (the
     -- XML Host Controls button skipped onSetupClick's clearButtons, so the
     -- button — and its "click to set up a new game" hover — used to linger
@@ -134,16 +143,18 @@ end
 -- Difficulty selector (Design §17.2, batch 4 W3): cycles through the
 -- DIFFICULTY_PARAMS modes, ordered easiest → hardest so each click steps
 -- up in difficulty (wrapping from Nightmare back to the teaching game).
--- Standard unless changed.
-local DIFFICULTY_CYCLE = { "weekend", "standard", "nightmare" }
-local DIFFICULTY_BLURBS = {
+-- Long Weekend (easiest) unless changed — new tables learn on it.
+-- Global (not local): startGuidedSetup resets the toggle label from these
+-- before this point in the chunk is reached lexically.
+DIFFICULTY_CYCLE = { "weekend", "standard", "nightmare" }
+DIFFICULTY_BLURBS = {
     standard  = "Difficulty: STANDARD\n(the full 7-day week)",
-    weekend   = "Difficulty: LONG WEEKEND\n(3 days, Doom track halved — good for teaching)",
+    weekend   = "Difficulty: LONG WEEKEND\n(3 days, Doom track halved — recommended for your first game)",
     nightmare = "Difficulty: NIGHTMARE\n(Doom +1 every phase; the week starts on Strange Days)",
 }
 
 function onToggleDifficulty(player, value, id)
-    local current = setupState.difficulty or "standard"
+    local current = setupState.difficulty or "weekend"
     local idx = 1
     for i, d in ipairs(DIFFICULTY_CYCLE) do
         if d == current then idx = i break end
@@ -570,10 +581,12 @@ end
 function showWelcomeSequence()
     if gameState.started or gameState.welcomed then return end
 
-    broadcastToAll("Welcome to Starve No More.", {0.9, 0.7, 0.3})
-    broadcastToAll("Sit at any colour for now — when you pick your character during Setup, your seat colour changes to match it (James=Blue, Coco=White, Rayman=Green, Ellie=Yellow, Luca=Red).", {0.9, 0.7, 0.3})
-    broadcastToAll("Click 'Setup Game' on the Host Controls panel (top-left), or hover anything to see what it does.", {0.9, 0.7, 0.3})
-    broadcastToAll("Press '?' anytime for help. Press 'What now?' if you're stuck.", {0.7, 0.8, 0.6})
+    -- broadcastEvent (not broadcastToAll) so these land in the Message Log
+    -- panel too — new players need to re-read them after the fade.
+    broadcastEvent("warn", "Welcome to Starve No More.")
+    broadcastEvent("warn", "Sit at any colour for now — when you pick your character during Setup, your seat colour changes to match it (James=Blue, Coco=White, Rayman=Green, Ellie=Yellow, Luca=Red).")
+    broadcastEvent("warn", "Click 'Setup Game' on the Host Controls panel (top-left), or hover anything to see what it does.")
+    broadcastEvent("gain", "Press '?' anytime for help. Press 'What now?' if you're stuck. The Message Log (bottom right) keeps everything said — nothing is lost when a broadcast fades.")
 
     -- Camera tween to the main board for all players
     local board = getMainBoard()

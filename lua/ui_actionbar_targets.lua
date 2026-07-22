@@ -90,6 +90,7 @@ function _spawnMoveButtons(color, mode)
     if not char or not char.location then return 0 end
     local label = (mode == "bonusmove") and "FREE MOVE" or "MOVE HERE"
     local n = 0
+    local names = {}
     for _, locName in ipairs(_adjacentLocations(char.location)) do
         local tile = getLocationTile(locName)
         if tile then
@@ -102,9 +103,132 @@ function _spawnMoveButtons(color, mode)
                 ((mode == "bonusmove") and " (free second step)" or " (1 action, 1 Hunger)"),
                 true, {0, 0.7, -0.85})
             n = n + 1
+            names[#names + 1] = locName
         end
     end
+    -- Orient the mover: say where they ARE and where the buttons went —
+    -- otherwise a lone green button reads as "move to where I stand".
+    if n > 0 then
+        broadcastToColor(char.name .. " is at " .. char.location ..
+            ". Reachable now (green): " .. table.concat(names, ", ") ..
+            " — click a " .. label .. " button, or just drag your standee onto the destination circle.",
+            color, BROADCAST_COLORS.gain)
+    end
     return n
+end
+
+-----------------------------------------------------------------------
+-- Drag-to-move: players instinctively pick up their standee and drop it
+-- where they want to go — long before they find the Move button. Treat
+-- a standee drop as a Move request; anything illegal snaps the standee
+-- back to where the game says it stands, with the reason.
+-----------------------------------------------------------------------
+local LOCATION_NAMES = {"JamesHouse", "RaymanHouse", "EllieLucaHouse",
+                        "BasketballCourt", "BadmintonCourt"}
+
+local function _nearestLocationTo(pos)
+    local best, bestD = nil, math.huge
+    for _, locName in ipairs(LOCATION_NAMES) do
+        local tile = getLocationTile(locName)
+        if tile then
+            local p = tile.getPosition()
+            local dx, dz = pos.x - p.x, pos.z - p.z
+            local d = math.sqrt(dx * dx + dz * dz)
+            if d < bestD then best, bestD = locName, d end
+        end
+    end
+    return best, bestD
+end
+
+function onObjectDrop(dropColor, obj)
+    if not (obj and obj.hasTag and obj.hasTag("Character")) then return end
+    local charName = nil
+    for _, tag in ipairs(obj.getTags()) do
+        charName = tag:match("^Character:(.+)$") or charName
+    end
+    if not charName then return end
+    safecall(function() _handleStandeeDrop(dropColor, obj, charName) end, "DragMove")
+end
+
+function _handleStandeeDrop(dropColor, obj, charName)
+    -- Which seat plays this character?
+    local color = nil
+    for c, ch in pairs(gameState.activeChars or {}) do
+        if ch.name == charName then color = c break end
+    end
+    local char = color and gameState.activeChars[color]
+
+    local function snapBack(msg)
+        if msg then broadcastToColor(msg, dropColor, BROADCAST_COLORS.warn) end
+        if char and char.location then
+            placeCharacterAtTile(charName, char.location)
+        else
+            -- Not in this game: back to the under-table bench.
+            local i = CHAR_SLOT_INDEX[charName] or 0
+            obj.setPositionSmooth(Vector(BENCH_POSITION.x, BENCH_POSITION.y, BENCH_POSITION.z - i * 3))
+        end
+    end
+
+    if not char then
+        snapBack(charName .. " isn't in this game — back to the bench.")
+        return
+    end
+
+    local dest, dist = _nearestLocationTo(obj.getPosition())
+    if not dest or dist > 6 then
+        snapBack("Drop " .. charName .. " on a location circle to move. Back to " .. (char.location or "?") .. ".")
+        return
+    end
+    if dest == char.location then
+        placeCharacterAtTile(charName, dest)   -- tidy into the standee slot
+        return
+    end
+
+    -- Dusk: a drag is the scramble move (doDuskMove validates everything).
+    if gameState.subPhase == "Dusk" then
+        doDuskMove(color, dest)
+        if gameState.activeChars[color].location ~= dest then snapBack(nil) end
+        return
+    end
+    if gameState.subPhase ~= "Day" then
+        snapBack("Characters move during the Day (or scramble at Dusk). " .. charName .. " returns to " .. (char.location or "?") .. ".")
+        return
+    end
+    if color ~= gameState.activeColor then
+        snapBack("It's not " .. charName .. "'s turn — drag your standee (or use Move) on your own turn.")
+        return
+    end
+    local adjacent = false
+    for _, n in ipairs(_adjacentLocations(char.location or "")) do
+        if n == dest then adjacent = true break end
+    end
+    if not adjacent then
+        snapBack(dest .. " isn't adjacent to " .. (char.location or "?") .. " — move 1 tile at a time.")
+        return
+    end
+
+    -- Legal move request: consume any pending Move targeting and go.
+    local pa = gameState.pendingAction
+    if pa and (pa.type == "move" or pa.type == "bonusmove") then
+        gameState.pendingAction = nil
+    end
+    _clearTargetButtons()
+
+    if gameState.raymanBonusMove then
+        safecall(function() doRaymanBonusMove(color, dest) end, "BonusMove")
+    else
+        safecall(function() doMove(color, dest) end, "Move")
+        if gameState.raymanBonusMove then
+            gameState.pendingAction = { type = "bonusmove", color = color }
+            _spawnMoveButtons(color, "bonusmove")
+            _armTargetTimeout()
+        end
+    end
+    -- doMove refuses (no actions / injured refund) without moving the
+    -- character — put the standee back where the rules say it is.
+    if gameState.activeChars[color].location ~= dest then snapBack(nil) end
+    refreshPhaseBanner()
+    updateActivePlayerIndicator()
 end
 
 function _spawnCraftButtons()

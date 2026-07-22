@@ -49,6 +49,11 @@ function refreshPhaseBanner()
     end
     UI.setAttribute("bannerDoom", "text", doomText)
 
+    -- The physical marker follows the Doom value wherever it changed
+    -- (dawn ticks, festering, cleanse, boss kills, dawn effects) — every
+    -- one of those paths refreshes the banner. No-op when already there.
+    safecall(function() moveDoomMarker(gameState.doom) end, "DoomMarker")
+
     -- Doom color: yellow normally, orange at 15+, red at 25+
     if gameState.doom >= 25 then
         UI.setAttribute("bannerDoom", "color", "#FF5555")

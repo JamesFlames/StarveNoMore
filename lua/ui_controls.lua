@@ -106,7 +106,7 @@ customUIHidden = false
 CUSTOM_UI_PANELS = {
     "phaseBanner", "cycleStrip", "dawnChecklist", "hostControls",
     "rulesPanel", "actionBar", "actionTooltip", "statDisplay",
-    "charRoster", "duskPanel", "combatPanel",
+    "charRoster", "duskPanel", "combatPanel", "msgLog", "whatNowPanel",
 }
 
 function onToggleCustomUI(player, value, id)
