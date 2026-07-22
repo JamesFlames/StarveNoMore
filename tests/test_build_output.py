@@ -62,6 +62,42 @@ def test_every_lua_file_made_it_into_the_bundle(built_save):
     assert not missing, f"LUA_LOAD_ORDER files absent from the built LuaScript: {missing}"
 
 
+def test_no_objects_embedded_in_tabletop(built_save):
+    """The glass table's playing surface is at y ~1.55 (TABLE_SURFACE_Y,
+    build_save.py). Anything authored inside the 0..surface band starts
+    embedded in the tabletop: locked objects sit invisible in the glass,
+    unlocked ones fall through the table's partial-hull collider ("the
+    player boards were invisible until I picked them up"). Under-table
+    library items (y < 0) are deliberate. See docs/tts-runtime.md."""
+    save = json.loads(built_save["fresh"])
+    build_src = open(os.path.join(SCRIPTS, "build_save.py"), encoding="utf-8").read()
+    surface = float(re.search(r"TABLE_SURFACE_Y\s*=\s*([\d.]+)", build_src).group(1))
+    exempt = {"Custom_Board", "HandTrigger"}   # the board IS the surface; zones are volumes
+    embedded = [
+        (o.get("Nickname") or o["Name"], round(o["Transform"]["posY"], 2))
+        for o in save["ObjectStates"]
+        if 0 < o["Transform"]["posY"] < surface and o["Name"] not in exempt
+    ]
+    assert not embedded, (
+        f"objects authored inside the tabletop band (0 < y < {surface}) — they will "
+        f"be invisible on the table: {embedded}. Spawn at SURFACE_Y or above."
+    )
+
+
+def test_doom_marker_height_mirrors_lua(built_save):
+    """moveDoomMarker (setup.lua) re-pins the marker at DOOM_MARKER_Y after
+    every slide; build_save.py spawns it at its own y. If they drift the
+    marker visibly hops on the first Doom change."""
+    save = json.loads(built_save["fresh"])
+    marker = next(o for o in save["ObjectStates"] if "DoomMarker" in o.get("Tags", []))
+    lua_src = open(os.path.join(ROOT, "lua", "setup.lua"), encoding="utf-8").read()
+    lua_y = float(re.search(r"DOOM_MARKER_Y\s*=\s*([\d.]+)", lua_src).group(1))
+    assert abs(marker["Transform"]["posY"] - lua_y) < 1e-9, (
+        f"doom marker spawn y {marker['Transform']['posY']} != DOOM_MARKER_Y {lua_y} "
+        "(setup.lua) — keep the mirror in sync"
+    )
+
+
 def test_build_emits_no_warnings(built_save):
     warnings = [line for line in built_save["stdout"].splitlines() if line.startswith("WARNING")]
     assert not warnings, "build_save.py warnings:\n" + "\n".join(warnings)

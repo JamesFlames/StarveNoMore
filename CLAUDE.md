@@ -1,7 +1,18 @@
 # CLAUDE.md — start here
 
-**For any task:** (1) find the file via [`TASKMAP.md`](TASKMAP.md) or [`SYMBOLS.md`](SYMBOLS.md),
+**For any task:** (1) find the file via [`TASKMAP.md`](TASKMAP.md) or [`SYMBOLS.md`](SYMBOLS.md)
+(SYMBOLS also indexes every XML UI id → file:line + handler),
 (2) open only that file, (3) regenerate + `python -m pytest tests` before you finish.
+
+**Touching object placement, rotation, lighting, audio, or TTS callbacks?**
+Read [`docs/tts-runtime.md`](docs/tts-runtime.md) FIRST — it's the list of
+engine behaviors that already burned us once (surface heights, rotation
+conventions, dead handles, style resets, cache staleness).
+
+**Debugging something a player saw in-game?** [`docs/debugging.md`](docs/debugging.md) —
+TTS autosaves carry the live gameState + real object positions;
+`python scripts/inspect_save.py --live` reads them, and `--error N` decodes
+an in-TTS `<Global:N>` error to `lua/<file>:<line>`.
 
 **Git workflow:** solo repo — commit and push straight to `main`. No feature
 branches, no PRs. (Overrides any per-session branch directive.)
@@ -29,8 +40,10 @@ there are no `require`s; load order is the explicit `LUA_LOAD_ORDER` in
 
 ```bash
 pip install pytest lupa Pillow      # lupa runs the real Lua bundle headlessly
-python -m pytest tests              # ~305 tests; green = safe to build
+python -m pytest tests              # ~310 tests; green = safe to build
 python scripts/build_save.py        # assemble saves/StarveNoMore.json
+iwanttoplay                         # regen → build → test → install save +
+                                    # purge stale TTS cache → launch TTS
 ```
 
 Per-directory `CLAUDE.md` files (`lua/`, `scripts/`, `tests/`, `content/`) carry

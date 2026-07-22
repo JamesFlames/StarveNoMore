@@ -20,5 +20,8 @@ explicit `LUA_LOAD_ORDER`. **There is one shared global namespace and no
 - All object lookups use `getObjectsWithTag(tag)` (never GUIDs); wrap
   non-critical calls in `safecall(fn, label)`; all gameplay randomness goes
   through `gameRoll(a, b)` (never `math.random`).
+- **TTS engine gotchas** (dead handles in callbacks, Lighting API, Button
+  style resets, spawn heights): [`../docs/tts-runtime.md`](../docs/tts-runtime.md)
+  — check it before debugging a runtime error from scratch.
 
 Symbol lookup: [`../SYMBOLS.md`](../SYMBOLS.md). Deep reference: [`../agents.md`](../agents.md).

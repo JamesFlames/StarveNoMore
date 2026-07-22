@@ -11,9 +11,13 @@ Pipeline (each step gates the next; a failure stops before anything ships):
                  bytes that get copied. (--skip-tests to live dangerously.)
   4. COPY        the save + its cover art PNG into the Tabletop Simulator
                  saves folder (the PNG is what the Save & Load browser shows).
-  5. SERVE       ensure the local asset server is running on :8080
+  5. PURGE       this mod's entries from the TTS asset cache (Mods/). TTS
+                 caches file:/// and localhost URLs forever, so regenerated
+                 art/sounds otherwise keep showing their OLD version —
+                 the classic "board labels don't match the objects" bug.
+  6. SERVE       ensure the local asset server is running on :8080
                  (sounds + the Player Rules tablet need it).
-  6. LAUNCH      Tabletop Simulator via Steam. (--no-launch to skip.)
+  7. LAUNCH      Tabletop Simulator via Steam. (--no-launch to skip.)
 
 Run from the repo root:  iwanttoplay  (the .bat wraps this script)
 """
@@ -37,6 +41,9 @@ TTS_SAVE_DIRS = [
     os.path.expandvars(r"%USERPROFILE%\Documents\My Games\Tabletop Simulator\Saves"),
     os.path.expandvars(r"%OneDrive%\Documents\My Games\Tabletop Simulator\Saves"),
 ]
+# TTS's asset cache: cached filenames are the source URL with punctuation
+# stripped, so this mod's entries all contain one of these substrings.
+CACHE_MARKERS = ("reposStarveNoMore", "localhost8080")
 SERVER_PROBE = "http://localhost:8080/PlayerRules.html"
 SERVE_BAT = os.path.join(SCRIPTS, "serve_art.bat")
 TTS_STEAM_URL = "steam://rungameid/286160"
@@ -115,6 +122,27 @@ def find_tts_saves_dir():
     return None
 
 
+def purge_mod_cache(saves_dir):
+    """Delete this mod's cached assets so TTS re-fetches the current files.
+    Only touches cache entries whose name embeds our URLs — other mods'
+    caches are untouched. Safe while TTS is closed; if TTS is running it
+    just re-caches on load."""
+    mods_dir = os.path.join(os.path.dirname(saves_dir), "Mods")
+    if not os.path.isdir(mods_dir):
+        say("no Mods cache folder found — skipping cache purge")
+        return
+    purged = 0
+    for root, _dirs, names in os.walk(mods_dir):
+        for n in names:
+            if any(marker in n for marker in CACHE_MARKERS):
+                try:
+                    os.remove(os.path.join(root, n))
+                    purged += 1
+                except OSError:
+                    pass
+    say(f"purged {purged} cached asset file(s) — TTS will re-fetch current art/sounds")
+
+
 def main():
     ap = argparse.ArgumentParser(description="Rebuild, test, install and launch Starve No More.")
     ap.add_argument("--skip-tests", action="store_true",
@@ -157,10 +185,13 @@ def main():
     else:
         say("no cover art found (run scripts/generate_cover.py) — TTS will show a blank save thumbnail")
 
-    # 5. Asset server.
+    # 5. Purge this mod's stale cache entries.
+    purge_mod_cache(dest_dir)
+
+    # 6. Asset server.
     ensure_server()
 
-    # 6. Launch.
+    # 7. Launch.
     if args.no_launch:
         say("skipping launch (--no-launch)")
     else:

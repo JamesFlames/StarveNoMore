@@ -23,7 +23,12 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 | Change a boss arrival/beat | `lua/effects/dawn_effects*.lua`, `lua/combat.lua`, `lua/treeguard.lua` | `generate_symbol_index.py` |
 | Add/change a sound | `sounds/...` | `generate_audio_manifest.py` |
 | Change setup/character assignment | `lua/setup.lua`, `lua/ui_setup.lua`, `xml/setup.xml` | `generate_symbol_index.py` |
+| Change turn order / action economy / idle nudge | `lua/turns.lua` | `generate_symbol_index.py` |
 | Change what gets packaged in the save | `scripts/build_save.py` | `build_save.py` |
+| Place/move an object on the table (heights, rotations) | `scripts/build_save.py` (`SURFACE_Y`) + read [`docs/tts-runtime.md`](docs/tts-runtime.md) first | `build_save.py` |
+| Change the Message Log / What-now panel | `lua/ui_msglog.lua`, `lua/ui_help.lua`, `xml/msglog.xml` | `generate_symbol_index.py` |
+| Debug a live session / decode a `<Global:N>` error | [`docs/debugging.md`](docs/debugging.md) + `scripts/inspect_save.py` | — |
+| Deploy to TTS for play | `iwanttoplay` (regen+build+test+install+cache purge+launch) | — |
 
 **Always finish with:** `python scripts/build_save.py` then `python -m pytest tests`.
 A stale generated file (or a Lua move without a fresh `SYMBOLS.md`) fails the suite.

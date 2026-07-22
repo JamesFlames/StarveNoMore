@@ -25,7 +25,9 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 - [StarveNoMoreDesignConcept.md](StarveNoMoreDesignConcept.md) — **the canonical design doc**, now a thin index (Document Purpose + a Section → file jump table). The 20 numbered sections live one-topic-per-file under [docs/design/](docs/design/README.md): pitch/pillars, components/characters, locations/economy, decks, stats/turns, combat/crafting, week-arc/doom, victory/setup, TTS implementation, rationale/balancing. Open the specific `docs/design/*.md` for any rules or design question — prose cross-refs like "§6.7" map to files via the index table.
 - [README.md](README.md) — short orientation for the GitHub landing page, dev quickstart, and the script-by-script build table.
 - [CHANGELOG.md](CHANGELOG.md) — the rule-change history, one entry per design batch. The retired planning docs (improvements.md, design_batch1–4.md, frameworkimprovements.md) live on as these entries + git history.
-- [SYMBOLS.md](SYMBOLS.md) — AUTO-GENERATED index of every Lua global (function/constant → file:line). Regenerate with `scripts/generate_symbol_index.py`.
+- [SYMBOLS.md](SYMBOLS.md) — AUTO-GENERATED index of every Lua global (function/constant → file:line) **and every XML UI id** (id → file:line + onClick handler). Regenerate with `scripts/generate_symbol_index.py`.
+- [docs/tts-runtime.md](docs/tts-runtime.md) — the TTS physical/runtime contract: surface heights (`TABLE_SURFACE_Y`), rotation conventions, dead-handle callbacks, UI style resets, asset-cache staleness. Read before placing/rotating objects or debugging runtime errors.
+- [docs/debugging.md](docs/debugging.md) — live-session forensics: what TTS autosaves contain, `scripts/inspect_save.py` usage (incl. `--error N` to decode `<Global:N>` lines), the diagnosis flow.
 - [structuralimprovements.md](structuralimprovements.md) — standing punch-list of proposed structure/code/data/flow/doc improvements (the layer *after* the completed `compartmentaliseplan.md`), each tagged with a priority and the files it touches. A working doc, not a design doc.
 - [PlayerRules.md](PlayerRules.md) / [PlayerRules.html](PlayerRules.html) — AUTO-GENERATED player rulebook (`scripts/generate_player_rules.py`), assembled from the same `content/` markdown as the in-game Notebook. The HTML is what the in-TTS **Player Rules tablet** shows (served by `scripts/serve_art.bat`) and opens in any browser.
 - [playtest/facilitator_script.md](playtest/facilitator_script.md) + [playtest/feedback_form.md](playtest/feedback_form.md) — the blind-playtest protocol and per-player form (batch 4 W4). Session data comes from the Week in Review panel's **Copy Session Log** button; logs collect in [playtest/sessions/](playtest/sessions/README.md) and aggregate via `scripts/analyze_sessions.py`.
@@ -103,7 +105,8 @@ StarveNoMore/
 │   ├── recipe_data.lua         # AUTO-GENERATED — RECIPE_DATA from cards_recipes.csv (script column)
 │   ├── notebook_data.lua       # AUTO-GENERATED — Notebook/Help text from content/notebook/*.md + glossary.md
 │   ├── setup.lua               # Bare gameplay setup (deals/shuffles/places)
-│   ├── day_loop.lua            # Day/Dusk/Night advance, turn management, idle nudge
+│   ├── day_loop.lua            # Day lifecycle: Dawn advance (Doom/fester/reveal), Dusk, Night trigger
+│   ├── turns.lua               # Turn engine: beginDayPhase, advanceToNextPlayer, endPlayerTurn, spendAction, dusk ready-check, idle nudge
 │   ├── effects/
 │   │   ├── dawn_effects.lua           # Core: DAWN_EFFECTS table + shared helpers + boss standee placement
 │   │   ├── dawn_effects_phase1..4.lua # Per-phase Dawn card effects (add to DAWN_EFFECTS)
@@ -126,7 +129,8 @@ StarveNoMore/
 │   ├── ui_actionbar_display.lua   # Validate, action-bar refresh + cubes, per-button enable/reasons, stat display, action tooltips
 │   ├── ui_controls.lua         # Host controls (contextual — only valid buttons show), confirm dialogs, tooltips
 │   ├── ui_setup.lua            # Guided setup walkthrough (path → variants → characters → briefing) + welcome
-│   ├── ui_help.lua             # Help panel tabs + What-now dispatch
+│   ├── ui_help.lua             # Help panel tabs + What-now dispatch (fills the whatNowPanel)
+│   ├── ui_msglog.lua           # Persistent Message Log panel (fed by broadcastEvent)
 │   ├── ui_rules.lua            # "Rules in effect" panel + day-cycle strip
 │   ├── ui_mood.lua             # Phase lighting presets, safety-net confirms, camera nudges
 │   ├── audit.lua               # auditTooltips / auditHintCoverage / auditFirstLoad
@@ -135,7 +139,8 @@ StarveNoMore/
 ├── xml/
 │   ├── hud.xml                 # Persistent HUD: banner, cycle strip, host controls, action bar, stats, roster
 │   ├── setup.xml               # Guided setup walkthrough panels + character briefing
-│   └── dialogs.xml             # Modal dialogs: confirm / summary / week review / help / trade / combat / dusk
+│   ├── dialogs.xml             # Modal dialogs: confirm / summary / week review / help / trade / combat / dusk
+│   └── msglog.xml              # Message Log panel + per-player What-now panel
 ├── content/
 │   ├── cards_phase1.csv ... cards_phase4.csv   # Dawn cards per phase
 │   ├── cards_market.csv        # Source of truth for MARKET_COSTS
@@ -223,7 +228,8 @@ Dawn (Doom advance + Moonlit Salvage + Dawn card) → Day (player turns, 3 actio
 - **Visitors**: one-shot aid, depart at next Dawn — the adoption rule was cut.
 - **Night light check is automated**: `checkPlayerHasLight` (night.lua) scans the player's hand + player-board area for Flashlight / Lantern / Fire Kit (matched by `M_*` card tag or nickname; fire-only nights ignore the Flashlight) and the character's tile for a Campfire (tile-wide, radius 7). No manual confirmation.
 - **Fixed resource costs are auto-paid**: `verifyAndPayResources` (ui_actionbar_core.lua) verifies tokens beside the payer's board, returns them to their supply bags, and blocks the action (with an action refund) if short. Used by Cleanse, Appease-Treeguard, Barricade. Craft remains honor-system (Scarcity's "+1 any resource" needs a player choice).
-- **Dusk ready-check**: each seated player with a living character clicks Ready on the Dusk panel (`toggleDuskReady`, day_loop.lua); Night begins automatically at full count. Host's Resolve Night is the override / hotseat path.
+- **Dusk ready-check**: each seated player with a living character clicks Ready on the Dusk panel (`toggleDuskReady`, turns.lua); Night begins automatically at full count. Host's Resolve Night is the override / hotseat path.
+- **Drag-to-move** (2026-07): dropping a character standee on a location circle is a Move request (`onObjectDrop` → `_handleStandeeDrop`, ui_actionbar_targets.lua) — legal during Day on your turn (adjacency checked; Rayman's bonus hop supported) or as the Dusk scramble; anything illegal snaps the standee back to `char.location` with the reason.
 - **Signature Moves** (§6.7, `lua/signatures.lua`): one once-per-game named move per character (`char.signatureUsed`), fired from the action bar's Signature button with a confirm. James All-Nighter (+3 actions, −3 Sanity at Tick via `gameState.pendingSanityPenalty`), Coco Touch of Hope (+4 Health any tile, dialog target-pick), Rayman Posterize (delete a non-boss threat at his tile; `gameState.loudSignature[loc]` = +1 night draw there), Ellie The Feast (1 action, all held Food consumed, `char.feastActive` makes cooking free until turn end), Luca The Speech (+2 Sanity to all; gated on an ally Down or Sanity < 3).
 - **Pry** (§13.5, `doPry` in actions.lua): free action; needs a tool (M_CROWBAR / M_LOCKPICK / M_PRY_BAR in hand or by the board) and a sealed thing at the tile — sealed Threat cards (`SEALED_REWARDS` keys) or the `SealedBasement` object placed at Ellie & Luca's House by build_save.py (`gameState.basementOpened`). The actPry button lights only when both hold.
 - **Dawn Dares** (batch 3): optional hooks on some Phase 1–2 Dawn cards. Scripted flags: `dareCourtGlow` (P1_LIGHTS_FLICKER — courts +2 night threats, survivors claim 2 Market cards at Dawn) and `darePorchLight` (P2_PORCH_LIGHT — first house Gather may upgrade to 3 resources for 2 Sanity, via confirm in doGather). The rest are optional `DAWN_MANUAL_STEPS` checklist offers.
@@ -343,9 +349,9 @@ referenced in `lua/audio_manifest.lua` (auto-generated).
 ```
 sounds/
 ├── ambient/
-│   ├── suburban/   <-- 20 tracks: random pick plays first when each day starts
-│   ├── varied/     <-- 39 tracks: chained one-after-another for the rest of the day
-│   └── night/      <-- 3 synthesized low drones: chained during the Night phase
+│   ├── suburban/   <-- 20 tracks: each Dawn picks ONE and loops it all day
+│   ├── varied/     <-- 39 tracks: fallback pool if suburban/ is empty
+│   └── night/      <-- 3 synthesized low drones: one picked per night, looped
 ├── creatures/
 │   ├── bearger/    <-- 8 sounds (canonical name; folder was renamed from "beager")
 │   ├── deerclops/  <-- 12 sounds (Phase 2 boss)
@@ -371,17 +377,17 @@ silently and ambient continues.
 
 ### In-game behaviour
 
-- **Day start (Dawn):** `Audio.startDayAmbience()` picks a random suburban
-  track. When it ends, varied tracks play one after another for the rest of
-  the day.
-- **Night start:** `Audio.startNightAmbience()` chains low drone tracks from `sounds/ambient/night/`. A live boss loop keeps priority (both `startDayAmbience` and `startNightAmbience` no-op while `mode == "boss"`); `stopBossLoop` resumes night drones if it's Night, day ambience otherwise. `Audio.stopAmbience()` remains as a hard stop.
+- **Day start (Dawn):** `Audio.startDayAmbience()` picks ONE suburban track
+  (varied pool as fallback) and loops it until nightfall — a mid-day track
+  change read as "did something happen?", so a new track means a new day.
+- **Night start:** `Audio.startNightAmbience()` picks one low drone from `sounds/ambient/night/` and loops it. A live boss loop keeps priority (both `startDayAmbience` and `startNightAmbience` no-op while `mode == "boss"`); `stopBossLoop` resumes the night drone if it's Night, the day's track otherwise. `Audio.stopAmbience()` remains as a hard stop.
 - **Boss arrives:** `Audio.playBossLoop(<key>)` suspends ambient and plays a
   random sound from `sounds/creatures/<key>/`. After the sound ends + 10s, if
   the boss is still alive, another random sound from the same folder plays.
   Loops until `Audio.stopBossLoop(<key>)` is called.
 - **Boss defeated:** combat.lua maps the threat name to a boss key
   (`Audio.threatNameToBossKey`) and calls `Audio.stopBossLoop(<key>)`, which
-  resumes ambient at whichever phase (suburban-first or varied) it had reached.
+  resumes the day's looped track (or the night drone at Night).
 - **Tick (end of day):** `Audio.playChime()` briefly takes over MusicPlayer for
   the chime, then resumes ambient/boss audio.
 - **Character SFX (one-shots):**
@@ -465,7 +471,7 @@ player never has to ask "what now?":
   - Dusk per-player warnings (alone at sport court, Coco alone non-house, public Charlie reminder) — also in `beginDusk`.
 
 ### 6. Idle nudge
-- `day_loop.lua` runs an idle watcher during the `Day` sub-phase: every 10s it checks `os.time() - gameState.lastInteractionAt`.
+- `turns.lua` runs an idle watcher during the `Day` sub-phase: every 10s it checks `os.time() - gameState.lastInteractionAt`.
 - After 45s of inactivity, the active player is `printToColor`'d a "click What now?" prompt — once per turn (`gameState.idleNudgedThisTurn`).
 - `noteInteraction()` is called from `validateActivePlayer()` so any action click resets the timer.
 
@@ -482,6 +488,10 @@ player never has to ask "what now?":
   - Treeguard status, and per-character statuses (Down / Haunted / can't-Fight / injured / Charlie streak / James Wired pending / Rayman Loud).
 - `refreshCycleStrip()` renders `Dawn ▸ Day ▸ Dusk ▸ Night ▸ Tick` under the Phase Banner (`cycleStrip`) with the current step lit, so players always see where they are in the loop.
 - The `PreDawn` sub-phase (between Tick and the next Begin Day) is fully wired: banner text, `btnBeginDay` CTA pulse, and a `between_days` What-now hint (Tick group in `whatnow_hints.md`).
+
+### 8. Message Log — nothing said is ever lost
+- TTS broadcasts fade in seconds and render behind the Phase Banner, so `broadcastEvent` (global.lua) also appends every public message to `gameState.messageLog` (persists through save/load, capped at 40).
+- `lua/ui_msglog.lua` renders the newest entries in the draggable `msgLog` panel (xml/msglog.xml), colour-coded by category; Clear/Hide buttons on the panel, "Log" toggle on the banner. What-now hints open the per-player `whatNowPanel` (visibility set to the asking player's colour) with a "Got it" dismiss.
 
 ## Balance Simulation
 

@@ -146,6 +146,57 @@ as canonical would help non-Windows contributors.
 
 ---
 
+## Shipped (2026-07, AI-workflow batch)
+
+### 6.1 ✅ Live-session forensics tool (P1)
+Debugging a user-reported session meant hand-writing JSON spelunking against
+TTS autosaves every time. **Added** `scripts/inspect_save.py`: gameState
+summary from any save (`--live` = newest autosave), object position dump,
+embedded-in-tabletop check (`--band`), and `--error N` to decode an in-TTS
+`<Global:N>` error line to `lua/<file>:<line>` with context. Documented in
+`docs/debugging.md`.
+
+### 6.2 ✅ Record the TTS physical/runtime contract (P1)
+The table-surface height, the two rotation conventions, dead-handle
+callbacks, the Button-styling reset, and the asset-cache staleness trap were
+tribal knowledge rediscovered by forensics. **Written down** in
+`docs/tts-runtime.md`; the height rule is enforced by
+`test_build_output.py::test_no_objects_embedded_in_tabletop` and the
+`DOOM_MARKER_Y` mirror test.
+
+### 6.3 ✅ Cache purge in the deploy path (P1)
+Stale cached art caused "the board doesn't match the objects" bugs after
+every art regen. `iwanttoplay` now deletes this mod's `Mods/` cache entries
+(`reposStarveNoMore` / `localhost8080` markers) on every deploy.
+
+### 6.4 ✅ XML UI ids indexed in SYMBOLS.md (P1)
+UI work starts from an element id ("where is `duskReadyBtn`?"), which took a
+grep across `xml/` + `lua/`. `generate_symbol_index.py` now appends an
+"XML UI ids" table (id → file:line, element, onClick handler) to SYMBOLS.md.
+
+### 6.5 ✅ Split `day_loop.lua` at the turn-engine seam (P2)
+723 lines (worst offender vs the ~500 budget) → `day_loop.lua` (492: Dawn
+advance, Dusk, Night trigger) + `turns.lua` (239: beginDayPhase /
+advanceToNextPlayer / endPlayerTurn / spendAction, dusk ready-check, idle
+nudge).
+
+## Newly deferred
+
+### 6.6 ⬜ `CHAR_BRIEFINGS` duplicated against `content/help/character_briefings.md` (P2)
+The briefing text is hardcoded in `lua/ui_setup.lua` while a same-purpose
+markdown file sits in `content/help/` with no generator between them — the
+only player-facing text NOT single-sourced. Either generate a
+`lua/char_briefings.lua` from the markdown (the whatnow_hints pattern) or
+delete the markdown and declare the Lua canonical.
+
+### 6.7 ⬜ Oversized UI files (P3)
+`xml/hud.xml` (~660) and `lua/ui_setup.lua` (~630) are the next split
+candidates. XML splits are free (load_order.json just concatenates);
+`ui_setup.lua`'s natural seam is the static text tables (briefings/card
+styles) vs the walkthrough logic — best done together with 6.6.
+
+---
+
 ## Status summary
 
 | # | Item | Priority | Status |
@@ -165,3 +216,10 @@ as canonical would help non-Windows contributors.
 | 4.3 | Map cross-file `gameState.*` ownership | P3 | ⬜ deferred |
 | 5.1 | Move generated/retired docs out of root | P3 | ⬜ deferred |
 | 5.2 | Cross-platform launcher entrypoint | P3 | ⬜ deferred |
+| 6.1 | `inspect_save.py` live-session forensics | P1 | ✅ done |
+| 6.2 | `docs/tts-runtime.md` physical/runtime contract | P1 | ✅ done |
+| 6.3 | Cache purge in `iwanttoplay` | P1 | ✅ done |
+| 6.4 | XML UI ids in SYMBOLS.md | P1 | ✅ done |
+| 6.5 | Split `day_loop.lua` / add `turns.lua` | P2 | ✅ done |
+| 6.6 | Single-source `CHAR_BRIEFINGS` | P2 | ⬜ deferred |
+| 6.7 | Split `hud.xml` / `ui_setup.lua` | P3 | ⬜ deferred |

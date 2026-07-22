@@ -31,6 +31,15 @@ remembering which generator matches your edit. It reads `generators.json`, so it
 can't drift; generators whose sources are absent (e.g. `sounds/` on a clean
 clone) are skipped rather than erroring. `--no-build` / `--list` are available.
 
+## Debug / deploy tools (not generators)
+
+- `inspect_save.py` — read any TTS save like a debugger: `--live` (newest
+  autosave: gameState + object positions), `--band` (objects sunk in the
+  tabletop), `--error N` (decode an in-TTS `<Global:N>` error to
+  `lua/<file>:<line>`). See [`../docs/debugging.md`](../docs/debugging.md).
+- `iwanttoplay.py` — regen → build → test → install save → **purge this
+  mod's stale TTS asset cache** → asset server → launch TTS.
+
 ## Conventions
 
 - **File-size budget:** if a file passes ~500 lines, split it before adding more.

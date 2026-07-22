@@ -12,6 +12,7 @@
     "notebook_data.lua",
     "setup.lua",
     "day_loop.lua",
+    "turns.lua",
     "effects/dawn_effects.lua",
     "effects/dawn_effects_phase1.lua",
     "effects/dawn_effects_phase2.lua",
