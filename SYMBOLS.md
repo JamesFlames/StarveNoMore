@@ -255,15 +255,16 @@
 | 377 | function | `finishCombat` |
 | 391 | function | `resolveCharlieAttack` |
 
-## lua/crafting.lua (5 symbols)
+## lua/crafting.lua (6 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 11 | function | `doCraft` |
 | 78 | function | `_pickScarcityResource` |
 | 88 | function | `refillMarketSlot` |
-| 120 | function | `doCook` |
-| 225 | function | `cookTelltaleHeart` |
+| 123 | function | `recipeIngredientCost` |
+| 142 | function | `doCook` |
+| 262 | function | `cookTelltaleHeart` |
 
 ## lua/night.lua (10 symbols)
 
@@ -426,16 +427,16 @@
 | 143 | function | `onObjectDrop` |
 | 153 | function | `_handleStandeeDrop` |
 | 234 | function | `_spawnCraftButtons` |
-| 277 | function | `_spawnCookButtons` |
-| 309 | function | `_spawnFightButtons` |
-| 340 | function | `onMoveTargetClick` |
-| 375 | function | `onCraftTargetClick` |
-| 392 | function | `onCookTargetClick` |
-| 426 | function | `onFightTargetClick` |
-| 430 | function | `onFightTogetherClick` |
-| 434 | function | `_highlightCraftTargets` |
-| 466 | function | `_highlightCookTargets` |
-| 476 | function | `_highlightCleanseTargets` |
+| 288 | function | `_spawnCookButtons` |
+| 324 | function | `_spawnFightButtons` |
+| 355 | function | `onMoveTargetClick` |
+| 390 | function | `onCraftTargetClick` |
+| 407 | function | `onCookTargetClick` |
+| 441 | function | `onFightTargetClick` |
+| 445 | function | `onFightTogetherClick` |
+| 449 | function | `_highlightCraftTargets` |
+| 481 | function | `_highlightCookTargets` |
+| 491 | function | `_highlightCleanseTargets` |
 
 ## lua/ui_actionbar_handlers.lua (26 symbols)
 
@@ -711,14 +712,14 @@
 | `_dawnCardRevealed` | lua/day_loop.lua | 343 |
 | `_findCardAtDawnRevealSpot` | lua/day_loop.lua | 332 |
 | `_handleStandeeDrop` | lua/ui_actionbar_targets.lua | 153 |
-| `_highlightCleanseTargets` | lua/ui_actionbar_targets.lua | 476 |
-| `_highlightCookTargets` | lua/ui_actionbar_targets.lua | 466 |
-| `_highlightCraftTargets` | lua/ui_actionbar_targets.lua | 434 |
+| `_highlightCleanseTargets` | lua/ui_actionbar_targets.lua | 491 |
+| `_highlightCookTargets` | lua/ui_actionbar_targets.lua | 481 |
+| `_highlightCraftTargets` | lua/ui_actionbar_targets.lua | 449 |
 | `_pickScarcityResource` | lua/crafting.lua | 78 |
 | `_resLabel` | lua/ui_actionbar_core.lua | 72 |
-| `_spawnCookButtons` | lua/ui_actionbar_targets.lua | 277 |
+| `_spawnCookButtons` | lua/ui_actionbar_targets.lua | 288 |
 | `_spawnCraftButtons` | lua/ui_actionbar_targets.lua | 234 |
-| `_spawnFightButtons` | lua/ui_actionbar_targets.lua | 309 |
+| `_spawnFightButtons` | lua/ui_actionbar_targets.lua | 324 |
 | `_spawnMoveButtons` | lua/ui_actionbar_targets.lua | 88 |
 | `advanceToNextPlayer` | lua/turns.lua | 67 |
 | `allPlayersGain` | lua/effects/dawn_effects.lua | 44 |
@@ -768,7 +769,7 @@
 | `confirmLastHeart` | lua/ui_mood.lua | 126 |
 | `confirmMoveInjuredToThreat` | lua/ui_mood.lua | 142 |
 | `confirmSleepAloneAtCourt` | lua/ui_mood.lua | 91 |
-| `cookTelltaleHeart` | lua/crafting.lua | 225 |
+| `cookTelltaleHeart` | lua/crafting.lua | 262 |
 | `countDuskReady` | lua/turns.lua | 181 |
 | `countFesteringThreats` | lua/day_loop.lua | 178 |
 | `customUIHidden` | lua/ui_controls.lua | 104 |
@@ -778,7 +779,7 @@
 | `doAppeaseTreeguard` | lua/treeguard.lua | 77 |
 | `doBarricade` | lua/actions_social.lua | 98 |
 | `doCleanse` | lua/tick_victory.lua | 311 |
-| `doCook` | lua/crafting.lua | 120 |
+| `doCook` | lua/crafting.lua | 142 |
 | `doCraft` | lua/crafting.lua | 11 |
 | `doDefend` | lua/actions_social.lua | 123 |
 | `doDuskMove` | lua/actions.lua | 187 |
@@ -888,14 +889,14 @@
 | `onBriefDismiss` | lua/ui_setup.lua | 444 |
 | `onConfirmNo` | lua/ui_controls.lua | 35 |
 | `onConfirmYes` | lua/ui_controls.lua | 25 |
-| `onCookTargetClick` | lua/ui_actionbar_targets.lua | 392 |
+| `onCookTargetClick` | lua/ui_actionbar_targets.lua | 407 |
 | `onCopySessionLog` | lua/telemetry.lua | 113 |
-| `onCraftTargetClick` | lua/ui_actionbar_targets.lua | 375 |
+| `onCraftTargetClick` | lua/ui_actionbar_targets.lua | 390 |
 | `onDawnStepClick` | lua/ui_rules.lua | 293 |
 | `onDuskMoveClick` | lua/ui_actionbar_handlers.lua | 399 |
 | `onDuskReadyClick` | lua/ui_actionbar_handlers.lua | 394 |
-| `onFightTargetClick` | lua/ui_actionbar_targets.lua | 426 |
-| `onFightTogetherClick` | lua/ui_actionbar_targets.lua | 430 |
+| `onFightTargetClick` | lua/ui_actionbar_targets.lua | 441 |
+| `onFightTogetherClick` | lua/ui_actionbar_targets.lua | 445 |
 | `onFinishCombat` | lua/ui_actionbar_handlers.lua | 240 |
 | `onHelpClick` | lua/ui_help.lua | 111 |
 | `onHelpClose` | lua/ui_help.lua | 121 |
@@ -906,7 +907,7 @@
 | `onHostRestart` | lua/ui_controls.lua | 219 |
 | `onHostSetupGuided` | lua/ui_setup.lua | 616 |
 | `onLoad` | lua/global.lua | 254 |
-| `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 340 |
+| `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 355 |
 | `onMsgLogClear` | lua/ui_msglog.lua | 65 |
 | `onMsgLogHide` | lua/ui_msglog.lua | 70 |
 | `onMsgLogToggle` | lua/ui_msglog.lua | 55 |
@@ -949,6 +950,7 @@
 | `pulseHandZone` | lua/ui_banner.lua | 412 |
 | `rallyTargets` | lua/actions_social.lua | 199 |
 | `raymanLoudTonight` | lua/night.lua | 25 |
+| `recipeIngredientCost` | lua/crafting.lua | 123 |
 | `recommendNext` | lua/ui_banner.lua | 201 |
 | `recordBeat` | lua/telemetry.lua | 19 |
 | `recordCharlieInChronicle` | lua/ui_controls.lua | 376 |

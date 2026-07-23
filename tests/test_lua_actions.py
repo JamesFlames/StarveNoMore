@@ -429,3 +429,52 @@ class TestGatherAutomation:
         env.execute('gameState.treeguard = { active = true, location = "BadmintonCourt" }')
         env.globals().treeguardDefeated()
         assert env.eval('#findAllByTag("Resource:Wood")') == 3
+
+
+# ---------------------------------------------------------------------------
+# Cook ingredient automation — recipes auto-pay their Resource cost (like
+# Craft), with Ellie's Crockpot Master discount and the Feast exemption.
+# ---------------------------------------------------------------------------
+
+
+class TestCookIngredients:
+    def _cook_world(self, env, name, color="Green"):
+        # Ellie & Luca's House is the Crockpot tile every recipe needs.
+        add_char(env, color, name, location="EllieLucaHouse")
+        add = env.eval("TTS.addObject")
+        add(py_to_lua(env, {"tags": ["Location:EllieLucaHouse"], "position": [0, 1, 0]}))
+        add(py_to_lua(env, {"tags": [f"PlayerBoard:{name}"], "position": [20, 1, 20]}))
+        for res in ["Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"]:
+            add(py_to_lua(env, {
+                "tags": [f"ResourceBag:{res}"], "position": [60, 1, 60],
+                "contained": [{"nickname": res, "tags": ["Resource", f"Resource:{res}"]}] * 8}))
+
+    def _held(self, env, color="Green"):
+        return lua_to_py(env.globals().getPlayerResources(color))
+
+    def test_cook_pays_ingredients_from_held(self, env):
+        self._cook_world(env, "Rayman")   # non-Ellie: full cost
+        env.globals().giveResource("Green", "Food", 2)
+        env.globals().giveResource("Green", "Wood", 1)
+        env.globals().doCook("Green", "R_HOT_STEW")   # costs 2 Food + 1 Wood
+        held = self._held(env)
+        assert held["Food"] == 0 and held["Wood"] == 0
+        assert env.eval("gameState.activeChars.Green.hunger") >= 4   # effect applied
+
+    def test_cook_refused_and_refunded_when_short(self, env):
+        self._cook_world(env, "Rayman")
+        env.globals().giveResource("Green", "Food", 1)   # need 2 Food + 1 Wood
+        start_hunger = env.eval("gameState.activeChars.Green.hunger")
+        env.globals().doCook("Green", "R_HOT_STEW")
+        assert env.eval("gameState.activeChars.Green.actionsLeft") == 3   # action refunded
+        assert env.eval("gameState.activeChars.Green.hunger") == start_hunger  # no effect
+        assert self._held(env)["Food"] == 1   # nothing spent
+
+    def test_ellie_crockpot_master_pays_one_fewer(self, env):
+        self._cook_world(env, "Ellie")
+        env.globals().giveResource("Green", "Food", 2)   # 2 Food + 1 Wood, minus 1 = 1 Food + 1 Wood
+        env.globals().giveResource("Green", "Wood", 1)
+        env.globals().doCook("Green", "R_HOT_STEW")
+        held = self._held(env)
+        # Ellie shaves one Food (the largest ingredient); 1 Food is left over.
+        assert held["Food"] == 1 and held["Wood"] == 0

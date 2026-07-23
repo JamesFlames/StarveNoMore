@@ -274,14 +274,29 @@ local function _recipeIdFromCard(card)
     return nil
 end
 
+-- "2 Food + 1 Wood" from a { Food = 2, Wood = 1 } cost table (for tooltips).
+local function _fmtCost(cost)
+    local parts = {}
+    for _, r in ipairs({"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}) do
+        if (cost[r] or 0) > 0 then
+            parts[#parts + 1] = cost[r] .. " " .. (r == "EnergyDrink" and "Energy Drink" or r)
+        end
+    end
+    return #parts > 0 and table.concat(parts, " + ") or "no ingredients"
+end
+
 function _spawnCookButtons()
     local n = 0
+    local color = gameState.activeColor
     for _, card in ipairs(findAllByTag("RecipeCard")) do
         local rid = _recipeIdFromCard(card)
         if rid then
             _recipeIdByGuid[card.getGUID()] = rid
+            local recipe = RECIPE_DATA[rid]
+            local cost = color and recipeIngredientCost(color, recipe) or (recipe.ingredients or {})
             _spawnTargetButton(card, "COOK", "onCookTargetClick",
-                "Cook " .. (RECIPE_DATA[rid].name or rid) .. " (1 action + ingredients)",
+                "Cook " .. (recipe.name or rid) .. " — ingredients paid automatically: " ..
+                _fmtCost(cost) .. " (1 action)",
                 false)
             n = n + 1
         end

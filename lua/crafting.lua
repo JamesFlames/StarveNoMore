@@ -117,6 +117,28 @@ end
 -- recipe resolution. Ingredients are validated manually by the player
 -- (resource tokens); the script resolves the stat effects.
 
+-- The Resource cost to cook this recipe, after Ellie's Crockpot Master
+-- perk (§6.4: "recipes need 1 fewer ingredient, min 1") — one unit is
+-- shaved off the largest ingredient, never below 1 ingredient total.
+function recipeIngredientCost(color, recipe)
+    local cost = {}
+    for r, q in pairs(recipe.ingredients or {}) do cost[r] = q end
+    local char = gameState.activeChars[color]
+    if char and char.name == "Ellie" then
+        local total = 0
+        for _, q in pairs(cost) do total = total + q end
+        if total > 1 then
+            local best, bestQ = nil, 0
+            for r, q in pairs(cost) do if q > bestQ then best, bestQ = r, q end end
+            if best then
+                cost[best] = cost[best] - 1
+                if cost[best] <= 0 then cost[best] = nil end
+            end
+        end
+    end
+    return cost
+end
+
 function doCook(color, recipeId)
     local recipe = RECIPE_DATA[recipeId]
     if not recipe then
@@ -130,6 +152,16 @@ function doCook(color, recipeId)
     -- Night-only restriction: none here. Midnight Snack (canCookAtNight)
     -- may be cooked during the Day too, so this cook is never gated by phase.
 
+    -- Once-per-game check FIRST (before spending anything), so a repeat
+    -- attempt doesn't cost an action or ingredients.
+    if recipe.oncePerGame then
+        gameState.usedRecipes = gameState.usedRecipes or {}
+        if gameState.usedRecipes[recipeId] then
+            broadcastEvent("damage", recipe.name .. " can only be cooked once per game.")
+            return
+        end
+    end
+
     -- Action cost. The Feast (Ellie's Signature, §6.7) covers every cook
     -- for the rest of her turn in its single action.
     local actionCost = recipe.actionCost or 1
@@ -141,15 +173,20 @@ function doCook(color, recipeId)
         if not spendAction(color, "Cook (" .. recipe.name .. ")") then return end
     end
 
-    -- Once-per-game check
-    if recipe.oncePerGame then
-        gameState.usedRecipes = gameState.usedRecipes or {}
-        if gameState.usedRecipes[recipeId] then
-            broadcastEvent("damage", recipe.name .. " can only be cooked once per game.")
-            return
+    -- Ingredients are paid automatically from the held count (no dropping
+    -- tokens). The Feast already consumed all Food up front, so cooking is
+    -- ingredient-free during it. Refund the action(s) if the cook is short.
+    if not char.feastActive then
+        local cost = recipeIngredientCost(color, recipe)
+        if next(cost) ~= nil then
+            if not verifyAndPayResources(color, cost, recipe.name) then
+                for _ = 1, actionCost do char.actionsLeft = char.actionsLeft + 1 end
+                return
+            end
         end
-        gameState.usedRecipes[recipeId] = true
     end
+
+    if recipe.oncePerGame then gameState.usedRecipes[recipeId] = true end
 
     broadcastEvent("proc", char.name .. " cooks " .. recipe.name .. "!")
     safecall(function() recordMealInChronicle(char.name) end, "Chronicle")

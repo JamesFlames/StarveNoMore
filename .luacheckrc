@@ -325,6 +325,7 @@ globals = {
     "pulseHandZone",
     "rallyTargets",
     "raymanLoudTonight",
+    "recipeIngredientCost",
     "recommendNext",
     "recordBeat",
     "recordCharlieInChronicle",
