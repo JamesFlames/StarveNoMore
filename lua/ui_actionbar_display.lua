@@ -211,13 +211,23 @@ CHAR_TRAIT_LINES = {
 function refreshStatDisplay()
     if not UI then return end
 
-    -- Pick which character to show: active player during Day, or the local player
-    local showColor = gameState.activeColor
+    -- Which character to show. During Day it's the active player; outside
+    -- the Day (Dawn/Dusk/Night/Tick/PreDawn) there's no active player, so
+    -- fall back to the last one shown, then any living character. The old
+    -- code early-returned here, leaving the bars frozen at their pre-night
+    -- values — the "left box still showed max HP after the night" bug.
+    local showColor = gameState.activeColor or gameState.lastActiveColor
+    if not showColor or not gameState.activeChars[showColor] then
+        for c, ch in pairs(gameState.activeChars) do
+            if not ch.down then showColor = c; break end
+        end
+        showColor = showColor or next(gameState.activeChars)
+    end
     if not showColor then
-        -- Show nothing specific
         UI.setAttribute("statCharName", "text", "—")
         return
     end
+    gameState.lastActiveColor = showColor
 
     local char = gameState.activeChars[showColor]
     if not char then return end
@@ -228,11 +238,12 @@ function refreshStatDisplay()
     local hPct = (char.maxHealth > 0) and math.floor(char.health / char.maxHealth * 100) or 0
     UI.setAttribute("statHealthBar", "percentage", tostring(hPct))
     UI.setAttribute("statHealthVal", "text", char.health .. "/" .. char.maxHealth)
-    -- Color: red if below threshold
+    -- fillImageColor (not color) is the fill; color is now the white empty
+    -- track. Fill brightens when the stat is critically low.
     if char.health < 3 then
-        UI.setAttribute("statHealthBar", "color", "#FF2222")
+        UI.setAttribute("statHealthBar", "fillImageColor", "#FF2222")
     else
-        UI.setAttribute("statHealthBar", "color", "#FF4444")
+        UI.setAttribute("statHealthBar", "fillImageColor", "#FF4444")
     end
 
     -- Hunger bar
@@ -240,9 +251,9 @@ function refreshStatDisplay()
     UI.setAttribute("statHungerBar", "percentage", tostring(huPct))
     UI.setAttribute("statHungerVal", "text", char.hunger .. "/" .. char.maxHunger)
     if char.hunger < 3 then
-        UI.setAttribute("statHungerBar", "color", "#FF6600")
+        UI.setAttribute("statHungerBar", "fillImageColor", "#FF6600")
     else
-        UI.setAttribute("statHungerBar", "color", "#FFAA22")
+        UI.setAttribute("statHungerBar", "fillImageColor", "#FFAA22")
     end
 
     -- Sanity bar
@@ -250,9 +261,9 @@ function refreshStatDisplay()
     UI.setAttribute("statSanityBar", "percentage", tostring(sPct))
     UI.setAttribute("statSanityVal", "text", char.sanity .. "/" .. char.maxSanity)
     if char.sanity < 3 then
-        UI.setAttribute("statSanityBar", "color", "#FF44FF")
+        UI.setAttribute("statSanityBar", "fillImageColor", "#FF44FF")
     else
-        UI.setAttribute("statSanityBar", "color", "#4488FF")
+        UI.setAttribute("statSanityBar", "fillImageColor", "#4488FF")
     end
 
     -- Location

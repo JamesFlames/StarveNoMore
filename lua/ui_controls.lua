@@ -245,10 +245,10 @@ function onHostRestart(player, value, id)
             UI.hide("statDisplay")
             UI.hide("duskPanel")
 
-            -- Restore the board's 3D Setup button (cleared when clicked).
+            -- Clear any lingering 3D board buttons. Setup is driven from the
+            -- Host Controls panel (btnSetup) — no redundant board button.
             local board = getMainBoard()
             if board then board.clearButtons() end
-            safecall(function() createSetupButton() end, "SetupButton")
         end
     )
 end
@@ -265,64 +265,63 @@ function showEndOfDaySummary()
     if not UI then return end
 
     local title = "End of Day " .. gameState.day
-    local body = ""
+    local body = "Doom: " .. gameState.doom .. " / " .. getDoomLimit() .. "\n"
 
-    -- Compile from dayLog
-    local damage = {}
-    local gains = {}
-    for _, entry in ipairs(gameState.dayLog or {}) do
-        if entry.category == "damage" or entry.category == "warn" then
-            table.insert(damage, "- " .. entry.message)
-        elseif entry.category == "gain" then
-            table.insert(gains, "- " .. entry.message)
-        end
+    -- Reason attribution: the night/tick handlers already broadcast WHY each
+    -- change happened ("X loses 2 Sanity from Charlie"). Group those lines
+    -- under the character they name, so each stat drop shows its cause.
+    local startStats = gameState.dayStartStats or {}
+    local function fmt(now, was)
+        local d = now - was
+        if d > 0 then return was .. "→" .. now .. " (+" .. d .. ")"
+        elseif d < 0 then return was .. "→" .. now .. " (" .. d .. ")"
+        else return tostring(now) end
     end
 
-    body = body .. "Doom: " .. gameState.doom .. " / " .. getDoomLimit() .. "\n\n"
-
-    -- QoL: Stat comparison (start-of-day vs now)
-    local startStats = gameState.dayStartStats or {}
-    local statLines = {}
     for color, char in pairs(gameState.activeChars) do
         local ss = startStats[color]
+        body = body .. "\n" .. char.name .. (char.down and " [DOWN]" or "") .. "\n"
         if ss then
-            local function delta(now, was) return now - was end
-            local function fmt(now, was)
-                local d = delta(now, was)
-                if d > 0 then return was .. " -> " .. now .. " (+" .. d .. ")"
-                elseif d < 0 then return was .. " -> " .. now .. " (" .. d .. ")"
-                else return tostring(now) .. " (unchanged)" end
+            body = body .. "  HP " .. fmt(char.health, ss.health) ..
+                " · Hunger " .. fmt(char.hunger, ss.hunger) ..
+                " · Sanity " .. fmt(char.sanity, ss.sanity) .. "\n"
+        end
+        -- Reasons: dayLog lines that mention this character by name.
+        for _, entry in ipairs(gameState.dayLog or {}) do
+            if (entry.category == "damage" or entry.category == "warn" or entry.category == "gain")
+                and entry.message:find(char.name, 1, true) then
+                body = body .. "    • " .. entry.message .. "\n"
             end
-            table.insert(statLines, char.name .. ":  H:" .. fmt(char.health, ss.health) ..
-                "  Hu:" .. fmt(char.hunger, ss.hunger) ..
-                "  S:" .. fmt(char.sanity, ss.sanity))
         end
     end
-    if #statLines > 0 then
-        body = body .. "Stat Changes:\n" .. table.concat(statLines, "\n") .. "\n\n"
+
+    -- Table-wide events that didn't name a character (Doom threshold, boss).
+    local general = {}
+    for _, entry in ipairs(gameState.dayLog or {}) do
+        if entry.category == "warn" or entry.category == "damage" then
+            local named = false
+            for _, ch in pairs(gameState.activeChars) do
+                if entry.message:find(ch.name, 1, true) then named = true; break end
+            end
+            if not named and (entry.message:find("Doom") or entry.message:find("THRESHOLD")
+                or entry.message:find("boss") or entry.message:find("Boss")) then
+                table.insert(general, "  • " .. entry.message)
+            end
+        end
+    end
+    if #general > 0 then
+        body = body .. "\nThe wider night:\n" .. table.concat(general, "\n") .. "\n"
     end
 
-    if #damage > 0 then
-        body = body .. "Losses:\n" .. table.concat(damage, "\n") .. "\n\n"
-    end
-    if #gains > 0 then
-        body = body .. "Gains:\n" .. table.concat(gains, "\n") .. "\n\n"
-    end
-    body = body .. "Next: Day " .. (gameState.day + 1) .. " Dawn"
+    body = body .. "\nNext: Day " .. (gameState.day + 1) .. " Dawn — click Begin Day."
 
-    -- Truncate if too long
-    if #body > 800 then
-        body = body:sub(1, 800) .. "\n..."
-    end
+    if #body > 3500 then body = body:sub(1, 3500) .. "\n…" end
 
     UI.setAttribute("summaryTitle", "text", title)
     UI.setAttribute("summaryBody", "text", body)
     UI.show("summaryPanel")
-
-    -- Auto-dismiss after 8 seconds
-    Wait.time(function()
-        UI.hide("summaryPanel")
-    end, 8.0)
+    -- No auto-dismiss: the player clicks Continue when they've read it
+    -- (playtest: end-of-day report vanished before it could be read).
 end
 
 function onSummaryClose(player, value, id)
@@ -514,8 +513,7 @@ TOOLTIP_DATA = {
     ["VisitorCardDeck"]      = "Visitor Deck. Absent characters may arrive via Dawn cards.",
     -- Supply
     ["TelltaleHeartSupply"]  = "Telltale Hearts (5 max). Cook: 1 Cloth + 1 Battery + 1 Food + 2 Health. Use to revive a Down character.",
-    ["ResourceBag"]          = "Resource supply bag (kept under the table). Fully automated — Gather delivers tokens to your board, and the Discard Tray returns what you spend.",
-    ["DiscardTray"]          = "Discard Tray. Spending resources (craft costs, cook ingredients)? Drop the tokens here — they return to the supply by themselves.",
+    ["ResourceBag"]          = "Resource supply bag (kept under the table). Fully automated — your held counts are tracked for you; Gather adds, Craft/Cleanse spend, no tokens to move.",
     ["PathVariant"]          = "Decorative path tiles for an alternate map layout. Safe to ignore during play.",
     -- Locations
     ["Location:JamesHouse"]       = "James's House. Yields: Energy Drink, Battery, Junk Food. The Den: free trade once/day.",

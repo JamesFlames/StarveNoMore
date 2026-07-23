@@ -34,6 +34,11 @@ gameState = {
         --   sanity, maxSanity, actionsLeft, down, briefed, location}
     },
 
+    -- Authoritative held resources per seat colour (ensurePlayerResources,
+    -- helpers.lua). Physical tokens are decoration; THIS is the count the
+    -- economy reads. [color] = {Wood, Metal, Cloth, Food, EnergyDrink, Battery}
+    resources = {},
+
     -- One-fire-per-day flags so urgent auto-broadcasts (Down, stat-below-3,
     -- James-no-Energy-Drink) don't spam the chat. Cleared in BeginDay() at Dawn.
     dailyAlerts = {
@@ -232,6 +237,7 @@ function migrateGameState()
     gs.raymanTilesMovedToday = gs.raymanTilesMovedToday or 0 -- batch 4
     gs.threatDamage         = gs.threatDamage or {}          -- schema 3: chip damage on threat cards
     gs.messageLog           = gs.messageLog or {}            -- Message Log panel (ui_msglog.lua)
+    gs.resources            = gs.resources or {}             -- authoritative held resources per colour
     for _, char in pairs(gs.activeChars) do
         if char.signatureUsed == nil then char.signatureUsed = false end -- batch 2
     end
@@ -260,7 +266,9 @@ function onLoad(savedState)
 
     if not gameState.started and not gameState.welcomed then
         safecall(function() showWelcomeSequence() end, "Welcome")
-        createSetupButton()
+        -- No 3D board Setup button: setup is driven from Host Controls
+        -- (btnSetup). The board plate rendered upside down and duplicated
+        -- the panel button.
     elseif gameState.started then
         broadcastToAll("Starve No More — game restored. Day " .. gameState.day .. ", Doom " .. gameState.doom .. ".", {0.5, 0.9, 1})
     end
@@ -284,8 +292,8 @@ function onLoad(savedState)
                 broadcastToAll("Tabletop Simulator's built-in turn tracker is off — this game runs its own turns (see the top banner).", {0.7, 0.7, 0.7})
             end
         end)
-        -- Discard Tray: returns dropped tokens to the hidden supply.
-        safecall(function() startDiscardTraySweep() end, "DiscardTray")
+        -- (No Discard Tray sweep any more — resources are virtual, so no
+        -- tokens are ever dropped for it to reclaim.)
         -- J.10: Run first-load component audit
         safecall(function() auditFirstLoad() end, "FirstLoadAudit")
     end, 1.0)
@@ -296,33 +304,10 @@ function onSave()
 end
 
 -----------------------------------------------------------------------
--- Setup button (temporary, replaced by guided walkthrough in Phase H)
+-- Setup entry point. The physical 3D board button is gone (it rendered
+-- upside down and duplicated Host Controls > Setup Game); onSetupClick
+-- remains as the handler for that panel button and for tests.
 -----------------------------------------------------------------------
-function createSetupButton()
-    local board = getMainBoard()
-    if not board then
-        broadcastToAll("ERROR: Main Board not found. Cannot create Setup button.", {1, 0, 0})
-        return
-    end
-    board.createButton({
-        click_function = "onSetupClick",
-        function_owner = Global,
-        label          = "Setup Game",
-        -- Local y 0.75 ≈ world 1.71: the glass table's playing surface is
-        -- at ~y 1.55, and a plate at the old 0.5 sat half-sunk in it.
-        position       = {0, 0.75, 0},
-        rotation       = {0, 0, 0},
-        width          = 2400,
-        height         = 600,
-        font_size      = 300,
-        -- White text on the dark plate — the old grey-on-grey read as a
-        -- disabled button.
-        color          = {0.15, 0.15, 0.15},
-        font_color     = {1, 1, 1},
-        tooltip        = "Click to set up a new game of Starve No More.",
-    })
-end
-
 function onSetupClick(obj, playerColor, altClick)
     -- Route through the guided walkthrough — the bare Setup() would assign
     -- characters by seat color and ignore the players' picks.

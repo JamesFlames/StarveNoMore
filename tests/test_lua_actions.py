@@ -140,8 +140,9 @@ class TestSignatures:
         add = env.eval("TTS.addObject")
         add(py_to_lua(env, {"tags": ["PlayerBoard:Ellie"], "position": [20, 1, 20]}))
         add(py_to_lua(env, {"tags": ["ResourceBag:Food"], "position": [40, 1, 40]}))
-        for _ in range(food):
-            add(py_to_lua(env, {"tags": ["Resource", "Resource:Food"], "position": [20, 1, 20]}))
+        # Held resources are authoritative in gameState — grant them the same
+        # way the game does (giveResource), not by placing physical tokens.
+        env.globals().giveResource("Green", "Food", food)
 
     def test_feast_spends_one_action_zeroes_food_frees_cooking(self, env):
         self._ellie_with_food(env, food=3)

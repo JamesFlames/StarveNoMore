@@ -489,6 +489,7 @@ function finalizeGuidedSetup()
     -- re-setup can never leave stale characters in the roster.
     gameState.activeChars = {}
     gameState.dailyAlerts = {}
+    gameState.resources = {}   -- fresh held-resource counts
 
     local seated = {}
     for color, _ in pairs(setupState.charPicks) do
@@ -523,6 +524,7 @@ function finalizeGuidedSetup()
 
     -- Characters nobody picked leave the map for the bench.
     safecall(function() benchUnusedCharacters() end, "Bench")
+    safecall(function() benchUnusedBoards() end, "BenchBoards")
 
     -- Starting hands: each character's personal items into their hand.
     safecall(function() dealStartingHands() end, "StartingHands")

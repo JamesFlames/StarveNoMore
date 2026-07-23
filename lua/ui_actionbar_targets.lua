@@ -232,19 +232,31 @@ function _handleStandeeDrop(dropColor, obj, charName)
 end
 
 function _spawnCraftButtons()
+    -- Iterate the CARDS (not the slots) and attach each to its nearest
+    -- market slot. Robust to a card that drifted off its slot, and every
+    -- handle access is pcall-guarded (a card merged/destroyed mid-deal
+    -- would otherwise throw and abort the whole scan → false "no cards").
+    local slots = getMarketSlots()
+    if #slots == 0 then return 0 end
     local n = 0
-    for i, slot in ipairs(getMarketSlots()) do
-        local slotPos = slot.getPosition()
-        for _, card in ipairs(findAllByTag("MarketCard")) do
-            if card.type == "Card" and card.getPosition():distance(slotPos) < 2 then
-                _craftSlotByGuid[card.getGUID()] = i
+    for _, card in ipairs(findAllByTag("MarketCard")) do
+        pcall(function()
+            if card.type ~= "Card" then return end   -- skip the deck itself
+            local cp = card.getPosition()
+            local bestSlot, bestD = nil, math.huge
+            for i, slot in ipairs(slots) do
+                local d = cp:distance(slot.getPosition())
+                if d < bestD then bestSlot, bestD = i, d end
+            end
+            -- Generous radius: cards settle up to ~1.5u off their slot.
+            if bestSlot and bestD < 4 then
+                _craftSlotByGuid[card.getGUID()] = bestSlot
                 _spawnTargetButton(card, "CRAFT", "onCraftTargetClick",
                     "Craft " .. (card.getNickname() or "this item") .. " (1 action + resources)",
                     false)
                 n = n + 1
-                break
             end
-        end
+        end)
     end
     return n
 end

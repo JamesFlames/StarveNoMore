@@ -40,13 +40,27 @@ function doCraft(color, marketSlotIndex)
     end
 
     local itemName = card.getNickname() or "Unknown Item"
-    broadcastEvent("proc", char.name .. " crafts " .. itemName ..
-        "! Drop the resource cost on the Discard Tray — it returns to the supply by itself.")
 
-    -- Doom threshold 15 (Scarcity): every craft costs +1 extra resource
+    -- Cost is paid automatically from the held count (resources are virtual
+    -- now — no dropping tokens on a tray). Build the cost, add the Scarcity
+    -- surcharge if Doom ≥ 15, then verify+pay; refund the action if short.
+    local cardId = _cardIdFromTags(card)
+    local cost = {}
+    for r, q in pairs((cardId and MARKET_COSTS[cardId]) or {}) do cost[r] = q end
     if gameState.ongoingDawnEffects.doom15 then
-        broadcastEvent("warn", "Scarcity (Doom ≥ 15): also drop 1 extra resource of any type you hold on the Discard Tray.")
+        local extra = _pickScarcityResource(color, cost)
+        if extra then
+            cost[extra] = (cost[extra] or 0) + 1
+            broadcastEvent("warn", "Scarcity (Doom ≥ 15): +1 " .. _resLabel(extra) .. " added to the cost.")
+        end
     end
+    if next(cost) ~= nil then
+        if not verifyAndPayResources(color, cost, itemName) then
+            char.actionsLeft = char.actionsLeft + 1   -- refund the Craft action
+            return
+        end
+    end
+    broadcastEvent("gain", char.name .. " crafts " .. itemName .. " — dealt to your hand.")
 
     -- Move card to the player's hand zone
     local handZone = getHandZone(color)
@@ -56,6 +70,19 @@ function doCraft(color, marketSlotIndex)
 
     -- Refill market slot from the deck
     refillMarketSlot(slot)
+end
+
+-- Scarcity surcharge picks the resource the player holds most of (that
+-- isn't already zero after the base cost), so the +1 "any type you hold"
+-- is spent automatically without a prompt.
+function _pickScarcityResource(color, baseCost)
+    local held = getPlayerResources(color)
+    local best, bestN = nil, 0
+    for _, r in ipairs({"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}) do
+        local spare = (held[r] or 0) - (baseCost[r] or 0)
+        if spare > bestN then best, bestN = r, spare end
+    end
+    return best
 end
 
 function refillMarketSlot(slot)
@@ -124,8 +151,7 @@ function doCook(color, recipeId)
         gameState.usedRecipes[recipeId] = true
     end
 
-    broadcastEvent("proc", char.name .. " cooks " .. recipe.name ..
-        "! Drop the ingredients on the Discard Tray — they return to the supply by themselves.")
+    broadcastEvent("proc", char.name .. " cooks " .. recipe.name .. "!")
     safecall(function() recordMealInChronicle(char.name) end, "Chronicle")
 
     -- Cook penalty (e.g., Battery Acid Soup costs health, Telltale Heart costs 2 health)

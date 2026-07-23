@@ -546,9 +546,12 @@ for variant in ["Compact", "Sprawl", "Linear", "Ring", "Star"]:
 # DOOM_MARKER_Y in moveDoomMarker (above the ~1.55 table surface; the old
 # 1.2 left the marker buried inside the glass tabletop).
 _doom_x, _doom_z = board_geometry.doom_step_world(0)
-doom = base_obj("Custom_Token", tf(_doom_x, 1.68, _doom_z),
+# Scale 1.6: the track runs along the board's south edge (the bottom of the
+# default angled view), so a scale-1 token was easy to miss — "I don't see
+# a doom counter." Bigger reads clearly from across the table.
+doom = base_obj("Custom_Token", tf(_doom_x, 1.72, _doom_z, sx=1.6, sy=1.6, sz=1.6),
                 nickname="Doom Marker",
-                desc="Doom: 0 / 30. Next threshold at 10: night threats +1.",
+                desc="Doom track marker. Moves itself each time Doom changes — you never place it by hand.",
                 tags=["DoomMarker"],
                 locked=True)
 doom["CustomImage"] = {
@@ -633,7 +636,9 @@ objects.append(market_deck)
 for i, (msx, msz) in enumerate(MARKET_SLOT_POSITIONS):
     slot = base_obj("Notecard", tf(msx, SURFACE_Y, msz),
                     nickname=f"Market Slot {i+1}",
-                    desc="A Market card is dealt face-up here during Setup. Craft claims the card; the deck refills the slot.",
+                    desc="One of the 5 shared Market cards for sale. Use the Craft "
+                         "action to buy it (its resource cost is paid automatically); "
+                         "a fresh card is then dealt here to take its place.",
                     tags=["MarketSlot", f"MarketSlot:{i}"],
                     locked=True)
     objects.append(slot)
@@ -875,12 +880,17 @@ objects.append(sanity_d8)
 # E.16  Character standees + player boards
 # ---------------------------------------------------------------------------
 
+# bx spacing is 9 units: the boards are scale-3 (~6 units wide), so the old
+# 3-unit spacing overlapped them heavily — at load the physics engine flung
+# the stack across the table (boards ended up 20+ units from home, which
+# then broke the old board-relative resource counting). 9 units clears them.
+# Unused boards are benched under the table at setup (benchUnusedBoards).
 characters = [
-    ("James", "White", -6, -16, {"health": 8, "hunger": 6, "sanity": 10}),
-    ("Coco",  "Red",   -3, -16, {"health": 6, "hunger": 8, "sanity": 12}),
-    ("Rayman","Yellow", 0, -16, {"health": 12,"hunger": 10,"sanity": 6}),
-    ("Ellie", "Green",  3, -16, {"health": 8, "hunger": 10,"sanity": 8}),
-    ("Luca",  "Blue",   6, -16, {"health": 7, "hunger": 8, "sanity": 10}),
+    ("James", "White", -18, -16, {"health": 8, "hunger": 6, "sanity": 10}),
+    ("Coco",  "Red",    -9, -16, {"health": 6, "hunger": 8, "sanity": 12}),
+    ("Rayman","Yellow",  0, -16, {"health": 12,"hunger": 10,"sanity": 6}),
+    ("Ellie", "Green",   9, -16, {"health": 8, "hunger": 10,"sanity": 8}),
+    ("Luca",  "Blue",   18, -16, {"health": 7, "hunger": 8, "sanity": 10}),
 ]
 
 # Per-character standee tint applied to the figurine's card holder / base
@@ -953,12 +963,16 @@ for char_name, color, bx, bz, stats in characters:
     # SURFACE_Y+0.1: spawned at the old 1.1 the boards started inside the
     # glass tabletop and fell through its partial-hull collider — invisible
     # until a player fished them out by hand.
+    # Locked: the board is a fixed reference dock (stats live in the UI;
+    # resource tokens are laid beside it). Locking stops players dragging it
+    # into a pile and stops physics shoving the row apart at load.
     pboard = base_obj("Custom_Tile",
                       tf(bx, SURFACE_Y + 0.1, bz, sx=3, sy=1, sz=2),
                       nickname=f"{char_name}'s Player Board",
                       desc=f"{char_name}'s reference board. Stats are tracked automatically "
                            f"(left panel + Party roster); resource tokens are delivered beside this board.",
-                      tags=["PlayerBoard", f"PlayerBoard:{char_name}"])
+                      tags=["PlayerBoard", f"PlayerBoard:{char_name}"],
+                      locked=True)
     pboard["CustomImage"] = {
         "ImageURL": ph(f"board_{char_name.lower()}"),
         "ImageSecondaryURL": "",
@@ -1083,18 +1097,10 @@ notecard = base_obj("Notecard", tf(10.5, SURFACE_Y + 0.1, -9.2, ry=0),
                     tags=["QuickStart"])
 objects.append(notecard)
 
-# Discard Tray — the visible counterpart of the hidden supply: every
-# honor-system payment (craft costs, cook ingredients) is made by dropping
-# tokens here; a background sweep (startDiscardTraySweep, helpers.lua)
-# returns them to the right supply bag.
-tray = base_obj("BlockSquare",
-                tf(9.5, SURFACE_Y + 0.08, -15, sx=2.6, sy=0.18, sz=2.6),
-                nickname="Discard Tray",
-                desc="Spending resources? Drop the tokens here — they return to the supply by themselves.",
-                tags=["DiscardTray"],
-                locked=True)
-tray["ColorDiffuse"] = {"r": 0.32, "g": 0.16, "b": 0.12}
-objects.append(tray)
+# (No Discard Tray any more: resources are virtual — held counts live in
+# gameState and every cost is auto-paid — so there is nothing to drop on a
+# tray. The old tray only added table clutter and a payment step players
+# didn't need.)
 
 # Catch shelf under the west library column: unlocked objects (decks shed
 # their container at one card left) rest here instead of falling forever.
@@ -1108,24 +1114,10 @@ shelf = base_obj("BlockSquare",
 shelf["ColorDiffuse"] = {"r": 0.1, "g": 0.1, "b": 0.1}
 objects.append(shelf)
 
-# ---------------------------------------------------------------------------
-# Player Rules tablet — an in-TTS browser showing PlayerRules.html (generated
-# by scripts/generate_player_rules.py from the same markdown as the Notebook).
-# Needs scripts/serve_art.bat running locally, or the hosted URL in --publish
-# builds. The same page opens in any desktop browser.
-# ---------------------------------------------------------------------------
-
-tablet = base_obj("Tablet", tf(17, SURFACE_Y + 0.2, -13.5, ry=180),
-                  nickname="Player Rules",
-                  desc="The full player rulebook, right here on the table.\n\n"
-                       "Zoom in (hover + Z) to read; scroll with the tablet's own controls.\n\n"
-                       "Prefer your own screen? Open PlayerRules.html from the repo in any "
-                       "browser, or visit " + served("PlayerRules.html") + " while the "
-                       "asset server is running.",
-                  tags=["PlayerRules"],
-                  locked=True)
-tablet["PageURL"] = served("PlayerRules.html")
-objects.append(tablet)
+# (No in-TTS Player Rules tablet: it defaulted to Google whenever the local
+# asset server wasn't running — a broken first impression — and duplicated
+# the rules already in the Notebook tab, the Help panel, and the Quick Start
+# notecard. Players who want the browser page can open PlayerRules.html.)
 
 # ---------------------------------------------------------------------------
 # Assemble the full save

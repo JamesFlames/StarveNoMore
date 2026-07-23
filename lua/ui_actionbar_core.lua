@@ -48,49 +48,28 @@ HIGHLIGHT_DURATION = 30  -- seconds; matches TARGET_TIMEOUT so the glow
 -----------------------------------------------------------------------
 local RESOURCE_TYPES = {"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}
 
+-- Authoritative held-resource count, read from gameState (NOT from token
+-- positions — see the note in helpers.lua). Returns a fresh table with all
+-- six keys so callers can index freely.
 function getPlayerResources(color)
     local counts = {}
     for _, r in ipairs(RESOURCE_TYPES) do counts[r] = 0 end
-
-    local charName = colorToCharacter(color)
-    if not charName then return counts end
-    local board = getPlayerBoard(charName)
-    if not board then return counts end
-
-    -- Build a generous bounding box around the player board so resources
-    -- placed alongside the board still count.
-    local pos = board.getPosition()
-    local b = board.getBoundsNormalized()
-    local pad = 1.5
-    local minX = pos.x - b.size.x * 0.5 - pad
-    local maxX = pos.x + b.size.x * 0.5 + pad
-    local minZ = pos.z - b.size.z * 0.5 - pad
-    local maxZ = pos.z + b.size.z * 0.5 + pad
-
-    for _, obj in ipairs(findAllByTag("Resource")) do
-        local p = obj.getPosition()
-        if p.x >= minX and p.x <= maxX and p.z >= minZ and p.z <= maxZ then
-            for _, tag in ipairs(obj.getTags()) do
-                local resType = tag:match("^Resource:(.+)$")
-                if resType and counts[resType] ~= nil then
-                    counts[resType] = counts[resType] + 1
-                    break
-                end
-            end
-        end
+    local held = gameState.resources and gameState.resources[color]
+    if held then
+        for _, r in ipairs(RESOURCE_TYPES) do counts[r] = held[r] or 0 end
     end
     return counts
 end
 
 -----------------------------------------------------------------------
 -- Verify-and-pay for fixed resource costs (Cleanse, Appease, Barricade).
--- Verifies the tokens sit in the payer's board area, then returns them
--- to their supply bags (or deletes them if the bag is gone). Returns
--- false — with a shortfall message — and takes nothing when unpaid.
+-- Reads the authoritative held counts (gameState), and on success deducts
+-- them and clears the matching decorative tokens. Returns false — with a
+-- shortfall message — and takes nothing when unpaid.
 -----------------------------------------------------------------------
-local RESOURCE_LABELS = { EnergyDrink = "Energy Drink" }
+RESOURCE_LABELS = { EnergyDrink = "Energy Drink" }
 
-local function _resLabel(resType) return RESOURCE_LABELS[resType] or resType end
+function _resLabel(resType) return RESOURCE_LABELS[resType] or resType end
 
 function verifyAndPayResources(color, cost, label)
     local char = gameState.activeChars[color]
@@ -105,46 +84,21 @@ function verifyAndPayResources(color, cost, label)
     end
     if #missing > 0 then
         broadcastToColor("Can't pay for " .. label .. " — missing: " .. table.concat(missing, ", ") ..
-            ". Resource tokens must sit next to your player board.", color, BROADCAST_COLORS.damage)
+            ". Gather more first.", color, BROADCAST_COLORS.damage)
         return false
     end
 
-    -- Pay: pull matching tokens out of the board area, back into supply.
-    local board = getPlayerBoard(char.name)
-    if not board then return false end
-    local pos = board.getPosition()
-    local b = board.getBoundsNormalized()
-    local pad = 1.5
-    local minX = pos.x - b.size.x * 0.5 - pad
-    local maxX = pos.x + b.size.x * 0.5 + pad
-    local minZ = pos.z - b.size.z * 0.5 - pad
-    local maxZ = pos.z + b.size.z * 0.5 + pad
-
-    local remaining = {}
-    for r, q in pairs(cost) do remaining[r] = q end
-    for _, obj in ipairs(findAllByTag("Resource")) do
-        local p = obj.getPosition()
-        if p.x >= minX and p.x <= maxX and p.z >= minZ and p.z <= maxZ then
-            for _, tag in ipairs(obj.getTags()) do
-                local resType = tag:match("^Resource:(.+)$")
-                if resType and (remaining[resType] or 0) > 0 then
-                    remaining[resType] = remaining[resType] - 1
-                    local bag = getResourceBag(resType)
-                    if bag then
-                        pcall(function() bag.putObject(obj) end)
-                    else
-                        pcall(function() obj.destruct() end)
-                    end
-                    break
-                end
-            end
-        end
+    -- Pay: deduct the authoritative counts, then clear the visual tokens.
+    local held = ensurePlayerResources(color)
+    for resType, qty in pairs(cost) do
+        held[resType] = math.max(0, (held[resType] or 0) - qty)
+        removeVisualTokens(color, resType, qty)
     end
 
     local parts = {}
     for r, q in pairs(cost) do table.insert(parts, q .. " " .. _resLabel(r)) end
-    broadcastEvent("proc", char.name .. " pays " .. table.concat(parts, " + ") ..
-        " for " .. label .. " (tokens returned to supply automatically).")
+    broadcastEvent("proc", char.name .. " pays " .. table.concat(parts, " + ") .. " for " .. label .. ".")
+    safecall(function() refreshStatDisplay() end, "StatDisplay")
     return true
 end
 

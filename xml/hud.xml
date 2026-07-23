@@ -170,27 +170,27 @@
           text="Host Controls" preferredHeight="22" />
     <Button id="btnSetup"
             onClick="onHostSetupGuided"
-            fontSize="15" color="#1E281EE6" textColor="#BBFFBB"
+            fontSize="15" color="#2F7D34FF" textColor="#EAFFEA"
             preferredHeight="38"
             text="Setup Game" />
     <Button id="btnBeginDay"
             onClick="onHostBeginDay"
-            fontSize="15" color="#14283CE6" textColor="#88DDFF"
+            fontSize="15" color="#1E6DB0FF" textColor="#EAF6FF"
             preferredHeight="38"
             text="Begin Day" />
     <Button id="btnResolveNight"
             onClick="onHostResolveNight"
-            fontSize="15" color="#141E32E6" textColor="#AABBDD"
+            fontSize="15" color="#3B4694FF" textColor="#EAEEFF"
             preferredHeight="38"
             text="Resolve Night" />
     <Button id="btnEndTurn"
             onClick="onHostEndTurn"
-            fontSize="15" color="#28281EE6" textColor="#DDDDAA"
+            fontSize="15" color="#9A7A1EFF" textColor="#FFF7E0"
             preferredHeight="38"
             text="End Turn / Pass" />
     <Button id="btnRestart"
             onClick="onHostRestart"
-            fontSize="15" color="#321414E6" textColor="#FFAAAA"
+            fontSize="15" color="#A23A3AFF" textColor="#FFEAEA"
             preferredHeight="38"
             text="Restart" />
   </VerticalLayout>
@@ -202,9 +202,11 @@
 <!-- effects, bosses, character statuses. ui_rules.lua refreshes it on  -->
 <!-- every state change and sizes the panel to its content.             -->
 <!-- ================================================================== -->
+<!-- Anchored on the left BELOW the character box (statDisplay, MiddleLeft)
+     rather than LowerLeft, where it sat on top of the TTS game-log/chat. -->
 <Panel id="rulesPanel"
-       rectAlignment="LowerLeft"
-       offsetXY="10 10"
+       rectAlignment="MiddleLeft"
+       offsetXY="10 -240"
        width="230" height="120"
        color="#000000B2"
        outline="#78C8A059"
@@ -379,7 +381,7 @@
             tooltip="Health — physical damage. At 0 you go Down (a ghost) until revived with a Telltale Heart. Below 3: Move costs +1 action."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
       <ProgressBar id="statHealthBar" percentage="100"
-                   color="#FF4444" backgroundColor="#50141499"
+                   fillImageColor="#FF4444" color="#EFEFEFFF"
                    preferredWidth="100" />
       <Text id="statHealthVal" fontSize="14" color="#FF8888" text="8/8"
             preferredWidth="40" />
@@ -391,7 +393,7 @@
             tooltip="Hunger — your stomach. It drops every night at Tick; at 0 you lose Health instead. Below 3: you cannot Fight (you may always Flee). Eat food or Rest to refill."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
       <ProgressBar id="statHungerBar" percentage="100"
-                   color="#FFAA22" backgroundColor="#50320A99"
+                   fillImageColor="#FFAA22" color="#EFEFEFFF"
                    preferredWidth="100" />
       <Text id="statHungerVal" fontSize="14" color="#FFCC66" text="6/6"
             preferredWidth="40" />
@@ -403,7 +405,7 @@
             tooltip="Sanity — your mind. Drained by darkness, isolation and weird events. At 0 you go Down (lost). Below 3: Haunted — each Dawn a Threat appears at your tile that only you can face."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
       <ProgressBar id="statSanityBar" percentage="100"
-                   color="#4488FF" backgroundColor="#141E5099"
+                   fillImageColor="#4488FF" color="#EFEFEFFF"
                    preferredWidth="100" />
       <Text id="statSanityVal" fontSize="14" color="#88CCFF" text="10/10"
             preferredWidth="40" />
@@ -458,7 +460,7 @@
                 tooltip="Health — at 0 this character goes Down (ghost) until revived with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_James" percentage="100"
-                       color="#FF4444" backgroundColor="#50141480"
+                       fillImageColor="#FF4444" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterHealthVal_James" fontSize="9" color="#FF8888"
                 text="8/8" preferredWidth="38" />
@@ -468,7 +470,7 @@
                 tooltip="Hunger — drops each night; at 0 they lose Health instead. Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_James" percentage="100"
-                       color="#FFAA22" backgroundColor="#50320A80"
+                       fillImageColor="#FFAA22" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterHungerVal_James" fontSize="9" color="#FFCC66"
                 text="6/6" preferredWidth="38" />
@@ -478,7 +480,7 @@
                 tooltip="Sanity — drained by darkness and horrors; at 0 they go Down (lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_James" percentage="100"
-                       color="#4488FF" backgroundColor="#141E5080"
+                       fillImageColor="#4488FF" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterSanityVal_James" fontSize="9" color="#88CCFF"
                 text="10/10" preferredWidth="38" />
@@ -496,7 +498,7 @@
                 tooltip="Health — at 0 this character goes Down (ghost) until revived with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Coco" percentage="100"
-                       color="#FF4444" backgroundColor="#50141480"
+                       fillImageColor="#FF4444" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterHealthVal_Coco" fontSize="9" color="#FF8888"
                 text="6/6" preferredWidth="38" />
@@ -506,7 +508,7 @@
                 tooltip="Hunger — drops each night; at 0 they lose Health instead. Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Coco" percentage="100"
-                       color="#FFAA22" backgroundColor="#50320A80"
+                       fillImageColor="#FFAA22" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterHungerVal_Coco" fontSize="9" color="#FFCC66"
                 text="8/8" preferredWidth="38" />
@@ -516,7 +518,7 @@
                 tooltip="Sanity — drained by darkness and horrors; at 0 they go Down (lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Coco" percentage="100"
-                       color="#4488FF" backgroundColor="#141E5080"
+                       fillImageColor="#4488FF" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterSanityVal_Coco" fontSize="9" color="#88CCFF"
                 text="12/12" preferredWidth="38" />
@@ -534,7 +536,7 @@
                 tooltip="Health — at 0 this character goes Down (ghost) until revived with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Rayman" percentage="100"
-                       color="#FF4444" backgroundColor="#50141480"
+                       fillImageColor="#FF4444" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterHealthVal_Rayman" fontSize="9" color="#FF8888"
                 text="12/12" preferredWidth="38" />
@@ -544,7 +546,7 @@
                 tooltip="Hunger — drops each night; at 0 they lose Health instead. Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Rayman" percentage="100"
-                       color="#FFAA22" backgroundColor="#50320A80"
+                       fillImageColor="#FFAA22" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterHungerVal_Rayman" fontSize="9" color="#FFCC66"
                 text="10/10" preferredWidth="38" />
@@ -554,7 +556,7 @@
                 tooltip="Sanity — drained by darkness and horrors; at 0 they go Down (lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Rayman" percentage="100"
-                       color="#4488FF" backgroundColor="#141E5080"
+                       fillImageColor="#4488FF" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterSanityVal_Rayman" fontSize="9" color="#88CCFF"
                 text="6/6" preferredWidth="38" />
@@ -572,7 +574,7 @@
                 tooltip="Health — at 0 this character goes Down (ghost) until revived with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Ellie" percentage="100"
-                       color="#FF4444" backgroundColor="#50141480"
+                       fillImageColor="#FF4444" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterHealthVal_Ellie" fontSize="9" color="#FF8888"
                 text="8/8" preferredWidth="38" />
@@ -582,7 +584,7 @@
                 tooltip="Hunger — drops each night; at 0 they lose Health instead. Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Ellie" percentage="100"
-                       color="#FFAA22" backgroundColor="#50320A80"
+                       fillImageColor="#FFAA22" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterHungerVal_Ellie" fontSize="9" color="#FFCC66"
                 text="10/10" preferredWidth="38" />
@@ -592,7 +594,7 @@
                 tooltip="Sanity — drained by darkness and horrors; at 0 they go Down (lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Ellie" percentage="100"
-                       color="#4488FF" backgroundColor="#141E5080"
+                       fillImageColor="#4488FF" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterSanityVal_Ellie" fontSize="9" color="#88CCFF"
                 text="8/8" preferredWidth="38" />
@@ -610,7 +612,7 @@
                 tooltip="Health — at 0 this character goes Down (ghost) until revived with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Luca" percentage="100"
-                       color="#FF4444" backgroundColor="#50141480"
+                       fillImageColor="#FF4444" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterHealthVal_Luca" fontSize="9" color="#FF8888"
                 text="7/7" preferredWidth="38" />
@@ -620,7 +622,7 @@
                 tooltip="Hunger — drops each night; at 0 they lose Health instead. Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Luca" percentage="100"
-                       color="#FFAA22" backgroundColor="#50320A80"
+                       fillImageColor="#FFAA22" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterHungerVal_Luca" fontSize="9" color="#FFCC66"
                 text="8/8" preferredWidth="38" />
@@ -630,7 +632,7 @@
                 tooltip="Sanity — drained by darkness and horrors; at 0 they go Down (lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Luca" percentage="100"
-                       color="#4488FF" backgroundColor="#141E5080"
+                       fillImageColor="#4488FF" color="#EFEFEFFF"
                        preferredWidth="80" />
           <Text id="rosterSanityVal_Luca" fontSize="9" color="#88CCFF"
                 text="10/10" preferredWidth="38" />

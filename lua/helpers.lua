@@ -79,15 +79,29 @@ function getResourceBag(resType)
 end
 
 -----------------------------------------------------------------------
--- Resource automation: the players never reach into a supply bag by hand.
--- giveResource pulls tokens from the shared supply and lays them out in a
--- player's board area (the same padded box getPlayerResources scans, so
--- they count immediately). spawnResourceAtTile drops them on a location
--- tile as a free pickup (dawn-card deliveries, Treeguard salvage). Both
--- are the counterpart to verifyAndPayResources, which puts tokens back.
--- Each returns the number of tokens actually delivered (0 if the bag or
--- destination is missing, so callers degrade gracefully in headless play).
+-- Resource automation. THE COUNT IS AUTHORITATIVE IN gameState.resources
+-- (per colour), NOT in physical token positions. Playtest 2026-07: the
+-- old position-counting broke the moment a player board drifted (boards
+-- spawned overlapping, physics flung them across the table, and a gathered
+-- token 11 units from its board counted as zero). Physical tokens are now
+-- pure decoration laid beside the board; giveResource / takeResourceFromPlayer
+-- / verifyAndPayResources all read and write the gameState counts, so the
+-- economy is correct no matter where a token or board ends up.
 -----------------------------------------------------------------------
+RESOURCE_TYPES_LIST = {"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}
+
+-- The per-colour count table, created on first use (and after setup wipes).
+function ensurePlayerResources(color)
+    gameState.resources = gameState.resources or {}
+    local r = gameState.resources[color]
+    if not r then
+        r = {}
+        for _, t in ipairs(RESOURCE_TYPES_LIST) do r[t] = 0 end
+        gameState.resources[color] = r
+    end
+    return r
+end
+
 local function _tagResource(tok, resType)
     if not tok then return end
     -- Infinite-bag tokens ship pre-tagged (build_save.py); re-tagging is a
@@ -97,26 +111,64 @@ local function _tagResource(tok, resType)
     pcall(function() tok.addTag("Resource:" .. resType) end)
 end
 
-function giveResource(color, resType, qty)
-    qty = qty or 1
-    local charName = colorToCharacter(color)
-    if not charName then return 0 end
+-- Lay `qty` decorative tokens beside the player's board (cosmetic only —
+-- the authoritative count lives in gameState). Silent no-op headless / if
+-- the board or bag is missing.
+local function _spawnVisualTokens(charName, resType, qty)
     local board = getPlayerBoard(charName)
     local bag = getResourceBag(resType)
-    if not board or not bag then return 0 end
+    if not board or not bag then return end
     local base = board.getPosition()
-    local given = 0
     for i = 1, qty do
-        local ok = safecall(function()
+        safecall(function()
             local tok = bag.takeObject({
                 position = base + Vector(-2.6 + (i % 3) * 0.5, 0.8 + i * 0.4, -1.2),
                 smooth   = true,
             })
             _tagResource(tok, resType)
         end, "GiveResource")
-        if ok then given = given + 1 end
     end
-    return given
+end
+
+-- Remove up to `qty` decorative tokens of resType from near a player's
+-- board, back into the supply. Best-effort cosmetics — never affects the
+-- count (that's already been adjusted in gameState by the caller).
+local function _removeVisualTokens(color, resType, qty)
+    local charName = colorToCharacter(color)
+    local board = charName and getPlayerBoard(charName)
+    if not board then return end
+    local pos = board.getPosition()
+    local b = board.getBoundsNormalized()
+    local pad = 1.5
+    local removed = 0
+    for _, obj in ipairs(findAllByTag("Resource:" .. resType)) do
+        if removed >= qty then break end
+        local p = obj.getPosition()
+        if p.x >= pos.x - b.size.x * 0.5 - pad and p.x <= pos.x + b.size.x * 0.5 + pad
+            and p.z >= pos.z - b.size.z * 0.5 - pad and p.z <= pos.z + b.size.z * 0.5 + pad then
+            local bag = getResourceBag(resType)
+            local ok = pcall(function()
+                if bag then bag.putObject(obj) else obj.destruct() end
+            end)
+            if ok then removed = removed + 1 end
+        end
+    end
+end
+
+-- Public wrapper so ui_actionbar_core's verifyAndPayResources can drop the
+-- visual tokens after deducting the authoritative count.
+function removeVisualTokens(color, resType, qty)
+    safecall(function() _removeVisualTokens(color, resType, qty) end, "RemoveVisual")
+end
+
+function giveResource(color, resType, qty)
+    qty = qty or 1
+    local charName = colorToCharacter(color)
+    if not charName then return 0 end
+    local r = ensurePlayerResources(color)
+    if r[resType] ~= nil then r[resType] = r[resType] + qty end
+    _spawnVisualTokens(charName, resType, qty)
+    return qty
 end
 
 function spawnResourceAtTile(locName, resType, qty)
@@ -140,81 +192,23 @@ function spawnResourceAtTile(locName, resType, qty)
 end
 
 -----------------------------------------------------------------------
--- Best-effort discard: pull up to qty tokens of resType out of a player's
--- board area back into the supply. Returns the number actually taken —
--- 0 tokens is fine (dawn cards say "discard 1 Battery IF HELD").
--- verifyAndPayResources (ui_actionbar_core.lua) is the all-or-nothing
--- variant for fixed costs.
+-- Best-effort discard: remove up to qty of resType from a player's held
+-- count (gameState), returning how many were actually taken — 0 is fine
+-- (dawn cards say "discard 1 Battery IF HELD"). Also clears that many
+-- decorative tokens. verifyAndPayResources (ui_actionbar_core.lua) is the
+-- all-or-nothing variant for fixed costs.
 -----------------------------------------------------------------------
 function takeResourceFromPlayer(color, resType, qty)
     qty = qty or 1
-    local charName = colorToCharacter(color)
-    local board = charName and getPlayerBoard(charName)
-    if not board then return 0 end
-    local pos = board.getPosition()
-    local b = board.getBoundsNormalized()
-    local pad = 1.5
-    local taken = 0
-    for _, obj in ipairs(findAllByTag("Resource:" .. resType)) do
-        if taken >= qty then break end
-        local p = obj.getPosition()
-        if p.x >= pos.x - b.size.x * 0.5 - pad and p.x <= pos.x + b.size.x * 0.5 + pad
-            and p.z >= pos.z - b.size.z * 0.5 - pad and p.z <= pos.z + b.size.z * 0.5 + pad then
-            local bag = getResourceBag(resType)
-            local ok = pcall(function()
-                if bag then bag.putObject(obj) else obj.destruct() end
-            end)
-            if ok then taken = taken + 1 end
-        end
+    local r = ensurePlayerResources(color)
+    local taken = math.min(qty, r[resType] or 0)
+    if taken > 0 then
+        r[resType] = r[resType] - taken
+        removeVisualTokens(color, resType, taken)
     end
     return taken
 end
 
------------------------------------------------------------------------
--- Discard Tray: the supply bags live under the table (players never see
--- them), so every honor-system payment — craft costs, cook ingredients,
--- dawn-card discards — is made by dropping tokens on the visible tray.
--- A background sweep returns whatever lands there to the right supply.
------------------------------------------------------------------------
-DISCARD_SWEEP_INTERVAL = 4   -- seconds between sweeps
-
-local _discardSweepHandle = nil
-
-local function _sweepDiscardTray()
-    local tray = findOneByTag("DiscardTray")
-    if not tray then return end
-    local tp = tray.getPosition()
-    local b = tray.getBoundsNormalized()
-    local hx = b.size.x * 0.5 + 0.3
-    local hz = b.size.z * 0.5 + 0.3
-    for _, obj in ipairs(getAllObjects()) do
-        local isRes = obj.hasTag("Resource")
-        local isHeart = obj.hasTag("TelltaleHeart")
-        if (isRes or isHeart) and not obj.held_by_color then
-            local p = obj.getPosition()
-            if math.abs(p.x - tp.x) <= hx and math.abs(p.z - tp.z) <= hz
-                and p.y < tp.y + 3 then
-                local bag = nil
-                if isHeart then
-                    bag = getHeartSupply()
-                else
-                    for _, tag in ipairs(obj.getTags()) do
-                        local rt = tag:match("^Resource:(.+)$")
-                        if rt then bag = getResourceBag(rt) break end
-                    end
-                end
-                pcall(function()
-                    if bag then bag.putObject(obj) else obj.destruct() end
-                end)
-            end
-        end
-    end
-end
-
-function startDiscardTraySweep()
-    if _discardSweepHandle then Wait.stop(_discardSweepHandle) end
-    _discardSweepHandle = Wait.time(_sweepDiscardTray, DISCARD_SWEEP_INTERVAL, -1)
-end
 
 -----------------------------------------------------------------------
 -- Standee placement: every character owns a fixed slot offset on every
@@ -258,6 +252,29 @@ function benchUnusedCharacters()
             local standee = getCharacterStandee(name)
             if standee then
                 standee.setPositionSmooth(Vector(BENCH_POSITION.x, BENCH_POSITION.y, BENCH_POSITION.z - i * 3))
+            end
+        end
+    end
+end
+
+-- Player boards for characters nobody picked go under the table too, so a
+-- 1- or 3-player game doesn't show four empty boards ("don't display
+-- boards of players not in play"). Locked boards still move via setPosition.
+-- x=-20, y=-2.5 mirrors the under-table library shelf (LIBRARY_Y).
+function benchUnusedBoards()
+    local inPlay = {}
+    for _, char in pairs(gameState.activeChars or {}) do
+        if char and char.name then inPlay[char.name] = true end
+    end
+    for name, i in pairs(CHAR_SLOT_INDEX) do
+        if not inPlay[name] then
+            local board = getPlayerBoard(name)
+            if board then
+                pcall(function()
+                    board.setLock(false)
+                    board.setPosition(Vector(-20, -2.5, 14 - i * 3))
+                    board.setLock(true)
+                end)
             end
         end
     end

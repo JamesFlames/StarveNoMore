@@ -42,8 +42,8 @@
 <!-- ================================================================== -->
 <Panel id="summaryPanel"
        rectAlignment="MiddleCenter"
-       width="600" height="340"
-       color="#050A0FEB"
+       width="660" height="620"
+       color="#050A0FF7"
        outline="#50B4DC66"
        outlineSize="2"
        active="false">
@@ -51,9 +51,10 @@
                   childForceExpandHeight="false">
     <Text id="summaryTitle" fontSize="22" fontStyle="Bold" color="#88DDFF"
           text="End of Day" preferredHeight="28" />
-    <Text id="summaryBody" fontSize="14" color="#BBCCDD"
+    <Text id="summaryBody" fontSize="13" color="#CFE0EE"
+          alignment="UpperLeft"
           text=""
-          preferredHeight="220" />
+          preferredHeight="520" />
     <Button id="summaryClose"
             onClick="onSummaryClose"
             fontSize="16" color="#282828E6" textColor="#AAAAAA"

@@ -281,11 +281,19 @@ function playerPryTool(color)
         end
     end
     for _, obj in ipairs(candidates) do
-        for _, tool in ipairs(PRY_TOOLS) do
-            if obj.hasTag and obj.hasTag(tool.id) then return tool.label end
-            local nick = (obj.getNickname and obj.getNickname()) or ""
-            if nick:lower():find(tool.label:lower(), 1, true) then return tool.label end
-        end
+        -- pcall per object: this runs from refreshActionButtonStates every
+        -- turn, and a candidate handle can be dead (a card just played from
+        -- hand, a token mid-sweep) — touching hasTag/getNickname then throws
+        -- "cannot access field getNickname of userdata<LuaObject>".
+        local matched = nil
+        pcall(function()
+            for _, tool in ipairs(PRY_TOOLS) do
+                if obj.hasTag and obj.hasTag(tool.id) then matched = tool.label; return end
+                local nick = (obj.getNickname and obj.getNickname()) or ""
+                if nick:lower():find(tool.label:lower(), 1, true) then matched = tool.label; return end
+            end
+        end)
+        if matched then return matched end
     end
     return nil
 end

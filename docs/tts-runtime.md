@@ -71,6 +71,12 @@ failure; the linked guards keep the fixed ones fixed.
 - **`UI.setAttribute(id, "text", ...)` on a Button resets its styling** —
   the label reverts to near-black. Re-assert `textColor` (and `color`)
   after every text change (see `refreshDuskReadyLabel`).
+- **`<ProgressBar>`: `fillImageColor` is the fill; `color` is the empty
+  track.** The fill defaults to white, so a bar with only `color="#FF4444"`
+  set shows WHITE when full and red as it drains — the opposite of what
+  you usually want. For colored-full-draining-to-white, set
+  `fillImageColor` to the stat colour and `color` to white. Lua that
+  recolours a bar by state must set `fillImageColor`, not `color`.
 - **Broadcasts render behind the Phase Banner and fade in seconds.**
   Player-facing information goes through `broadcastEvent` (which also
   feeds the persistent Message Log panel) or a dedicated panel — never a

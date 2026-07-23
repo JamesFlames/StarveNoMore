@@ -33,6 +33,7 @@ function Setup(hostColor)
     -- first so a re-setup can never leave stale characters around.
     gameState.activeChars = {}
     gameState.dailyAlerts = {}
+    gameState.resources = {}   -- fresh held-resource counts
 
     local seated = getActivePlayerColors()
     gameState.playerCount = #seated
@@ -74,6 +75,7 @@ function Setup(hostColor)
 
     -- Characters nobody is playing leave the map for the bench.
     safecall(function() benchUnusedCharacters() end, "Bench")
+    safecall(function() benchUnusedBoards() end, "BenchBoards")
 
     -- Starting hands: each character's personal items into their hand.
     safecall(function() dealStartingHands() end, "StartingHands")
@@ -109,8 +111,7 @@ function Setup(hostColor)
     -- 7. Mark started
     gameState.started = true
 
-    broadcastEvent("phase", "Setup complete! Day 1 begins. Click 'Begin Day' to reveal the first Dawn card.")
-    createDayButton()
+    broadcastEvent("phase", "Setup complete! Day 1 begins. Click 'Begin Day' on the Host Controls panel to reveal the first Dawn card.")
 
     -- G.1/G.7: Refresh UI and apply tooltips
     Wait.time(function()
@@ -136,18 +137,11 @@ function dealStartingHands()
                 color, BROADCAST_COLORS.gain)
         end
         if char.name == "James" then
-            local bag = getResourceBag("EnergyDrink")
-            local board = getPlayerBoard("James")
-            if bag and board then
-                for i = 1, 2 do
-                    bag.takeObject({
-                        position = board.getPosition() + Vector(-2.6, 0.8 + i * 0.4, 0),
-                        smooth   = true,
-                    })
-                end
-                broadcastToColor("James starts with 2 Energy Drink tokens by his player board — Wired burns one per day.",
-                    color, BROADCAST_COLORS.warn)
-            end
+            -- Through giveResource so the authoritative count is set, not
+            -- just the physical tokens (his Wired economy reads the count).
+            giveResource(color, "EnergyDrink", 2)
+            broadcastToColor("James starts with 2 Energy Drinks by his player board — Wired burns one per day.",
+                color, BROADCAST_COLORS.warn)
         end
     end
 end
@@ -193,7 +187,7 @@ end
 -- Rest height of the locked Doom marker on the board top (mirrors the
 -- marker's spawn transform in build_save.py). The glass table's playing
 -- surface is at ~y 1.55 — the old 1.2 left the marker inside the table.
-local DOOM_MARKER_Y = 1.68
+local DOOM_MARKER_Y = 1.72
 
 -- Last step the marker was sent to: refreshPhaseBanner calls
 -- moveDoomMarker on every UI refresh so the marker can never lag the
@@ -239,26 +233,9 @@ function moveDoomMarker(targetStep)
     end, 1.0)
 end
 
-function createDayButton()
-    local board = getMainBoard()
-    if not board then return end
-    board.createButton({
-        click_function = "onBeginDayClick",
-        function_owner = Global,
-        label          = "Begin Day",
-        -- Board-local; x/z scaled x12 → just south of the courts. Local y
-        -- 0.75 ≈ world 1.71, clear of the glass table's ~1.55 surface.
-        position       = {0, 0.75, -0.95},
-        rotation       = {0, 0, 0},
-        width          = 2000,
-        height         = 500,
-        font_size      = 260,
-        color          = {0.1, 0.2, 0.3},
-        font_color     = {0.5, 0.9, 1},
-        tooltip        = "Advance to the next Dawn phase.",
-    })
-end
-
+-- The 3D board "Begin Day" button is gone — Host Controls > Begin Day
+-- (btnBeginDay, shown between days) drives it, and the banner pulses that
+-- button as the next step. onBeginDayClick remains as its handler / for tests.
 function onBeginDayClick(obj, playerColor, altClick)
     -- Begin Day is only valid between days — mid-day it would re-run the
     -- whole Dawn (double Doom, second Dawn card).
