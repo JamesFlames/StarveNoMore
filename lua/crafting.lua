@@ -103,8 +103,11 @@ function refillMarketSlot(slot)
         rotation = {0, 180, 0},  -- face up
         smooth   = true,
         callback_function = function(newCard)
-            local name = newCard.getNickname() or "?"
-            broadcastEvent("proc", "Market refilled: " .. name)
+            -- pcall: the refilled card can merge with the placeholder/next
+            -- card on the slot, leaving a dead handle (see docs/tts-runtime.md).
+            pcall(function()
+                broadcastEvent("proc", "Market refilled: " .. (newCard.getNickname() or "?"))
+            end)
         end
     })
 end

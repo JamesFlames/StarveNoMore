@@ -202,8 +202,8 @@
 
 | line | kind | symbol |
 |---|---|---|
-| 83 | function | `resolveWrongness` |
-| 109 | function | `checkWrongnessEntry` |
+| 86 | function | `resolveWrongness` |
+| 112 | function | `checkWrongnessEntry` |
 
 ## lua/effects/dawn_effects_phase3.lua (0 symbols)
 
@@ -262,9 +262,9 @@
 | 11 | function | `doCraft` |
 | 78 | function | `_pickScarcityResource` |
 | 88 | function | `refillMarketSlot` |
-| 123 | function | `recipeIngredientCost` |
-| 142 | function | `doCook` |
-| 262 | function | `cookTelltaleHeart` |
+| 126 | function | `recipeIngredientCost` |
+| 145 | function | `doCook` |
+| 265 | function | `cookTelltaleHeart` |
 
 ## lua/night.lua (10 symbols)
 
@@ -342,8 +342,8 @@
 | 243 | table | `PRY_TOOLS` |
 | 262 | function | `playerPryTool` |
 | 330 | function | `canPry` |
-| 383 | function | `doPry` |
-| 409 | function | `doStabilize` |
+| 387 | function | `doPry` |
+| 413 | function | `doStabilize` |
 
 ## lua/treeguard.lua (5 symbols)
 
@@ -760,7 +760,7 @@
 | `checkPlayerHasLight` | lua/night.lua | 296 |
 | `checkSourcePhase` | lua/combat.lua | 143 |
 | `checkVictory` | lua/tick_victory.lua | 366 |
-| `checkWrongnessEntry` | lua/effects/dawn_effects_phase2.lua | 109 |
+| `checkWrongnessEntry` | lua/effects/dawn_effects_phase2.lua | 112 |
 | `clearActionTargets` | lua/ui_actionbar_targets.lua | 39 |
 | `clearHighlight` | lua/ui_banner.lua | 338 |
 | `clearSignatureTargets` | lua/signatures.lua | 179 |
@@ -769,7 +769,7 @@
 | `confirmLastHeart` | lua/ui_mood.lua | 126 |
 | `confirmMoveInjuredToThreat` | lua/ui_mood.lua | 142 |
 | `confirmSleepAloneAtCourt` | lua/ui_mood.lua | 91 |
-| `cookTelltaleHeart` | lua/crafting.lua | 262 |
+| `cookTelltaleHeart` | lua/crafting.lua | 265 |
 | `countDuskReady` | lua/turns.lua | 181 |
 | `countFesteringThreats` | lua/day_loop.lua | 178 |
 | `customUIHidden` | lua/ui_controls.lua | 104 |
@@ -779,7 +779,7 @@
 | `doAppeaseTreeguard` | lua/treeguard.lua | 77 |
 | `doBarricade` | lua/actions_social.lua | 98 |
 | `doCleanse` | lua/tick_victory.lua | 311 |
-| `doCook` | lua/crafting.lua | 142 |
+| `doCook` | lua/crafting.lua | 145 |
 | `doCraft` | lua/crafting.lua | 11 |
 | `doDefend` | lua/actions_social.lua | 123 |
 | `doDuskMove` | lua/actions.lua | 187 |
@@ -791,12 +791,12 @@
 | `doMove` | lua/actions.lua | 66 |
 | `doPass` | lua/actions_social.lua | 85 |
 | `doPeek` | lua/actions_social.lua | 157 |
-| `doPry` | lua/actions_social.lua | 383 |
+| `doPry` | lua/actions_social.lua | 387 |
 | `doRally` | lua/actions_social.lua | 214 |
 | `doRaymanBonusMove` | lua/actions.lua | 148 |
 | `doRest` | lua/actions.lua | 403 |
 | `doSignature` | lua/signatures.lua | 99 |
-| `doStabilize` | lua/actions_social.lua | 409 |
+| `doStabilize` | lua/actions_social.lua | 413 |
 | `doTrade` | lua/actions_social.lua | 8 |
 | `doUndo` | lua/actions.lua | 23 |
 | `drawThreatsAt` | lua/night.lua | 85 |
@@ -950,7 +950,7 @@
 | `pulseHandZone` | lua/ui_banner.lua | 412 |
 | `rallyTargets` | lua/actions_social.lua | 199 |
 | `raymanLoudTonight` | lua/night.lua | 25 |
-| `recipeIngredientCost` | lua/crafting.lua | 123 |
+| `recipeIngredientCost` | lua/crafting.lua | 126 |
 | `recommendNext` | lua/ui_banner.lua | 201 |
 | `recordBeat` | lua/telemetry.lua | 19 |
 | `recordCharlieInChronicle` | lua/ui_controls.lua | 376 |
@@ -985,7 +985,7 @@
 | `resolveSleep` | lua/night.lua | 391 |
 | `resolveStorytelling` | lua/night.lua | 364 |
 | `resolveTick` | lua/tick_victory.lua | 8 |
-| `resolveWrongness` | lua/effects/dawn_effects_phase2.lua | 83 |
+| `resolveWrongness` | lua/effects/dawn_effects_phase2.lua | 86 |
 | `revealDawnCard` | lua/day_loop.lua | 281 |
 | `revealLastDawn` | lua/day_loop.lua | 258 |
 | `revealTrophy` | lua/combat.lua | 275 |

@@ -371,7 +371,11 @@ local function _deliverSealedReward(color, reward, locName)
                     rotation = {0, 180, 0},
                     smooth = true,
                     callback_function = function(c)
-                        broadcastEvent("gain", "Sealed away all this time: " .. (c.getNickname() or "an Item") .. " — yours, free.")
+                        -- pcall: the outer safecall wraps takeObject, not this
+                        -- async callback; the drawn card's handle can be dead.
+                        pcall(function()
+                            broadcastEvent("gain", "Sealed away all this time: " .. (c.getNickname() or "an Item") .. " — yours, free.")
+                        end)
                     end,
                 })
             end, "PryMarket")

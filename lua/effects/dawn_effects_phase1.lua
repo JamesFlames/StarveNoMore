@@ -235,11 +235,13 @@ DAWN_EFFECTS["P1_RUMOR"] = {
                 rotation = {0, 180, 0},
                 smooth   = true,
                 callback_function = function(peeked)
-                    local name = peeked.getNickname() or "???"
-                    broadcastEvent("proc", "Peeked: " .. name .. ". Returning to top of deck.")
-                    Wait.time(function()
-                        deck.putObject(peeked)
-                    end, 3.0)
+                    -- pcall: a drawn card can arrive as a dead handle (merged
+                    -- at the reveal spot) — see docs/tts-runtime.md.
+                    pcall(function()
+                        broadcastEvent("proc", "Peeked: " .. (peeked.getNickname() or "???") ..
+                            ". Returning to top of deck.")
+                        Wait.time(function() pcall(function() deck.putObject(peeked) end) end, 3.0)
+                    end)
                 end
             })
         end

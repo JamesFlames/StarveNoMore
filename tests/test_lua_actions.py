@@ -478,3 +478,57 @@ class TestCookIngredients:
         held = self._held(env)
         # Ellie shaves one Food (the largest ingredient); 1 Food is left over.
         assert held["Food"] == 1 and held["Wood"] == 0
+
+
+# ---------------------------------------------------------------------------
+# Regression guards for bug CLASSES seen in playtest (see also
+# tests/test_regression_guards.py for the static ones).
+# ---------------------------------------------------------------------------
+
+
+class TestResourceModelRobustness:
+    """Held resources must be authoritative in gameState — never recomputed
+    from physical token positions. The old position-counting broke the moment
+    a player board drifted (boards spawned overlapping and physics scattered
+    them); a gathered token metres from its board counted as zero."""
+
+    def _world(self, env, color="Green", name="Rayman"):
+        add_char(env, color, name, location="RaymanHouse")
+        add = env.eval("TTS.addObject")
+        add(py_to_lua(env, {"tags": ["Location:RaymanHouse"], "position": [0, 1, 0]}))
+        board = add(py_to_lua(env, {"tags": [f"PlayerBoard:{name}"], "position": [20, 1, 20]}))
+        for res in ["Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"]:
+            add(py_to_lua(env, {"tags": [f"ResourceBag:{res}"], "position": [60, 1, 60],
+                                "contained": [{"nickname": res, "tags": ["Resource", f"Resource:{res}"]}] * 8}))
+        return board
+
+    def test_count_survives_the_board_being_dragged_away(self, env):
+        board = self._world(env)
+        env.globals().giveResource("Green", "Wood", 3)
+        assert lua_to_py(env.globals().getPlayerResources("Green"))["Wood"] == 3
+        # Drag the board to the far side of the table (the failure that used
+        # to zero the count). The held count must not care where the board is.
+        board.setPosition(py_to_lua(env, [-40, 1, -40]))
+        assert lua_to_py(env.globals().getPlayerResources("Green"))["Wood"] == 3
+
+    def test_paying_a_cost_deducts_from_the_authoritative_count(self, env):
+        self._world(env)
+        env.globals().giveResource("Green", "Wood", 2)
+        assert env.globals().verifyAndPayResources(
+            "Green", py_to_lua(env, {"Wood": 2}), "test") is True
+        assert lua_to_py(env.globals().getPlayerResources("Green"))["Wood"] == 0
+
+
+class TestStatDisplayNeverStale:
+    """The left stat box froze at pre-night values because refreshStatDisplay
+    early-returned when no player was active (Dawn/Night/Tick). It must fall
+    back to a living character and show live stats, never a stale snapshot."""
+
+    def test_refresh_shows_live_stats_with_no_active_player(self, env):
+        add_char(env, "Blue", "James", health=4, hunger=2, sanity=3)
+        env.execute("gameState.started = true")
+        env.execute("gameState.activeColor = nil")   # night/tick: nobody's turn
+        env.globals().refreshStatDisplay()
+        # The panel shows James (the only living character), not the "—" blank.
+        name = env.eval('UI.getAttribute("statCharName", "text")')
+        assert name and "James" in name

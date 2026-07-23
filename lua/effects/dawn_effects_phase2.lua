@@ -67,8 +67,11 @@ DAWN_EFFECTS["P2_BASKETBALL_BOUNCE"] = {
             rotation = {0, 180, 180},   -- face-down: unresolved
             smooth = true,
             callback_function = function(tcard)
-                gameState.wrongness = { location = "BasketballCourt", guid = tcard.guid,
-                                        placedDay = gameState.day }
+                -- pcall: guard the possibly-dead drawn-card handle.
+                pcall(function()
+                    gameState.wrongness = { location = "BasketballCourt", guid = tcard.guid,
+                                            placedDay = gameState.day }
+                end)
                 broadcastEvent("warn", "An unresolved threat lies FACE-DOWN at the Basketball Court. Someone can go look — or it resolves at the next Dawn, where it stands.")
             end,
         })
@@ -179,8 +182,11 @@ DAWN_EFFECTS["P2_VISITOR"] = {
                 rotation = {0, 180, 0},
                 smooth   = true,
                 callback_function = function(vCard)
-                    local vName = vCard.getNickname() or "Visitor"
-                    broadcastEvent("proc", "VISITOR: " .. vName .. " — read the card for instructions.")
+                    -- pcall: guard the possibly-dead drawn-card handle.
+                    pcall(function()
+                        broadcastEvent("proc", "VISITOR: " .. (vCard.getNickname() or "Visitor") ..
+                            " — read the card for instructions.")
+                    end)
                 end
             })
         else
