@@ -513,8 +513,8 @@
 | 424 | function | `showWeekInReview` |
 | 491 | function | `onWeekReviewClose` |
 | 499 | table | `TOOLTIP_DATA` |
-| 528 | function | `applyTooltips` |
-| 547 | function | `refreshDynamicTooltips` |
+| 530 | function | `applyTooltips` |
+| 552 | function | `refreshDynamicTooltips` |
 
 ## lua/ui_setup.lua (20 symbols)
 
@@ -548,16 +548,16 @@
 | 13 | function | `getHelpCharContent` |
 | 51 | function | `getHelpDawnContent` |
 | 74 | function | `getHelpDoomContent` |
-| 111 | function | `onHelpClick` |
-| 121 | function | `onHelpClose` |
-| 125 | function | `onHelpTab` |
-| 136 | function | `refreshHelpPanel` |
-| 196 | function | `onWhatNowClick` |
-| 333 | function | `onWhatNowClose` |
-| 337 | function | `substitutePlaceholders` |
-| 354 | function | `refreshActionButtonReasons` |
-| 398 | function | `setActionTooltip` |
-| 409 | function | `populateNotebook` |
+| 118 | function | `onHelpClick` |
+| 128 | function | `onHelpClose` |
+| 132 | function | `onHelpTab` |
+| 143 | function | `refreshHelpPanel` |
+| 203 | function | `onWhatNowClick` |
+| 340 | function | `onWhatNowClose` |
+| 344 | function | `substitutePlaceholders` |
+| 361 | function | `refreshActionButtonReasons` |
+| 405 | function | `setActionTooltip` |
+| 416 | function | `populateNotebook` |
 
 ## lua/ui_msglog.lua (7 symbols)
 
@@ -729,7 +729,7 @@
 | `applyRandomScenario` | lua/setup.lua | 334 |
 | `applyScenario` | lua/setup.lua | 344 |
 | `applyThreatDefeat` | lua/combat_resolve.lua | 97 |
-| `applyTooltips` | lua/ui_controls.lua | 528 |
+| `applyTooltips` | lua/ui_controls.lua | 530 |
 | `auditFirstLoad` | lua/audit.lua | 181 |
 | `auditHintCoverage` | lua/audit.lua | 109 |
 | `auditObjectCount` | lua/audit.lua | 7 |
@@ -898,9 +898,9 @@
 | `onFightTargetClick` | lua/ui_actionbar_targets.lua | 441 |
 | `onFightTogetherClick` | lua/ui_actionbar_targets.lua | 445 |
 | `onFinishCombat` | lua/ui_actionbar_handlers.lua | 240 |
-| `onHelpClick` | lua/ui_help.lua | 111 |
-| `onHelpClose` | lua/ui_help.lua | 121 |
-| `onHelpTab` | lua/ui_help.lua | 125 |
+| `onHelpClick` | lua/ui_help.lua | 118 |
+| `onHelpClose` | lua/ui_help.lua | 128 |
+| `onHelpTab` | lua/ui_help.lua | 132 |
 | `onHostBeginDay` | lua/ui_controls.lua | 179 |
 | `onHostEndTurn` | lua/ui_controls.lua | 209 |
 | `onHostResolveNight` | lua/ui_controls.lua | 196 |
@@ -938,14 +938,14 @@
 | `onTradeTargetClick` | lua/ui_actionbar_handlers.lua | 289 |
 | `onVariantsContinue` | lua/ui_setup.lua | 168 |
 | `onWeekReviewClose` | lua/ui_controls.lua | 491 |
-| `onWhatNowClick` | lua/ui_help.lua | 196 |
-| `onWhatNowClose` | lua/ui_help.lua | 333 |
+| `onWhatNowClick` | lua/ui_help.lua | 203 |
+| `onWhatNowClose` | lua/ui_help.lua | 340 |
 | `placeBossStandee` | lua/effects/dawn_effects.lua | 70 |
 | `placeCharacterAtTile` | lua/helpers.lua | 229 |
 | `playerHasBackpack` | lua/actions.lua | 296 |
 | `playerPryTool` | lua/actions_social.lua | 262 |
 | `poolBossStandee` | lua/effects/dawn_effects.lua | 104 |
-| `populateNotebook` | lua/ui_help.lua | 409 |
+| `populateNotebook` | lua/ui_help.lua | 416 |
 | `pressAttack` | lua/combat_resolve.lua | 325 |
 | `pulseHandZone` | lua/ui_banner.lua | 412 |
 | `rallyTargets` | lua/actions_social.lua | 199 |
@@ -961,15 +961,15 @@
 | `recordTurnEnd` | lua/telemetry.lua | 58 |
 | `refillMarketSlot` | lua/crafting.lua | 88 |
 | `refreshActionBar` | lua/ui_actionbar_display.lua | 46 |
-| `refreshActionButtonReasons` | lua/ui_help.lua | 354 |
+| `refreshActionButtonReasons` | lua/ui_help.lua | 361 |
 | `refreshActionButtonStates` | lua/ui_actionbar_display.lua | 90 |
 | `refreshCharRoster` | lua/ui_banner.lua | 114 |
 | `refreshCombatPanel` | lua/ui_actionbar_handlers.lua | 205 |
 | `refreshCycleStrip` | lua/ui_rules.lua | 315 |
 | `refreshDawnChecklist` | lua/ui_rules.lua | 259 |
 | `refreshDuskReadyLabel` | lua/turns.lua | 199 |
-| `refreshDynamicTooltips` | lua/ui_controls.lua | 547 |
-| `refreshHelpPanel` | lua/ui_help.lua | 136 |
+| `refreshDynamicTooltips` | lua/ui_controls.lua | 552 |
+| `refreshHelpPanel` | lua/ui_help.lua | 143 |
 | `refreshHostControls` | lua/ui_controls.lua | 150 |
 | `refreshMsgLog` | lua/ui_msglog.lua | 38 |
 | `refreshPhaseBanner` | lua/ui_banner.lua | 29 |
@@ -995,7 +995,7 @@
 | `safecall` | lua/helpers.lua | 373 |
 | `setActionCubes` | lua/ui_actionbar_display.lua | 76 |
 | `setActionEnabled` | lua/ui_actionbar_display.lua | 188 |
-| `setActionTooltip` | lua/ui_help.lua | 398 |
+| `setActionTooltip` | lua/ui_help.lua | 405 |
 | `setPhaseMood` | lua/ui_mood.lua | 45 |
 | `showCharBriefing` | lua/ui_setup.lua | 419 |
 | `showCharPickForNextPlayer` | lua/ui_setup.lua | 227 |
@@ -1016,7 +1016,7 @@
 | `stopIdleWatcher` | lua/turns.lua | 37 |
 | `stopStandeeBob` | lua/ui_banner.lua | 312 |
 | `stringToColorTint` | lua/ui_banner.lua | 276 |
-| `substitutePlaceholders` | lua/ui_help.lua | 337 |
+| `substitutePlaceholders` | lua/ui_help.lua | 344 |
 | `syncBossHP` | lua/combat.lua | 119 |
 | `syncSourceHP` | lua/combat.lua | 109 |
 | `syncThreatHP` | lua/combat.lua | 135 |

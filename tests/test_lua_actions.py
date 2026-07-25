@@ -532,3 +532,34 @@ class TestStatDisplayNeverStale:
         # The panel shows James (the only living character), not the "—" blank.
         name = env.eval('UI.getAttribute("statCharName", "text")')
         assert name and "James" in name
+
+
+class TestDifficultyAwareText:
+    """Player-facing limits must follow the chosen difficulty. Long Weekend is
+    3 days with a 15-Doom track, but the tooltips and the Doom help panel used
+    to print the Standard "of 7" / "/ 30" on every difficulty."""
+
+    def test_doom_help_uses_the_difficulty_limit(self, env):
+        env.execute('gameState.difficulty = "weekend"')   # 3 days, Doom to 15
+        text = env.globals().getHelpDoomContent()
+        assert "/ 15" in text, f"Doom help should show the weekend limit:\n{text}"
+        # Defeat is at 15 here, so no threshold beyond it may be listed.
+        for beyond in ("20:", "25:", "30:"):
+            assert beyond not in text, (
+                f"Doom help lists threshold {beyond} past the weekend defeat "
+                f"point of 15:\n{text}")
+
+    def test_tooltips_substitute_the_difficulty_limits(self, env):
+        env.execute('gameState.difficulty = "weekend"')
+        env.execute("gameState.day = 2")
+        add = env.eval("TTS.addObject")
+        counter = add(py_to_lua(env, {"tags": ["DayCounter"], "position": [0, 1, 0]}))
+        marker = add(py_to_lua(env, {"tags": ["DoomMarker"], "position": [1, 1, 0]}))
+        env.globals().applyTooltips()
+        day_desc = counter.getDescription()
+        doom_desc = marker.getDescription()
+        assert "Day 2 of 3" in day_desc, day_desc
+        assert "/ 15" in doom_desc, doom_desc
+        # No unsubstituted placeholders left behind.
+        for desc in (day_desc, doom_desc):
+            assert "{" not in desc, f"unsubstituted placeholder: {desc}"

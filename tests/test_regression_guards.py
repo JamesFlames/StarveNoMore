@@ -211,3 +211,180 @@ def test_takeobject_callbacks_guard_dead_handles():
         "that died mid-flight throws 'cannot access field ... of userdata':\n  "
         + "\n  ".join(problems)
         + "\n(wrap the body in pcall(function() ... end), like revealDawnCard)")
+
+
+# --------------------------------------------------------------------------
+# 5. Tag lookups must resolve against tags that exist in the built save.
+# --------------------------------------------------------------------------
+# Every object lookup goes through a tag (never a GUID), and a typo'd or
+# renamed tag fails SILENTLY — findOneByTag just returns nil and the feature
+# quietly does nothing. Checks both literal lookups, findOneByTag("DoomMarker"),
+# and namespaced dynamic ones, findOneByTag("Location:" .. name).
+
+_LITERAL_TAG_RE = re.compile(
+    r'(?:findOneByTag|findAllByTag|getObjectsWithTag)\(\s*"([^"]+)"\s*\)')
+_NAMESPACE_TAG_RE = re.compile(
+    r'(?:findOneByTag|findAllByTag|getObjectsWithTag)\(\s*"([A-Za-z]+):"\s*\.\.')
+
+
+def _save_tags():
+    tags = set()
+
+    def walk(objs):
+        for o in objs:
+            tags.update(o.get("Tags", []))
+            for sp in o.get("AttachedSnapPoints", []) or []:
+                tags.update(sp.get("Tags", []))
+            if "ContainedObjects" in o:
+                walk(o["ContainedObjects"])
+    walk(_load_save()["ObjectStates"])
+    return tags
+
+
+def test_tag_lookups_resolve_in_the_save():
+    tags = _save_tags()
+    namespaces = {t.split(":", 1)[0] for t in tags if ":" in t}
+    problems = []
+    for rel in all_lua_files():
+        src = read_text(os.path.join(LUA_DIR, rel))
+        for i, line in enumerate(src.splitlines(), 1):
+            if line.lstrip().startswith("--"):
+                continue
+            for tag in _LITERAL_TAG_RE.findall(line):
+                if tag not in tags and tag.split(":", 1)[0] not in namespaces:
+                    problems.append(f"{rel}:{i}: no object in the save carries tag {tag!r}")
+            for ns in _NAMESPACE_TAG_RE.findall(line):
+                if ns not in namespaces:
+                    problems.append(f"{rel}:{i}: no save tag uses the namespace {ns + ':'!r}")
+    assert not problems, (
+        "Lua looks up tags that nothing in the built save carries — the lookup "
+        "returns nil and the feature silently does nothing:\n  "
+        + "\n  ".join(problems))
+
+
+# --------------------------------------------------------------------------
+# 6. Player-facing text must not name components that were removed.
+# --------------------------------------------------------------------------
+# When a physical component is deleted from the save, instructions that still
+# tell players to use it become impossible to follow. A Dawn card kept saying
+# "drop 2 Battery on the Discard Tray" for a whole release after the tray was
+# removed. Keyed by tag: the check only fires once the component is really gone.
+
+REMOVED_COMPONENTS = {
+    # player-facing phrase : the save tag that would exist if it were still there
+    "Discard Tray": "DiscardTray",
+    "Player Rules tablet": "PlayerRules",
+}
+
+
+def test_no_instructions_reference_removed_components():
+    tags = _save_tags()
+    sources = [(rel, os.path.join(LUA_DIR, rel)) for rel in all_lua_files()]
+    content = os.path.join(ROOT, "content")
+    for dirpath, _dirs, files in os.walk(content):
+        for fn in files:
+            if fn.endswith(".md"):
+                p = os.path.join(dirpath, fn)
+                sources.append((os.path.relpath(p, ROOT).replace("\\", "/"), p))
+
+    problems = []
+    for label, path in sources:
+        for i, line in enumerate(read_text(path).splitlines(), 1):
+            if line.lstrip().startswith("--"):
+                continue   # a comment explaining the removal is fine
+            for phrase, tag in REMOVED_COMPONENTS.items():
+                if phrase in line and tag not in tags:
+                    problems.append(f"{label}:{i}: mentions {phrase!r}, which no "
+                                    f"longer exists in the save: {line.strip()[:80]}")
+    assert not problems, (
+        "player-facing text still instructs players to use a component that was "
+        "removed from the save:\n  " + "\n  ".join(problems))
+
+
+# --------------------------------------------------------------------------
+# 7. Day/Doom limits in player-facing strings must follow the difficulty.
+# --------------------------------------------------------------------------
+# getTotalDays() / getDoomLimit() exist because Long Weekend is 3 days with a
+# 15-Doom track. Hardcoding "of 7" or "/ 30" in a string shows the wrong
+# numbers on every non-Standard difficulty (the tooltips and the Doom help
+# panel both did exactly this).
+
+_HARDCODED_LIMIT_RE = re.compile(r'"[^"]*(?:\bof 7\b|/ ?30\b)[^"]*"')
+
+
+def test_no_hardcoded_day_or_doom_limits_in_strings():
+    problems = []
+    for rel in all_lua_files():
+        for i, line in enumerate(read_text(os.path.join(LUA_DIR, rel)).splitlines(), 1):
+            if line.lstrip().startswith("--"):
+                continue
+            if _HARDCODED_LIMIT_RE.search(line):
+                problems.append(f"{rel}:{i}: {line.strip()[:90]}")
+    assert not problems, (
+        "player-facing strings hardcode the Standard day count / Doom limit — "
+        "these are wrong on Long Weekend (3 days, Doom 15) and Nightmare. Use "
+        "getTotalDays() / getDoomLimit() (or the {totalDays} / {doomLimit} "
+        "tooltip placeholders):\n  " + "\n  ".join(problems))
+
+
+# --------------------------------------------------------------------------
+# 8. gameState fields must be initialised before they are indexed.
+# --------------------------------------------------------------------------
+# Indexing a nil field ("attempt to index a nil value") is a hard crash. A
+# field is safe if it has a default in the gameState literal, is defaulted in
+# migrateGameState (which every loaded save runs through), or is lazily
+# initialised (`gameState.x = gameState.x or {}`) earlier in the SAME function.
+# (Function-scoped, not a line window: the idiom is to guard once at the top
+# of a handler and index freely below.)
+
+_FUNC_START_RE = re.compile(r"^\s*(?:local\s+)?function\b")
+
+
+def _declared_gamestate_fields():
+    src = read_text(os.path.join(LUA_DIR, "global.lua"))
+    literal = src[src.index("gameState = {"):src.index("CHARACTER_STATS")]
+    migrate = src[src.index("function migrateGameState"):src.index("function onLoad")]
+    return (set(re.findall(r"^\s*(\w+)\s*=", literal, re.M))
+            | set(re.findall(r"gs\.(\w+)", migrate)))
+
+
+def test_gamestate_fields_initialised_before_indexing():
+    declared = _declared_gamestate_fields()
+    access_res = [
+        re.compile(r"gameState\.(\w+)\s*\["),
+        re.compile(r"\bi?pairs\(\s*gameState\.(\w+)\s*\)"),
+        re.compile(r"#\s*gameState\.(\w+)\b"),
+    ]
+    problems = []
+    for rel in all_lua_files():
+        lines = read_text(os.path.join(LUA_DIR, rel)).splitlines()
+        for i, line in enumerate(lines):
+            if line.lstrip().startswith("--"):
+                continue
+            for rx in access_res:
+                for m in rx.finditer(line):
+                    name = m.group(1)
+                    if name in declared:
+                        continue
+                    # Everything from the top of the enclosing function to here.
+                    start = 0
+                    for j in range(i, -1, -1):
+                        if _FUNC_START_RE.match(lines[j]):
+                            start = j
+                            break
+                    window = "\n".join(lines[start:i + 1])
+                    # `gameState.x = gameState.x or {}` / `(gameState.x or {})`
+                    if re.search(r"gameState\." + name + r"\s*=\s*gameState\."
+                                 + name + r"\s+or\b", window):
+                        continue
+                    if re.search(r"gameState\." + name + r"\s+or\s*[{(]", window):
+                        continue
+                    if re.search(r"gameState\." + name + r"\s*=\s*[{(]", window):
+                        continue
+                    problems.append(f"{rel}:{i + 1}: gameState.{name} indexed with no "
+                                    "default and no lazy init in the same function")
+    assert not problems, (
+        "gameState fields are indexed before anything guarantees they exist — "
+        "a fresh setup or a loaded old save crashes with 'attempt to index a "
+        "nil value'. Add the default to migrateGameState() (global.lua):\n  "
+        + "\n  ".join(problems))

@@ -184,8 +184,24 @@ DAWN_EFFECTS["P1_STRANGE_RADIO"] = {
         end
         -- Dare (scripted): decode the rest of the broadcast.
         showConfirm("Dare — decode the signal?",
-            "Any player drops 2 Battery on the Discard Tray (honor system), and the next 3 Dawn cards are announced to everyone.",
+            "Spend 2 Battery and the next 3 Dawn cards are announced to everyone. " ..
+            "(Paid automatically by whoever holds them.)",
             function()
+                -- Charge the 2 Battery for real — resources are virtual and
+                -- auto-paid now, so nothing is left to the honor system.
+                -- Any player who holds enough can foot the bill.
+                local payer = nil
+                for c, ch in pairs(gameState.activeChars) do
+                    if not ch.down and (getPlayerResources(c).Battery or 0) >= 2 then
+                        payer = c; break
+                    end
+                end
+                if not payer then
+                    broadcastEvent("damage", "Nobody has 2 Battery to spare — the signal stays noise.")
+                    return
+                end
+                if not verifyAndPayResources(payer, { Battery = 2 }, "decoding the signal") then return end
+
                 local deck = getPhaseDeck(gameState.phase)
                 local names = {}
                 if deck and deck.getObjects then

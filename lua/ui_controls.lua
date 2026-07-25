@@ -505,8 +505,10 @@ TOOLTIP_DATA = {
     ["Resource:EnergyDrink"] = "Energy Drink — found at James's House only. Restores 2 Sanity. James's addiction.",
     ["Resource:Battery"]     = "Battery — found at James's/Rayman's. Powers Flashlights, Radios, electronics.",
     -- Markers
-    ["DoomMarker"]           = "Doom Marker. Current: {doom} / 30. Next threshold: {thresh}.",
-    ["DayCounter"]           = "Day Counter. Current: Day {day} of 7.",
+    -- {doomLimit} / {totalDays} follow the chosen difficulty — never
+    -- hardcode 30 / 7 (Long Weekend is 15 / 3).
+    ["DoomMarker"]           = "Doom Marker. Current: {doom} / {doomLimit}. Next threshold: {thresh}. Moves itself whenever Doom changes.",
+    ["DayCounter"]           = "Day Counter. Current: Day {day} of {totalDays}.",
     -- Decks
     ["MarketCardDeck"]       = "Market Deck. Craft items by spending resources. 5 face-up in the display.",
     ["ThreatCardDeck"]       = "Threat Deck. Drawn at Night. Soft threats resolve instantly; Hard ones must be fought. Threats left on the map fester at Dawn: +1 Doom each (max +3); bosses +2 each, no cap.",
@@ -530,10 +532,13 @@ function applyTooltips()
         for tag, tip in pairs(TOOLTIP_DATA) do
             if obj.hasTag(tag) then
                 local desc = tip
-                -- Substitute dynamic values
+                -- Substitute dynamic values. Limits come from the difficulty
+                -- helpers, never literals (Long Weekend is 3 days / Doom 15).
                 desc = desc:gsub("{doom}", tostring(gameState.doom))
-                desc = desc:gsub("{thresh}", tostring(getNextDoomThreshold() or 30))
+                desc = desc:gsub("{doomLimit}", tostring(getDoomLimit()))
+                desc = desc:gsub("{thresh}", tostring(getNextDoomThreshold() or getDoomLimit()))
                 desc = desc:gsub("{day}", tostring(gameState.day))
+                desc = desc:gsub("{totalDays}", tostring(getTotalDays()))
                 obj.setDescription(desc)
                 break
             end

@@ -77,18 +77,25 @@ function getHelpDoomContent()
     text = text .. "Current phase doom rate: +" .. getDoomRate() .. " per day (scaled by player count)\n"
     text = text .. "Festering at Dawn: +1 per threat on the map (max +3); bosses +2 each, Treeguard +1 (no cap).\n\n"
 
+    -- Read from DOOM_THRESHOLDS / getDoomLimit(), never literals: on Long
+    -- Weekend the track ends at 15, so the 20/25/30 rows were both wrong
+    -- and past the defeat point.
     text = text .. "THRESHOLDS:\n"
+    local limit = getDoomLimit()
+    local T = DOOM_THRESHOLDS
     local thresholds = {
-        {10, "Night threat draws +1 at all locations.", gameState.doom >= 10},
-        {15, "Scarcity: every craft costs +1 extra resource (your choice).", gameState.doom >= 15},
-        {20, "All characters lose +1 Sanity at Tick.", gameState.doom >= 20},
-        {25, "Boss-level threats can appear in any phase.", gameState.doom >= 25},
-        {30, "DEFEAT — the neighborhood is consumed.", gameState.doom >= 30},
+        {T.night,          "Night threat draws +1 at all locations."},
+        {T.scarcity,       "Scarcity: every craft costs +1 extra resource (your choice)."},
+        {T.tick,           "All characters lose +1 Sanity at Tick."},
+        {T.anyPhaseBosses, "Boss-level threats can appear in any phase."},
+        {limit,            "DEFEAT — the neighborhood is consumed."},
     }
 
     for _, t in ipairs(thresholds) do
-        local marker = t[3] and "[ACTIVE] " or "         "
-        text = text .. marker .. t[1] .. ": " .. t[2] .. "\n"
+        if t[1] <= limit then
+            local marker = (gameState.doom >= t[1]) and "[ACTIVE] " or "         "
+            text = text .. marker .. t[1] .. ": " .. t[2] .. "\n"
+        end
     end
 
     text = text .. "\nCLEANSE ACTION:\n"
