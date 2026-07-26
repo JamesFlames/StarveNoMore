@@ -106,8 +106,9 @@ function onPickPath(player, value, id)
     else return end
 
     setupState.pickedPath = variant
-    gameState.pathVariant = variant
-    broadcastEvent("proc", "Path layout: " .. variant)
+    -- Rebuilds the Move graph and repaints the board to match the choice.
+    variant = applyPathVariant(variant)
+    broadcastEvent("proc", "Path layout: " .. variant .. " (the lines printed on the board are the routes you can walk).")
 
     UI.hide("setupStep1")
 
@@ -525,6 +526,7 @@ function finalizeGuidedSetup()
     -- Characters nobody picked leave the map for the bench.
     safecall(function() benchUnusedCharacters() end, "Bench")
     safecall(function() benchUnusedBoards() end, "BenchBoards")
+    safecall(function() refreshQuickStartCard() end, "QuickStart")
 
     -- Starting hands: each character's personal items into their hand.
     safecall(function() dealStartingHands() end, "StartingHands")

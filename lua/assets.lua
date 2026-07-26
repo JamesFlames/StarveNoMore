@@ -15,6 +15,11 @@ local function url(path) return _BASE .. "/" .. path end
 ASSETS = {
     -- Boards
     BOARD_MAIN            = url("board/main_board.png"),
+    BOARD_MAIN_STAR      = url("board/main_board_star.png"),
+    BOARD_MAIN_RING      = url("board/main_board_ring.png"),
+    BOARD_MAIN_COMPACT   = url("board/main_board_compact.png"),
+    BOARD_MAIN_SPRAWL    = url("board/main_board_sprawl.png"),
+    BOARD_MAIN_LINEAR    = url("board/main_board_linear.png"),
     PATH_COMPACT          = url("board/path_compact.png"),
     PATH_SPRAWL           = url("board/path_sprawl.png"),
     PATH_LINEAR           = url("board/path_linear.png"),
@@ -95,4 +100,15 @@ ASSETS = {
 
     -- Severity legend
     LEGEND_SEVERITY       = url("legend/severity_legend.png"),
+}
+
+-- Board art per path variant. The printed lines ARE the map, so this
+-- table and PATH_LAYOUTS (ui_actionbar_core.lua) must offer the same
+-- variant names — tests/test_regression_guards.py checks that.
+BOARD_ART_URLS = {
+    Star = ASSETS.BOARD_MAIN_STAR,
+    Ring = ASSETS.BOARD_MAIN_RING,
+    Compact = ASSETS.BOARD_MAIN_COMPACT,
+    Sprawl = ASSETS.BOARD_MAIN_SPRAWL,
+    Linear = ASSETS.BOARD_MAIN_LINEAR,
 }

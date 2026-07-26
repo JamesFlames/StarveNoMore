@@ -1,10 +1,15 @@
 -- helpers.lua  (F.2 — Tag-based lookup helpers)
 -- All object lookups use tags, never GUIDs, per TTS §13 pitfall 2.
 
+-- These scan every object on the table, so they meet stale handles first:
+-- one dead handle used to make EVERY tag lookup in the mod throw
+-- "cannot access field hasTag of userdata<LuaObject>". They read through
+-- safeHasTag (defined below; globals resolve at call time) so a dead
+-- handle is simply skipped.
 function findAllByTag(tag)
     local results = {}
     for _, obj in ipairs(getAllObjects()) do
-        if obj.hasTag(tag) then
+        if safeHasTag(obj, tag) then
             table.insert(results, obj)
         end
     end
@@ -13,7 +18,7 @@ end
 
 function findOneByTag(tag)
     for _, obj in ipairs(getAllObjects()) do
-        if obj.hasTag(tag) then return obj end
+        if safeHasTag(obj, tag) then return obj end
     end
     return nil
 end
@@ -22,11 +27,66 @@ function findOneByTags(tags)
     for _, obj in ipairs(getAllObjects()) do
         local match = true
         for _, t in ipairs(tags) do
-            if not obj.hasTag(t) then match = false; break end
+            if not safeHasTag(obj, t) then match = false; break end
         end
         if match then return obj end
     end
     return nil
+end
+
+-----------------------------------------------------------------------
+-- Dead-handle-safe readers.
+-- A handle can outlive its object (merged into a deck, destroyed by a
+-- player); ANY field access then throws "cannot access field X of
+-- userdata<LuaObject>" — the single most common crash in this mod
+-- (pry, dawn reveal, threat reveal, gather). Read through these instead
+-- of touching obj.* directly whenever the handle came from a callback,
+-- a stored GUID, or a scan of the table. See docs/tts-interface.md.
+-----------------------------------------------------------------------
+
+function isLiveObject(obj)
+    if not obj then return false end
+    return (pcall(function() return obj.getPosition() end))
+end
+
+function safeNickname(obj)
+    if not obj then return "" end
+    local ok, name = pcall(function() return obj.getNickname() or "" end)
+    if ok and type(name) == "string" then return name end
+    return ""
+end
+
+function safeHasTag(obj, tag)
+    if not obj then return false end
+    local ok, has = pcall(function()
+        return (obj.hasTag and obj.hasTag(tag)) or false
+    end)
+    return (ok and has) or false
+end
+
+-----------------------------------------------------------------------
+-- Button labels.
+-- UI.setAttribute(id, "text", ...) RESETS a Button's styling: the label
+-- comes back near-black, which on our dark plates reads as unreadable or
+-- disabled ("I'm settled" was dark-on-dark). Setting the colour in a
+-- second call is a race — set text and colours in ONE setAttributes call
+-- so the styling can never be lost in between. See docs/tts-interface.md.
+-----------------------------------------------------------------------
+
+-- Light plate + dark label. TTS dims a DISABLED button's text toward its
+-- plate: on a dark plate the label disappears entirely (the action bar was
+-- unreadable with 0 actions left), on a light one a dimmed dark label still
+-- reads. House rule: light background => dark text.
+BTN_DARK_PLATE = "#B9C9B4FF"   -- the standard button plate (light sage)
+BTN_ON_DARK    = "#12180F"     -- readable label on that plate
+
+function setButtonLabel(id, text, textColor, color)
+    if not UI then return end
+    UI.setAttributes(id, {
+        text      = text,
+        textColor = textColor or BTN_ON_DARK,
+        color     = color or BTN_DARK_PLATE,
+    })
 end
 
 -- Typed convenience wrappers
@@ -114,15 +174,39 @@ end
 -- Lay `qty` decorative tokens beside the player's board (cosmetic only —
 -- the authoritative count lives in gameState). Silent no-op headless / if
 -- the board or bag is missing.
+-- Each resource type gets its own little run of tokens beside the board, and
+-- every new token is nudged along that run rather than dropped on the last
+-- one: a stack of six identical discs is impossible to count at a glance, a
+-- fanned row is not. The index continues across separate awards (the old code
+-- restarted at 1 each call, so a second Gather landed on the first one).
+RESOURCE_ROW_INDEX = {}
+
 local function _spawnVisualTokens(charName, resType, qty)
     local board = getPlayerBoard(charName)
     local bag = getResourceBag(resType)
     if not board or not bag then return end
     local base = board.getPosition()
-    for i = 1, qty do
+
+    -- One row per resource type, running along the board's edge.
+    local slot = 0
+    for i, t in ipairs(RESOURCE_TYPES_LIST) do
+        if t == resType then slot = i - 1; break end
+    end
+    local key = charName .. ":" .. resType
+    RESOURCE_ROW_INDEX[key] = RESOURCE_ROW_INDEX[key] or 0
+
+    for _ = 1, qty do
+        local n = RESOURCE_ROW_INDEX[key]
+        RESOURCE_ROW_INDEX[key] = n + 1
         safecall(function()
             local tok = bag.takeObject({
-                position = base + Vector(-2.6 + (i % 3) * 0.5, 0.8 + i * 0.4, -1.2),
+                -- Step each token along the row; wrap to a second rank after
+                -- six so a big pile stays beside the board instead of walking
+                -- across the table.
+                position = base + Vector(
+                    -2.6 + (n % 6) * 0.42,
+                    0.8 + (n % 6) * 0.04,
+                    -1.2 - slot * 0.55 - math.floor(n / 6) * 0.30),
                 smooth   = true,
             })
             _tagResource(tok, resType)
@@ -240,18 +324,29 @@ end
 -- library shelf (out of sight, like every inactive component) instead of
 -- cluttering the map. A later placeCharacterAtTile (e.g. a Visitor
 -- arrival) brings them back — smooth moves pass through the table.
-BENCH_POSITION = { x = -23, y = -2.5, z = 8 }   -- slots run toward -z from here
+-- Inside the board footprint (+/-12) so the board and the opaque table hide
+-- them. Teleported, never smooth-moved: a smooth move to a spot under a solid
+-- table collides on the way and leaves the standee hanging in mid-air
+-- ("all the characters I am not playing are floating in the air").
+BENCH_POSITION = { x = -9, y = -2.5, z = 8 }   -- slots run toward -z from here
 
 function benchUnusedCharacters()
     local inPlay = {}
     for _, char in pairs(gameState.activeChars or {}) do
         if char and char.name then inPlay[char.name] = true end
     end
+    -- Benched inside the board footprint (+/-12): parked at x=-20 they
+    -- sat beyond the table edge and read as floating in mid-air.
     for name, i in pairs(CHAR_SLOT_INDEX) do
         if not inPlay[name] then
             local standee = getCharacterStandee(name)
             if standee then
-                standee.setPositionSmooth(Vector(BENCH_POSITION.x, BENCH_POSITION.y, BENCH_POSITION.z - i * 3))
+                pcall(function()
+                    standee.setLock(false)
+                    standee.setPosition(Vector(BENCH_POSITION.x, BENCH_POSITION.y,
+                                               BENCH_POSITION.z - i * 3))
+                    standee.setLock(true)
+                end)
             end
         end
     end
@@ -272,7 +367,7 @@ function benchUnusedBoards()
             if board then
                 pcall(function()
                     board.setLock(false)
-                    board.setPosition(Vector(-20, -2.5, 14 - i * 3))
+                    board.setPosition(Vector(-9, -2.5, 9 - i * 4))
                     board.setLock(true)
                 end)
             end
@@ -304,8 +399,11 @@ function getPlayerCarriedObjects(color, charName)
         local minZ = pos.z - b.size.z * 0.5 - pad
         local maxZ = pos.z + b.size.z * 0.5 + pad
         for _, obj in ipairs(getAllObjects()) do
-            local p = obj.getPosition()
-            if p.x >= minX and p.x <= maxX and p.z >= minZ and p.z <= maxZ then
+            -- A handle here can already be dead (a token merged into a stack
+            -- as it landed); reading .getPosition() then throws and took the
+            -- whole Gather action down with it.
+            local ok, p = pcall(function() return obj.getPosition() end)
+            if ok and p and p.x >= minX and p.x <= maxX and p.z >= minZ and p.z <= maxZ then
                 out[#out + 1] = obj
             end
         end

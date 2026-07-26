@@ -284,8 +284,8 @@ LIGHT_SOURCES = {
 local CAMPFIRE_RADIUS = 7  -- matches the fester radius: "at this tile"
 
 local function _matchesLight(obj, src)
-    if obj.hasTag and obj.hasTag(src.id) then return true end
-    local nick = (obj.getNickname and obj.getNickname()) or ""
+    if safeHasTag(obj, src.id) then return true end
+    local nick = safeNickname(obj)
     return nick:lower():find(src.label:lower(), 1, true) ~= nil
 end
 
@@ -304,9 +304,9 @@ function checkPlayerHasLight(color)
     if tile then
         local tp = tile.getPosition()
         for _, obj in ipairs(getAllObjects()) do
-            local isCampfire = (obj.hasTag and obj.hasTag("M_CAMPFIRE"))
+            local isCampfire = safeHasTag(obj, "M_CAMPFIRE")
             if not isCampfire then
-                local nick = (obj.getNickname and obj.getNickname()) or ""
+                local nick = safeNickname(obj)
                 isCampfire = nick:lower():find("campfire", 1, true) ~= nil
             end
             if isCampfire then

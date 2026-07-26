@@ -72,11 +72,16 @@ def test_no_objects_embedded_in_tabletop(built_save):
     save = json.loads(built_save["fresh"])
     build_src = open(os.path.join(SCRIPTS, "build_save.py"), encoding="utf-8").read()
     surface = float(re.search(r"TABLE_SURFACE_Y\s*=\s*([\d.]+)", build_src).group(1))
-    exempt = {"Custom_Board", "HandTrigger"}   # the board IS the surface; zones are volumes
+    # The board IS the surface and hand zones are volumes. The board is a thin
+    # tile resting ON the table, so its CENTRE legitimately sits inside the
+    # band while its top face is above it — exempt it by tag, not by Name.
+    exempt = {"Custom_Board", "HandTrigger"}
     embedded = [
         (o.get("Nickname") or o["Name"], round(o["Transform"]["posY"], 2))
         for o in save["ObjectStates"]
-        if 0 < o["Transform"]["posY"] < surface and o["Name"] not in exempt
+        if 0 < o["Transform"]["posY"] < surface
+        and o["Name"] not in exempt
+        and "MainBoard" not in (o.get("Tags") or [])
     ]
     assert not embedded, (
         f"objects authored inside the tabletop band (0 < y < {surface}) — they will "

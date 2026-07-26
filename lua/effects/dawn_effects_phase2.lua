@@ -93,13 +93,16 @@ function resolveWrongness(trigger)
         return
     end
     safecall(function() card.setRotationSmooth({0, 180, 0}) end, "Wrongness")   -- flip face-up
-    local tName = card.getNickname() or "Unknown Threat"
+    local tName = safeNickname(card)
+    if tName == "" then tName = "Unknown Threat" end
     if trigger == "entered" then
         broadcastEvent("warn", "You went to look. The wrongness at " .. (w.location or "?") .. " is: " .. tName .. "!")
     else
         broadcastEvent("warn", "Nobody went to look. At Dawn, the wrongness at " .. (w.location or "?") .. " reveals itself: " .. tName .. "!")
     end
-    broadcastEvent("proc", card.getDescription() or "")
+    local tDesc = ""
+    pcall(function() tDesc = card.getDescription() or "" end)
+    if tDesc ~= "" then broadcastEvent("proc", tDesc) end
     local tType = identifyThreatType(card)
     if tType == "Soft" then
         broadcastEvent("proc", tName .. " is a soft threat — resolve it and discard.")

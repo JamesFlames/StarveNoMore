@@ -6,18 +6,86 @@
 -- ui_actionbar.lua  (G.3 Action Bar handlers + G.4 Cube animation + G.5 Stat display)
 
 -----------------------------------------------------------------------
--- Default Compact path graph for Move-target highlights.
--- The design supports 3 path variants (Compact/Sprawl/Linear) plus a
--- scenarioFlags.shortcutPath edge between JamesHouse and BadmintonCourt;
--- those modifiers are applied dynamically below.
+-- The map graph, per path variant. THE PRINTED LINES ARE THE MAP: each
+-- variant has its own board image (art/board/main_board_<variant>.png) and
+-- setup swaps the board to the picked one, so what a player can see is
+-- exactly what they can walk. Mirrors scripts/path_layouts.py, which the
+-- art generator reads;
+-- tests/test_regression_guards.py::test_path_layouts_mirror_the_lua_table
+-- keeps the two in lockstep.
+--
+-- Before this, adjacency was a hard-coded star while the board printed eight
+-- edges and the variant was decorative: "the path layout assigned was ring,
+-- but I see everything connecting to Ellie & Luca's House... it didn't let me
+-- move from James's house to the badminton court, even though I could see a
+-- line."
+--
+-- scenarioFlags.shortcutPath adds a JamesHouse <-> BadmintonCourt edge; that
+-- modifier is applied dynamically below.
 -----------------------------------------------------------------------
-LOCATION_ADJACENCY = {
-    JamesHouse      = {"EllieLucaHouse"},
-    RaymanHouse     = {"EllieLucaHouse"},
-    EllieLucaHouse  = {"JamesHouse", "RaymanHouse", "BasketballCourt", "BadmintonCourt"},
-    BasketballCourt = {"EllieLucaHouse"},
-    BadmintonCourt = {"EllieLucaHouse"},
+PATH_LAYOUTS = {
+    Star = {{"BadmintonCourt","EllieLucaHouse"}, {"BasketballCourt","EllieLucaHouse"}, {"EllieLucaHouse","JamesHouse"}, {"EllieLucaHouse","RaymanHouse"}},
+    Ring = {{"BadmintonCourt","EllieLucaHouse"}, {"BadmintonCourt","JamesHouse"}, {"BadmintonCourt","RaymanHouse"}, {"BasketballCourt","EllieLucaHouse"}, {"BasketballCourt","JamesHouse"}, {"BasketballCourt","RaymanHouse"}, {"EllieLucaHouse","JamesHouse"}, {"EllieLucaHouse","RaymanHouse"}},
+    Compact = {{"BadmintonCourt","EllieLucaHouse"}, {"BadmintonCourt","RaymanHouse"}, {"BasketballCourt","EllieLucaHouse"}, {"BasketballCourt","JamesHouse"}, {"EllieLucaHouse","JamesHouse"}, {"EllieLucaHouse","RaymanHouse"}},
+    Sprawl = {{"BadmintonCourt","BasketballCourt"}, {"BadmintonCourt","EllieLucaHouse"}, {"BadmintonCourt","JamesHouse"}, {"BadmintonCourt","RaymanHouse"}, {"BasketballCourt","EllieLucaHouse"}, {"BasketballCourt","JamesHouse"}, {"BasketballCourt","RaymanHouse"}, {"EllieLucaHouse","JamesHouse"}, {"EllieLucaHouse","RaymanHouse"}, {"JamesHouse","RaymanHouse"}},
+    Linear = {{"BadmintonCourt","EllieLucaHouse"}, {"BadmintonCourt","RaymanHouse"}, {"BasketballCourt","EllieLucaHouse"}, {"BasketballCourt","JamesHouse"}},
 }
+
+-- The variant the shipped save's board image is drawn for (mirrors
+-- path_layouts.DEFAULT_VARIANT), used until setup picks one.
+DEFAULT_PATH_VARIANT = "Ring"
+
+MAP_LOCATIONS = {"JamesHouse", "RaymanHouse", "EllieLucaHouse",
+                 "BasketballCourt", "BadmintonCourt"}
+
+function buildAdjacency(variant)
+    local edges = PATH_LAYOUTS[variant] or PATH_LAYOUTS[DEFAULT_PATH_VARIANT]
+    local adj = {}
+    for _, loc in ipairs(MAP_LOCATIONS) do adj[loc] = {} end
+    for _, e in ipairs(edges) do
+        if adj[e[1]] and adj[e[2]] then
+            table.insert(adj[e[1]], e[2])
+            table.insert(adj[e[2]], e[1])
+        end
+    end
+    return adj
+end
+
+LOCATION_ADJACENCY = buildAdjacency(DEFAULT_PATH_VARIANT)
+
+-- Point the map at a variant: rebuild the Move graph AND repaint the board so
+-- the printed lines match. Called from both setup paths.
+function applyPathVariant(variant)
+    if not PATH_LAYOUTS[variant] then variant = DEFAULT_PATH_VARIANT end
+    gameState.pathVariant = variant
+    LOCATION_ADJACENCY = buildAdjacency(variant)
+
+    local board = getMainBoard()
+    local url = BOARD_ART_URLS and BOARD_ART_URLS[variant]
+    if not board or not url then return variant end
+
+    -- Swapping a Custom_Board's image requires reload(), which DESTROYS the
+    -- object and returns a fresh one — the old handle is dead immediately
+    -- after (docs/tts-interface.md). Snap points are captured first and
+    -- re-applied, because the Doom track and every location slot live on them.
+    local snaps = nil
+    pcall(function() snaps = board.getSnapPoints() end)
+
+    safecall(function()
+        local custom = board.getCustomObject()
+        if not custom or custom.image == url then return end
+        custom.image = url
+        board.setCustomObject(custom)
+        local fresh = board.reload()
+        if fresh and snaps then
+            Wait.time(function()
+                pcall(function() fresh.setSnapPoints(snaps) end)
+            end, 0.5)
+        end
+    end, "PathVariantArt")
+
+    return variant
+end
 
 function _adjacentLocations(loc)
     local out = {}

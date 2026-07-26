@@ -256,3 +256,173 @@ class TestSupplyDrop:
         assert env.eval('#findAllByTag("Resource:Metal")') == 1
         assert env.eval('#findAllByTag("Resource:Cloth")') == 1
         assert env.eval('#findAllByTag("ThreatCard")') == 1   # drawn onto the map
+
+
+# ---------------------------------------------------------------------------
+# Dead handles in the reveal callback (docs/tts-runtime.md)
+# ---------------------------------------------------------------------------
+
+
+class TestDawnRevealSurvivesDeadHandles:
+    """2026-07-25 playtest: the Dawn card never resolved — no "DAWN:" line, just
+    "(Edge case in DawnReveal - continuing.) cannot access field getNickname of
+    userdata<LuaObject>". takeObject's callback got a handle whose card had
+    merged into a deck mid-flight, and the re-find recovery failed too, because
+    what sits on the reveal spot afterwards is a deck, not a card. The reveal
+    now snapshots the card's identity while the handle is still known good.
+
+    These tests model the real TTS ordering the stub does not reproduce: with
+    smooth = true the callback fires LATER, after takeObject has returned.
+    """
+
+    def _phase1_deck(self, env, n=5):
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["PhaseCard:P1Deck"], "position": [50, 1, 0],
+            "contained": [{"nickname": "P1_QUIET_EVENING",
+                           "tags": ["P1_QUIET_EVENING"]} for _ in range(n)]}))
+        env.execute("gameState.day = 1; gameState.phase = 1")
+
+    _DEAD = """
+        local dead = setmetatable({}, { __index = function()
+            error("cannot access field getNickname of userdata<LuaObject>")
+        end })
+    """
+
+    def test_dawn_still_resolves_when_the_handle_dies_in_flight(self, env):
+        self._phase1_deck(env)
+        # takeObject returns a good handle now, delivers a dead one later.
+        env.execute("""
+            local deck = getPhaseDeck(1)
+            local realTake = deck.takeObject
+            deck.takeObject = function(params)
+                local taken = realTake({ position = params.position })
+                %s
+                Wait.time(function() params.callback_function(dead) end, 0)
+                return taken
+            end
+        """ % self._DEAD)
+
+        env.globals().revealDawnCard()
+        flush(env)
+
+        msgs = broadcasts(env)
+        assert not any("Edge case in DawnReveal" in m for m in msgs), msgs
+        assert any("DAWN: P1_QUIET_EVENING" in m for m in msgs), msgs
+        assert env.eval("gameState.activeDawn.id") == "P1_QUIET_EVENING"
+
+    def test_dawn_degrades_cleanly_when_no_handle_survives(self, env):
+        self._phase1_deck(env)
+        # Nothing usable at all: no live handle, no snapshot, nothing on the spot.
+        env.execute("""
+            local deck = getPhaseDeck(1)
+            deck.takeObject = function(params)
+                %s
+                Wait.time(function() params.callback_function(dead) end, 0)
+                return dead
+            end
+        """ % self._DEAD)
+
+        env.globals().revealDawnCard()
+        flush(env)   # must not raise
+
+        msgs = broadcasts(env)
+        assert any("landed oddly" in m for m in msgs), msgs
+        assert env.eval("gameState.activeDawn") is None
+
+
+class TestPathVariants:
+    """Picking a variant must change the walkable map AND repaint the board."""
+
+    def _board(self, env):
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["MainBoard", "Board"], "position": [0, 0.96, 0],
+            "nickname": "Main Board",
+            "snapPoints": [{"position": {"x": 1, "y": 0, "z": 2}, "tags": ["Snap:Doom:0"]}]}))
+
+    def test_star_and_sprawl_give_different_neighbours(self, env):
+        self._board(env)
+        env.globals().applyPathVariant("Star")
+        star = lua_to_py(env.eval("LOCATION_ADJACENCY"))
+        env.globals().applyPathVariant("Sprawl")
+        sprawl = lua_to_py(env.eval("LOCATION_ADJACENCY"))
+
+        # Star: the houses only reach the hub. Sprawl: they reach everything.
+        assert sorted(star["JamesHouse"]) == ["EllieLucaHouse"]
+        assert len(sprawl["JamesHouse"]) == 4
+        assert env.eval("gameState.pathVariant") == "Sprawl"
+
+    def test_the_board_image_follows_the_variant(self, env):
+        self._board(env)
+        env.globals().applyPathVariant("Linear")
+        flush(env)
+        img = env.eval('getMainBoard().getCustomObject().image')
+        assert img and "main_board_linear" in img, img
+
+    def test_snap_points_survive_the_board_reload(self, env):
+        self._board(env)
+        env.globals().applyPathVariant("Compact")
+        flush(env)
+        snaps = lua_to_py(env.eval("getMainBoard().getSnapPoints()"))
+        assert snaps and snaps[0]["tags"] == ["Snap:Doom:0"], (
+            "reload() destroys and respawns the board; without re-applying "
+            "snap points the Doom marker loses its track")
+
+    def test_an_unknown_variant_falls_back_instead_of_emptying_the_map(self, env):
+        self._board(env)
+        picked = env.globals().applyPathVariant("NotARealLayout")
+        adj = lua_to_py(env.eval("LOCATION_ADJACENCY"))
+        assert picked == "Ring"
+        assert all(len(v) > 0 for v in adj.values()), \
+            "a bad variant name must never leave every tile unreachable"
+
+
+class TestVariantAwareQuickStart:
+    """The Quick Start card described a 7-day/30-Doom game no matter which
+    variant was chosen — wrong on every line during a 3-day Long Weekend."""
+
+    def test_long_weekend_rewrites_the_numbers(self, env):
+        env.execute('gameState.difficulty = "weekend"')
+        text = env.globals().quickStartTextForVariant()
+        assert "Survive 3 nights" in text, text[:200]
+        assert "below 15" in text
+        assert "Long Weekend" in text
+        assert "Survive 7 nights" not in text
+
+    def test_standard_still_reads_as_the_seven_day_game(self, env):
+        env.execute('gameState.difficulty = "standard"')
+        text = env.globals().quickStartTextForVariant()
+        assert "Survive 7 nights" in text and "below 30" in text
+
+    def test_the_physical_card_is_restamped(self, env):
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["QuickStart"], "position": [14.5, 1.65, -14],
+            "nickname": "Quick Start", "description": "stale 7-day text"}))
+        env.execute('gameState.difficulty = "weekend"')
+        env.globals().refreshQuickStartCard()
+        desc = env.eval('findOneByTag("QuickStart").getDescription()')
+        assert "Survive 3 nights" in desc, desc[:160]
+
+
+class TestOneOptionIsHighlighted:
+    """'Always highlight the only thing they can do if they can only do one
+    thing' — with a single action offered, point at that button, not the bar."""
+
+    def _day(self, env):
+        add_char(env, "White", "James")
+        env.execute('gameState.started = true; gameState.subPhase = "Day"; '
+                    'gameState.activeColor = "White"')
+
+    def test_a_single_offered_action_is_the_cta(self, env):
+        self._day(env)
+        env.execute('ENABLED_ACTIONS = { actGather = true }')
+        assert lua_to_py(env.globals().getNextCTA()) == ["actGather"]
+
+    def test_several_options_highlight_the_whole_bar(self, env):
+        self._day(env)
+        env.execute('ENABLED_ACTIONS = { actGather = true, actMove = true }')
+        assert lua_to_py(env.globals().getNextCTA()) == ["actionBar"]
+
+    def test_out_of_actions_points_at_end_turn(self, env):
+        self._day(env)
+        env.execute('gameState.activeChars.White.actionsLeft = 0')
+        assert lua_to_py(env.globals().getNextCTA()) == ["actPass"]

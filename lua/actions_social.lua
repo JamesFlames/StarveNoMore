@@ -168,10 +168,14 @@ function doPeek(color, deckKey)
     end
     local top = deck.getObjects()[1]
     local name = top and ((top.nickname ~= "" and top.nickname) or top.name) or "???"
+    -- Show the card, not just its title: the description is the card's rules
+    -- text, so the peeker actually learns what is coming.
+    local text = (top and top.description) or ""
     gameState.jamesPeekUsed = true
     broadcastEvent("proc", "James studies the " .. entry.label .. "... Pattern Recognition (free action, once per day).")
-    broadcastToColor("Top of the " .. entry.label .. ": " .. name .. ". Tell the team — or don't.",
-        color, BROADCAST_COLORS.gain)
+    broadcastToColor("Top of the " .. entry.label .. ": " .. name
+        .. (text ~= "" and ("\n" .. text) or "")
+        .. "\nTell the team — or don't.", color, BROADCAST_COLORS.gain)
     return true
 end
 
@@ -289,7 +293,7 @@ function playerPryTool(color)
         pcall(function()
             for _, tool in ipairs(PRY_TOOLS) do
                 if obj.hasTag and obj.hasTag(tool.id) then matched = tool.label; return end
-                local nick = (obj.getNickname and obj.getNickname()) or ""
+                local nick = safeNickname(obj)
                 if nick:lower():find(tool.label:lower(), 1, true) then matched = tool.label; return end
             end
         end)

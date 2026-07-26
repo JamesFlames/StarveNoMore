@@ -423,3 +423,46 @@ def test_generators_manifest_covers_every_generated_lua_file():
     missing = sorted(banner_files - outputs)
     assert not missing, (
         f"generated lua files not recorded in scripts/generators.json: {missing}")
+
+
+def test_lua_doom_track_mirrors_board_geometry():
+    """moveDoomMarker computes the marker's world position from these Lua
+    constants instead of the board's snap points — going through
+    board.positionToWorld made the marker's position depend on the board's
+    Transform scale and on surviving the path-variant reload, and it landed
+    at (-14.2, -15.7), off the board entirely. That means these constants
+    must track the printed geometry themselves."""
+    import sys
+    sys.path.insert(0, SCRIPTS)
+    import board_geometry as g
+
+    src = read_text(os.path.join(LUA_DIR, "setup.lua"))
+    for name, expected in (("DOOM_STEP0_X", g.DOOM_STEP0_WORLD_X),
+                           ("DOOM_STEP30_X", g.DOOM_STEP30_WORLD_X),
+                           ("DOOM_TRACK_Z", g.DOOM_TRACK_WORLD_Z)):
+        m = re.search(rf"^{name}\s*=\s*(-?[\d.]+)", src, re.M)
+        assert m, f"{name} not found in lua/setup.lua"
+        assert abs(float(m.group(1)) - expected) < 0.01, (
+            f"lua {name}={m.group(1)} but board_geometry says {expected} — "
+            "the Doom marker would sit off its printed track")
+
+
+def test_basketball_ring_clears_the_doom_track():
+    """The printed ring around a location must not run through the Doom
+    track: 'the basketball court graphic should not overlap the doom
+    counter'. Basketball is the tight one — it sits nearest the south edge."""
+    import sys
+    sys.path.insert(0, SCRIPTS)
+    import board_geometry as g
+    import path_layouts as pl
+
+    track_top = g.DOOM_TRACK_WORLD_Z + 0.4 + 0.05   # half-cell + a hair
+    problems = []
+    for loc, (wx, wz) in pl.LOCATION_WORLD.items():
+        ring_bottom = wz - pl.LOCATION_RING_R
+        if ring_bottom < track_top and abs(wx) < 11:
+            problems.append(
+                f"{loc}: ring reaches z={ring_bottom:.2f}, Doom track top is "
+                f"z={track_top:.2f}")
+    assert not problems, (
+        "printed location rings overlap the Doom track:\n  " + "\n  ".join(problems))

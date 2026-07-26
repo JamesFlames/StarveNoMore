@@ -36,7 +36,10 @@ TTS_SAVE_DIRS = [
 # until physics or a player fishes them out. (Objects at y < 0 are the
 # deliberate under-table library; the main board and hand zones are fine.)
 TABLE_SURFACE_Y = 1.55
+# The main board is a thin tile resting ON the table, so its CENTRE sits
+# inside the band while its top face is above it - exempt it by tag.
 BAND_EXEMPT_NAMES = {"Custom_Board", "HandTrigger"}
+BAND_EXEMPT_TAGS = {"MainBoard"}
 
 
 def newest_live_save():

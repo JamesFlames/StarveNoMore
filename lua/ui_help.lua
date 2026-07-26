@@ -25,7 +25,9 @@ function getHelpCharContent(player)
             table.insert(lines, "  " .. ch.name .. " — " .. c .. " seat")
         end
         table.insert(lines, "")
-        table.insert(lines, "To act as one of them, switch to their seat: click your name in the player list (top right) and Change Color.")
+        table.insert(lines, "Each seat colour IS a character. To play one of them, take that seat:")
+        table.insert(lines, "click your name in the player list (top right) and choose their colour.")
+        table.insert(lines, "That changes which character you control — not whose turn it is.")
         return table.concat(lines, "\n")
     end
 
@@ -413,24 +415,62 @@ end
 -- H.8 — Notebook tab population. Tab bodies (NOTEBOOK_*) come from
 -- lua/notebook_data.lua (generated from content/notebook/*.md).
 -----------------------------------------------------------------------
+-- TTS's Notes API has addNotebookTab / editNotebookTab / getNotebookTabs /
+-- removeNotebookTab. There is NO setNotebookTabs: calling it threw "cannot
+-- access field setNotebookTabs of userdata<LuaNotes>" and the Notebook stayed
+-- empty all game. (The test stub had invented that method, so nothing caught
+-- it -- see tests/test_tts_api_surface.py.)
+--
+-- Edit-in-place when a tab already exists so repeat calls (every onLoad)
+-- refresh the text instead of stacking duplicate tabs.
+-- The shipped Quick Start text is written for the 7-day Standard game, so on
+-- any other variant its numbers are simply wrong ("Survive 7 nights ... below
+-- 30" during a 3-day Long Weekend with a 15 Doom track). Rewrite them from
+-- DIFFICULTY_PARAMS so the card and the Notebook tab always describe the game
+-- actually being played.
+function quickStartTextForVariant()
+    local d = getDifficulty()
+    local days, limit = d.days or 7, d.doomLimit or 30
+    local text = NOTEBOOK_QUICKSTART or ""
+    text = text:gsub("Survive 7 nights", "Survive " .. days .. " nights")
+    text = text:gsub("7 nights", days .. " nights")
+    text = text:gsub("below 30", "below " .. limit)
+    text = text:gsub("Day 7", "Day " .. days)
+    text = text:gsub("7%-day", days .. "-day")
+    return "[" .. (d.label or "Standard") .. " — " .. days .. " days, Doom track to "
+        .. limit .. "]\n\n" .. text
+end
+
+-- Re-stamp the physical Quick Start notecard for the chosen variant.
+function refreshQuickStartCard()
+    local card = findOneByTag("QuickStart")
+    if not card then return end
+    safecall(function() card.setDescription(quickStartTextForVariant()) end, "QuickStart")
+end
+
 function populateNotebook()
     if not Notes then return end
 
-    Notes.setNotebookTabs({
-        {
-            title = "Quick Start",
-            body  = NOTEBOOK_QUICKSTART,
-            color = "Grey",
-        },
-        {
-            title = "Full Rules",
-            body  = NOTEBOOK_FULL_RULES,
-            color = "Grey",
-        },
-        {
-            title = "Characters",
-            body  = NOTEBOOK_CHARACTERS,
-            color = "Grey",
-        },
-    })
+    local want = {
+        { title = "Quick Start", body = quickStartTextForVariant(), color = "Grey" },
+        { title = "Full Rules",  body = NOTEBOOK_FULL_RULES, color = "Grey" },
+        { title = "Characters",  body = NOTEBOOK_CHARACTERS, color = "Grey" },
+    }
+
+    local existing = {}
+    pcall(function()
+        for _, tab in ipairs(Notes.getNotebookTabs() or {}) do
+            if tab.title then existing[tab.title] = tab.index end
+        end
+    end)
+
+    for _, t in ipairs(want) do
+        local idx = existing[t.title]
+        if idx then
+            Notes.editNotebookTab({ index = idx, title = t.title,
+                                    body = t.body, color = t.color })
+        else
+            Notes.addNotebookTab({ title = t.title, body = t.body, color = t.color })
+        end
+    end
 end

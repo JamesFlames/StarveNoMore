@@ -80,16 +80,90 @@ function onActCook(player, value, id)
         return
     end
     gameState.pendingAction = { type = "cook", color = color }
-    safecall(function() _highlightCookTargets() end, "CookHighlight")
+    -- Recipes come from RECIPE_DATA (generated from content/cards_recipes.csv),
+    -- NOT from cards on the table. Cook used to spawn a 3D button on each
+    -- physical recipe card and highlight them; when those cards moved into the
+    -- hidden library it reported "no recipe cards found" and painted an orange
+    -- highlight on a card underneath the board.
     local n = 0
-    safecall(function() n = _spawnCookButtons() end, "CookTargets")
+    safecall(function() n = _showCookDialog(color) end, "CookDialog")
     if n == 0 then
         gameState.pendingAction = nil
-        broadcastToColor("No recipe cards found on the table.", color, BROADCAST_COLORS.damage)
+        broadcastToColor("Nothing you can cook right now — every recipe needs ingredients you don't hold.",
+            color, BROADCAST_COLORS.damage)
         return
     end
-    _armTargetTimeout()
-    broadcastToColor("Click COOK on a recipe card. Click Cook again to cancel.", color, BROADCAST_COLORS.proc)
+    local tile = getLocationTile("EllieLucaHouse")
+    if tile then safecall(function() tile.highlightOn("Orange", HIGHLIGHT_DURATION) end, "CookHighlight") end
+end
+
+-- Fill the cook dialog with the recipes this player can actually make.
+COOK_DIALOG_SLOTS = 10
+_cookDialogIds = {}
+
+-- canAfford() answers for MARKET cards (it looks up MARKET_COSTS by card id);
+-- a recipe hands us an explicit cost table, so check that directly.
+local function _canPayCost(color, cost)
+    local res = getPlayerResources(color)
+    for r, qty in pairs(cost or {}) do
+        if (res[r] or 0) < (qty or 0) then return false end
+    end
+    return true
+end
+
+function _showCookDialog(color)
+    if not UI then return 0 end
+    local shown, hidden = 0, 0
+
+    -- Stable order so the list doesn't shuffle between openings.
+    local ids = {}
+    for id in pairs(RECIPE_DATA or {}) do table.insert(ids, id) end
+    table.sort(ids)
+
+    _cookDialogIds = {}
+    for _, id in ipairs(ids) do
+        local recipe = RECIPE_DATA[id]
+        local cost = recipeIngredientCost(color, recipe)
+        if _canPayCost(color, cost) then
+            if shown < COOK_DIALOG_SLOTS then
+                shown = shown + 1
+                _cookDialogIds[shown] = id
+                setButtonLabel("cookOpt" .. shown,
+                    (recipe.name or id) .. "   (" .. _fmtCost(cost) .. ")")
+                UI.setAttribute("cookOpt" .. shown, "active", "true")
+            else
+                hidden = hidden + 1
+            end
+        end
+    end
+    for i = shown + 1, COOK_DIALOG_SLOTS do
+        UI.setAttribute("cookOpt" .. i, "active", "false")
+    end
+    if shown == 0 then
+        UI.hide("cookDialog")
+        return 0
+    end
+
+    UI.setAttribute("cookDialogHint", "text",
+        "Ingredients are paid automatically from what you hold."
+        .. (hidden > 0 and ("  (" .. hidden .. " more affordable recipes not shown)") or ""))
+    UI.show("cookDialog")
+    return shown
+end
+
+function onCookOptionClick(player, value, id)
+    local slot = tonumber(id and id:match("cookOpt(%d+)")) or tonumber(value)
+    local recipeId = _cookDialogIds and _cookDialogIds[slot]
+    UI.hide("cookDialog")
+    gameState.pendingAction = nil
+    if not recipeId then return end
+    doCook(player.color, recipeId)
+end
+
+function onCookCancel(player)
+    UI.hide("cookDialog")
+    gameState.pendingAction = nil
+    broadcastToColor("Cook cancelled.", player.color, BROADCAST_COLORS.proc)
 end
 
 function onActFight(player, value, id)
@@ -273,7 +347,7 @@ function onActTrade(player, value, id)
             elseif same then note = "same tile — 1 action"
             else note = "at " .. (ch.location or "?") .. " — 1 action" end
             UI.setAttribute(btn, "active", "true")
-            UI.setAttribute(btn, "text", ch.name .. "  (" .. note .. ")")
+            setButtonLabel(btn, ch.name .. "  (" .. note .. ")")
         else
             UI.setAttribute(btn, "active", "false")
         end
@@ -348,7 +422,7 @@ function onActRally(player, value, id)
         local ch = gameState.activeChars[c]
         if eligible[c] and ch then
             UI.setAttribute(btn, "active", "true")
-            UI.setAttribute(btn, "text", ch.name .. "  (at " .. (ch.location or "?") .. ", " ..
+            setButtonLabel(btn, ch.name .. "  (at " .. (ch.location or "?") .. ", " ..
                 (ch.actionsLeft or 0) .. " action(s) left)")
         else
             UI.setAttribute(btn, "active", "false")

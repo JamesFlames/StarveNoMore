@@ -305,28 +305,45 @@ function revealDawnCard()
     -- Yesterday's card moves itself to the discard pile first.
     safecall(discardActiveDawnCard, "DawnDiscard")
 
-    deck.takeObject({
+    -- Assigned immediately below, read by the callback once the card lands.
+    local preflight = nil
+
+    local taken = deck.takeObject({
         position = {DAWN_REVEAL_POS.x, DAWN_REVEAL_POS.y, DAWN_REVEAL_POS.z},
         rotation = {0, 180, 0},  -- face up
         smooth   = true,
         callback_function = function(card)
-            -- The handle can be dead by the time this fires (the card
-            -- merged with something at the reveal spot) — touching any
-            -- field then throws "cannot access field getNickname of
-            -- userdata". Recover by re-finding the card at the spot.
-            local ok = pcall(function() _dawnCardRevealed(card) end)
-            if not ok then
-                Wait.time(function()
-                    local found = _findCardAtDawnRevealSpot()
-                    if found then
-                        safecall(function() _dawnCardRevealed(found) end, "DawnReveal")
-                    else
-                        broadcastEvent("proc", "The Dawn card landed oddly — check the reveal spot by the Dawn discard pile.")
-                    end
-                end, 0.6)
-            end
+            safecall(function() _dawnCardRevealed(card, preflight) end, "DawnReveal")
         end
     })
+
+    -- takeObject's handle is alive the instant it returns. By the time the
+    -- callback fires the card may have merged into a deck at the reveal spot,
+    -- killing the handle — and then re-finding it fails too, because what is
+    -- sitting there is a deck, not a card. Snapshot the identity now, while
+    -- the handle is guaranteed good, so the Dawn card is still announced and
+    -- still resolves even if every handle dies in flight.
+    preflight = _cardSnapshot(taken)
+end
+
+-- Identity snapshot of a card handle, or nil if the handle is already dead.
+-- Any field access on a destroyed object throws "cannot access field
+-- getNickname of userdata<LuaObject>" (docs/tts-interface.md), so every read
+-- goes through one pcall.
+function _cardSnapshot(obj)
+    if not obj then return nil end
+    local ok, info = pcall(function()
+        local tags = {}
+        if obj.getTags then tags = obj.getTags() or {} end
+        return {
+            name = obj.getNickname() or "",
+            desc = obj.getDescription() or "",
+            guid = (obj.getGUID and obj.getGUID()) or obj.guid,
+            tags = tags,
+        }
+    end)
+    if ok and info and info.name ~= "" then return info end
+    return nil
 end
 
 function _findCardAtDawnRevealSpot()
@@ -340,21 +357,34 @@ function _findCardAtDawnRevealSpot()
     return nil
 end
 
-function _dawnCardRevealed(card)
-    local name = card.getNickname() or "Unknown Dawn"
-    local desc = card.getDescription() or ""
-    broadcastEvent("phase", "DAWN: " .. name)
-    broadcastEvent("proc", desc)
+function _dawnCardRevealed(card, preflight)
+    -- Prefer the handle we were handed; if it died in flight fall back to the
+    -- pre-flight snapshot for the text and re-find a live card on the reveal
+    -- spot for the effect. Either source alone is enough to run the Dawn.
+    local live = card
+    local data = _cardSnapshot(card)
+    if not data then
+        live = _findCardAtDawnRevealSpot()
+        data = preflight or _cardSnapshot(live)
+    end
+    if not data then
+        broadcastEvent("proc", "The Dawn card landed oddly — check the reveal spot by the Dawn discard pile.")
+        return
+    end
+
+    broadcastEvent("phase", "DAWN: " .. data.name)
+    if data.desc ~= "" then broadcastEvent("proc", data.desc) end
 
     gameState.activeDawn = {
-        id = name,
-        title = name,
-        description = desc,
-        cardGuid = card.getGUID and card.getGUID() or card.guid,
+        id = data.name,
+        title = data.name,
+        description = data.desc,
+        cardGuid = data.guid,
     }
 
-    -- Dispatch dawn effect
-    dispatchDawnEffect(card)
+    -- Dispatch dawn effect. `live` may be nil if the card merged away — the
+    -- effect is resolved from the snapshot, and handlers are safecall-wrapped.
+    dispatchDawnEffect(live, data)
 end
 
 

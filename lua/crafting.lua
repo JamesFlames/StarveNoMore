@@ -8,6 +8,43 @@
 -- from the 5-card Market display. This function handles the bookkeeping
 -- and market refill.
 
+-- The Market slot markers used to be big notecards printing this paragraph
+-- beside every slot. A notecard is much wider than a card, so the column lay
+-- across the printed map and hid it ("the market slots are covering the board
+-- up"). The paragraph now rides on the CARD itself, where the player is
+-- already hovering to read the cost — and is stripped again the moment the
+-- card is bought, because "use the Craft action to buy it" is a lie once the
+-- card is in your hand.
+--
+-- The separator doubles as the marker for "already tagged" and as the cut
+-- point for the strip, so the two can never disagree.
+MARKET_HELP_SEP  = "\n\n— MARKET —\n"
+MARKET_HELP_BODY = "One of the 5 shared cards for sale — it belongs to nobody "
+                .. "yet. Use the Craft action to buy it; its resource cost is "
+                .. "paid automatically and a fresh card is dealt onto the empty "
+                .. "slot to take its place."
+
+-- pcall throughout: a freshly dealt card can merge with the one already on
+-- the slot and leave a dead handle (docs/tts-interface.md), and a tooltip is
+-- never worth aborting a deal over.
+function addMarketHelp(card)
+    if not card then return end
+    pcall(function()
+        local d = card.getDescription() or ""
+        if d:find(MARKET_HELP_SEP, 1, true) then return end
+        card.setDescription(d .. MARKET_HELP_SEP .. MARKET_HELP_BODY)
+    end)
+end
+
+function stripMarketHelp(card)
+    if not card then return end
+    pcall(function()
+        local d = card.getDescription() or ""
+        local at = d:find(MARKET_HELP_SEP, 1, true)
+        if at then card.setDescription(d:sub(1, at - 1)) end
+    end)
+end
+
 function doCraft(color, marketSlotIndex)
     if not spendAction(color, "Craft") then return end
 
@@ -63,6 +100,7 @@ function doCraft(color, marketSlotIndex)
     broadcastEvent("gain", char.name .. " crafts " .. itemName .. " — dealt to your hand.")
 
     -- Move card to the player's hand zone
+    stripMarketHelp(card)
     local handZone = getHandZone(color)
     if handZone then
         card.setPositionSmooth(handZone.getPosition() + Vector(0, 1, 0))
@@ -103,8 +141,9 @@ function refillMarketSlot(slot)
         rotation = {0, 180, 0},  -- face up
         smooth   = true,
         callback_function = function(newCard)
+            addMarketHelp(newCard)
             -- pcall: the refilled card can merge with the placeholder/next
-            -- card on the slot, leaving a dead handle (see docs/tts-runtime.md).
+            -- card on the slot, leaving a dead handle (see docs/tts-interface.md).
             pcall(function()
                 broadcastEvent("proc", "Market refilled: " .. (newCard.getNickname() or "?"))
             end)

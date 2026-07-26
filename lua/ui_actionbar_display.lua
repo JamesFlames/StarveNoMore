@@ -18,11 +18,19 @@ function validateActivePlayer(color)
         local activeChar = active and gameState.activeChars[active]
         local msg
         if activeChar then
-            msg = "It's " .. activeChar.name .. "'s turn (the " .. active ..
-                " seat) — you're on the " .. tostring(color) .. " seat. " ..
-                "Playing " .. activeChar.name .. " yourself? Switch seats: click your name " ..
-                "in the player list (top right) and Change Color to " .. active ..
-                ". Or use Host Controls > End Turn / Pass to move the turn along."
+            -- "Change Color" is Tabletop Simulator's own control, and its
+            -- name says nothing about what it does here. Spell it out: in this
+            -- game one seat colour = one character, so switching colour is how
+            -- you take over a character. It does NOT change whose turn it is.
+            msg = "It's " .. activeChar.name .. "'s turn — " .. activeChar.name ..
+                " is the " .. active .. " seat, and you are sitting in the " ..
+                tostring(color) .. " seat.\n\n" ..
+                "Each seat colour IS a character, so to play " .. activeChar.name ..
+                " you take that seat: click your name in the player list (top " ..
+                "right) and choose " .. active .. ". That only changes which " ..
+                "character YOU control — it does not change whose turn it is, " ..
+                "and nobody's cards or stats move.\n\n" ..
+                "To simply move play on instead, use Host Controls > End Turn."
         else
             msg = "It's not your turn."
         end
@@ -175,7 +183,7 @@ function refreshActionButtonStates(color)
     local snap = gameState.undoSnapshot
     setActionEnabled("actUndo", snap ~= nil and snap.color == color)
 
-    -- Pass: always available
+    -- End Turn: always available
     setActionEnabled("actPass", true)
 
     -- H.7: Update why-disabled tooltip text
@@ -185,11 +193,25 @@ end
 -- Unavailable actions are HIDDEN, not dimmed: a bar of grey buttons made
 -- players wonder which ones they could click. What remains is exactly
 -- what the player can do right now.
+-- Which action buttons are currently offered. getNextCTA (ui_banner.lua)
+-- highlights the single entry when a player has exactly one thing they can
+-- do, so "the only thing available" is never something you have to hunt for.
+ENABLED_ACTIONS = {}
+
 function setActionEnabled(buttonId, enabled)
+    ENABLED_ACTIONS[buttonId] = enabled or nil
     if enabled then
-        UI.setAttribute(buttonId, "active", "true")
-        UI.setAttribute(buttonId, "interactable", "true")
-        UI.setAttribute(buttonId, "color", "#1E3228E6")
+        -- Colour comes from the shared constants, never a literal: this line
+        -- used to re-apply the OLD dark plate at runtime and overwrite the
+        -- XML, and because it set `color` without `textColor` the result was
+        -- the dark-text-on-dark-plate bar all over again. Set both, in one
+        -- call, so the pair can never come apart (docs/tts-interface.md).
+        UI.setAttributes(buttonId, {
+            active       = "true",
+            interactable = "true",
+            color        = BTN_DARK_PLATE,
+            textColor    = BTN_ON_DARK,
+        })
     else
         UI.setAttribute(buttonId, "active", "false")
     end

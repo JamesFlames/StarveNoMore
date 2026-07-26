@@ -252,7 +252,7 @@ DAWN_EFFECTS["P1_RUMOR"] = {
                 smooth   = true,
                 callback_function = function(peeked)
                     -- pcall: a drawn card can arrive as a dead handle (merged
-                    -- at the reveal spot) — see docs/tts-runtime.md.
+                    -- at the reveal spot) — see docs/tts-interface.md.
                     pcall(function()
                         broadcastEvent("proc", "Peeked: " .. (peeked.getNickname() or "???") ..
                             ". Returning to top of deck.")

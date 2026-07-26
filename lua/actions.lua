@@ -297,9 +297,8 @@ function playerHasBackpack(color)
     local charName = colorToCharacter(color)
     if not charName then return false end
     for _, obj in ipairs(getPlayerCarriedObjects(color, charName)) do
-        if obj.hasTag and obj.hasTag("M_BACKPACK") then return true end
-        local nick = (obj.getNickname and obj.getNickname()) or ""
-        if nick:lower():find("backpack", 1, true) then return true end
+        if safeHasTag(obj, "M_BACKPACK") then return true end
+        if safeNickname(obj):lower():find("backpack", 1, true) then return true end
     end
     return false
 end

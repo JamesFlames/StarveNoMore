@@ -248,7 +248,7 @@ function showSignatureTargetDialog(color)
         if ch and not ch.down then
             any = true
             UI.setAttribute(btn, "active", "true")
-            UI.setAttribute(btn, "text", ch.name .. "  (Health " .. ch.health .. "/" .. ch.maxHealth .. ")")
+            setButtonLabel(btn, ch.name .. "  (Health " .. ch.health .. "/" .. ch.maxHealth .. ")")
         else
             UI.setAttribute(btn, "active", "false")
         end

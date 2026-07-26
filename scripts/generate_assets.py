@@ -18,6 +18,7 @@ import math
 from PIL import Image, ImageDraw, ImageFont
 
 import board_geometry  # doom-track pixel geometry shared with build_save.py
+import path_layouts    # the map graph, shared with the Lua adjacency table
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -557,7 +558,10 @@ def generate_player_board(char_name, data):
 # ---------------------------------------------------------------------------
 # MAIN BOARD (4096x4096)
 # ---------------------------------------------------------------------------
-def generate_main_board():
+def generate_main_board(variant=None):
+    """Render the board for a path variant. The printed lines ARE the map:
+    whatever this draws, LOCATION_ADJACENCY must allow (path_layouts.py)."""
+    variant = variant or path_layouts.DEFAULT_VARIANT
     S = 4096
     img = Image.new("RGB", (S, S), (35, 32, 28))
     draw = ImageDraw.Draw(img)
@@ -575,12 +579,17 @@ def generate_main_board():
     # in a big font — that's what makes the location names readable on the
     # table (the tile itself is pure illustration).
     #   (world x, world z, ring colour, label side)
+    _ring_colors = {
+        "JamesHouse":      (PAL["blue"],   "below"),
+        "EllieLucaHouse":  (PAL["orange"], "below"),
+        "RaymanHouse":     (PAL["green"],  "below"),
+        "BasketballCourt": (PAL["grey"],   "below"),   # was "above": it collided with Ellie & Luca's label
+        "BadmintonCourt":  (PAL["teal"],   "below"),
+    }
     locations = {
-        "James's House":       (-8, -4, PAL["blue"],   "below"),
-        "Ellie & Luca's House":( 0,  0, PAL["orange"], "below"),
-        "Rayman's House":      ( 8, -4, PAL["green"],  "below"),
-        "Basketball Court":    ( 0, -8, PAL["grey"],   "above"),
-        "Badminton Court":     ( 0,  8, PAL["teal"],   "below"),
+        k: (path_layouts.LOCATION_WORLD[k][0], path_layouts.LOCATION_WORLD[k][1],
+            c, side)
+        for k, (c, side) in _ring_colors.items()
     }
     node_px = {
         name: (int(board_geometry.world_to_px(wx)), int(board_geometry.world_to_py(wz)))
@@ -588,16 +597,9 @@ def generate_main_board():
     }
 
     # --- PATH EDGES (connections) ---
-    paths = [
-        ("James's House", "Ellie & Luca's House"),
-        ("James's House", "Basketball Court"),
-        ("Rayman's House", "Ellie & Luca's House"),
-        ("Rayman's House", "Basketball Court"),
-        ("Ellie & Luca's House", "Basketball Court"),
-        ("Ellie & Luca's House", "Badminton Court"),
-        ("James's House", "Badminton Court"),
-        ("Rayman's House", "Badminton Court"),
-    ]
+    # THE PRINTED LINES ARE THE MAP. Drawn from the shared layout table so the
+    # board can never show a route the Move action refuses (path_layouts.py).
+    paths = path_layouts.PATH_LAYOUTS[variant]
 
     # Draw paths first (behind nodes)
     for loc_a, loc_b in paths:
@@ -620,17 +622,17 @@ def generate_main_board():
     # centre, so everything readable goes in the ring's annulus (between
     # the 2.5-unit tile half-width and the 3.8-unit ring): the name sits
     # on the arc nearest the open side, the yields line just outside it.
-    PX_PER_UNIT = S / (2.0 * board_geometry.BOARD_SCALE)
-    node_r = int(3.8 * PX_PER_UNIT)          # ring peeks out around the tile
-    name_off = int(3.05 * PX_PER_UNIT)       # name line, in the annulus
-    info_off = int(3.6 * PX_PER_UNIT)        # yields line, just outside
+    PX_PER_UNIT = S / (2.0 * board_geometry.BOARD_WORLD_HALF)
+    node_r = int(path_layouts.LOCATION_RING_R * PX_PER_UNIT)   # peeks out around the tile
+    name_off = int((path_layouts.LOCATION_RING_R - 0.50) * PX_PER_UNIT)  # name, in the annulus
+    info_off = int((path_layouts.LOCATION_RING_R - 0.10) * PX_PER_UNIT)  # yields, just inside the ring
 
     yield_info = {
-        "James's House":       "Energy, Battery, Food",
-        "Ellie & Luca's House":"Food, Food, Cloth + Crockpot",
-        "Rayman's House":      "Metal, Battery, Food",
-        "Basketball Court":    "Wood, Metal, Cloth",
-        "Badminton Court":     "Cloth, Wood, Metal",
+        "JamesHouse":      "Energy, Battery, Food",
+        "EllieLucaHouse":  "Food, Food, Cloth + Crockpot",
+        "RaymanHouse":     "Metal, Battery, Food",
+        "BasketballCourt": "Wood, Metal, Cloth",
+        "BadmintonCourt":  "Cloth, Wood, Metal",
     }
 
     for name, (wx, wz, color, side) in locations.items():
@@ -650,7 +652,8 @@ def generate_main_board():
             ny, iy = cy - info_off, cy - name_off
         else:
             ny, iy = cy + name_off, cy + info_off
-        centered_text(draw, cx, ny, name, FONT_BOARD_NAME, color)
+        centered_text(draw, cx, ny, path_layouts.LOCATION_LABELS[name],
+                      FONT_BOARD_NAME, color)
         centered_text(draw, cx, iy, yield_info.get(name, ""), FONT_BOARD_YIELD, PAL["text"])
 
     # --- DOOM TRACK — horizontal strip along the SOUTH edge (the only band
@@ -661,7 +664,7 @@ def generate_main_board():
     doom_y = int(board_geometry.DOOM_TRACK_PX_Y)
     x0 = int(board_geometry.DOOM_STEP0_PX_X - step_w / 2)
     x30 = int(board_geometry.DOOM_STEP0_PX_X + 30.5 * step_w)
-    cell_h = int(0.5 * PX_PER_UNIT)   # half a world unit tall each side
+    cell_h = int(0.4 * PX_PER_UNIT)   # slimmer: the track sits close to the board edge
 
     # Track background
     draw.rounded_rectangle([x0 - 30, doom_y - cell_h - 30, x30 + 30, doom_y + cell_h + 30],
@@ -702,15 +705,22 @@ def generate_main_board():
     t_y = int(board_geometry.world_to_py(11.0))
     centered_text(draw, t_x, t_y, "STARVE NO MORE", FONT_BOARD_TITLE, PAL["gold"])
     centered_text(draw, t_x, t_y + 80, "Survive 7 Nights. Hold the Doom.", FONT_BOARD_LABEL, PAL["text"])
+    centered_text(draw, t_x, t_y + 130, variant.upper() + " LAYOUT", FONT_BOARD_LABEL, PAL["border"])
 
     # --- DAY COUNTER frame — drawn around the physical Day Counter's real
     # position (world (-10, 8), see build_save.py) so the printed frame and
     # the object actually line up on the table. ---
-    dc_x = int(board_geometry.world_to_px(-10))
-    dc_y = int(board_geometry.world_to_py(8))
-    draw.rounded_rectangle([dc_x - 300, dc_y - 140, dc_x + 300, dc_y + 140],
+    _dcx, _dcz = board_geometry.DAY_COUNTER_WORLD
+    dc_x = int(board_geometry.world_to_px(_dcx))
+    dc_y = int(board_geometry.world_to_py(_dcz))
+    # Sized to the Counter gadget's MEASURED footprint (2.97 x 1.95 world
+    # units, auditObjectFootprints) plus margin: the old 600x280px frame was
+    # 3.52 x 1.64 world, shorter than the counter, so the gadget overhung it.
+    _dc_w = int((2.97 / 2 + 0.30) / (2 * board_geometry.BOARD_WORLD_HALF) * S)
+    _dc_h = int((1.95 / 2 + 0.30) / (2 * board_geometry.BOARD_WORLD_HALF) * S)
+    draw.rounded_rectangle([dc_x - _dc_w, dc_y - _dc_h, dc_x + _dc_w, dc_y + _dc_h],
                            radius=15, fill=None, outline=PAL["border"], width=4)
-    centered_text(draw, dc_x, dc_y + 190, "DAY COUNTER", FONT_BOARD_YIELD, PAL["gold"])
+    centered_text(draw, dc_x, dc_y + _dc_h + 55, "DAY COUNTER", FONT_BOARD_YIELD, PAL["gold"])
 
     # (No printed market/deck boxes: the Market slots are physical notecards
     # west of the board and the decks sit on the north edge; the old printed
@@ -737,8 +747,18 @@ def generate_main_board():
     # image is rotated here once — everything above reads upright in play.
     img = img.rotate(180)
 
-    img.save(os.path.join(DIRS["board"], "main_board.png"))
-    print(f"  Main board: main_board.png ({S}x{S})")
+    # One image per variant, plus main_board.png for the default (the save
+    # ships that one; setup swaps to the picked variant at runtime).
+    name = path_layouts.board_art_name(variant) + ".png"
+    img.save(os.path.join(DIRS["board"], name))
+    if variant == path_layouts.DEFAULT_VARIANT:
+        img.save(os.path.join(DIRS["board"], "main_board.png"))
+    print(f"  Main board [{variant}]: {name} ({S}x{S})")
+
+
+def generate_all_main_boards():
+    for v in path_layouts.VARIANTS:
+        generate_main_board(v)
 
 # ---------------------------------------------------------------------------
 # PATH DECORATION TILES (3 x 512x512)
@@ -778,6 +798,44 @@ def generate_path_tiles():
         print(f"  Path tile: path_{name}.png")
 
 # ---------------------------------------------------------------------------
+# MARKET SLOT FRAME (384x526)
+# ---------------------------------------------------------------------------
+def generate_market_slot_frame():
+    """An empty card-shaped frame — the Market slot markers.
+
+    They used to be full-size TTS Notecards printing the whole "use the Craft
+    action to buy it" paragraph. A notecard is far bigger than a card, so the
+    column lay across the printed map and hid it; the paragraph now rides on
+    the card's own tooltip (addMarketHelp, lua/crafting.lua) and the marker is
+    just this outline, a shade bigger than the card that sits on it. The slot
+    NUMBER is a separate flat 3DText north of the frame (build_save.table_label)
+    so it stays readable once a card covers the frame.
+
+    No text and 2-fold symmetric, so it reads the same either way up — the
+    tile still carries the ry=180 flat-art convention like the location tiles.
+    Aspect ratio must match MARKET_SLOT_W:MARKET_SLOT_L in build_save.py.
+    """
+    W, H = 384, 526
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+
+    # Recessed well: dark enough to read as "a card goes here" against the
+    # felt, translucent so it never competes with the card laid on top.
+    draw.rounded_rectangle([6, 6, W - 6, H - 6], radius=26,
+                           fill=(22, 20, 18, 150),
+                           outline=PAL["border"] + (210,), width=4)
+
+    # Corner brackets — the "empty slot" read at a glance from table height.
+    arm = 54
+    for cx, cy, dx, dy in ((30, 30, 1, 1), (W - 30, 30, -1, 1),
+                           (30, H - 30, 1, -1), (W - 30, H - 30, -1, -1)):
+        draw.line([cx, cy, cx + dx * arm, cy], fill=PAL["gold"] + (230,), width=6)
+        draw.line([cx, cy, cx, cy + dy * arm], fill=PAL["gold"] + (230,), width=6)
+
+    img.save(os.path.join(DIRS["board"], "market_slot.png"))
+    print(f"  Market slot frame: market_slot.png ({W}x{H})")
+
+# ---------------------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------------------
 def main():
@@ -807,10 +865,13 @@ def main():
         generate_player_board(char_name, data)
 
     print("\nGenerating main board...")
-    generate_main_board()
+    generate_all_main_boards()
 
     print("\nGenerating path tiles...")
     generate_path_tiles()
+
+    print("\nGenerating market slot frame...")
+    generate_market_slot_frame()
 
     print("\n=== DONE ===")
     print(f"Tokens:  {DIRS['tokens']}")

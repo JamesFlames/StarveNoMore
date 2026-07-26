@@ -261,19 +261,6 @@ function _spawnCraftButtons()
     return n
 end
 
-local function _recipeIdFromCard(card)
-    for _, tag in ipairs(card.getTags()) do
-        if RECIPE_DATA and RECIPE_DATA[tag] then return tag end
-    end
-    local nick = card.getNickname() or ""
-    if RECIPE_DATA then
-        for id, r in pairs(RECIPE_DATA) do
-            if r.name == nick then return id end
-        end
-    end
-    return nil
-end
-
 -- "2 Food + 1 Wood" from a { Food = 2, Wood = 1 } cost table (for tooltips).
 local function _fmtCost(cost)
     local parts = {}
@@ -283,25 +270,6 @@ local function _fmtCost(cost)
         end
     end
     return #parts > 0 and table.concat(parts, " + ") or "no ingredients"
-end
-
-function _spawnCookButtons()
-    local n = 0
-    local color = gameState.activeColor
-    for _, card in ipairs(findAllByTag("RecipeCard")) do
-        local rid = _recipeIdFromCard(card)
-        if rid then
-            _recipeIdByGuid[card.getGUID()] = rid
-            local recipe = RECIPE_DATA[rid]
-            local cost = color and recipeIngredientCost(color, recipe) or (recipe.ingredients or {})
-            _spawnTargetButton(card, "COOK", "onCookTargetClick",
-                "Cook " .. (recipe.name or rid) .. " — ingredients paid automatically: " ..
-                _fmtCost(cost) .. " (1 action)",
-                false)
-            n = n + 1
-        end
-    end
-    return n
 end
 
 -- Fight targets: everything fightable at the active player's tile gets a
@@ -404,23 +372,6 @@ function onCraftTargetClick(obj, clickerColor, altClick)
     updateActivePlayerIndicator()
 end
 
-function onCookTargetClick(obj, clickerColor, altClick)
-    local pa = gameState.pendingAction
-    if not (pa and pa.type == "cook") then return end
-    if clickerColor ~= pa.color then
-        broadcastToColor("Only the cooking player may pick the recipe.", clickerColor, BROADCAST_COLORS.damage)
-        return
-    end
-    local rid = _recipeIdByGuid[obj.getGUID()]
-    if not rid then return end
-    local color = pa.color
-    gameState.pendingAction = nil
-    _clearTargetButtons()
-    safecall(function() doCook(color, rid) end, "Cook")
-    refreshPhaseBanner()
-    updateActivePlayerIndicator()
-end
-
 local function _resolveFightClick(obj, clickerColor, together)
     local pa = gameState.pendingAction
     if not (pa and pa.type == "fight") then return end
@@ -478,12 +429,10 @@ function _highlightCraftTargets(color)
     end
 end
 
+-- Cook highlights only the Crockpot tile. It also used to highlight every
+-- "RecipeCard", which drew an orange outline on cards parked UNDER the board
+-- once the recipe rack moved into the hidden library.
 function _highlightCookTargets()
-    -- Recipe cards live on a reference rack; tag is "RecipeCard".
-    for _, card in ipairs(findAllByTag("RecipeCard")) do
-        card.highlightOn("Orange", HIGHLIGHT_DURATION)
-    end
-    -- Crockpot is at EllieLucaHouse; highlight that tile too.
     local tile = getLocationTile("EllieLucaHouse")
     if tile then tile.highlightOn("Orange", HIGHLIGHT_DURATION) end
 end

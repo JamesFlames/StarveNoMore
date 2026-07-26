@@ -16,7 +16,7 @@ WHATNOW_HINTS.Dawn = {
 WHATNOW_HINTS.Day = {
     all_passed = "All players have finished. The host should advance to Dusk.",
     default = "It's your turn, {name}. You have {actionsLeft} action(s) left. Choose from your Action Bar: Move, Gather, Craft, Cook, Fight, Rest, or Cleanse.",
-    no_actions = "You've used all 3 actions. Click Pass to end your turn.",
+    no_actions = "You've used all 3 actions. Click End Turn.",
 }
 
 WHATNOW_HINTS.Stats = {

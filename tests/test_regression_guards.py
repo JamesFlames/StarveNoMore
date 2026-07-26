@@ -11,7 +11,12 @@ caught before the next one ships, not just the one instance that was fixed:
     complaints);
   - object handles dereferenced in a takeObject callback without a pcall
     guard (the "cannot access field getNickname of userdata" crash, hit
-    three separate times: pry, dawn reveal, threat reveal).
+    four separate times: pry, dawn reveal, threat reveal, gather);
+  - a Transform scale set from a mesh-extent assumption instead of a
+    measurement (the board painted its art across +/-110 world units while
+    every piece was authored inside +/-12, heaping them in the middle);
+  - "hidden" objects parked outside whatever is meant to cover them (the
+    whole under-table library sat in plain sight beside a glass table).
 
 See docs/tts-runtime.md for the underlying engine behaviours.
 """
@@ -53,7 +58,7 @@ def test_grouped_tiles_do_not_overlap_at_spawn():
         if o.get("Name") != "Custom_Tile":
             continue
         cat = _category(o.get("Tags", []))
-        if cat in ("PlayerBoard", "Location"):
+        if cat in ("PlayerBoard", "Location", "MarketSlot"):
             t = o["Transform"]
             groups.setdefault(cat, []).append(
                 (o.get("Nickname") or o["Name"], t["posX"], t["posZ"], t["scaleX"], t["scaleZ"]))
@@ -388,3 +393,477 @@ def test_gamestate_fields_initialised_before_indexing():
         "a fresh setup or a loaded old save crashes with 'attempt to index a "
         "nil value'. Add the default to migrateGameState() (global.lua):\n  "
         + "\n  ".join(problems))
+
+
+# --------------------------------------------------------------------------
+# 8. The board art and the pieces must share one coordinate space.
+# --------------------------------------------------------------------------
+# 2026-07-25: every piece sat in a heap in the middle of the board while the
+# printed rings / DAY COUNTER frame / Doom track sat far outside them. Nothing
+# was misplaced — the Custom_Board mesh is ~9.14 local units per side at scale
+# 1, not the 1.0 the build assumed, so Transform scale 12 painted the art
+# across +/-110 world units while every object was authored inside +/-12.
+# The pieces then occupied ~11% of the board. Guard the invariant that makes
+# printed art and pieces line up: mesh_half * transform_scale == world_half.
+
+def _board(save):
+    for o in save["ObjectStates"]:
+        if "MainBoard" in o.get("Tags", []):
+            return o
+    raise AssertionError("no object tagged MainBoard in the built save")
+
+
+def test_board_art_spans_the_world_square_the_pieces_live_in():
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import board_geometry as g
+
+    board = _board(_load_save())
+    t = board["Transform"]
+    painted_half = g.BOARD_MESH_HALF * t["scaleX"]
+    assert abs(painted_half - g.BOARD_WORLD_HALF) < 0.05, (
+        f"the board paints its art across +/-{painted_half:.2f} world units but every "
+        f"object position is authored inside +/-{g.BOARD_WORLD_HALF}. The pieces will "
+        f"heap up in the middle {g.BOARD_WORLD_HALF / painted_half:.0%} of the board "
+        f"while the printed rings/track sit outside them. Set the Custom_Board "
+        f"Transform scale to BOARD_TRANSFORM_SCALE ({g.BOARD_TRANSFORM_SCALE:.5f}); "
+        f"re-measure BOARD_MESH_HALF with auditBoardGeometry() if the mesh changed."
+    )
+    assert abs(t["scaleX"] - t["scaleZ"]) < 1e-6, "board must be square in x/z"
+
+
+def test_board_snap_points_round_trip_to_world_coordinates():
+    """AttachedSnapPoints are board-LOCAL; TTS multiplies them by the Transform
+    scale. Authoring them in world units (or dividing by the wrong constant)
+    sends moveDoomMarker to the wrong place — it once flung the marker to
+    (120, 72), and the doom-track snaps must land back on the printed track."""
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import board_geometry as g
+
+    save = _load_save()
+    board = _board(save)
+    scale = board["Transform"]["scaleX"]
+
+    # Snap points are local, so the board's own ROTATION moves them too — a
+    # ry=180 on the board negates every snap while the tiles it is supposed to
+    # line up with stay at their absolute world coordinates. The board must
+    # therefore stay at rotY=0 and compensate for TTS's flat-art convention in
+    # the PNG instead (docs/tts-runtime.md "Rotations"); this once shipped with
+    # ry=180 and rotated the whole printed map 180 degrees away from the pieces.
+    assert board["Transform"]["rotY"] % 360 == 0, (
+        f"the main board carries rotY={board['Transform']['rotY']}: that rotates the "
+        f"printed art away from the pieces AND negates every AttachedSnapPoint. "
+        f"Pre-rotate main_board.png in generate_assets instead.")
+
+    def to_world(sp):
+        """Board-local snap -> world. rotY is asserted 0 above, so this is a
+        plain scale; keep it in one place so the two checks below can't drift."""
+        return sp["Position"]["x"] * scale, sp["Position"]["z"] * scale
+
+    # A few slots sit deliberately just off the board (the Market column runs
+    # down its west flank), so allow a margin — this bound is here to catch an
+    # order-of-magnitude error, not to police the edge.
+    limit = g.BOARD_WORLD_HALF + 2.0
+    problems = []
+    for sp in board.get("AttachedSnapPoints", []) or []:
+        wx, wz = to_world(sp)
+        for tag in sp.get("Tags", []):
+            if abs(wx) > limit or abs(wz) > limit:
+                problems.append(
+                    f"{tag}: local ({sp['Position']['x']:.3f}, {sp['Position']['z']:.3f}) "
+                    f"-> world ({wx:.2f}, {wz:.2f}), way off a +/-{g.BOARD_WORLD_HALF} board")
+    assert not problems, (
+        "board snap points do not land near the board once TTS scales them:\n  "
+        + "\n  ".join(problems))
+
+    snaps = {tag: sp for sp in board["AttachedSnapPoints"]
+             for tag in sp.get("Tags", [])}
+
+    # The doom snaps must reproduce the printed track exactly. This is the
+    # assertion that catches a wrong world->local divisor: scaling the snaps
+    # by the wrong constant keeps them inside the board (so no bounds check
+    # would fire) while sliding the marker off its printed cell.
+    for step in (0, 15, 30):
+        sp = snaps[f"Snap:Doom:{step}"]
+        wx, wz = to_world(sp)
+        ex, ez = g.doom_step_world(step)
+        assert abs(wx - ex) < 0.01 and abs(wz - ez) < 0.01, (
+            f"Snap:Doom:{step} lands at ({wx:.2f}, {wz:.2f}); the printed cell is "
+            f"at ({ex:.2f}, {ez:.2f}) — the marker will sit off its track")
+
+    # Every location snap must land on the tile it is supposed to hold.
+    tiles = {t.split(":", 1)[1]: o["Transform"]
+             for o in save["ObjectStates"] for t in o.get("Tags", [])
+             if t.startswith("Location:")}
+    for loc, tr in tiles.items():
+        sp = snaps.get(f"Snap:Location:{loc}")
+        assert sp, f"no Snap:Location:{loc} on the board"
+        wx, wz = to_world(sp)
+        assert abs(wx - tr["posX"]) < 0.01 and abs(wz - tr["posZ"]) < 0.01, (
+            f"Snap:Location:{loc} lands at ({wx:.2f}, {wz:.2f}) but the tile sits at "
+            f"({tr['posX']:.2f}, {tr['posZ']:.2f}) — the printed ring and the tile "
+            f"have drifted apart")
+
+
+# --------------------------------------------------------------------------
+# 9. Hidden objects must actually be hidden.
+# --------------------------------------------------------------------------
+# Everything players never touch (decks, supply bags, benched boards) is
+# parked below the table. That only reads as "hidden" while it sits under
+# something opaque: the board covers +/-BOARD_WORLD_HALF, and the table
+# covers a bit more. Parked further out it is in plain sight beside the
+# table — which is exactly what showed up when the board was corrected from
+# +/-110 world units down to +/-12, with a glass table on top.
+
+def test_under_table_objects_stay_within_the_board_footprint():
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import board_geometry as g
+
+    save = _load_save()
+    half = g.BOARD_WORLD_HALF
+    strays = []
+    for o in save["ObjectStates"]:
+        t = o["Transform"]
+        if t["posY"] >= 0:
+            continue          # on the table, meant to be seen
+        if abs(t["posX"]) > half or abs(t["posZ"]) > half:
+            strays.append(
+                f"{(o.get('Nickname') or o.get('Name'))!r} at "
+                f"({t['posX']:.1f}, {t['posY']:.1f}, {t['posZ']:.1f})")
+    assert not strays, (
+        f"objects parked below the table but outside the board's +/-{half} "
+        f"footprint — players see them sitting beside the table:\n  "
+        + "\n  ".join(strays))
+
+
+def test_the_table_is_not_see_through():
+    """A glass top exposes the whole under-table library. Valid TTS tables:
+    Table_Circular / Custom / Glass / Hexagon / None / Octagon / Plastic /
+    Poker / RPG / Square."""
+    table = _load_save().get("Table")
+    assert table not in ("Table_Glass", "Table_None"), (
+        f"Table is {table!r}: everything parked under the table is visible "
+        "through it. Use an opaque table (Table_RPG).")
+
+
+# --------------------------------------------------------------------------
+# 10. Pieces on the board must sit ON it, not inside it.
+# --------------------------------------------------------------------------
+# The BOARD's top surface is higher than the TABLE's: measured in a live game
+# at y ~ 1.79 against a 1.55 tabletop. Anything on the board authored at the
+# table's surface height is swallowed by the board and simply not there —
+# the location tiles (1.65) and the Doom marker (1.72) both vanished that way
+# ("I can't see the graphics for each location", "the doom marker has gone
+# missing"). Same class as the tabletop dead-band, one surface up.
+
+def test_board_pieces_sit_above_the_board_surface():
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import board_geometry as g
+
+    # Read the real value out of build_save.py (it is derived from the board
+    # tile's thickness, so a hardcoded copy here would silently rot).
+    src = read_text(os.path.join(ROOT, "scripts", "build_save.py"))
+    thickness = float(re.search(r"BOARD_TILE_THICKNESS\s*=\s*([\d.]+)", src).group(1))
+    table_y = float(re.search(r"TABLE_SURFACE_Y\s*=\s*([\d.]+)", src).group(1))
+    BOARD_SURFACE_Y = table_y + thickness * g.BOARD_TRANSFORM_SCALE
+    half = g.BOARD_WORLD_HALF
+
+    save = _load_save()
+    buried = []
+    for o in save["ObjectStates"]:
+        t = o["Transform"]
+        tags = o.get("Tags", [])
+        if "MainBoard" in tags or o.get("Name") == "HandTrigger":
+            continue
+        on_board = abs(t["posX"]) <= half and abs(t["posZ"]) <= half
+        if on_board and 0 < t["posY"] < BOARD_SURFACE_Y:
+            buried.append(
+                f"{(o.get('Nickname') or o.get('Name'))!r} at y={t['posY']:.2f} "
+                f"({t['posX']:.1f}, {t['posZ']:.1f})")
+    assert not buried, (
+        f"objects standing on the board below its top surface (y={BOARD_SURFACE_Y}) — "
+        "the board swallows them and they are invisible in play. Author on-board "
+        "spawns through BOARD_PIECE_Y in build_save.py:\n  " + "\n  ".join(buried))
+
+
+# --------------------------------------------------------------------------
+# 11. The printed map and the walkable map must be the same map.
+# --------------------------------------------------------------------------
+# A path variant exists in three places: the board art, the Lua Move graph,
+# and the setup picker. They drifted — the board printed eight edges while
+# LOCATION_ADJACENCY was a hard-coded star, so "Ring" was announced, a line
+# from James's House to the Badminton Court was visible, and walking it was
+# refused. scripts/path_layouts.py is now the single source; these tests are
+# what stop it drifting again.
+
+def _lua_path_layouts():
+    src = read_text(os.path.join(LUA_DIR, "ui_actionbar_core.lua"))
+    block = re.search(r"PATH_LAYOUTS\s*=\s*\{(.*?)\n\}", src, re.S)
+    assert block, "PATH_LAYOUTS table not found in ui_actionbar_core.lua"
+    out = {}
+    for line in block.group(1).splitlines():
+        m = re.match(r"\s*(\w+)\s*=\s*\{(.*)\},\s*$", line)
+        if not m:
+            continue
+        edges = re.findall(r'\{"(\w+)"\s*,\s*"(\w+)"\}', m.group(2))
+        out[m.group(1)] = sorted(tuple(sorted(e)) for e in edges)
+    return out
+
+
+def test_path_layouts_mirror_the_lua_table():
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import path_layouts as pl
+
+    lua = _lua_path_layouts()
+    assert set(lua) == set(pl.PATH_LAYOUTS), (
+        f"variant names differ — python {sorted(pl.PATH_LAYOUTS)} vs "
+        f"lua {sorted(lua)}. Update PATH_LAYOUTS in ui_actionbar_core.lua.")
+    for variant, edges in pl.PATH_LAYOUTS.items():
+        assert lua[variant] == list(edges), (
+            f"{variant}: the board is drawn with {edges} but Move allows "
+            f"{lua[variant]}. Players walk the lines they can see — these must "
+            "match exactly.")
+
+
+def test_every_path_variant_has_board_art():
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import path_layouts as pl
+
+    missing = [v for v in pl.VARIANTS
+               if not os.path.isfile(os.path.join(
+                   ROOT, "art", "board", pl.board_art_name(v) + ".png"))]
+    assert not missing, (
+        f"no board image for {missing} — run scripts/generate_assets.py. "
+        "Setup swaps the board to the picked variant; a missing image leaves "
+        "the previous variant's lines printed under the new routes.")
+
+    # ...and Lua must know where each one lives.
+    assets = read_text(os.path.join(LUA_DIR, "assets.lua"))
+    urls = re.search(r"BOARD_ART_URLS\s*=\s*\{(.*?)\n\}", assets, re.S)
+    assert urls, "BOARD_ART_URLS table not found in lua/assets.lua"
+    for v in pl.VARIANTS:
+        assert re.search(rf"\b{v}\s*=", urls.group(1)), (
+            f"BOARD_ART_URLS has no entry for {v} — applyPathVariant cannot "
+            "repaint the board for that variant.")
+
+
+def test_default_variant_matches_the_shipped_board_image():
+    """The save ships main_board.png; it must be the default variant's art,
+    or a game that never runs setup shows lines the Move graph disagrees with."""
+    import sys, hashlib
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import path_layouts as pl
+
+    board_dir = os.path.join(ROOT, "art", "board")
+    shipped = os.path.join(board_dir, "main_board.png")
+    default = os.path.join(board_dir, pl.board_art_name(pl.DEFAULT_VARIANT) + ".png")
+    assert os.path.isfile(shipped) and os.path.isfile(default), \
+        "run scripts/generate_assets.py"
+
+    def h(p):
+        with open(p, "rb") as f:
+            return hashlib.sha256(f.read()).hexdigest()
+    assert h(shipped) == h(default), (
+        f"main_board.png is not {pl.DEFAULT_VARIANT}'s art. Rerun "
+        "scripts/generate_assets.py, or change DEFAULT_PATH_VARIANT in "
+        "lua/ui_actionbar_core.lua to match.")
+
+
+def test_lua_default_variant_matches_python():
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import path_layouts as pl
+    src = read_text(os.path.join(LUA_DIR, "ui_actionbar_core.lua"))
+    m = re.search(r'DEFAULT_PATH_VARIANT\s*=\s*"(\w+)"', src)
+    assert m, "DEFAULT_PATH_VARIANT not found in ui_actionbar_core.lua"
+    assert m.group(1) == pl.DEFAULT_VARIANT, (
+        f"lua default {m.group(1)!r} != python default {pl.DEFAULT_VARIANT!r}")
+
+
+# --------------------------------------------------------------------------
+# 12. Out-of-play objects must not answer the mouse.
+# --------------------------------------------------------------------------
+# Everything below the table is still a physical object: hovering the board
+# raised tooltips and drew ghost outlines of cards that are not in play
+# ("random tool tips for random cards ... they are supposed to be hidden").
+
+def test_hidden_objects_do_not_answer_the_pointer():
+    noisy = []
+    for o in _load_save()["ObjectStates"]:
+        if o["Transform"]["posY"] < 0 and o.get("Tooltip"):
+            noisy.append(o.get("Nickname") or o.get("Name"))
+    assert not noisy, (
+        "objects parked below the table still show tooltips on hover — the "
+        "player sees ghost cards that are out of play:\n  " + "\n  ".join(noisy))
+
+
+# --------------------------------------------------------------------------
+# 13. Runtime UI colours must not contradict the XML palette.
+# --------------------------------------------------------------------------
+# setActionEnabled re-applied a hard-coded dark plate at runtime, overwriting
+# the light one in the XML — and set `color` without `textColor`, so the bar
+# went back to dark-text-on-dark. Colours belong to the shared constants.
+
+_BTN_COLOR_LITERAL = re.compile(
+    r'UI\.setAttribute\(\s*[^,]+,\s*"color"\s*,\s*"(#[0-9A-Fa-f]+)"')
+
+
+def test_action_buttons_do_not_hardcode_a_plate_colour():
+    problems = []
+    for rel in all_lua_files():
+        src = read_text(os.path.join(LUA_DIR, rel))
+        for i, line in enumerate(src.splitlines(), 1):
+            if line.lstrip().startswith("--"):
+                continue
+            if not _BTN_COLOR_LITERAL.search(line):
+                continue
+            # Only action-bar buttons: banner/tab/toggle tinting is deliberate.
+            if re.search(r'"act[A-Z]\w*"|buttonId', line):
+                problems.append(f"{rel}:{i}: {line.strip()}")
+    assert not problems, (
+        "action-bar button colours set from a literal at runtime. That "
+        "overwrites the XML palette, and setting `color` without `textColor` "
+        "is how the bar ended up dark-on-dark twice. Use setButtonLabel() or "
+        "BTN_DARK_PLATE / BTN_ON_DARK (helpers.lua):\n  " + "\n  ".join(problems))
+
+
+# --------------------------------------------------------------------------
+# 14. Player boards line up square with the game board.
+# --------------------------------------------------------------------------
+# They used to sit on a pentagon at angles like 294.3 and 215.1 degrees, which
+# reads as scattered next to a square board, and the two northern seats hung
+# off the felt. Square to the edges, tops facing in, clear of the board and of
+# the Market column.
+
+def test_player_boards_are_square_to_the_board_and_face_it():
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import board_geometry as g
+    import math
+
+    save = _load_save()
+    half = g.BOARD_WORLD_HALF
+    # Measured from the built save, not hard-coded: the Market column is the
+    # thing the west seats have to clear, and it has moved before.
+    market_west = min(
+        (o["Transform"]["posX"] - o["Transform"]["scaleX"] * g.BOARD_MESH_HALF
+         for o in save["ObjectStates"]
+         if any(t.startswith("MarketSlot:") for t in o.get("Tags", []))),
+        default=-13.7)
+    # Inner edge of the east/west hand zones, also measured from the save.
+    hand_inner = min(
+        (abs(o["Transform"]["posX"]) - o["Transform"]["scaleZ"] / 2
+         for o in save["ObjectStates"]
+         if o.get("Name") == "HandTrigger" and abs(o["Transform"]["posX"]) > 1),
+        default=19.0)
+    problems = []
+    for o in save["ObjectStates"]:
+        if not any(t.startswith("PlayerBoard:") for t in o.get("Tags", [])):
+            continue
+        name = o.get("Nickname", "?")
+        t = o["Transform"]
+        ry = t["rotY"] % 360
+        if min(abs(ry - a) for a in (0, 90, 180, 270, 360)) > 0.01:
+            problems.append(f"{name}: rotY={ry:.1f} is not square to the board")
+            continue
+        # Printed top points along +z at ry=0; it must point back at the board.
+        nx, nz = math.sin(math.radians(ry)), math.cos(math.radians(ry))
+        if nx * -t["posX"] + nz * -t["posZ"] <= 0:
+            problems.append(f"{name}: printed top faces away from the board")
+        # Must not sit on top of the board itself.
+        hx, hz = ((t["scaleX"], t["scaleZ"]) if ry % 180 == 0
+                  else (t["scaleZ"], t["scaleX"]))
+        if not (abs(t["posX"]) - hx >= half - 0.01 or abs(t["posZ"]) - hz >= half - 0.01):
+            problems.append(
+                f"{name}: overlaps the board (centre {t['posX']:.1f},{t['posZ']:.1f})")
+        # West-side boards must clear the Market column.
+        if t["posX"] < 0 and (t["posX"] + hx) > market_west:
+            problems.append(
+                f"{name}: overlaps the Market column (inner edge "
+                f"{t['posX'] + hx:.2f}, the market frames reach {market_west:.2f})")
+        # ... and must not be pushed so far out that they stick into the
+        # seat's private hand zone. The flank between the two is narrow and
+        # the boards sit hard against the outer limit.
+        if abs(t["posX"]) + hx > hand_inner + 0.01:
+            problems.append(
+                f"{name}: outer edge {abs(t['posX']) + hx:.2f} crosses into the "
+                f"hand zone (starts at {hand_inner:.2f})")
+    assert not problems, (
+        "player boards are not lined up with the game board:\n  " + "\n  ".join(problems))
+
+
+# The Market column is beside the board, not on it. It shipped as five
+# full-size TTS Notecards centred at x=-12.5: the notecards AND the cards
+# dealt onto them both lay across the printed map ("the market slots are
+# covering the board up"). What matters is the footprint of the CARD that
+# lands on each slot, not just the marker — the marker can be shrunk to
+# nothing and a 2.3-unit card will still cover the board.
+
+def test_market_column_clears_the_printed_board():
+    import re
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import board_geometry as g
+
+    src = open(os.path.join(ROOT, "scripts", "build_save.py"), encoding="utf-8").read()
+    card_w, card_l = (float(v) for v in re.search(
+        r"MARKET_CARD_W,\s*MARKET_CARD_L\s*=\s*([\d.]+),\s*([\d.]+)", src).groups())
+
+    half = g.BOARD_WORLD_HALF
+    problems = []
+    for o in _load_save()["ObjectStates"]:
+        if not any(t.startswith("MarketSlot:") for t in o.get("Tags", [])):
+            continue
+        t = o["Transform"]
+        name = o.get("Nickname", "?")
+        # The frame itself, and the card that will be dealt onto it.
+        for what, w, l in (("frame", t["scaleX"] * 2 * g.BOARD_MESH_HALF,
+                            t["scaleZ"] * 2 * g.BOARD_MESH_HALF),
+                           ("dealt card", card_w, card_l)):
+            over_x = abs(t["posX"]) - w / 2 < half
+            over_z = abs(t["posZ"]) - l / 2 < half
+            if over_x and over_z:
+                problems.append(
+                    f"{name}: its {what} reaches x={abs(t['posX']) - w / 2:.2f}, "
+                    f"z={abs(t['posZ']) - l / 2:.2f} — inside the +/-{half} board")
+    assert not problems, (
+        "the Market column lies across the printed board:\n  " + "\n  ".join(problems)
+        + "\n  push MARKET_COLUMN_X further west in build_save.py")
+
+
+# A locked object never settles, so whatever y it is authored at is where it
+# stays forever. A flat tile parked even a tenth of a unit high reads as
+# floating from a seated camera angle ("the player card describing James is
+# levitating off the table") — its bottom face has to be ON the felt, and that
+# height is derivable from its own thickness rather than a hand-tuned constant.
+
+def test_locked_table_level_tiles_rest_on_the_table_rather_than_hover():
+    import re
+    build_src = open(os.path.join(ROOT, "scripts", "build_save.py"),
+                     encoding="utf-8").read()
+    table_y = float(re.search(r"TABLE_SURFACE_Y\s*=\s*([\d.]+)", build_src).group(1))
+
+    problems = []
+    for o in _load_save()["ObjectStates"]:
+        if not any(t.split(":", 1)[0] in ("PlayerBoard", "MarketSlot")
+                   for t in o.get("Tags", []) if ":" in t):
+            continue
+        t = o["Transform"]
+        if t["posY"] < table_y:          # deliberately benched under the table
+            continue
+        half = o["CustomImage"]["CustomTile"]["Thickness"] * t["scaleY"] / 2.0
+        gap = t["posY"] - half - table_y
+        if abs(gap) > 0.01:
+            problems.append(
+                f"{o.get('Nickname', '?')}: bottom face sits {gap:+.2f} from the felt "
+                f"(posY={t['posY']}, half-thickness={half})")
+    assert not problems, (
+        "locked table-level tiles do not rest on the table surface:\n  "
+        + "\n  ".join(problems)
+        + "\n  a locked object never settles — author posY as "
+          "TABLE_SURFACE_Y + thickness/2 (that is what SURFACE_Y is)")

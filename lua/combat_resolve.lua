@@ -50,9 +50,10 @@ function getAttackDice(color)
     safecall(function()
         for _, obj in ipairs(getPlayerCarriedObjects(color, char.name)) do
             for id, n in pairs(WEAPON_DICE or {}) do
-                if obj.hasTag and obj.hasTag(id) and n > bonus then
+                if safeHasTag(obj, id) and n > bonus then
                     bonus = n
-                    weaponName = (obj.getNickname and obj.getNickname()) or id
+                    weaponName = safeNickname(obj)
+                    if weaponName == "" then weaponName = id end
                 end
             end
         end

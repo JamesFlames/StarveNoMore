@@ -563,3 +563,84 @@ class TestDifficultyAwareText:
         # No unsubstituted placeholders left behind.
         for desc in (day_desc, doom_desc):
             assert "{" not in desc, f"unsubstituted placeholder: {desc}"
+
+
+class TestMarketHelpTooltip:
+    """The "what is this row of cards?" paragraph rides on the market CARD.
+
+    It used to be printed on five notecard slot markers beside the board;
+    those were far wider than a card and lay across the printed map. The text
+    moved onto the card's own tooltip, which means it now has to be attached
+    when a card is dealt and removed when the card is bought — in a player's
+    hand, "use the Craft action to buy it" is a lie.
+    """
+
+    def _market(self, env, contained=None):
+        add = env.eval("TTS.addObject")
+        for i in range(5):
+            add(py_to_lua(env, {"tags": [f"MarketSlot:{i}"],
+                                "position": [-13.6, 1.6, 8.8 - i * 4.4]}))
+        add(py_to_lua(env, {"tags": ["MarketCardDeck"], "position": [-9, -2.5, -10],
+                            "contained": contained if contained is not None else
+                            [{"nickname": f"Item {n}", "guid": f"mk{n}",
+                              "tags": ["MarketCard"], "description": f"Cost: {n} Wood"}
+                             for n in range(8)]}))
+
+    def test_add_is_idempotent_and_strip_restores_the_original(self, env):
+        add = env.eval("TTS.addObject")
+        card = add(py_to_lua(env, {"tags": ["MarketCard"], "position": [0, 1, 0],
+                                   "nickname": "Duct Tape",
+                                   "description": "Cost: 1 Cloth"}))
+        g = env.globals()
+        g.addMarketHelp(card)
+        g.addMarketHelp(card)
+        desc = card.getDescription()
+        assert "Cost: 1 Cloth" in desc
+        assert "Craft action" in desc
+        assert desc.count("— MARKET —") == 1, f"help appended twice:\n{desc}"
+        g.stripMarketHelp(card)
+        assert card.getDescription() == "Cost: 1 Cloth"
+
+    def test_strip_is_a_no_op_on_a_card_that_never_got_it(self, env):
+        add = env.eval("TTS.addObject")
+        card = add(py_to_lua(env, {"tags": ["MarketCard"], "position": [0, 1, 0],
+                                   "description": "Cost: 2 Wood"}))
+        env.globals().stripMarketHelp(card)
+        assert card.getDescription() == "Cost: 2 Wood"
+
+    # lua_to_py flattens objects into plain data, so read the descriptions on
+    # the Lua side and assert on those.
+    _DESCS = '''(function()
+        local out = {}
+        for _, o in ipairs(findAllByTag("MarketCard")) do
+            if o.type == "Card" then out[#out + 1] = o.getDescription() or "" end
+        end
+        return out
+    end)()'''
+
+    def _card_descs(self, env):
+        return list(lua_to_py(env.eval(self._DESCS)))
+
+    def test_dealt_market_cards_carry_the_help(self, env):
+        self._market(env)
+        env.globals().dealMarketDisplay()
+        flush(env)
+        descs = self._card_descs(env)
+        assert len(descs) == 5, f"expected 5 cards dealt, got {len(descs)}"
+        for d in descs:
+            assert "Craft action" in d, f"card dealt without the market tooltip: {d!r}"
+
+    def test_buying_a_card_strips_the_help_before_it_reaches_the_hand(self, env):
+        add_char(env, "White", "James")
+        self._market(env)
+        env.globals().dealMarketDisplay()
+        flush(env)
+        assert all("Craft action" in d for d in self._card_descs(env))
+        env.globals().doCraft("White", 1)
+        flush(env)
+        clean = [d for d in self._card_descs(env) if "Craft action" not in d]
+        assert len(clean) == 1, (
+            "the bought card should be the only one without the slot help; "
+            f"found {len(clean)} of {len(self._card_descs(env))}")
+        assert "Cost:" in clean[0], (
+            f"stripping the help ate the card's own text: {clean[0]!r}")

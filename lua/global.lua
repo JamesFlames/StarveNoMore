@@ -296,7 +296,19 @@ function onLoad(savedState)
         -- tokens are ever dropped for it to reclaim.)
         -- J.10: Run first-load component audit
         safecall(function() auditFirstLoad() end, "FirstLoadAudit")
+        -- J.11: Measure the board against the world square its art is drawn
+        -- for. Silent when they match; shouts (and logs) when they don't --
+        -- that mismatch is what heaps every piece in the middle of the board.
+        safecall(function() auditBoardGeometry(true, "early") end, "BoardGeometry")
     end, 1.0)
+
+    -- Second geometry sample once the custom images have loaded. The board's
+    -- bounds are smaller while its image is still downloading, so the early
+    -- reading understates the mesh — measure again before trusting a number.
+    Wait.time(function()
+        safecall(function() auditBoardGeometry(true, "late") end, "BoardGeometry")
+        safecall(function() auditObjectFootprints() end, "Footprints")
+    end, 12.0)
 end
 
 function onSave()

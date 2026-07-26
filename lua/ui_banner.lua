@@ -392,6 +392,14 @@ function getNextCTA()
                 return {"actPass"}
             end
         end
+        -- If exactly one action is on offer, point at THAT button rather than
+        -- glowing the whole bar: with one option, "what can I do?" should have
+        -- a one-button answer.
+        local offered = {}
+        for id, on in pairs(ENABLED_ACTIONS or {}) do
+            if on then offered[#offered + 1] = id end
+        end
+        if #offered == 1 then return offered end
         return {"actionBar"}
     elseif sp == "Tick" or sp == "PreDawn" then
         return {"btnBeginDay"}

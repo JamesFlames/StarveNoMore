@@ -31,7 +31,7 @@ Context-aware hint strings for the "What now?" button (Design §18.17). Each hin
 ## Day (general)
 
 - **default:** "It's your turn, {name}. You have {actionsLeft} action(s) left. Choose from your Action Bar: Move, Gather, Craft, Cook, Fight, Rest, or Cleanse."
-- **no_actions:** "You've used all 3 actions. Click Pass to end your turn."
+- **no_actions:** "You've used all 3 actions. Click End Turn."
 - **all_passed:** "All players have finished. The host should advance to Dusk."
 
 ---

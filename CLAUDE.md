@@ -4,10 +4,14 @@
 (SYMBOLS also indexes every XML UI id → file:line + handler),
 (2) open only that file, (3) regenerate + `python -m pytest tests` before you finish.
 
-**Touching object placement, rotation, lighting, audio, or TTS callbacks?**
-Read [`docs/tts-runtime.md`](docs/tts-runtime.md) FIRST — it's the list of
-engine behaviors that already burned us once (surface heights, rotation
-conventions, dead handles, style resets, cache staleness).
+**Touching anything that talks to Tabletop Simulator?** Read the two TTS
+docs FIRST — they are lists of engine behaviours that already burned us:
+
+- [`docs/tts-interface.md`](docs/tts-interface.md) — the API side: save
+  format, Lua surface (only call what exists), object-handle lifetime, XML
+  UI, and how to *measure* a running game.
+- [`docs/tts-runtime.md`](docs/tts-runtime.md) — the physical side: surface
+  heights, mesh sizes vs. artwork, rotation conventions, hiding things.
 
 **Debugging something a player saw in-game?** [`docs/debugging.md`](docs/debugging.md) —
 TTS autosaves carry the live gameState + real object positions;

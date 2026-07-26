@@ -62,6 +62,18 @@ VectorMT = {
     __index = {
         copy = function(v) return newVector(v.x, v.y, v.z) end,
         setAt = function(v, k, val) v[k] = val; return v end,
+        -- doCraft / _spawnCraftButtons match a card to a market slot by
+        -- distance; without these the whole Craft path was untestable.
+        magnitude = function(v) return math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z) end,
+        sqrMagnitude = function(v) return v.x * v.x + v.y * v.y + v.z * v.z end,
+        distance = function(a, b)
+            local dx, dy, dz = a.x - b.x, a.y - b.y, a.z - b.z
+            return math.sqrt(dx * dx + dy * dy + dz * dz)
+        end,
+        distanceSquared = function(a, b)
+            local dx, dy, dz = a.x - b.x, a.y - b.y, a.z - b.z
+            return dx * dx + dy * dy + dz * dz
+        end,
     },
 }
 Vector = setmetatable({}, { __call = function(_, x, y, z) return newVector(x, y, z) end })
@@ -176,6 +188,18 @@ local function makeObject(spec)
         return { center = state.position:copy(), size = newVector(4, 1, 4), offset = newVector(0, 0, 0) }
     end
     o.getSnapPoints = function() return spec.snapPoints or {} end
+    o.setSnapPoints = function(pts) spec.snapPoints = pts; record("setSnapPoints", pts); return true end
+    -- Custom image swap + reload (path-variant board art). Real TTS destroys
+    -- the object on reload and returns a NEW handle; the stub returns the same
+    -- one, which is enough to assert the image actually changed.
+    o.getCustomObject = function()
+        spec.custom = spec.custom or {}
+        local copy = {}
+        for k, v in pairs(spec.custom) do copy[k] = v end
+        return copy
+    end
+    o.setCustomObject = function(c) spec.custom = c; record("setCustomObject", c); return true end
+    o.reload = function() record("reload", spec.nickname); return o end
     o.positionToWorld = function(p) return newVector(p) end
     o.positionToLocal = function(p) return newVector(p) end
     o.highlightOn = function(...) record("highlightOn", ...); return true end
@@ -398,9 +422,39 @@ Player = setmetatable({
 -- ---------------------------------------------------------------------------
 Global = { UI = UI, setVar = function() return true end, getVar = function() return nil end, call = function() return nil end }
 Turns = { enable = false, order = {}, turn_color = "" }
+-- Notebook tabs, modelled on the REAL API surface: add / edit / get / remove.
+-- This stub used to expose a setNotebookTabs() that TTS does not have, so the
+-- game's Notebook silently failed while every test passed.
+TTS.notebookTabs = {}
 Notes = {
-    setNotebookTabs = function(_tabs) return true end,
-    getNotebookTabs = function() return {} end,
+    getNotebookTabs = function()
+        local out = {}
+        for i, t in ipairs(TTS.notebookTabs) do
+            out[i] = { index = i - 1, title = t.title, body = t.body, color = t.color }
+        end
+        return out
+    end,
+    addNotebookTab = function(p)
+        p = p or {}
+        table.insert(TTS.notebookTabs,
+            { title = p.title or "", body = p.body or "", color = p.color or "Grey" })
+        return #TTS.notebookTabs - 1      -- TTS returns the 0-based index
+    end,
+    editNotebookTab = function(p)
+        p = p or {}
+        local t = TTS.notebookTabs[(p.index or 0) + 1]
+        if not t then return false end
+        if p.title then t.title = p.title end
+        if p.body  then t.body  = p.body  end
+        if p.color then t.color = p.color end
+        return true
+    end,
+    removeNotebookTab = function(index)
+        local i = (index or 0) + 1
+        if not TTS.notebookTabs[i] then return false end
+        table.remove(TTS.notebookTabs, i)
+        return true
+    end,
     setNotes = function(_s) return true end,
     getNotes = function() return "" end,
 }

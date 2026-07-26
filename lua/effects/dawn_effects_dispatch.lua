@@ -82,7 +82,7 @@ DAWN_MANUAL_STEPS = {
 -----------------------------------------------------------------------
 -- Dispatch entry point (called from day_loop.lua -> revealDawnCard)
 -----------------------------------------------------------------------
-function dispatchDawnEffect(card)
+function dispatchDawnEffect(card, info)
     -- Clean up previous Dawn's ongoing effects
     if gameState.activeDawn and gameState.activeDawn.prevId then
         local prev = DAWN_EFFECTS[gameState.activeDawn.prevId]
@@ -94,14 +94,26 @@ function dispatchDawnEffect(card)
     -- Resolve the card's effect ID. Cards are tagged with their CSV id
     -- (e.g. "P1_QUIET_EVENING") by build_save.py; the nickname holds the
     -- display title, so check tags first and fall back to the nickname.
+    -- `info` is the snapshot day_loop took while the handle was known good;
+    -- `card` may be nil or already destroyed, so it is only a fallback and
+    -- every read of it is pcall-guarded.
+    local tags = info and info.tags or nil
+    if not tags and card then
+        pcall(function()
+            if card.getTags then tags = card.getTags() end
+        end)
+    end
+
     local id = nil
-    if card.getTags then
-        for _, tag in ipairs(card.getTags()) do
-            if DAWN_EFFECTS[tag] then id = tag; break end
-        end
+    for _, tag in ipairs(tags or {}) do
+        if DAWN_EFFECTS[tag] then id = tag; break end
     end
     if not id then
-        id = (card.getNickname() or ""):match("^%s*(.-)%s*$") or ""
+        local name = (info and info.name) or ""
+        if name == "" and card then
+            pcall(function() name = card.getNickname() or "" end)
+        end
+        id = name:match("^%s*(.-)%s*$") or ""
     end
 
     local handler = DAWN_EFFECTS[id]

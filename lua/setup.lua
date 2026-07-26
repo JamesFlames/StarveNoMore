@@ -10,11 +10,13 @@ function Setup(hostColor)
 
     broadcastEvent("phase", "Setting up Starve No More...")
 
-    -- 1. Pick a random path-edge variant
-    local variants = {"Compact", "Sprawl", "Linear"}
-    local pick = variants[gameRoll(#variants)]
-    gameState.pathVariant = pick
-    broadcastEvent("proc", "Path layout: " .. pick)
+    -- 1. Pick a random path variant. applyPathVariant rebuilds the Move
+    -- graph AND repaints the board, so the printed lines match the routes.
+    local variants = {}
+    for name, _ in pairs(PATH_LAYOUTS) do table.insert(variants, name) end
+    table.sort(variants)   -- gameRoll must index a stable list
+    local pick = applyPathVariant(variants[gameRoll(#variants)])
+    broadcastEvent("proc", "Path layout: " .. pick .. " (the lines printed on the board are the routes you can walk).")
 
     -- 2. Shuffle each Phase deck
     for p = 1, 4 do
@@ -76,6 +78,7 @@ function Setup(hostColor)
     -- Characters nobody is playing leave the map for the bench.
     safecall(function() benchUnusedCharacters() end, "Bench")
     safecall(function() benchUnusedBoards() end, "BenchBoards")
+    safecall(function() refreshQuickStartCard() end, "QuickStart")
 
     -- Starting hands: each character's personal items into their hand.
     safecall(function() dealStartingHands() end, "StartingHands")
@@ -128,12 +131,43 @@ end
 -- tokens (his Wired economy runs on tokens), placed beside his board.
 -- Re-setup safe: a consumed deck simply no longer exists to deal.
 -----------------------------------------------------------------------
+-- A "starting hand" is the two-to-five personal item cards a character begins
+-- with (content/cards_starting.csv) — Ellie's Cooking Knife, James's
+-- Flashlight, and so on.
+--
+-- They used to be dealt into the TTS hand zone, where they stacked vertically
+-- in mid-air (measured at y 9.5 to 24.4, tumbling) and showed only their
+-- "STARTING" backs. They are now laid FACE UP in a neat row just outside the
+-- player's own board, where they read at a glance and cannot float away.
 function dealStartingHands()
     for color, char in pairs(gameState.activeChars) do
         local deck = findOneByTag("StartingHand:" .. char.name)
-        if deck then
-            deck.deal(deck.getQuantity(), color)
-            broadcastToColor(char.name .. "'s starting items are in your hand — hover each card to see what it does.",
+        local board = getPlayerBoard(char.name)
+        if deck and board then
+            local n = deck.getQuantity and deck.getQuantity() or 0
+            local base = board.getPosition()
+            -- Lay them along the board's long edge, pushed OUTWARD (away from
+            -- the map) so they never cover the board or the play area.
+            local outward = Vector(base.x, 0, base.z)
+            local len = math.sqrt(outward.x * outward.x + outward.z * outward.z)
+            if len < 0.01 then outward = Vector(0, 0, -1); len = 1 end
+            local ox, oz = outward.x / len, outward.z / len
+            local px_, pz_ = -oz, ox          -- perpendicular: the row direction
+            for i = 1, n do
+                local offset = (i - 1) - (n - 1) / 2
+                safecall(function()
+                    deck.takeObject({
+                        position = {
+                            base.x + ox * 3.2 + px_ * offset * 1.3,
+                            base.y + 0.6 + i * 0.05,
+                            base.z + oz * 3.2 + pz_ * offset * 1.3,
+                        },
+                        rotation = {0, 180, 0},   -- face up
+                        smooth   = false,
+                    })
+                end, "StartingItems")
+            end
+            broadcastToColor(char.name .. "'s starting items are face up beside your player board — hover each card to see what it does.",
                 color, BROADCAST_COLORS.gain)
         end
         if char.name == "James" then
@@ -176,6 +210,10 @@ function dealMarketDisplay()
                     position = slotPos + Vector(0, 1, 0),
                     rotation = {0, 180, 0},  -- face-up
                     smooth   = true,
+                    -- The slot markers no longer print the "what is this?"
+                    -- paragraph beside them; it hangs off the card's own
+                    -- tooltip instead (addMarketHelp, lua/crafting.lua).
+                    callback_function = function(c) addMarketHelp(c) end,
                 })
             end
         end
@@ -187,7 +225,27 @@ end
 -- Rest height of the locked Doom marker on the board top (mirrors the
 -- marker's spawn transform in build_save.py). The glass table's playing
 -- surface is at ~y 1.55 — the old 1.2 left the marker inside the table.
-local DOOM_MARKER_Y = 1.72
+-- Mirrors BOARD_PIECE_Y in scripts/build_save.py (the board's top surface is
+-- ~1.79, well above the table's 1.55 — at 1.72 the marker sat inside the
+-- board and was invisible). test_build_output.py guards the mirror.
+local DOOM_MARKER_Y = 1.755
+
+-- Printed Doom track geometry, mirroring board_geometry.py
+-- (DOOM_STEP0_WORLD_X / DOOM_STEP30_WORLD_X / DOOM_TRACK_WORLD_Z).
+-- tests/test_cross_refs.py guards the mirror.
+DOOM_STEP0_X  = -10.9
+DOOM_STEP30_X = 10.9
+DOOM_TRACK_Z  = -11.5
+
+-- World position of a Doom step's printed cell.
+function doomStepWorld(step)
+    step = math.max(0, math.min(30, step or 0))
+    return {
+        x = DOOM_STEP0_X + (DOOM_STEP30_X - DOOM_STEP0_X) * (step / 30),
+        y = DOOM_MARKER_Y,
+        z = DOOM_TRACK_Z,
+    }
+end
 
 -- Last step the marker was sent to: refreshPhaseBanner calls
 -- moveDoomMarker on every UI refresh so the marker can never lag the
@@ -203,19 +261,12 @@ function moveDoomMarker(targetStep)
     local board = getMainBoard()
     if not board then return end
 
-    -- Find the snap point for this doom step
-    local worldPos = nil
-    for _, sp in ipairs(board.getSnapPoints()) do
-        for _, tag in ipairs(sp.tags or {}) do
-            if tag == "Snap:Doom:" .. tostring(targetStep) then
-                worldPos = board.positionToWorld(sp.position)
-                break
-            end
-        end
-        if worldPos then break end
-    end
-    if not worldPos then return end
-    worldPos.y = DOOM_MARKER_Y
+    -- World position computed DIRECTLY, not via board.positionToWorld(snap).
+    -- Going through the board made the marker's position depend on the
+    -- board's Transform scale and on surviving a board reload (the path
+    -- variant swap reloads it) — the marker ended up at (-14.2, -15.7),
+    -- out on the felt beyond the board's corner.
+    local worldPos = doomStepWorld(targetStep)
     _doomMarkerStep = targetStep
 
     -- The marker stays locked so players can't drag it; only this function

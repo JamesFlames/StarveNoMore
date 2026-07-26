@@ -187,7 +187,7 @@
             onClick="onHostEndTurn"
             fontSize="15" color="#9A7A1EFF" textColor="#FFF7E0"
             preferredHeight="38"
-            text="End Turn / Pass" />
+            text="End Turn" />
     <Button id="btnRestart"
             onClick="onHostRestart"
             fontSize="15" color="#A23A3AFF" textColor="#FFEAEA"
@@ -239,7 +239,7 @@
        rectAlignment="LowerCenter"
        offsetXY="0 10"
        width="1100" height="110"
-       color="#000000BF"
+       color="#0B0E0CF7"
        outline="#64B4644C"
        outlineSize="1"
        active="false">
@@ -253,77 +253,77 @@
       <Button id="actMove"
               onClick="onActMove"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#1E3228E6" textColor="#CCFFCC"
+              fontSize="14" color="#B9C9B4FF" textColor="#12180F"
               text="Move (1)" />
       <Button id="actGather"
               onClick="onActGather"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#1E3228E6" textColor="#CCFFCC"
+              fontSize="14" color="#B9C9B4FF" textColor="#12180F"
               text="Gather (1)" />
       <Button id="actCraft"
               onClick="onActCraft"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#1E3228E6" textColor="#CCFFCC"
+              fontSize="14" color="#B9C9B4FF" textColor="#12180F"
               text="Craft (1)" />
       <Button id="actCook"
               onClick="onActCook"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#1E3228E6" textColor="#CCFFCC"
+              fontSize="14" color="#B9C9B4FF" textColor="#12180F"
               text="Cook (1)" />
       <Button id="actFight"
               onClick="onActFight"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#1E3228E6" textColor="#CCFFCC"
+              fontSize="14" color="#B9C9B4FF" textColor="#12180F"
               text="Fight (1)" />
       <Button id="actRest"
               onClick="onActRest"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#1E3228E6" textColor="#CCFFCC"
+              fontSize="14" color="#B9C9B4FF" textColor="#12180F"
               text="Rest (1)" />
       <Button id="actCleanse"
               onClick="onActCleanse"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#1E3228E6" textColor="#CCFFCC"
+              fontSize="14" color="#B9C9B4FF" textColor="#12180F"
               text="Cleanse (1)" />
       <Button id="actTrade"
               onClick="onActTrade"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#1E2837E6" textColor="#CCE5FF"
+              fontSize="14" color="#B2C2D4FF" textColor="#12180F"
               text="Trade" />
       <Button id="actSignature"
               onClick="onActSignature"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#37233CE6" textColor="#EECCFF"
+              fontSize="14" color="#CBB6D2FF" textColor="#12180F"
               text="Signature" />
       <!-- Per-character perk buttons: Lua shows exactly one of these, and
            only for the matching character (refreshActionButtonStates). -->
       <Button id="actPeek"
               onClick="onActPeek"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#1E2837E6" textColor="#CCE5FF"
+              fontSize="14" color="#B2C2D4FF" textColor="#12180F"
               active="false"
               text="Peek" />
       <Button id="actRally"
               onClick="onActRally"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#2D1E28E6" textColor="#FFCCE5"
+              fontSize="14" color="#D6B9C6FF" textColor="#12180F"
               active="false"
               text="Rally" />
       <Button id="actPry"
               onClick="onActPry"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#322A19E6" textColor="#FFE8AA"
+              fontSize="14" color="#DCCB9EFF" textColor="#12180F"
               text="Pry" />
       <Button id="actUndo"
               onClick="onActUndo"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#2D2819E6" textColor="#EEDDAA"
+              fontSize="14" color="#D3C7A2FF" textColor="#12180F"
               text="Undo" />
       <Button id="actPass"
               onClick="onActPass"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#32281EE6" textColor="#FFDDAA"
-              text="Pass" />
+              fontSize="14" color="#E0C89AFF" textColor="#12180F"
+              text="End Turn" />
     </HorizontalLayout>
     <!-- Action Cubes Row -->
     <HorizontalLayout spacing="6" childForceExpandWidth="false"
@@ -420,7 +420,7 @@
           alignment="UpperLeft"
           tooltip="Your resource tokens, counted live. They physically sit beside your player board."
           tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
-          text="" preferredHeight="32" />
+          text="" preferredHeight="48" />
 
     <!-- Perks + constraint, always visible (briefing shows only once) -->
     <!-- No manual +/- stat buttons here: every stat change is automated

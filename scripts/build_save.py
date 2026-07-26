@@ -13,6 +13,7 @@ URL so the rewritten links resolve.
 
 import argparse
 import json
+import math
 import csv
 import os
 import glob
@@ -45,12 +46,16 @@ ART_DIR = os.path.join(ROOT, "art")
 ASSET_MAP = {
     # Board
     "main_board":          "board/main_board.png",
-    # Location tiles
-    "tile_james":          "tiles/jameshome.png",
-    "tile_rayman":         "tiles/raymanhome.png",
-    "tile_ellie_luca":     "tiles/ellielucahome.png",
-    "tile_basketball":     "tiles/basketballcourt.png",
-    "tile_badminton":      "tiles/badmintoncourt.png",
+    # Location tiles - the _tile variants are content-centred squares
+    # (scripts/normalize_tile_art.py) so the CIRCULAR tile crops centred
+    # inside the printed ring instead of showing an off-centre slice.
+    "tile_james":          "tiles/jameshome_tile.png",
+    "tile_rayman":         "tiles/raymanhome_tile.png",
+    "tile_ellie_luca":     "tiles/ellielucahome_tile.png",
+    "tile_basketball":     "tiles/basketballcourt_tile.png",
+    "tile_badminton":      "tiles/badmintoncourt_tile.png",
+    # Empty card-shaped frame marking each of the 5 Market slots
+    "market_slot":         "board/market_slot.png",
     # Path variants
     "path_compact":        "board/path_compact.png",
     "path_sprawl":         "board/path_sprawl.png",
@@ -158,7 +163,22 @@ ph = art
 # were invisible until I picked them up"). Every surface-level spawn height
 # below is authored relative to this.
 TABLE_SURFACE_Y = 1.55
-SURFACE_Y = TABLE_SURFACE_Y + 0.1   # safe spawn height for flat pieces
+SURFACE_Y = TABLE_SURFACE_Y + 0.05  # flat pieces ON THE TABLE. Locked objects
+                                    # never settle, so the old +0.1 left them
+                                    # visibly hovering at a low camera angle.
+
+# The board is a thin Custom_Tile resting ON the table, so its surface height
+# is DERIVED from its own thickness rather than guessed. Anything standing on
+# the board must clear BOARD_SURFACE_Y or the board swallows it — the location
+# tiles and the Doom marker both vanished that way when this was assumed
+# instead of computed.
+BOARD_TILE_THICKNESS = 0.012          # tile-local; world thickness = * scale
+BOARD_WORLD_THICKNESS = BOARD_TILE_THICKNESS * board_geometry.BOARD_TRANSFORM_SCALE
+BOARD_Y = TABLE_SURFACE_Y + BOARD_WORLD_THICKNESS / 2     # rests on the table
+BOARD_SURFACE_Y = TABLE_SURFACE_Y + BOARD_WORLD_THICKNESS  # its top face
+# Rounded: DOOM_MARKER_Y in lua/setup.lua mirrors this exactly and a test
+# compares them, so it must be a value you can write down.
+BOARD_PIECE_Y = round(BOARD_SURFACE_Y + 0.06, 3)   # flat pieces on the board
 
 _guid_counter = [0]
 def guid():
@@ -171,6 +191,16 @@ def tf(x=0, y=1, z=0, rx=0, ry=0, rz=0, sx=1, sy=1, sz=1):
         "rotX": rx, "rotY": ry, "rotZ": rz,
         "scaleX": sx, "scaleY": sy, "scaleZ": sz
     }
+
+def hide_from_pointer(obj):
+    """Stop an out-of-play object answering the mouse. Everything parked below
+    the table is still a physical object: hovering the board raised its tooltip
+    and drew a ghost outline of a card that is not in play."""
+    obj["Tooltip"] = False
+    obj["DragSelectable"] = False
+    obj["GridProjection"] = False
+    return obj
+
 
 def base_obj(name, transform, nickname="", desc="", tags=None, locked=False, extra=None):
     o = {
@@ -331,17 +361,30 @@ def trophy_desc(row):
 objects = []
 
 # Hand zones from Phase D
+# Seats sit square to the board's edges, not on a pentagon: one south, two
+# west, two east. The north edge is left clear because the table runs out of
+# felt there. Each player's board (below) uses the same side and angle, so
+# hand and board are together in front of them.
+HAND_ZONE_OUT   = 22    # distance from the table centre to a zone's centre
+HAND_ZONE_LEN   = 14    # along the table edge
+HAND_ZONE_DEPTH = 6     # toward the table centre
+# The edge of the zone that faces the map. Nothing that is meant to stay ON
+# the table may cross it: a card dropped past this line joins that seat's
+# private hand instead of lying face up where the other players can read it.
+HAND_ZONE_INNER = HAND_ZONE_OUT - HAND_ZONE_DEPTH / 2
+
 hand_colors = [
-    ("White", 0, -22, 0),
-    ("Red", -21, -7, 72),
-    ("Yellow", -13, 18, 144),
-    ("Green", 13, 18, 216),
-    ("Blue", 21, -7, 288),
+    ("White",   0, -HAND_ZONE_OUT,   0),   # south
+    ("Red",   -HAND_ZONE_OUT,  -7,  90),   # west
+    ("Yellow",-HAND_ZONE_OUT,   7,  90),   # west
+    ("Green",  HAND_ZONE_OUT,   7, 270),   # east
+    ("Blue",   HAND_ZONE_OUT,  -7, 270),   # east
 ]
 for color, x, z, ry in hand_colors:
     objects.append({
         "Name": "HandTrigger",
-        "Transform": tf(x, 4.5, z, ry=ry, sx=14, sy=6, sz=6),
+        "Transform": tf(x, 4.5, z, ry=ry,
+                        sx=HAND_ZONE_LEN, sy=6, sz=HAND_ZONE_DEPTH),
         "Nickname": f"{color} Hand",
         "Description": f"Player hand zone ({color} seat). Cards placed here are private.",
         "Tags": ["HandZone", f"HandZone:{color}"],
@@ -355,16 +398,17 @@ for color, x, z, ry in hand_colors:
 # ---------------------------------------------------------------------------
 
 # Snap points for the main board.
-# AttachedSnapPoints are stored in BOARD-LOCAL space; the board's transform
-# scale is 12, so Lua's board.positionToWorld(snap.position) multiplies
-# these by 12. Author in world units and divide by BOARD_SCALE here — the
-# old world-authored values made moveDoomMarker fling the marker to
-# (120, 72), far off the table.
-BOARD_SCALE = board_geometry.BOARD_SCALE
+# AttachedSnapPoints are stored in BOARD-LOCAL space and TTS multiplies them
+# by the board's Transform scale, so Lua's board.positionToWorld(snap.position)
+# returns the world value again. Author in world units and convert with
+# board_geometry.world_to_local — the old world-authored values made
+# moveDoomMarker fling the marker to (120, 72), far off the table.
+BOARD_TRANSFORM_SCALE = board_geometry.BOARD_TRANSFORM_SCALE
 
 def board_snap(wx, wz, tags):
     return {
-        "Position": {"x": wx / BOARD_SCALE, "y": 0.02, "z": wz / BOARD_SCALE},
+        "Position": {"x": board_geometry.world_to_local(wx), "y": 0.02,
+                     "z": board_geometry.world_to_local(wz)},
         "Rotation": {"x": 0, "y": 0, "z": 0},
         "Tags": tags,
     }
@@ -372,12 +416,12 @@ def board_snap(wx, wz, tags):
 board_snaps = []
 
 # Location tile snap points (5 locations in the graph layout)
+# From path_layouts: the same table the board art draws its rings from, so a
+# tile and its printed ring can never drift apart.
+import path_layouts
 loc_positions = {
-    "JamesHouse":     {"x": -8,  "y": 0.1, "z": -4},
-    "EllieLucaHouse": {"x": 0,   "y": 0.1, "z": 0},
-    "RaymanHouse":    {"x": 8,   "y": 0.1, "z": -4},
-    "BasketballCourt":{"x": 0,   "y": 0.1, "z": -8},
-    "BadmintonCourt": {"x": 0,   "y": 0.1, "z": 8},
+    k: {"x": v[0], "y": 0.1, "z": v[1]}
+    for k, v in path_layouts.LOCATION_WORLD.items()
 }
 for name, pos in loc_positions.items():
     board_snaps.append(board_snap(pos["x"], pos["z"], [f"Snap:Location:{name}"]))
@@ -397,11 +441,27 @@ for step in range(31):
 # Day Counter snap
 board_snaps.append(board_snap(-10, 8, ["Snap:DayCounter"]))
 
-# Market display (5 slots) — a column down the board's left flank.
-# TTS cards are ~2.3 units wide/3.2 long, so slots need ~3.6 units of
-# separation or the dealt cards physically shove each other (and anything
-# nearby — they used to bury the Day Counter and clip the board edge).
-MARKET_SLOT_POSITIONS = [(-12.5, 9.0 - i * 3.6) for i in range(5)]
+# Market display (5 slots) — a column down the board's WEST flank, entirely
+# off the printed map.
+#
+# Every number here is derived, because guessing them is what put the column
+# on the board in the first place. A dealt TTS card is ~2.3 x 3.2 world units;
+# the old column sat at x=-12.5, so each card reached x=-11.35 and lay across
+# the map ("the market slots are covering the board up"). The frame markers
+# (E.9) are a shade bigger than a card, and the column is pushed west until
+# the frame's east edge clears BOARD_WORLD_HALF.
+MARKET_CARD_W, MARKET_CARD_L = 2.3, 3.2   # a dealt TTS card, world units
+MARKET_SLOT_W = MARKET_CARD_W + 0.2       # frame peeks out around the card
+MARKET_SLOT_L = MARKET_CARD_L + 0.5
+MARKET_COLUMN_X = -(board_geometry.BOARD_WORLD_HALF + MARKET_SLOT_W / 2 + 0.2)
+# Separation: the frames must clear each other AND leave room for the slot's
+# 3DText title between them (_slotOccupied in setup.lua also matches a card to
+# a slot within 2 units, so keep centres well over 4 apart).
+MARKET_SLOT_DZ = MARKET_SLOT_L + 0.7
+MARKET_SLOT_POSITIONS = [(MARKET_COLUMN_X, 2 * MARKET_SLOT_DZ - i * MARKET_SLOT_DZ)
+                         for i in range(5)]
+# Title sits just north of its frame, clear of the card laid on top.
+MARKET_LABEL_DZ = MARKET_SLOT_L / 2 + 0.35
 for i, (msx, msz) in enumerate(MARKET_SLOT_POSITIONS):
     board_snaps.append(board_snap(msx, msz, [f"Snap:Market:{i}"]))
 
@@ -421,7 +481,28 @@ board_snaps.append(board_snap(10, -10, ["Snap:HelpButton"]))
 
 # Tooltip=False: no hover text on the board itself — players can see what
 # it is, and the popup got in the way of hovering pieces on top of it.
-main_board = base_obj("Custom_Board", tf(0, 0.96, 0, sx=12, sy=1, sz=12),
+# A Custom_TILE, not a Custom_Board: the board object always frames the image
+# in a brown border that cannot be turned off, so its bounds (and therefore
+# every snap point and object position derived from them) describe the FRAME
+# while the art only covers the inner area. The printed rings and the DAY
+# COUNTER frame could never line up with the pieces as a result. A tile has no
+# border and the image fills it exactly.
+#
+# posY is chosen so the board's TOP lands at the same 1.79 the pieces are
+# already authored against: 1.79 - (thickness * scale)/2.
+#
+# rotY stays 0. The board is on the PNG-pre-rotated side of the two rotation
+# conventions (docs/tts-runtime.md "Rotations"): generate_main_board already
+# rotates the finished image 180 degrees, so adding ry=180 here applies the
+# compensation TWICE. That turns the printed art 180 degrees about the board
+# centre — the DAY COUNTER frame moves to the south-east while the gadget
+# stays at (-8, 8), and every location ring swaps sides with its tile. Worse,
+# AttachedSnapPoints are board-LOCAL, so the object rotation negates them too:
+# Snap:Doom:0 lands at (+10.9, +11.5) and moveDoomMarker walks the marker up
+# the wrong edge. Rotate the IMAGE, never the board.
+main_board = base_obj("Custom_Tile",
+                      tf(0, BOARD_Y, 0,
+                         sx=BOARD_TRANSFORM_SCALE, sy=1, sz=BOARD_TRANSFORM_SCALE),
                        nickname="Starve No More — Main Board",
                        desc="The suburban map. Doom threshold ribbons are printed on the board.",
                        tags=["Board", "MainBoard"],
@@ -430,7 +511,13 @@ main_board = base_obj("Custom_Board", tf(0, 0.96, 0, sx=12, sy=1, sz=12),
 main_board["CustomImage"] = {
     "ImageURL": ph("main_board"),
     "ImageSecondaryURL": "",
-    "WidthScale": 0
+    "WidthScale": 0,
+    "CustomTile": {
+        "Type": 0,               # square
+        "Thickness": BOARD_TILE_THICKNESS,
+        "Stackable": False,
+        "Stretch": True,
+    },
 }
 main_board["AttachedSnapPoints"] = board_snaps
 objects.append(main_board)
@@ -479,7 +566,7 @@ for loc_key, (name, url, pos) in loc_data.items():
     # in the default view (the day-counter/cards convention) — this keeps
     # the house/court art upright for the players.
     tile = base_obj("Custom_Tile",
-                    tf(pos["x"], SURFACE_Y, pos["z"], ry=180, sx=2.5, sy=1, sz=2.5),
+                    tf(pos["x"], BOARD_PIECE_Y, pos["z"], ry=180, sx=2.5, sy=1, sz=2.5),
                     nickname=name,
                     desc=tooltips[loc_key],
                     tags=["Location", f"Location:{loc_key}"],
@@ -508,16 +595,20 @@ for loc_key, (name, url, pos) in loc_data.items():
 # is authored in absolute board coordinates, so the machinery works from
 # down there. Unlocked objects (a deck sheds its container when it shrinks
 # to one card) rest on a locked catch shelf so nothing falls into the void.
+# Everything hidden must sit INSIDE the board footprint (+/-12 world units,
+# board_geometry.BOARD_WORLD_HALF): the opaque board and table then cover it
+# from every seat. Parked further out (the old +/-25..28) it sat beyond the
+# table edge in plain sight — which is what the glass table exposed.
 LIBRARY_Y = -2.5             # resting height for hidden components
-SUPPLY_SHELF_X = 25.0        # resource bags / dice / hearts / boss pool
-SUPPLY_SHELF_X2 = 28.0       # decorative path-variant trays, one row further out
-LIBRARY_X = -25.0            # decks / trophies / legend (west column)
-LIBRARY_X2 = -28.0           # trophy cards + starting decks
-BENCH_X = -23.0              # unused character standees (see lua/helpers.lua)
+SUPPLY_SHELF_X = 9.0         # resource bags / dice / hearts / boss pool
+SUPPLY_SHELF_X2 = 5.5        # decorative path-variant trays, one row inward
+LIBRARY_X = -9.0             # decks / trophies / legend (west column)
+LIBRARY_X2 = -5.5            # trophy cards + starting decks
+BENCH_X = -2.0               # unused character standees (see lua/helpers.lua)
 
 for variant in ["Compact", "Sprawl", "Linear", "Ring", "Star"]:
     bag = base_obj("Bag",
-                   tf(SUPPLY_SHELF_X2, LIBRARY_Y, 2 + ["Compact","Sprawl","Linear","Ring","Star"].index(variant) * 3),
+                   tf(SUPPLY_SHELF_X2, LIBRARY_Y, -8 + ["Compact","Sprawl","Linear","Ring","Star"].index(variant) * 4),
                    nickname=f"Path Edges: {variant}",
                    desc=f"Decorative path tiles for the {variant} map layout. Purely cosmetic — safe to ignore during play.",
                    tags=["PathVariant", f"PathVariant:{variant}"],
@@ -546,10 +637,11 @@ for variant in ["Compact", "Sprawl", "Linear", "Ring", "Star"]:
 # DOOM_MARKER_Y in moveDoomMarker (above the ~1.55 table surface; the old
 # 1.2 left the marker buried inside the glass tabletop).
 _doom_x, _doom_z = board_geometry.doom_step_world(0)
-# Scale 1.6: the track runs along the board's south edge (the bottom of the
-# default angled view), so a scale-1 token was easy to miss — "I don't see
-# a doom counter." Bigger reads clearly from across the table.
-doom = base_obj("Custom_Token", tf(_doom_x, 1.72, _doom_z, sx=1.6, sy=1.6, sz=1.6),
+# Scale 0.3375 (three quarters of 0.45): a Doom step cell is only ~0.73
+# world units wide, so the original
+# 1.6 (sized when the board was rendering nine times too big) covered four
+# cells at once — "the doom marker is ridiculously large".
+doom = base_obj("Custom_Token", tf(_doom_x, BOARD_PIECE_Y, _doom_z, sx=0.3375, sy=0.3375, sz=0.3375),
                 nickname="Doom Marker",
                 desc="Doom track marker. Moves itself each time Doom changes — you never place it by hand.",
                 tags=["DoomMarker"],
@@ -573,7 +665,8 @@ objects.append(doom)
 # and was half-invisible. The script alone advances it: onLoad /
 # lockdownCriticalObjects set interactable=false so players can't click
 # the counter's +/- buttons.
-day_counter = base_obj("Counter", tf(-10, 1.8, 8),
+_dc_x, _dc_z = board_geometry.DAY_COUNTER_WORLD
+day_counter = base_obj("Counter", tf(_dc_x, BOARD_SURFACE_Y + 0.03, _dc_z),
                        nickname="Day Counter",
                        desc="Current day. Advances each Dawn.",
                        tags=["DayCounter"],
@@ -632,15 +725,40 @@ market_deck = make_deck(
 objects.append(market_deck)
 
 # 5 market display slots (the setup script deals a face-up card onto each).
-# Locked notecards so physics can never wedge them under the board.
+#
+# These were full-size TTS Notecards printing the whole "use the Craft action
+# to buy it" paragraph. A notecard is much wider than a card, so the column
+# lay across the printed map and hid it. Now each slot is an empty card-shaped
+# frame (art/board/market_slot.png) barely bigger than the card that lands on
+# it, the paragraph rides on the CARD's own tooltip (addMarketHelp,
+# lua/crafting.lua), and the slot number is a flat 3DText just north of the
+# frame so it stays readable once a card covers the frame.
+#
+# Locked: physics can never wedge them under the board, and the Lua contract
+# stays "card lands at the slot's own position" (_slotOccupied in setup.lua,
+# _spawnCraftButtons in ui_actionbar_targets.lua both key off that).
+# ry=180 + un-rotated art: the flat-art convention the location tiles use
+# (docs/tts-runtime.md "Rotations"). The frame is 2-fold symmetric anyway.
+MARKET_SLOT_MESH = board_geometry.BOARD_MESH_HALF * 2   # world units per scale
 for i, (msx, msz) in enumerate(MARKET_SLOT_POSITIONS):
-    slot = base_obj("Notecard", tf(msx, SURFACE_Y, msz),
+    slot = base_obj("Custom_Tile",
+                    tf(msx, SURFACE_Y, msz, ry=180,
+                       sx=MARKET_SLOT_W / MARKET_SLOT_MESH, sy=1,
+                       sz=MARKET_SLOT_L / MARKET_SLOT_MESH),
                     nickname=f"Market Slot {i+1}",
-                    desc="One of the 5 shared Market cards for sale. Use the Craft "
-                         "action to buy it (its resource cost is paid automatically); "
-                         "a fresh card is then dealt here to take its place.",
+                    desc="Shared Market slot. Hover the card on it for what it does "
+                         "and how to buy it.",
                     tags=["MarketSlot", f"MarketSlot:{i}"],
                     locked=True)
+    slot["CustomImage"] = {
+        "ImageURL": ph("market_slot"),
+        "ImageSecondaryURL": "",
+        "WidthScale": 0,
+        # 0.1 thick: SURFACE_Y is TABLE_SURFACE_Y + half of exactly that, so
+        # the frame's bottom face lands flat on the felt instead of hovering.
+        "CustomTile": {"Type": 0, "Thickness": 0.1,
+                       "Stackable": False, "Stretch": True},
+    }
     objects.append(slot)
 
 # Table labels for the two unowned face-up card rows — playtest: "who do
@@ -659,13 +777,18 @@ def table_label(x, z, text, guid_tag, font_size=64, color=(0.85, 0.78, 0.55)):
     return lbl
 
 objects.append(table_label(
-    -12.5, 11.4,
+    MARKET_COLUMN_X, MARKET_SLOT_POSITIONS[0][1] + MARKET_LABEL_DZ + 1.3,
     "MARKET — shared shop.\nBuy with the Craft action.",
     "Label:Market", 48))
-objects.append(table_label(
-    -7.0, -8.3,
-    "RECIPES — reference only.\nCook them at a Crockpot.",
-    "Label:Recipes", 48))
+
+# One title per slot, north of its frame. Small: it names the slot the Craft
+# action's target list names, nothing more — the explanation lives on the card.
+for i, (msx, msz) in enumerate(MARKET_SLOT_POSITIONS):
+    objects.append(table_label(msx, msz + MARKET_LABEL_DZ,
+                               f"Market Slot {i+1}", f"Label:MarketSlot:{i}", 28))
+# (No RECIPES label: the printed reference row it pointed at now lives in
+# the hidden library - recipes are read from the Notebook tab, the Help
+# panel, and the Cook action's own list.)
 
 # ---------------------------------------------------------------------------
 # E.10  Recipe cards (face-up reference)
@@ -673,7 +796,11 @@ objects.append(table_label(
 
 _rw, _rh = atlas_grid("cards_recipes.csv", recipes)
 for i, row in enumerate(recipes):
-    card = base_obj("Card", tf(-14 + (i % 10) * 1.5, SURFACE_Y + 0.1, -10 - (i // 10) * 2.2, rz=0, ry=180),
+    # In the hidden library, not on the table: 20 face-up cards filled the
+    # whole south bank of the board from turn one ("all the recipe cards are
+    # just sitting there"). Cook picks ingredients automatically and every
+    # recipe is in the Notebook tab, the Help panel and the Cook list.
+    card = base_obj("Card", tf(LIBRARY_X2 - 2.0, LIBRARY_Y, 9 - (i % 10) * 2.0, rz=0, ry=180),
                     nickname=row["name"],
                     desc=recipe_desc(row),
                     tags=["RecipeCard", row["id"]])
@@ -798,15 +925,18 @@ for si, start_char in enumerate(["James", "Coco", "Rayman", "Ellie", "Luca"]):
             deck_ids.append(6000 + i)
     # The StartingHand:<name> tag lives on the DECK only (not its cards), so
     # dealStartingHands can never mistake an already-dealt card for the deck.
+    # rz omitted (0) = FACE UP. Dealt from a face-DOWN deck, a player saw a
+    # row of "STARTING" card backs fanned in their own hand instead of the
+    # items they were given.
     start_deck = base_obj("DeckCustom",
-                          tf(LIBRARY_X2, LIBRARY_Y, -5 - si * 2.5, ry=180, rz=180),
+                          tf(LIBRARY_X2, LIBRARY_Y, -1 - si * 2.2, ry=180),
                           nickname=f"{start_char}'s Starting Hand",
                           desc=f"{start_char}'s personal items. Dealt to {start_char}'s player automatically during Setup.",
                           tags=["StartingHandDeck", f"StartingHand:{start_char}"])
     start_deck["DeckIDs"] = deck_ids
     start_deck["CustomDeck"] = dict(starting_custom_deck)
     start_deck["ContainedObjects"] = contained
-    start_deck["HideWhenFaceDown"] = True
+    start_deck["HideWhenFaceDown"] = False
     start_deck["Hands"] = False
     objects.append(start_deck)
 
@@ -820,12 +950,14 @@ resources = [
     ("Cloth",        ph("token_cloth"),   "White", SUPPLY_SHELF_X, LIBRARY_Y,  5),
     ("Food",         ph("token_food"),    "Red",   SUPPLY_SHELF_X, LIBRARY_Y,  7.5),
     ("EnergyDrink",  ph("token_energy"),  "Yellow",SUPPLY_SHELF_X, LIBRARY_Y, 10),
-    ("Battery",      ph("token_battery"), "Blue",  SUPPLY_SHELF_X, LIBRARY_Y, 12.5),
+    ("Battery",      ph("token_battery"), "Blue",  SUPPLY_SHELF_X, LIBRARY_Y, 11.0),
 ]
 
 for res_name, token_url, color, x, y, z in resources:
     # Create the token template
-    token = base_obj("Custom_Token", tf(),
+    # Scale 0.4: at scale 1 a token is roughly a fifth of a location tile —
+    # "the energy drink token is too large" once the board was fixed.
+    token = base_obj("Custom_Token", tf(sx=0.4, sy=0.4, sz=0.4),
                      nickname=res_name.replace("EnergyDrink", "Energy Drink"),
                      desc=f"{res_name} resource token.",
                      tags=["Resource", f"Resource:{res_name}"])
@@ -885,12 +1017,44 @@ objects.append(sanity_d8)
 # the stack across the table (boards ended up 20+ units from home, which
 # then broke the old board-relative resource counting). 9 units clears them.
 # Unused boards are benched under the table at setup (benchUnusedBoards).
+# Player boards line up SQUARE with the game board: parallel to its edges,
+# tops facing in, evenly spaced. They used to sit on a pentagon at angles like
+# 294.3 and 215.1, which read as scattered next to a square board -- and the
+# two northern ones hung off the felt.
+#
+# BOARD_EDGE (12) + half the board's depth + a margin puts each one just
+# outside the printed board. West clears the Market column (cards centred at
+# x=-12.5, so ~-13.7 at their widest).
+PLAYER_BOARD_SX = 2.6          # ~5.2 x 3.6 world units
+PLAYER_BOARD_SZ = 1.8
+# Half the board's depth (the dimension that faces the map on the east/west
+# seats, where the board is turned 90 degrees).
+_pb_half_depth = PLAYER_BOARD_SZ * board_geometry.BOARD_MESH_HALF
+
+# West/east column, pushed as far out as the hand zones allow. The west flank
+# has to hold the map (+/-12), then the Market column, then the player board,
+# and it only just does: at the old 16.0 the board's inner edge sat at -14.22
+# while the market frames reach -14.70, so the two overlapped once the Market
+# moved off the map. Shuffling the Market along z instead is not an option —
+# five 3.7-long slots need 18.5 units and the player boards chop the 29-unit
+# flank into 7.9 / 2.9 / 7.9 bands. Pushing the boards out any FURTHER is not
+# an option either: past HAND_ZONE_INNER they stick into the seat's private
+# hand. East matches west so the table stays symmetrical.
+_side_x = round(HAND_ZONE_INNER - _pb_half_depth, 1)
+_market_west = -MARKET_COLUMN_X + MARKET_SLOT_W / 2
+assert _side_x - _pb_half_depth > _market_west, (
+    f"player boards at {_side_x} overlap the Market column (which reaches "
+    f"{_market_west:.2f}) — the west flank is out of room")
+_south_z = -(board_geometry.BOARD_WORLD_HALF + PLAYER_BOARD_SZ + 0.5)
+
+# (name, colour, x, z, ry, stats) - ry turns the printed top toward the board:
+# 0 = faces north, 90 = faces east, 270 = faces west.
 characters = [
-    ("James", "White", -18, -16, {"health": 8, "hunger": 6, "sanity": 10}),
-    ("Coco",  "Red",    -9, -16, {"health": 6, "hunger": 8, "sanity": 12}),
-    ("Rayman","Yellow",  0, -16, {"health": 12,"hunger": 10,"sanity": 6}),
-    ("Ellie", "Green",   9, -16, {"health": 8, "hunger": 10,"sanity": 8}),
-    ("Luca",  "Blue",   18, -16, {"health": 7, "hunger": 8, "sanity": 10}),
+    ("James",  "White",  _side_x,  -4.0, 270, {"health": 8, "hunger": 6, "sanity": 10}),   # Blue, east
+    ("Rayman", "Yellow", _side_x,   4.0, 270, {"health": 12,"hunger": 10,"sanity": 6}),    # Green, east
+    ("Coco",   "Red",        0.0, _south_z, 0, {"health": 6, "hunger": 8, "sanity": 12}),  # White, south
+    ("Luca",   "Blue",  -_side_x, -4.0,  90, {"health": 7, "hunger": 8, "sanity": 10}),    # Red, west
+    ("Ellie",  "Green", -_side_x,  4.0,  90, {"health": 8, "hunger": 10,"sanity": 8}),     # Yellow, west
 ]
 
 # Per-character standee tint applied to the figurine's card holder / base
@@ -920,7 +1084,7 @@ CHAR_HOME_TILE = {"James": "JamesHouse", "Rayman": "RaymanHouse",
 CHAR_SLOT_X = {"James": -1.8, "Coco": -0.9, "Rayman": 0.0, "Ellie": 0.9, "Luca": 1.8}
 CHAR_SLOT_Z = -1.7
 
-for char_name, color, bx, bz, stats in characters:
+for char_name, color, bx, bz, bry, stats in characters:
     # Standee
     _home = loc_positions[CHAR_HOME_TILE[char_name]]
     standee = base_obj("Figurine_Custom",
@@ -960,14 +1124,20 @@ for char_name, color, bx, bz, stats in characters:
             "Tags": [f"Snap:ActionCube:{ai}"]
         })
 
-    # SURFACE_Y+0.1: spawned at the old 1.1 the boards started inside the
-    # glass tabletop and fell through its partial-hull collider — invisible
-    # until a player fished them out by hand.
+    # SURFACE_Y, not SURFACE_Y+0.1: SURFACE_Y is already TABLE_SURFACE_Y plus
+    # half a 0.1-thick tile, i.e. the height at which a tile's BOTTOM FACE
+    # rests exactly on the felt. The extra +0.1 was left over from when the
+    # boards spawned at an absolute 1.1, inside the glass tabletop, and fell
+    # through its partial-hull collider; at the current SURFACE_Y it just
+    # parked the board 0.1 in the air, and because the board is locked it
+    # never settles — it hung there visibly from a seated camera angle
+    # ("the player card describing James is levitating off the table").
     # Locked: the board is a fixed reference dock (stats live in the UI;
     # resource tokens are laid beside it). Locking stops players dragging it
     # into a pile and stops physics shoving the row apart at load.
     pboard = base_obj("Custom_Tile",
-                      tf(bx, SURFACE_Y + 0.1, bz, sx=3, sy=1, sz=2),
+                      tf(bx, SURFACE_Y, bz, ry=bry,
+                         sx=PLAYER_BOARD_SX, sy=1, sz=PLAYER_BOARD_SZ),
                       nickname=f"{char_name}'s Player Board",
                       desc=f"{char_name}'s reference board. Stats are tracked automatically "
                            f"(left panel + Party roster); resource tokens are delivered beside this board.",
@@ -998,7 +1168,7 @@ bosses = [
     ("Treeguard", 5, 2),   # Phase 2.5 mini-boss — wakes at Dusk of Day 4 (lua/treeguard.lua)
 ]
 
-boss_pool = base_obj("Bag", tf(SUPPLY_SHELF_X, LIBRARY_Y, 17.5),
+boss_pool = base_obj("Bag", tf(SUPPLY_SHELF_X, LIBRARY_Y, -10.5),
                      nickname="Boss Pool",
                      desc="Boss standees. Placed on the map by Dawn card effects — fully automated, no need to touch it.",
                      tags=["BossPool"],
@@ -1027,23 +1197,30 @@ objects.append(boss_pool)
 # Sealed Basement (Design §13.5 / design_batch3.md §3): a fixed Pry
 # destination under Ellie & Luca's House, visible from setup — the map's
 # guaranteed early-game goal for whoever crafts a Pry tool.
+#
+# Placed against the tile's WEST edge, inside the printed ring: at the old
+# (-3.5, -3.5) it sat 4.95 units out — beyond the 3.8-unit ring, reading as
+# part of no location at all. 3.0 units puts it just off the 5x5 tile art
+# and clearly inside Ellie & Luca's circle. West rather than south because
+# the location's name/yields text is printed in the southern annulus, and
+# north-west of the standee row (z = -1.7).
 _elh = loc_positions["EllieLucaHouse"]
 basement = base_obj("BlockSquare",
-                    tf(_elh["x"] - 3.5, SURFACE_Y + 0.15, _elh["z"] - 3.5, sx=1.4, sy=0.5, sz=1.4),
+                    tf(_elh["x"] - 3.0, BOARD_SURFACE_Y + 0.15, _elh["z"], sx=1.4, sy=0.5, sz=1.4),
                     nickname="The Sealed Basement",
                     desc="A padlocked hatch under Ellie & Luca's House. Someone stocked it before the week began.\n\nPry (free action + Crowbar / Lockpick / Pry Bar): a free Market Item, plus 2 Food + 1 Wood + 1 Battery.",
                     tags=["SealedBasement"])
 basement["ColorDiffuse"] = {"r": 0.28, "g": 0.22, "b": 0.15}
 objects.append(basement)
 
-heart_bag = base_obj("Bag", tf(SUPPLY_SHELF_X, LIBRARY_Y, 15),
+heart_bag = base_obj("Bag", tf(SUPPLY_SHELF_X, LIBRARY_Y, -8),
                      nickname="Telltale Heart Supply",
                      desc="5 Telltale Hearts. Cook to create; spend to revive a Down character.",
                      tags=["TelltaleHeartSupply"],
                      locked=True)
 heart_bag["ContainedObjects"] = []
 for hi in range(5):
-    heart = base_obj("Custom_Token", tf(),
+    heart = base_obj("Custom_Token", tf(sx=0.4, sy=0.4, sz=0.4),
                      nickname="Telltale Heart",
                      desc="Use at a Down character's location to revive them. Reviver pays 2 Health. Revived returns at half max stats.",
                      tags=["TelltaleHeart"])
@@ -1061,7 +1238,7 @@ objects.append(heart_bag)
 # ---------------------------------------------------------------------------
 
 # In the library: the same ladder is printed on the board's NE corner.
-legend = base_obj("Card", tf(LIBRARY_X, LIBRARY_Y, -13, rz=0, ry=180, sx=1.5, sy=1, sz=1.5),
+legend = base_obj("Card", tf(LIBRARY_X, LIBRARY_Y, -11, rz=0, ry=180, sx=1.5, sy=1, sz=1.5),
                   nickname="Severity Legend",
                   desc="●○○○○ Atmospheric\n●●○○○ Minor stat hit\n●●●○○ Combat/lasting\n●●●●○ Phase-shift\n●●●●● Boss/apocalyptic",
                   tags=["SeverityLegend"],
@@ -1091,7 +1268,9 @@ with open(os.path.join(CONTENT, "notebook", "quickstart.md"), "r", encoding="utf
 # where it slid under the board and turned invisible. ry=0: a Notecard's
 # printed text follows the gadget convention (like the Day Counter), so
 # the old ry=180 rendered it upside down in the default view.
-notecard = base_obj("Notecard", tf(10.5, SURFACE_Y + 0.1, -9.2, ry=0),
+# On the TABLE south of the board, not on it: sitting on the board it
+# covered printed art and read as a game component.
+notecard = base_obj("Notecard", tf(14.5, SURFACE_Y + 0.1, -14.0, ry=0),
                     nickname="Quick Start",
                     desc=quickstart_text,
                     tags=["QuickStart"])
@@ -1105,7 +1284,7 @@ objects.append(notecard)
 # Catch shelf under the west library column: unlocked objects (decks shed
 # their container at one card left) rest here instead of falling forever.
 shelf = base_obj("BlockSquare",
-                 tf(-26.5, -3.6, -3, sx=9, sy=0.4, sz=30),
+                 tf(-7.5, -3.6, 0, sx=8, sy=0.4, sz=23),
                  nickname="",
                  desc="",
                  tags=["LibraryShelf"],
@@ -1123,6 +1302,19 @@ objects.append(shelf)
 # Assemble the full save
 # ---------------------------------------------------------------------------
 
+# Anything parked below the table is out of play: silence its tooltip so
+# hovering the board doesn't raise ghost cards (guarded by
+# test_regression_guards.py::test_hidden_objects_do_not_answer_the_pointer).
+def _silence_hidden(objs):
+    for o in objs:
+        if o.get("Transform", {}).get("posY", 1) < 0:
+            hide_from_pointer(o)
+        for child in o.get("ContainedObjects", []) or []:
+            hide_from_pointer(child)
+
+
+_silence_hidden(objects)
+
 save = {
     "SaveName": "Starve No More",
     "GameMode": "Starve No More",
@@ -1133,9 +1325,13 @@ save = {
     "Tags": ["Card Games", "Strategy", "Cooperative", "Survival"],
     "Gravity": 0.5,
     "PlayArea": 1.0,
-    # Flat table: the hexagon table's raised wooden rim served no purpose
-    # and read as a game component ("what is that barrier for?").
-    "Table": "Table_Glass",
+    # Opaque, not glass: the glass top made the entire under-table library
+    # (decks, supply bags, benched boards) visible from every seat once the
+    # board shrank to its correct size. Valid TTS tables are Table_Circular /
+    # Custom / Glass / Hexagon / None / Octagon / Plastic / Poker / RPG /
+    # Square — RPG is the large opaque one. Everything hidden is parked
+    # inside the board footprint below, so the board hides it too.
+    "Table": "Table_RPG",
     "Sky": "Sky_Museum",
     "Note": "Starve No More — cooperative survival board game for 3-5 players.",
     "TabStates": {},

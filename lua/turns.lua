@@ -156,11 +156,11 @@ function spendAction(color, actionName)
         return false
     end
     if char.actionsLeft <= 0 then
-        broadcastToColor("No actions remaining. Click Pass to end your turn.", color, BROADCAST_COLORS.damage)
+        broadcastToColor("No actions remaining. Click End Turn.", color, BROADCAST_COLORS.damage)
         return false
     end
     if gameState.turnStyle == "rotate" and gameState.actedThisVisit then
-        broadcastToColor("Rotation turns: that was your 1 action for this go-around. Click Pass — your remaining actions are kept for your next go.",
+        broadcastToColor("Rotation turns: that was your 1 action for this go-around. Click End Turn — your remaining actions are kept for your next go.",
             color, BROADCAST_COLORS.damage)
         return false
     end
@@ -200,15 +200,13 @@ function refreshDuskReadyLabel()
     if not UI then return end
     local ready, total = countDuskReady()
     if total > 0 then
-        UI.setAttribute("duskReadyBtn", "text",
-            "I'm settled — Ready for Night  (" .. ready .. "/" .. total .. ")")
+        setButtonLabel("duskReadyBtn",
+            "I'm settled — Ready for Night  (" .. ready .. "/" .. total .. ")",
+            "#AAFFCC", "#192D23F2")
     else
-        UI.setAttribute("duskReadyBtn", "text", "Host: click Resolve Night when settled")
+        setButtonLabel("duskReadyBtn", "Host: click Resolve Night when settled",
+            "#AAFFCC", "#192D23F2")
     end
-    -- TTS resets a Button's styling when its text is set from Lua — the
-    -- label came back near-black on the dark green plate. Re-assert it.
-    UI.setAttribute("duskReadyBtn", "textColor", "#AAFFCC")
-    UI.setAttribute("duskReadyBtn", "color", "#192D23F2")
 end
 
 function toggleDuskReady(color)
