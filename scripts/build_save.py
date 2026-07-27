@@ -1055,8 +1055,24 @@ objects.append(sanity_d8)
 # BOARD_EDGE (12) + half the board's depth + a margin puts each one just
 # outside the printed board. West clears the Market column (cards centred at
 # x=-12.5, so ~-13.7 at their widest).
-PLAYER_BOARD_SX = 2.6          # ~5.2 x 3.6 world units
+PLAYER_BOARD_SX = 2.6
 PLAYER_BOARD_SZ = 1.8
+
+# How wide the board actually renders, which is NOT mesh * scaleX.
+#
+# board_*.png is 1024x512 (2:1) while the transform is 2.6 x 1.8 (1.44:1), and
+# a Custom_Tile with Stretch on renders at its IMAGE's aspect. James and Rayman
+# sat 8.0 apart with a nominal 5.15-wide board — a 2.85-unit gap on paper — and
+# still overlapped on the table (playtest screenshot, 2026-07-27). Take the
+# widest reading the ambiguity allows and space the flanks from that: every
+# other reading is narrower, so this cannot overlap either way.
+#
+# auditObjectFootprints (lua/audit.lua) now measures the real thing in a live
+# game and prints "PlayerBoard size WxD" plus the true edge-to-edge gap into
+# the Message Log; tighten this once that number is in hand.
+_pb_art_aspect = 2.0           # art/characters/board_*.png, 1024x512
+PLAYER_BOARD_W = (PLAYER_BOARD_SX * board_geometry.BOARD_MESH_HALF * 2
+                  * _pb_art_aspect)
 # Half the board's depth (the dimension that faces the map on the east/west
 # seats, where the board is turned 90 degrees).
 _pb_half_depth = PLAYER_BOARD_SZ * board_geometry.BOARD_MESH_HALF
@@ -1077,14 +1093,20 @@ assert _side_x - _pb_half_depth > _market_west, (
     f"{_market_west:.2f}) — the west flank is out of room")
 _south_z = -(board_geometry.BOARD_WORLD_HALF + PLAYER_BOARD_SZ + 0.5)
 
+# The flank boards are turned 90 degrees, so it is their WIDTH that runs
+# along z: each needs half a board from the centre line, plus a margin. The
+# old +/-4.0 was set from the nominal 5.15 width and left them overlapping.
+_flank_z = round(PLAYER_BOARD_W / 2 + 0.65, 1)
+assert 2 * _flank_z > PLAYER_BOARD_W, "the two boards on a flank still overlap"
+
 # (name, colour, x, z, ry, stats) - ry turns the printed top toward the board:
 # 0 = faces north, 90 = faces east, 270 = faces west.
 characters = [
-    ("James",  "White",  _side_x,  -4.0, 270, {"health": 8, "hunger": 6, "sanity": 10}),   # Blue, east
-    ("Rayman", "Yellow", _side_x,   4.0, 270, {"health": 12,"hunger": 10,"sanity": 6}),    # Green, east
-    ("Coco",   "Red",        0.0, _south_z, 0, {"health": 6, "hunger": 8, "sanity": 12}),  # White, south
-    ("Luca",   "Blue",  -_side_x, -4.0,  90, {"health": 7, "hunger": 8, "sanity": 10}),    # Red, west
-    ("Ellie",  "Green", -_side_x,  4.0,  90, {"health": 8, "hunger": 10,"sanity": 8}),     # Yellow, west
+    ("James",  "White",  _side_x, -_flank_z, 270, {"health": 8, "hunger": 6, "sanity": 10}),  # Blue, east
+    ("Rayman", "Yellow", _side_x,  _flank_z, 270, {"health": 12,"hunger": 10,"sanity": 6}),   # Green, east
+    ("Coco",   "Red",        0.0, _south_z,    0, {"health": 6, "hunger": 8, "sanity": 12}),  # White, south
+    ("Luca",   "Blue",  -_side_x, -_flank_z,  90, {"health": 7, "hunger": 8, "sanity": 10}),  # Red, west
+    ("Ellie",  "Green", -_side_x,  _flank_z,  90, {"health": 8, "hunger": 10,"sanity": 8}),   # Yellow, west
 ]
 
 # Per-character standee tint applied to the figurine's card holder / base

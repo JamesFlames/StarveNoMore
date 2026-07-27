@@ -46,10 +46,52 @@ def _category(tags):
 # --------------------------------------------------------------------------
 # 1. Objects laid out in a group must not overlap at spawn.
 # --------------------------------------------------------------------------
-# A Custom_Tile spans ~2 world units per unit of Transform scale (the 2.5-scale
-# location tiles are the "5x5-unit" footprint the board art is drawn around),
-# so two tiles clear each other only when their centres are at least
-# (scaleX_a + scaleX_b) apart. Player boards violated this — scale 3, spaced 3.
+# A Custom_Tile spans ~1.98 world units per unit of Transform scale (measured:
+# the 2.5-scale location tiles come out 4.95 wide). Two more things decide
+# whether neighbours actually clear each other, and missing them shipped
+# overlapping player boards twice:
+#
+#   * ROTATION. A board turned 90 degrees puts its WIDTH along z. The flank
+#     boards are at ry=270, so their 2.6 scaleX — not their 1.8 scaleZ — is
+#     what has to fit in the gap between them.
+#   * STRETCH. A stretched tile renders at its IMAGE's aspect ratio, so 2:1
+#     art (board_*.png) on a 1.44:1 transform comes out wider than
+#     mesh * scaleX. The exact rule is not measured — auditObjectFootprints
+#     prints the real size and the real edge-to-edge gap from a live game —
+#     so this takes the widest reading the ambiguity allows and then insists
+#     on a real margin on top, rather than trusting arithmetic that a
+#     playtest screenshot has already contradicted once.
+
+_TILE_MESH = 1.98          # world units per unit of Transform scale (measured)
+_MIN_CLEARANCE = 0.15      # of the larger footprint; 12% shipped overlapping
+
+
+def _art_aspect(url):
+    """width/height of the art behind an ImageURL, or None if not local."""
+    from PIL import Image                      # test-only dependency
+    import glob
+    name = os.path.basename(url.split("?")[0])
+    hits = glob.glob(os.path.join(ROOT, "art", "**", name), recursive=True)
+    if not hits:
+        return None
+    with Image.open(hits[0]) as im:
+        return im.size[0] / im.size[1]
+
+
+def _tile_footprint(o):
+    """Widest plausible world (x, z) footprint of a Custom_Tile."""
+    t = o["Transform"]
+    w = t["scaleX"] * _TILE_MESH
+    d = t["scaleZ"] * _TILE_MESH
+    image = o.get("CustomImage", {})
+    if image.get("CustomTile", {}).get("Stretch"):
+        aspect = _art_aspect(image.get("ImageURL", ""))
+        if aspect:
+            w, d = max(w, d * aspect), max(d, w / aspect)
+    if round(t.get("rotY", 0)) % 180 == 90:
+        w, d = d, w
+    return w, d
+
 
 def test_grouped_tiles_do_not_overlap_at_spawn():
     save = _load_save()
@@ -60,25 +102,40 @@ def test_grouped_tiles_do_not_overlap_at_spawn():
         cat = _category(o.get("Tags", []))
         if cat in ("PlayerBoard", "Location", "MarketSlot"):
             t = o["Transform"]
+            w, d = _tile_footprint(o)
             groups.setdefault(cat, []).append(
-                (o.get("Nickname") or o["Name"], t["posX"], t["posZ"], t["scaleX"], t["scaleZ"]))
+                (o.get("Nickname") or o["Name"], t["posX"], t["posZ"], w, d))
 
     problems = []
     for cat, items in groups.items():
         for i in range(len(items)):
             for j in range(i + 1, len(items)):
-                na, xa, za, sxa, sza = items[i]
-                nb, xb, zb, sxb, szb = items[j]
-                dx, dz = abs(xa - xb), abs(za - zb)
-                # Clear if separated on EITHER axis by the summed half-widths
-                # (half-width ~= scale, since width ~= 2*scale).
-                if dx < (sxa + sxb) and dz < (sza + szb):
+                na, xa, za, wa, da = items[i]
+                nb, xb, zb, wb, db = items[j]
+                gap = max(abs(xa - xb) - (wa + wb) / 2,
+                          abs(za - zb) - (da + db) / 2)
+                need = _MIN_CLEARANCE * max(wa, wb, da, db)
+                if gap < need:
                     problems.append(
-                        f"{cat}: '{na}' and '{nb}' overlap "
-                        f"(centres dx={dx:.1f} dz={dz:.1f}, need dx>={sxa+sxb:.0f} or dz>={sza+szb:.0f})")
+                        f"{cat}: '{na}' and '{nb}' clear each other by only "
+                        f"{gap:.2f} world units (need {need:.2f}); footprints "
+                        f"{wa:.1f}x{da:.1f} and {wb:.1f}x{db:.1f}")
     assert not problems, (
-        "objects in a laid-out group overlap at spawn — TTS physics will shove "
-        "the stack apart across the table:\n  " + "\n  ".join(problems))
+        "objects in a laid-out group are too close at spawn — they overlap on "
+        "the table, and TTS physics shoves unlocked ones across it:\n  "
+        + "\n  ".join(problems))
+
+
+def test_player_board_width_constant_matches_the_art():
+    """build_save sizes the flank spacing from the board art's aspect ratio.
+    New art with a different shape has to move the boards with it."""
+    import re as _re
+    src = read_text(os.path.join(ROOT, "scripts", "build_save.py"))
+    declared = float(_re.search(r"^_pb_art_aspect\s*=\s*([\d.]+)", src, _re.M).group(1))
+    actual = _art_aspect("board_james.png")
+    assert abs(declared - actual) < 0.01, (
+        f"_pb_art_aspect is {declared} but art/characters/board_james.png is "
+        f"{actual:.3f}:1 — the player boards are spaced from that number")
 
 
 # --------------------------------------------------------------------------

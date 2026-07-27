@@ -380,6 +380,11 @@ function auditObjectFootprints()
         {tag = "DoomMarker",   label = "DoomMarker"},
         {tag = "Location:JamesHouse", label = "Tile"},
         {tag = "Resource:EnergyDrink", label = "EnergyTok"},
+        -- A stretched Custom_Tile whose art is not square does NOT render at
+        -- mesh * scale: board_*.png is 2:1 against a 1.44:1 transform, and the
+        -- two boards on a flank overlapped on the table while the arithmetic
+        -- in build_save said they had a 2.8-unit gap. Measure them.
+        {tag = "PlayerBoard:James", label = "PlayerBoard"},
     }
 
     local parts = {}
@@ -427,5 +432,37 @@ function auditObjectFootprints()
 
     if #parts > 0 then
         broadcastEvent("proc", "[footprints] " .. table.concat(parts, " | "))
+    end
+
+    -- Real edge-to-edge clearance between neighbours laid out in a row. A
+    -- size alone doesn't answer "do these two overlap?" once rotation is in
+    -- play, and a screenshot can't either (perspective). getBounds is the
+    -- world-space AABB, rotation included — a negative gap is an overlap,
+    -- full stop.
+    local pairs_to_check = {
+        {a = "PlayerBoard:James", b = "PlayerBoard:Rayman", axis = "z", label = "James|Rayman"},
+        {a = "PlayerBoard:Luca",  b = "PlayerBoard:Ellie",  axis = "z", label = "Luca|Ellie"},
+        {a = "MarketSlot:0",      b = "MarketSlot:1",       axis = "z", label = "Market0|1"},
+    }
+    local gaps = {}
+    for _, p in ipairs(pairs_to_check) do
+        local oa, ob = findOneByTag(p.a), findOneByTag(p.b)
+        if oa and ob then
+            pcall(function()
+                local ba, bb = oa.getBounds(), ob.getBounds()
+                local ca, cb = ba.center[p.axis], bb.center[p.axis]
+                local gap = math.abs(ca - cb)
+                    - (ba.size[p.axis] + bb.size[p.axis]) / 2
+                table.insert(gaps, string.format("%s %+.2f", p.label, gap))
+                if gap < 0 then
+                    broadcastEvent("warn", string.format(
+                        "[layout] %s OVERLAP by %.2f world units — widen the spacing in build_save.py.",
+                        p.label, -gap))
+                end
+            end)
+        end
+    end
+    if #gaps > 0 then
+        broadcastEvent("proc", "[gaps] " .. table.concat(gaps, " | "))
     end
 end
