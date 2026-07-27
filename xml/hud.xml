@@ -22,7 +22,10 @@
        180 — which is why whose-turn-it-is was unreadable. The separator bars
        were dropped to pay for the extra width; spacing does that job.
        Guard: test_xml_quality.py::test_phase_banner_slots_fit_their_text. -->
-  <HorizontalLayout spacing="16" padding="8 14 8 14"
+  <!-- spacing is 14, not 16: the row must stay inside 1470px
+       (test_phase_banner_row_fits_inside_its_panel), and bannerOmen's 28px
+       slot was paid for out of the spacing rather than out of a text slot. -->
+  <HorizontalLayout spacing="14" padding="8 14 8 14"
                     childForceExpandWidth="false"
                     childAlignment="MiddleCenter">
     <!-- Day -->
@@ -55,6 +58,20 @@
           color="#BBDDBB"
           preferredWidth="300"
           text="Click Setup to begin" />
+    <!-- NIGHT OMEN — the visual twin of the Dusk growl (Design §15.8, §18.19
+         item 2). Blank all week; a waning moon appears at Dusk on exactly the
+         nights the growl plays, and clears at the next Dawn. It carries the
+         same single bit the sound does and no more: something hard is next,
+         not what or where. Deliberately not the severity-dot glyph (●) — that
+         vocabulary means "read this card", and this is not a card.
+         Set by setNightOmen() in ui_banner.lua. -->
+    <Text id="bannerOmen"
+          fontSize="20"
+          color="#8899BB"
+          preferredWidth="28"
+          tooltip="A waning moon. It shows up on the nights the neighborhood makes that sound — the same warning, for anyone playing muted. What it means is for you to find out."
+          tooltipPosition="Below" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
+          text="" />
     <!-- Help button -->
     <Button id="helpBtn"
             onClick="onHelpClick"

@@ -345,9 +345,26 @@ The system is not stopping bad plays — it is ensuring the player meant it.
 
 **Fail-friendly defaults.** If a player does something the rules don't strictly cover, the game does *not* throw a script error. It silently allows it and posts a chat note: "(Edge case — the rules don't strictly cover this. Continuing.)" This means new players exploring the buttons cannot break the session.
 
-### 18.19 What this UX program is not
+### 18.19 Accessibility standards (the floor)
 
-This is not a list of polish items to ship in a v2 patch. **Every item in §18.10–18.18 is part of the v1 design**, because the design's stated player-experience goal is *playable on the table without a rulebook* (§1.4). A TTS implementation that omits these is not an implementation of *this* game — it is a different, harder-to-onboard game wearing the same components.
+The design's accessibility *instincts* are largely good, and it is worth saying so: resources are double-coded by icon and colour (§8 — "brown plank," "grey gear," "yellow can"), the severity rating is position-coded as well as counted (§15.5), boss standees use scale hierarchy (§5), and player boards are built for at-a-glance reading (§10.2). That is most of the work done by information-design discipline rather than by accessibility intent — a good sign, and not a substitute for a floor.
+
+Because accessibility done by instinct has no floor, and the lapses instinct misses are exactly the ones this design had: the audio-only Night Sound (fixed — §15.8 now ships a visual twin) and the §10.2 constraint panel coded by "red border," a colour-only distinction against the perk panel beside it. Per [PrinciplesOfGoodBoardGames.md §23](../../Archive/PrinciplesOfGoodBoardGames.md) — Accessibility Is Design, Not Accommodation — this is a design-time constraint, not a post-production one, and the art for this game is not finished, which makes now the cheap moment.
+
+**The floor, as a checkable list.** Every item is a pass/fail question about a specific component, not an aspiration:
+
+1. **No colour-only distinctions.** Every colour-coded distinction is *also* coded by shape, icon, position, or label. (Open item: the §10.2 constraint panel needs a label or icon, not only a red border. The chat broadcast categories of §18.14 already carry a text prefix, so they pass.)
+2. **Every audio cue has a visual twin.** Any sound that carries information is mirrored by something on screen carrying the *same* information and no more. (§15.8's Night Sound now pairs the growl with a moon glyph in the Phase Banner — deliberately just as non-specific, because the design intent is dread without data.)
+3. **Text size and contrast, as numbers.** XML UI body text is **≥ 12 px** and panel titles **≥ 14 px** at TTS's default UI scale; text-on-panel contrast is **≥ 4.5:1** for body copy and **≥ 3:1** for large/bold text (WCAG AA). The dark panels (`#000000B2` and darker) with `#BBCCDD`-or-lighter body text clear this; the light "rulebook page" setup panels (`#F2E8D5F7` with `#3A362E` text) clear it comfortably.
+4. **No information conveyed only by animation or timing.** The standee bob and hand-zone glow of §18.12 are *redundant* channels — the Phase Banner always carries the same fact in text. Nothing may be signalled by motion alone. (This is also why the End-of-Round Summary of §18.18 no longer auto-dismisses.)
+5. **A content note at setup.** The game is cosmic-horror themed with body horror in its death narrations and a stalking-in-the-dark antagonist. The welcome sequence states this before characters are chosen, so nobody discovers it mid-game.
+6. **Readable without audio, and playable muted.** A full campaign must be completable with sound off. This falls out of (2) but is worth stating as its own check, because virtual-tabletop players are frequently in voice chat with game audio down.
+
+**Reviewing against this list** is a step in adding any component, in the same way §18.10's "show it to a player who has never read the rules" is. An item that fails one of these six is not shipped and then patched; it is redesigned.
+
+### 18.20 What this UX program is not
+
+This is not a list of polish items to ship in a v2 patch. **Every item in §18.10–18.19 is part of the v1 design**, because the design's stated player-experience goal is *playable on the table without a rulebook* (§1.4). A TTS implementation that omits these is not an implementation of *this* game — it is a different, harder-to-onboard game wearing the same components.
 
 The original build plan that walked the implementation through Phases A–K (the source of the phase codes like `F.3` / `E.8` still cited in code comments) was retired in 2026-07 — recover it from git history if needed; current build status lives in `agents.md` and `README.md`.
 

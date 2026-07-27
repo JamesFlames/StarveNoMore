@@ -6,107 +6,107 @@
 AUDIO = {}
 
 AUDIO.AMBIENT_SUBURBAN = {
-    { url = "http://localhost:8080/sounds/ambient/suburban/dontstarve_dlc003_amb_temperate_interior_city_day.ogg", duration = 51.26, name = "dontstarve_dlc003_amb_temperate_interior_city_day.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_fall_day_amb_dsh.ogg", duration = 113.53, name = "suburbs_fall_day_amb_dsh.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/suburban/dontstarve_dlc003_amb_temperate_interior_city_day.ogg", duration = 45.84, name = "dontstarve_dlc003_amb_temperate_interior_city_day.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/suburban/suburbs_fall_day_amb_dsh.ogg", duration = 109.40, name = "suburbs_fall_day_amb_dsh.ogg" },
 }
 
 AUDIO.AMBIENT_VARIED = {
-    { url = "http://localhost:8080/sounds/ambient/varied/badland_summer_lp.ogg", duration = 109.77, name = "badland_summer_lp.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/badland_summer_lp.ogg", duration = 86.77, name = "badland_summer_lp.ogg" },
     { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds fall night_ds_amb.wav", duration = 99.08, name = "battlegrounds fall night_ds_amb.wav" },
-    { url = "http://localhost:8080/sounds/ambient/varied/cave_lp.ogg", duration = 91.48, name = "cave_lp.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/deep_jungle_fall_night.ogg", duration = 112.88, name = "deep_jungle_fall_night.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/forest_summer_lp.ogg", duration = 150.80, name = "forest_summer_lp.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/grasslandry_day_lp.ogg", duration = 95.01, name = "grasslandry_day_lp.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/hamlet_amb_cave_st_lp.ogg", duration = 116.64, name = "hamlet_amb_cave_st_lp.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/jungle_wet_night_lp.ogg", duration = 92.87, name = "jungle_wet_night_lp.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/mangrove_dry_day.ogg", duration = 93.15, name = "mangrove_dry_day.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/mangrove_hurricane_day.ogg", duration = 92.50, name = "mangrove_hurricane_day.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/wind_heavy_lp.ogg", duration = 78.73, name = "wind_heavy_lp.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/wind_light_lp.ogg", duration = 63.35, name = "wind_light_lp.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/winterwind_lp.ogg", duration = 49.24, name = "winterwind_lp.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/cave_lp.ogg", duration = 72.81, name = "cave_lp.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/deep_jungle_fall_night.ogg", duration = 96.22, name = "deep_jungle_fall_night.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/forest_summer_lp.ogg", duration = 134.01, name = "forest_summer_lp.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/grasslandry_day_lp.ogg", duration = 82.62, name = "grasslandry_day_lp.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/hamlet_amb_cave_st_lp.ogg", duration = 57.26, name = "hamlet_amb_cave_st_lp.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/jungle_wet_night_lp.ogg", duration = 86.43, name = "jungle_wet_night_lp.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/mangrove_dry_day.ogg", duration = 89.16, name = "mangrove_dry_day.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/mangrove_hurricane_day.ogg", duration = 82.70, name = "mangrove_hurricane_day.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/wind_heavy_lp.ogg", duration = 62.73, name = "wind_heavy_lp.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/wind_light_lp.ogg", duration = 47.43, name = "wind_light_lp.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/winterwind_lp.ogg", duration = 45.45, name = "winterwind_lp.ogg" },
 }
 
 AUDIO.AMBIENT_NIGHT = {
-    { url = "http://localhost:8080/sounds/ambient/night/night_drone_cold.ogg", duration = 72.00, name = "night_drone_cold.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/night/night_drone_hollow.ogg", duration = 72.00, name = "night_drone_hollow.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/night/night_drone_low.ogg", duration = 72.00, name = "night_drone_low.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/night/night_drone_cold.ogg", duration = 25.18, name = "night_drone_cold.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/night/night_drone_hollow.ogg", duration = 25.13, name = "night_drone_hollow.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/night/night_drone_low.ogg", duration = 25.13, name = "night_drone_low.ogg" },
 }
 
 AUDIO.CREATURES = {}
 AUDIO.CREATURES.bearger = {
-    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_attack_1.ogg", duration = 0.73, name = "bearger_attack_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_attack_2.ogg", duration = 0.84, name = "bearger_attack_2.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_chew_1.ogg", duration = 0.44, name = "bearger_chew_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_chew_2.ogg", duration = 0.37, name = "bearger_chew_2.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_chew_3.ogg", duration = 0.16, name = "bearger_chew_3.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_death_1.ogg", duration = 0.76, name = "bearger_death_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_distant_1.ogg", duration = 3.71, name = "bearger_distant_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_attack_1.ogg", duration = 0.68, name = "bearger_attack_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_attack_2.ogg", duration = 0.74, name = "bearger_attack_2.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_chew_1.ogg", duration = 0.55, name = "bearger_chew_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_chew_2.ogg", duration = 0.48, name = "bearger_chew_2.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_chew_3.ogg", duration = 0.38, name = "bearger_chew_3.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_death_1.ogg", duration = 0.67, name = "bearger_death_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/bearger/bearger_distant_1.ogg", duration = 1.99, name = "bearger_distant_1.ogg" },
 }
 
 AUDIO.CREATURES.deerclops = {
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_attack_1.ogg", duration = 0.91, name = "deerclops_attack_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_attack_2.ogg", duration = 0.76, name = "deerclops_attack_2.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_attack_3.ogg", duration = 0.91, name = "deerclops_attack_3.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_attack_4.ogg", duration = 0.84, name = "deerclops_attack_4.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_attack_5.ogg", duration = 0.91, name = "deerclops_attack_5.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_death_1.ogg", duration = 2.46, name = "deerclops_death_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_death_2.ogg", duration = 2.72, name = "deerclops_death_2.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_1.ogg", duration = 8.57, name = "deerclops_distant_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_2.ogg", duration = 7.89, name = "deerclops_distant_2.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_3.ogg", duration = 9.22, name = "deerclops_distant_3.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_4.ogg", duration = 7.84, name = "deerclops_distant_4.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_attack_1.ogg", duration = 0.82, name = "deerclops_attack_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_attack_2.ogg", duration = 0.73, name = "deerclops_attack_2.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_attack_3.ogg", duration = 0.81, name = "deerclops_attack_3.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_attack_4.ogg", duration = 0.78, name = "deerclops_attack_4.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_attack_5.ogg", duration = 0.82, name = "deerclops_attack_5.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_death_1.ogg", duration = 1.89, name = "deerclops_death_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_death_2.ogg", duration = 1.92, name = "deerclops_death_2.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_1.ogg", duration = 4.87, name = "deerclops_distant_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_2.ogg", duration = 4.55, name = "deerclops_distant_2.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_3.ogg", duration = 5.31, name = "deerclops_distant_3.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/deerclops/deerclops_distant_4.ogg", duration = 4.59, name = "deerclops_distant_4.ogg" },
 }
 
 AUDIO.CREATURES.eye_of_terror = {
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_attack_1.ogg", duration = 0.34, name = "Tentacle_attack_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_attack_2.ogg", duration = 0.39, name = "Tentacle_attack_2.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_attack_3.ogg", duration = 0.29, name = "Tentacle_attack_3.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_attack_4.ogg", duration = 0.31, name = "Tentacle_attack_4.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_attack_5.ogg", duration = 0.39, name = "Tentacle_attack_5.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_appear_1.ogg", duration = 2.93, name = "Tentacle_voice_appear_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_appear_2.ogg", duration = 2.95, name = "Tentacle_voice_appear_2.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_appear_3.ogg", duration = 2.95, name = "Tentacle_voice_appear_3.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_appear_4.ogg", duration = 2.93, name = "Tentacle_voice_appear_4.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_death_1.ogg", duration = 3.68, name = "Tentacle_voice_death_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_death_2.ogg", duration = 3.68, name = "Tentacle_voice_death_2.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_death_3.ogg", duration = 3.58, name = "Tentacle_voice_death_3.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_death_4.ogg", duration = 3.60, name = "Tentacle_voice_death_4.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_attack_1.ogg", duration = 0.42, name = "Tentacle_attack_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_attack_2.ogg", duration = 0.45, name = "Tentacle_attack_2.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_attack_3.ogg", duration = 0.41, name = "Tentacle_attack_3.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_attack_4.ogg", duration = 0.41, name = "Tentacle_attack_4.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_attack_5.ogg", duration = 0.44, name = "Tentacle_attack_5.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_appear_1.ogg", duration = 0.86, name = "Tentacle_voice_appear_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_appear_2.ogg", duration = 0.87, name = "Tentacle_voice_appear_2.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_appear_3.ogg", duration = 0.87, name = "Tentacle_voice_appear_3.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_appear_4.ogg", duration = 0.87, name = "Tentacle_voice_appear_4.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_death_1.ogg", duration = 1.09, name = "Tentacle_voice_death_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_death_2.ogg", duration = 1.03, name = "Tentacle_voice_death_2.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_death_3.ogg", duration = 1.02, name = "Tentacle_voice_death_3.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/eye_of_terror/Tentacle_voice_death_4.ogg", duration = 1.01, name = "Tentacle_voice_death_4.ogg" },
 }
 
 AUDIO.CREATURES.treeguard = {
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_1.ogg", duration = 1.02, name = "Leif_VO_attack_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_10.ogg", duration = 0.97, name = "Leif_VO_attack_10.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_11.ogg", duration = 1.04, name = "Leif_VO_attack_11.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_12.ogg", duration = 0.97, name = "Leif_VO_attack_12.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_13.ogg", duration = 0.91, name = "Leif_VO_attack_13.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_2.ogg", duration = 0.97, name = "Leif_VO_attack_2.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_3.ogg", duration = 0.97, name = "Leif_VO_attack_3.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_4.ogg", duration = 0.97, name = "Leif_VO_attack_4.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_5.ogg", duration = 1.02, name = "Leif_VO_attack_5.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_6.ogg", duration = 1.02, name = "Leif_VO_attack_6.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_7.ogg", duration = 1.02, name = "Leif_VO_attack_7.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_8.ogg", duration = 1.02, name = "Leif_VO_attack_8.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_9.ogg", duration = 0.99, name = "Leif_VO_attack_9.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_death_1.ogg", duration = 1.83, name = "Leif_VO_death_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_death_2.ogg", duration = 1.54, name = "Leif_VO_death_2.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_death_3.ogg", duration = 1.54, name = "Leif_VO_death_3.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_death_4.ogg", duration = 1.57, name = "Leif_VO_death_4.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_1.ogg", duration = 0.94, name = "Leif_branchfoley_1.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_10.ogg", duration = 0.97, name = "Leif_branchfoley_10.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_3.ogg", duration = 1.10, name = "Leif_branchfoley_3.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_4.ogg", duration = 1.12, name = "Leif_branchfoley_4.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_5.ogg", duration = 1.59, name = "Leif_branchfoley_5.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_6.ogg", duration = 0.97, name = "Leif_branchfoley_6.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_7.ogg", duration = 1.18, name = "Leif_branchfoley_7.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_8.ogg", duration = 1.02, name = "Leif_branchfoley_8.ogg" },
-    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_9.ogg", duration = 1.10, name = "Leif_branchfoley_9.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_1.ogg", duration = 0.58, name = "Leif_VO_attack_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_10.ogg", duration = 0.59, name = "Leif_VO_attack_10.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_11.ogg", duration = 0.60, name = "Leif_VO_attack_11.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_12.ogg", duration = 0.56, name = "Leif_VO_attack_12.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_13.ogg", duration = 0.56, name = "Leif_VO_attack_13.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_2.ogg", duration = 0.57, name = "Leif_VO_attack_2.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_3.ogg", duration = 0.56, name = "Leif_VO_attack_3.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_4.ogg", duration = 0.57, name = "Leif_VO_attack_4.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_5.ogg", duration = 0.57, name = "Leif_VO_attack_5.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_6.ogg", duration = 0.58, name = "Leif_VO_attack_6.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_7.ogg", duration = 0.58, name = "Leif_VO_attack_7.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_8.ogg", duration = 0.58, name = "Leif_VO_attack_8.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_attack_9.ogg", duration = 0.58, name = "Leif_VO_attack_9.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_death_1.ogg", duration = 0.82, name = "Leif_VO_death_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_death_2.ogg", duration = 0.75, name = "Leif_VO_death_2.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_death_3.ogg", duration = 0.74, name = "Leif_VO_death_3.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_VO_death_4.ogg", duration = 0.75, name = "Leif_VO_death_4.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_1.ogg", duration = 0.93, name = "Leif_branchfoley_1.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_10.ogg", duration = 0.92, name = "Leif_branchfoley_10.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_3.ogg", duration = 0.99, name = "Leif_branchfoley_3.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_4.ogg", duration = 1.01, name = "Leif_branchfoley_4.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_5.ogg", duration = 1.32, name = "Leif_branchfoley_5.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_6.ogg", duration = 0.88, name = "Leif_branchfoley_6.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_7.ogg", duration = 1.02, name = "Leif_branchfoley_7.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_8.ogg", duration = 0.92, name = "Leif_branchfoley_8.ogg" },
+    { url = "http://localhost:8080/sounds/creatures/treeguard/Leif_branchfoley_9.ogg", duration = 0.96, name = "Leif_branchfoley_9.ogg" },
 }
 
 AUDIO.SFX = {}
-AUDIO.SFX.character_death = { url = "http://localhost:8080/sounds/sfx/Character_Death_Sound.ogg", duration = 1.49, name = "Character_Death_Sound.ogg" }
-AUDIO.SFX.character_meet = { url = "http://localhost:8080/sounds/sfx/Character_Meet_Sound.ogg", duration = 0.99, name = "Character_Meet_Sound.ogg" }
-AUDIO.SFX.character_talktrade = { url = "http://localhost:8080/sounds/sfx/Character_TalkTrade_Sound.ogg", duration = 1.91, name = "Character_TalkTrade_Sound.ogg" }
-AUDIO.SFX.character_walk = { url = "http://localhost:8080/sounds/sfx/Character_Walk_Sound.ogg", duration = 2.43, name = "Character_Walk_Sound.ogg" }
+AUDIO.SFX.character_death = { url = "http://localhost:8080/sounds/sfx/Character_Death_Sound.ogg", duration = 1.85, name = "Character_Death_Sound.ogg" }
+AUDIO.SFX.character_meet = { url = "http://localhost:8080/sounds/sfx/Character_Meet_Sound.ogg", duration = 1.76, name = "Character_Meet_Sound.ogg" }
+AUDIO.SFX.character_talktrade = { url = "http://localhost:8080/sounds/sfx/Character_TalkTrade_Sound.ogg", duration = 2.34, name = "Character_TalkTrade_Sound.ogg" }
+AUDIO.SFX.character_walk = { url = "http://localhost:8080/sounds/sfx/Character_Walk_Sound.ogg", duration = 3.08, name = "Character_Walk_Sound.ogg" }
 AUDIO.SFX.night_growl = { url = "http://localhost:8080/sounds/sfx/night_growl.wav", duration = 2.20, name = "night_growl.wav" }
 AUDIO.SFX.tick_chime = { url = "http://localhost:8080/sounds/sfx/tick_chime.wav", duration = 1.60, name = "tick_chime.wav" }
 AUDIO.SFX.turn_ping = { url = "http://localhost:8080/sounds/sfx/Turn_Ping_Sound.wav", duration = 0.52, name = "Turn_Ping_Sound.wav" }

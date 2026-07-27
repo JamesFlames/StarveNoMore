@@ -158,7 +158,7 @@ The five non-negotiables every rule must serve:
 
 Plus one operational pillar:
 
-6. **Playable on first sit-down without reading rules** — Phase Banner, What-now hints, target highlights, auto-broadcasts on urgent states. The UX program in design `§18.10–18.18` is part of v1, not polish.
+6. **Playable on first sit-down without reading rules** — Phase Banner, What-now hints, target highlights, auto-broadcasts on urgent states. The UX program in design `§18.10–18.19` is part of v1, not polish (§18.19 is the accessibility floor: no colour-only distinctions, every audio cue visually twinned, stated type-size and contrast minimums).
 
 ## Reference
 

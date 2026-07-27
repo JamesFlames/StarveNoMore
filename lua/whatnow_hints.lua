@@ -95,5 +95,5 @@ WHATNOW_HINTS.PostGame = {
     defeat_all_down = "All characters are Down at the same time. The team is lost. Click Restart — coordinate your positioning and keep at least one healer safe.",
     defeat_doom = "Doom reached 30. The neighborhood is lost. Click Restart to try again — consider prioritizing Cleanse actions earlier next time.",
     defeat_source = "The Source was not stopped by end of Day 7. Click Restart — make sure you're ready for the final boss by Day 6.",
-    victory = "You survived {day} days with Doom at {doom}. Well done. Check for bonus achievements: Pristine (all 5 alive), Truth (3 Clue cards), Hero (all 3 phase bosses defeated).",
+    victory = "You survived {day} days with Doom at {doom}. Well done. Check for bonus achievements: Pristine (everyone in play still standing, nobody revived), Truth (3 Clue cards), Hero (all 3 phase bosses defeated).",
 }

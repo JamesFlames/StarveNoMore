@@ -119,6 +119,21 @@ CLEANSE_COST = {"wood": 1, "cloth": 1, "battery": 1, "energy": 1}
 CLEANSE_REDUCTION = 2
 SOURCE_SPLIT_HP = 5
 
+# Last Nerve (design §10.1.1): while ANY stat is below this, Flee costs 0
+# Sanity and Rest restores 1 extra. The individual-level mirror of Doom 25.
+# Mirrors LAST_NERVE_THRESHOLD in lua/helpers.lua.
+LAST_NERVE_THRESHOLD = 3
+
+
+def last_nerve(game, char):
+    """New rules only — the valve did not exist under the old ruleset, and the
+    old numbers in §20.1 were measured without it."""
+    if getattr(game, "rules", "new") != "new" or char.down:
+        return False
+    t = LAST_NERVE_THRESHOLD
+    return char.health < t or char.hunger < t or char.sanity < t
+
+
 BOSSES = {  # day -> (name, hp, atk, location fn)
     4: ("Deerclops", 6, 3, lambda rng: "BasketballCourt"),
     5: ("EyeOfTerror", 8, 3, lambda rng: rng.choice(HOUSES)),
@@ -287,7 +302,10 @@ class Game:
             if group_alive and min(f.health for f in group_alive) <= 2:
                 for f in group_alive:
                     if self.rules == "new":
-                        f.lose("sanity", 1)   # Flee: 1 tile, 1 Sanity
+                        # Flee: 1 tile, 1 Sanity — but FREE on the Last Nerve
+                        # (design §10.1.1), which is exactly when an outmatched
+                        # group bails, so this branch is where the valve bites.
+                        f.lose("sanity", 0 if last_nerve(self, f) else 1)
                     else:
                         f.lose("hunger", 1)   # old flee: pays Hunger
                     self.check_down(f)
@@ -743,9 +761,11 @@ class Policy:
                 g.pool[k] -= v
             g.doom = max(0, g.doom - CLEANSE_REDUCTION)
             return 1
-        # rest if shaky
+        # rest if shaky. Last Nerve (design §10.1.1, new rules only): with any
+        # stat below 3, Rest restores 1 extra. Mirrored from doRest in
+        # lua/actions.lua — tests/test_sim.py guards the pair.
         if c.sanity <= 4 or c.health <= 3:
-            c.gain("sanity", 2)
+            c.gain("sanity", 2 + (1 if last_nerve(g, c) else 0))
             # home bonus — or anywhere under Nothing Left to Lose (Doom 25)
             if c.home == c.location or (g.rules == "new" and g.doom >= DOOM_THRESHOLDS["anyPhaseBosses"]):
                 c.gain("health", 1)

@@ -24,10 +24,40 @@ DAY_FLAVOR = {
 }
 
 -----------------------------------------------------------------------
+-- Night omen — the VISUAL TWIN of the Dusk growl (Design §15.8).
+--
+-- Night Sounds used to be audio-only, which made it the one place the
+-- game's double-coding discipline lapsed: "the next threat is Hard" is a
+-- gameable bit ("veterans learn to brace" is the design's own phrasing),
+-- and it was unavailable to deaf and hard-of-hearing players, to anyone
+-- muted, and to anyone in voice chat with game audio down — a large slice
+-- of a virtual-tabletop audience. §18.19 item 2 now forbids that.
+--
+-- The twin must carry the same bit and NO MORE: not which threat, not
+-- where. A waning-moon glyph in the banner is exactly as non-specific as
+-- the growl, so the design intent (dread without data) survives the fix.
+-- U+25D0 is Geometric Shapes, the same block as the ■ and ▸ the UI already
+-- renders — not an emoji, which TTS's font does not reliably carry.
+-----------------------------------------------------------------------
+NIGHT_OMEN_GLYPH = "◐"
+
+function setNightOmen(on)
+    gameState.nightOmen = on and true or false
+    if UI then
+        UI.setAttribute("bannerOmen", "text", on and NIGHT_OMEN_GLYPH or "")
+    end
+end
+
+-----------------------------------------------------------------------
 -- G.1 — Refresh the Phase Banner with current gameState
 -----------------------------------------------------------------------
 function refreshPhaseBanner()
     if not UI then return end  -- guard against early calls
+
+    -- The omen is banner state, so a reload mid-Dusk must not silently drop
+    -- the only visual channel a muted player has.
+    UI.setAttribute("bannerOmen", "text",
+                    gameState.nightOmen and NIGHT_OMEN_GLYPH or "")
 
     -- Day field with flavor text
     local dayText = "Day " .. gameState.day .. " of " .. getTotalDays()

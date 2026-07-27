@@ -20,6 +20,30 @@ When any stat is below 25%, **Bad Things Happen**:
 - **Low Hunger (<3):** Cannot fight. Cannot use any action card with the [Effort] tag. (Flee is still legal — §12.4. A starving character can always run.)
 - **Low Sanity (<3):** **Haunted.** At each Dawn, draw 1 Threat card at your location. It is real to you: only *you* may fight or flee it — allies cannot help with what they cannot see. Discard it once resolved (defeated or fled); it never festers on the Doom track, because it was never really there. (An earlier draft had a hidden-information hallucination rule — "only the affected player knows it's not real" — cut for being unrunnable at a physical table and unimplementable with the public-information model of §18.9. Haunted keeps the isolation horror with zero hidden state.)
 
+### 10.1.1 Last Nerve (the individual death-spiral valve)
+
+**While any of your stats is below 3: your Flee costs 0 Sanity, and your Rest restores 1 extra.**
+
+That is the whole rule. It exists because all three threshold effects above are positive feedback pointed *downward* — the death spiral of [PrinciplesOfGoodBoardGames.md §21](../../Archive/PrinciplesOfGoodBoardGames.md) — Attrition and Negative Economies:
+
+- Low Health → Movement costs +1 action → fewer effective actions → harder to reach food, allies, or safety → lower Health.
+- Low Sanity → Haunted → you fight alone → you lose Sanity and Health → more Haunted draws.
+- Hunger 0 → lose Health per Tick → see above.
+
+The design had exactly one catch-up mechanism against that, and it is a good one: Doom 25's **Nothing Left to Lose** (§15.2). But it operates at the **team** level and triggers on the **shared** clock. An individual can spiral into irrelevance on Day 4 while the team's Doom sits comfortably at 12 — and receive nothing. §16.4 deliberately removed the one mechanism that made a Down character's plight the team's problem (the ghost Sanity drain), for good reasons; nothing replaced it on the way *down*. That leaves a player still at the table, still nominally playing, with no meaningful decisions left: the co-op form of player elimination ([§16](../../Archive/PrinciplesOfGoodBoardGames.md) — Pitfalls), and worse in a co-op than in a competitive game, because that player has no side left to root for.
+
+The spiral was already **legible** — §1.4's "clever desperation" wants losses to read as a chain of visible mistakes, and a spiral is maximally visible. That defence holds for *fairness* and fails for *agency*. [§25](../../Archive/PrinciplesOfGoodBoardGames.md)'s audit asks three questions of every major negative event: could the player see it coming, could they have done something about it, could they name the decision afterward. The spiral scored two out of three, and the one it failed is the one that matters at the table.
+
+Five properties make this the right shape:
+
+- **It is the individual mirror of Doom 25**, using the design logic the team-level version already validated: catch-up that arrives as the *third act*, symmetric, and self-limiting — it switches off the instant you recover.
+- **It cannot snowball.** It only ever triggers on a character who is nearly dead.
+- **Mismatched currency is untouched** (§8.4): it changes prices, not directions. No row moves onto the diagonal.
+- **It is thematically exact.** Adrenaline. Being cornered makes you run better.
+- **It targets the specific trap.** Flee (§12.4) is the guaranteed-legal escape, and it costs 1 Sanity — so the escape hatch was priced in the currency most likely to be empty. A Sanity-2 character's only legal move used to cost a third of what they had left.
+
+What it changes at the table: the calculus of Flee, of Rest, and of rescue priority. It adds no new component, no new phase, and no exception structure — it clears the §3 complexity bar on one sentence. **Balance watch (§20.1):** it softens the endgame, which must stay genuinely dangerous. Tune the magnitude down before cutting the rule — free Flee alone may be enough, and the Rest bonus is the half to drop first.
+
 When a stat hits 0:
 
 - **Health 0:** The character is **Down**. Flip the standee to its ghost side. (See §16.4.)
@@ -44,7 +68,7 @@ The visual goal: any player at the table can glance at any other player's board 
 
 ## 11. Turn Structure
 
-Detailed breakdown of a single round (one in-game day). In TTS, every step listed below is **prompted automatically by the Phase Banner** (§18.11) — the round walks itself, and a player who has never played can follow the on-screen prompts through all five phases. The design below is the rules for the table; the UX in §18.10–18.18 is how those rules become legible.
+Detailed breakdown of a single round (one in-game day). In TTS, every step listed below is **prompted automatically by the Phase Banner** (§18.11) — the round walks itself, and a player who has never played can follow the on-screen prompts through all five phases. The design below is the rules for the table; the UX in §18.10–18.19 is how those rules become legible.
 
 ### 11.1 Phase 1 — Dawn (2–4 minutes)
 

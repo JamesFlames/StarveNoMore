@@ -61,7 +61,8 @@ For each occupied tile, least-populated first:
 - **Press the Attack:** landed a hit? You may pay **1 Sanity** to roll one bonus die — 5–6 deals 1 more damage and you may press again; 1–4 ends the streak. Press dice never fumble. The enemy doesn't strike back until you stop. Pressing can drop you to 0 Sanity — you go Lost, mid-fight.
 - When you stop (or whiff), the enemy attacks back: roll its attack dice; each 5–6 = 1 damage.
 - Group combat sums dice; return damage rotates highest-Health first. Each fighter may press, paying their own Sanity.
-- **Flee** (always legal, even starving): move 1 tile away, pay 1 Sanity. The threat stays — and festers at Dawn.
+- **Flee** (always legal, even starving): move 1 tile away, pay 1 Sanity. The threat stays — and festers at Dawn. **Free** while you are on your Last Nerve (see below).
+- **Last Nerve:** while *any* of your stats is below 3, your Flee costs no Sanity and your Rest restores 1 extra. It switches off the moment you recover. Being cornered makes you run better.
 - **Boss kills pay out:** Deerclops **Doom −2**, Eye of Terror **Doom −3**, plus 3 resources spill at the tile and the boss's Trophy (a unique team power).
 - **Signature Moves:** every character has one once-per-game named move (see the Character Reference tab) — fired from the Signature button, each paying an off-stat cost.
 - **The Source splits:** the final boss's HP is script-tracked; the first time it drops to 5 HP or below, two Terror Beaks peel off to adjacent tiles (ordinary threats — they fight, flee, and fester normally).
@@ -91,12 +92,14 @@ Push back Doom by Cleansing — or by killing a phase boss (Deerclops −2, Eye 
 
 ## Victory
 
-Survive Day 7 with Doom < 30 — **and The Source must be destroyed**. If the final boss still stands at the end of Day 7, the team loses, whatever the Doom track says.
+At the end of Day 7: **at least one character still standing**, Doom under 30, **and The Source destroyed**. If the final boss still stands at the end of Day 7, the team loses, whatever the Doom track says.
+
+You can win with most of the team in the ghost state — that is deliberate, not a loophole. Bringing everyone through instead is the Pristine Run.
 
 Day 7 opens on **The Last Dawn** — a fixed Dawn with no penalty ("the sky is trying to lighten; survive until it's over"). No card is drawn.
 
 Bonus achievements:
-- **Pristine** — all 5 alive.
+- **Pristine** — every character in play still standing, nobody revived.
 - **Truth** — 3 Clue cards collected.
 - **Hero** — defeat all 3 phase bosses (Deerclops, Eye of Terror, The Source).
 

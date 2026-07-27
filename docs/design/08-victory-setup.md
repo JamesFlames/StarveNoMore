@@ -6,11 +6,21 @@
 
 ### 16.1 Default victory
 
-The team **wins** if all surviving characters are alive at the end of Day 7 (after the Day 7 night phase fully resolves), the Doom marker is at less than 30, **and The Source has been destroyed** (if it arrived — see §16.3, condition 3). The final boss is not optional: a team that spends the Final Hours hiding from The Source has not won, whatever the Doom track says. (This clause is enforced, not flavor — simulation showed that if survival alone wins, the dominant strategy is to ignore every boss.)
+The team **wins** if, at the end of Day 7 (after the Day 7 night phase fully resolves):
+
+1. **At least one character is not Down**, and
+2. the Doom marker is at less than 30, and
+3. **The Source has been destroyed** (if it arrived — see §16.3, condition 3).
+
+That first clause is the permissive reading, and it is deliberate: **a team can win with four of five players face-down in the ghost state.** That is consistent with the soft-permadeath model of §16.4 — death is meaningful but not eliminating — and it is exactly why the Pristine Run (§16.2) exists to reward the alternative. The earlier wording ("all *surviving* characters are alive") was circular: surviving characters are alive by definition, and read against the §16.3 defeat condition ("all characters *simultaneously* Down") it meant this rule all along without saying so. This is the most important sentence in the rulebook, so it now says which side it is on.
+
+The final boss is not optional: a team that spends the Final Hours hiding from The Source has not won, whatever the Doom track says. (This clause is enforced, not flavor — simulation showed that if survival alone wins, the dominant strategy is to ignore every boss.)
+
+*Implementation note.* `checkVictory()` in `lua/tick_victory.lua` has always tested exactly these three things and never inspected any character's `down` flag — the code answered this rules question first and became the de facto rule. The answer was the right one; this section is the promotion from code to document. A physical table has to adjudicate what the TTS build enforces silently.
 
 ### 16.2 Bonus victories
 
-- **Pristine Run** — All five characters are alive at game end. (No revivals counted; all five must have reached the end on their feet.) Awarded a "Story Card" to keep.
+- **Pristine Run** — **Every character in play** is alive at game end, with no revivals: all of them reached the end on their feet. Awarded a "Story Card" to keep. (It reads "every character in play," not "all five," because §6.6 turns the spare characters into Visitor NPCs — a 4-player game only ever has four on the board, so an "all five" bar would have made the recommended player count the one count that could never earn this.)
 - **Truth Run** — The team finds and reads all 3 Clue cards (special items in the Market deck) before Day 7. The ending narrative changes.
 - **Hero Run** — Defeat all three phase bosses: the Deerclops, the Eye of Terror, and the Source. (The Treeguard mini-boss doesn't count — §14.2. The Source is already mandatory for any win; the Hero Run is for felling the other two as well.)
 

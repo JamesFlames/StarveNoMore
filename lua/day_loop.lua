@@ -15,6 +15,7 @@ function BeginDay()
     gameState.raymanDefending = false   -- Backboard Block never outlives the night
     gameState.jamesPeekUsed = false     -- Pattern Recognition: once per day (§6.1)
     gameState.loudSignature = {}        -- Posterize echo lasts one night only
+    safecall(function() setNightOmen(false) end, "NightOmen")  -- last night's moon sets
     safecall(function() setPhaseMood("Dawn") end, "Mood")
     safecall(function() Audio.startDayAmbience() end, "Audio")
 
@@ -412,17 +413,29 @@ function beginDusk()
     refreshPhaseBanner()
     broadcastEvent("phase", "DUSK — Last chance to move: each character may scramble 1 tile (costs 1 Hunger). You sleep where you stand.")
 
-    -- Night Sounds (design_batch3.md §1): if the top of the Threat deck is a
-    -- Hard threat, a distant growl crosses the table. Pure ambient
-    -- information — no rule text, no broadcast, deliberately unexplained.
+    -- Night Sounds (Design §15.8): if the top of the Threat deck is a Hard
+    -- threat, a distant growl crosses the table. Pure ambient information —
+    -- no rule text, no broadcast, deliberately unexplained.
+    --
+    -- Double-coded since 2026-07 (§18.19 item 2): the growl now always ships
+    -- with a moon glyph in the Phase Banner, because "the next threat is
+    -- Hard" IS a gameable bit and audio-only meant deaf, hard-of-hearing and
+    -- muted players simply didn't get it. Both channels are computed from the
+    -- same boolean below, so they can never disagree, and the visual is set
+    -- OUTSIDE the audio safecall — a missing sound file must not cost a
+    -- player the only channel they can perceive.
+    local hardNext = false
     safecall(function()
         local deck = getThreatDeck()
         local top = deck and deck.getObjects and deck.getObjects()[1]
         local topName = top and (top.nickname ~= "" and top.nickname or top.name)
-        if topName and THREAT_TYPE_BY_NAME and THREAT_TYPE_BY_NAME[topName] == "Hard" then
-            Audio.playGrowl()
-        end
-    end, "NightSounds")
+        hardNext = topName and THREAT_TYPE_BY_NAME
+            and THREAT_TYPE_BY_NAME[topName] == "Hard" or false
+    end, "NightSoundsPeek")
+    safecall(function() setNightOmen(hardNext) end, "NightOmen")
+    if hardNext then
+        safecall(function() Audio.playGrowl() end, "NightSounds")
+    end
 
     -- QoL: Threat preview — show threat level per location before sleep
     broadcastEvent("proc", "--- THREAT PREVIEW ---")

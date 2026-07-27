@@ -152,10 +152,17 @@ local function collectActiveRules()
             if char.hunger == 0 then
                 table.insert(lines, char.name .. " is starving (Hunger 0): loses 1 Health every Tick.")
             elseif char.hunger < 3 then
-                table.insert(lines, char.name .. " can't Fight (Hunger < 3). Flee is still allowed (1 tile, 1 Sanity).")
+                table.insert(lines, char.name .. " can't Fight (Hunger < 3). Flee is still allowed (1 tile, and free right now — Last Nerve).")
             end
             if char.health > 0 and char.health < 3 then
                 table.insert(lines, char.name .. " is critically injured (Health < 3): Move costs +1 action.")
+            end
+            -- Last Nerve (§10.1.1): the individual death-spiral valve. Stated
+            -- as a rule in effect, not left for the player to discover from a
+            -- broadcast — a catch-up mechanism nobody knows about is one that
+            -- never changes a decision.
+            if hasLastNerve(color) then
+                table.insert(lines, char.name .. " is on their LAST NERVE (a stat below 3): Flee costs no Sanity, and Rest restores 1 extra. It ends when they recover.")
             end
             if (char.charlieStreak or 0) >= 1 then
                 table.insert(lines, char.name .. ": Charlie streak " .. char.charlieStreak ..

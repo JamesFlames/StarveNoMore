@@ -414,6 +414,41 @@ end
 -- Does another standing character share this character's tile? One
 -- definition for every "alone" rule (Luca's Needs an Audience, Coco's
 -- No Home warning, sleep bonuses), so "company" can't drift.
+-----------------------------------------------------------------------
+-- Last Nerve (Design §10.1) — the INDIVIDUAL-level death-spiral valve.
+--
+-- §10.1's three threshold effects are all positive feedback pointed
+-- downward: low Health costs you movement, so you reach food and allies
+-- less; low Sanity makes you Haunted, so you fight alone and lose more
+-- Sanity; Hunger 0 bleeds Health. The design's one catch-up mechanism,
+-- Doom 25's Nothing Left to Lose (§15.2), is excellent — and it fires on
+-- the TEAM's shared clock. A player can spiral into irrelevance on Day 4
+-- while Doom sits at 12 and receive nothing at all: still at the table,
+-- still nominally playing, out of meaningful decisions. That is the co-op
+-- form of player elimination, and worse than in a competitive game
+-- because there is no side left to root for.
+--
+-- Last Nerve is the individual mirror of Doom 25, using the same logic
+-- the team-level version already validated: catch-up that arrives as the
+-- third act, symmetric, and self-limiting — it switches off the moment
+-- you recover, and it can only ever trigger on someone nearly dead, so
+-- it cannot snowball. Thematically it is adrenaline: being cornered makes
+-- you run better.
+--
+-- It targets one specific trap. Flee (§12.4) is the guaranteed-legal
+-- escape, and it costs 1 Sanity — so the escape hatch is priced in the
+-- currency most likely to be empty. A Sanity-2 character's only legal
+-- move used to cost a third of what was left.
+-----------------------------------------------------------------------
+LAST_NERVE_THRESHOLD = 3
+
+function hasLastNerve(color)
+    local char = gameState.activeChars[color]
+    if not char or char.down then return false end
+    local t = LAST_NERVE_THRESHOLD
+    return char.health < t or char.hunger < t or char.sanity < t
+end
+
 function charHasCompany(color)
     local char = gameState and gameState.activeChars and gameState.activeChars[color]
     if not char then return false end

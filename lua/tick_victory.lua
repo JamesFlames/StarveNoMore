@@ -105,7 +105,7 @@ function resolveTick()
                 broadcastEvent("warn", char.name .. " is critically injured (Health < 3). Movement costs +1 action.")
             end
             if char.hunger > 0 and char.hunger < 3 then
-                broadcastEvent("warn", char.name .. " is starving (Hunger < 3). Cannot fight or use [Effort] actions — but may always Flee (1 tile, 1 Sanity).")
+                broadcastEvent("warn", char.name .. " is starving (Hunger < 3). Cannot fight or use [Effort] actions — but may always Flee (1 tile, and free while any stat is below 3).")
             end
             if char.sanity > 0 and char.sanity < 3 then
                 broadcastEvent("warn", char.name .. " is losing grip on reality (Sanity < 3). Haunted: draws a personal Threat at next Dawn that allies can't help with.")
@@ -398,15 +398,23 @@ function checkVictory()
 end
 
 function checkBonusVictories()
-    -- Pristine Run: all five characters alive (not Down)
+    -- Pristine Run (Design §16.2): every character IN PLAY is alive, with no
+    -- revivals. The gate used to be `count >= 5`, which made the bonus
+    -- unreachable at the recommended 4 players and at the 3-player minimum
+    -- (§6.6 turns the spare characters into Visitor NPCs, so a 4-player game
+    -- can never have five on their feet). `count > 0` keeps an empty roster
+    -- from satisfying it trivially; the revive check is what "pristine" means
+    -- once the roster size stops carrying that weight.
     local allAlive = true
     local count = 0
     for color, char in pairs(gameState.activeChars) do
         count = count + 1
         if char.down then allAlive = false end
     end
-    if allAlive and count >= 5 then
-        broadcastEvent("gain", "BONUS: Pristine Run — all five characters survived!")
+    local revived = ((gameState.chronicle or {}).revives or 0) > 0
+    if allAlive and count > 0 and not revived then
+        broadcastEvent("gain", "BONUS: Pristine Run — all " .. count ..
+            " characters reached the end on their feet, and nobody had to be brought back!")
     end
 
     -- Truth Run: all 3 Clue cards found

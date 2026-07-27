@@ -421,12 +421,21 @@ function doRest(color, choice)
         choice = "hunger"
     end
 
+    -- Last Nerve (§10.1): with any stat below 3, Rest restores 1 extra.
+    -- Sampled BEFORE the restoration — the point is to reward the state you
+    -- were in when you chose to rest, not to check whether the rest worked.
+    local nerve = hasLastNerve(color)
+    local bonus = nerve and 1 or 0
+    local nerveNote = nerve and " (+1 Last Nerve)" or ""
+
     if choice == "hunger" then
-        char.hunger = math.min(char.maxHunger, char.hunger + 1)
-        broadcastEvent("gain", char.name .. " rests: +1 Hunger. (Now " .. char.hunger .. ")")
+        char.hunger = math.min(char.maxHunger, char.hunger + 1 + bonus)
+        broadcastEvent("gain", char.name .. " rests: +" .. (1 + bonus) .. " Hunger" ..
+            nerveNote .. ". (Now " .. char.hunger .. ")")
     else
-        char.sanity = math.min(char.maxSanity, char.sanity + 2)
-        broadcastEvent("gain", char.name .. " rests: +2 Sanity. (Now " .. char.sanity .. ")")
+        char.sanity = math.min(char.maxSanity, char.sanity + 2 + bonus)
+        broadcastEvent("gain", char.name .. " rests: +" .. (2 + bonus) .. " Sanity" ..
+            nerveNote .. ". (Now " .. char.sanity .. ")")
     end
 
     -- At own house: also +1 Health. Nothing Left to Lose (Design §15.2):

@@ -106,7 +106,8 @@ For each occupied tile, least-populated first:
 - **Press the Attack:** landed a hit? You may pay **1 Sanity** to roll one bonus die — 5–6 deals 1 more damage and you may press again; 1–4 ends the streak. Press dice never fumble. The enemy doesn't strike back until you stop. Pressing can drop you to 0 Sanity — you go Lost, mid-fight.
 - When you stop (or whiff), the enemy attacks back: roll its attack dice; each 5–6 = 1 damage.
 - Group combat sums dice; return damage rotates highest-Health first. Each fighter may press, paying their own Sanity.
-- **Flee** (always legal, even starving): move 1 tile away, pay 1 Sanity. The threat stays — and festers at Dawn.
+- **Flee** (always legal, even starving): move 1 tile away, pay 1 Sanity. The threat stays — and festers at Dawn. **Free** while you are on your Last Nerve (see below).
+- **Last Nerve:** while *any* of your stats is below 3, your Flee costs no Sanity and your Rest restores 1 extra. It switches off the moment you recover. Being cornered makes you run better.
 - **Boss kills pay out:** Deerclops **Doom −2**, Eye of Terror **Doom −3**, plus 3 resources spill at the tile and the boss's Trophy (a unique team power).
 - **Signature Moves:** every character has one once-per-game named move (see the Character Reference tab) — fired from the Signature button, each paying an off-stat cost.
 - **The Source splits:** the final boss's HP is script-tracked; the first time it drops to 5 HP or below, two Terror Beaks peel off to adjacent tiles (ordinary threats — they fight, flee, and fester normally).
@@ -136,12 +137,14 @@ Push back Doom by Cleansing — or by killing a phase boss (Deerclops −2, Eye 
 
 ## Victory
 
-Survive Day 7 with Doom < 30 — **and The Source must be destroyed**. If the final boss still stands at the end of Day 7, the team loses, whatever the Doom track says.
+At the end of Day 7: **at least one character still standing**, Doom under 30, **and The Source destroyed**. If the final boss still stands at the end of Day 7, the team loses, whatever the Doom track says.
+
+You can win with most of the team in the ghost state — that is deliberate, not a loophole. Bringing everyone through instead is the Pristine Run.
 
 Day 7 opens on **The Last Dawn** — a fixed Dawn with no penalty ("the sky is trying to lighten; survive until it's over"). No card is drawn.
 
 Bonus achievements:
-- **Pristine** — all 5 alive.
+- **Pristine** — every character in play still standing, nobody revived.
 - **Truth** — 3 Clue cards collected.
 - **Hero** — defeat all 3 phase bosses (Deerclops, Eye of Terror, The Source).
 
@@ -255,7 +258,8 @@ Every character has one **Signature** — a once-per-game named move, fired from
 - **Cleanse** (1 action) — Doom -2; spend the resource bundle.
 - **Pry** (free action) — open a sealed thing at your tile; needs a Crowbar, Lockpick, or Pry Bar.
 - **Trade** (free) — same tile, both consent.
-- **Flee** (always legal, even starving) — move 1 tile away from a threat, pay 1 Sanity. The threat stays and festers at Dawn.
+- **Flee** (always legal, even starving) — move 1 tile away from a threat, pay 1 Sanity. The threat stays and festers at Dawn. Costs nothing while you are on your **Last Nerve**.
+- **Last Nerve** — while any of your stats is below 3: Flee costs 0 Sanity, and Rest restores 1 extra. Ends when you recover. It is the personal version of Doom 25's Nothing Left to Lose: the game stops kicking you once you're nearly out.
 - **Press the Attack** — after landing a hit in combat, pay 1 Sanity to roll one bonus die (5–6 = 1 more damage, press again; 1–4 = streak ends, enemy counters). Press dice never fumble. Pressing can drop you to 0 Sanity — you go Lost mid-fight.
 - **Boss rewards** — killing a phase boss rebates Doom (Deerclops −2, Eye −3), spills 3 resources at its tile, and awards its Trophy (a unique team power).
 - **Signature Move** — every character's once-per-game named move (Signature button): James's All-Nighter, Coco's Touch of Hope, Rayman's Posterize, Ellie's Feast, Luca's Speech. Each pays an off-stat cost.
@@ -292,9 +296,9 @@ Every character has one **Signature** — a once-per-game named move, fired from
 - Spend the night at a sport court and survive to Dawn: gather **2 resources**, delivered to your board automatically. The courts are richest when the world sleeps.
 
 ## Victory and Defeat
-- **Survive Day 7** with Doom < 30 to win — and if The Source has arrived, it must be destroyed. While it stands at the end of Day 7, there is no victory.
+- **Survive Day 7** with **at least one character not Down** and Doom < 30 to win — and if The Source has arrived, it must be destroyed. While it stands at the end of Day 7, there is no victory. (One survivor is enough: winning with most of the team as ghosts is a legitimate, grim win.)
 - **The Last Dawn** — Day 7's Dawn is fixed, not drawn: no penalty, just the finish line.
-- **Pristine Run** — all 5 alive.
+- **Pristine Run** — every character in play still standing at the end, and nobody had to be revived. (Not "all five": at 3–4 players the spare characters are Visitor NPCs, so the bar is your own roster.)
 - **Truth Run** — 3 Clue cards collected.
 - **Hero Run** — all 3 phase bosses defeated (Deerclops, Eye of Terror, The Source; the Treeguard doesn't count).
 - Defeats: Doom hits 30; all alive characters Down at the same instant; The Source still standing at the end of Day 7.

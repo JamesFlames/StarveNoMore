@@ -185,11 +185,20 @@ function doFlee(color, targetLocation)
         return
     end
 
-    char.sanity = math.max(0, char.sanity - 1)
+    -- Last Nerve (§10.1): with any stat below 3, running is free. The escape
+    -- hatch stops being priced in the currency most likely to be empty.
+    local nerve = hasLastNerve(color)
+    local cost = nerve and 0 or 1
+    char.sanity = math.max(0, char.sanity - cost)
     char.location = targetLocation
 
-    broadcastEvent("warn", char.name .. " flees to " .. targetLocation ..
-        " (-1 Sanity). The threat remains behind — and festers at Dawn.")
+    if nerve then
+        broadcastEvent("warn", char.name .. " runs on their last nerve to " .. targetLocation ..
+            " — no Sanity cost (Last Nerve). The threat remains behind, and festers at Dawn.")
+    else
+        broadcastEvent("warn", char.name .. " flees to " .. targetLocation ..
+            " (-1 Sanity). The threat remains behind — and festers at Dawn.")
+    end
 
     local standee = getCharacterStandee(char.name)
     local tile = getLocationTile(targetLocation)

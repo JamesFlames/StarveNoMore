@@ -4,7 +4,7 @@
 
 ## 14. The Week Arc and Pacing
 
-Seven in-game days, divided into four narrative phases. This is the DST season structure ported to a tighter session length ([DontStarveVideoGamePrinciples.md §3](../../Archive/DontStarveVideoGamePrinciples.md)), explicitly mapped to the **Jo-Ha-Kyu** dramatic arc ([PrinciplesOfGoodBoardGames.md §7](../../Archive/PrinciplesOfGoodBoardGames.md)).
+Seven in-game days, divided into four narrative phases. This is the DST season structure ported to a tighter session length ([DontStarveVideoGamePrinciples.md §3](../../Archive/DontStarveVideoGamePrinciples.md)), explicitly mapped to the **Jo-Ha-Kyu** dramatic arc ([PrinciplesOfGoodBoardGames.md §9](../../Archive/PrinciplesOfGoodBoardGames.md) — Pacing and the Game Arc).
 
 | Phase | Days | Jo-Ha-Kyu beat | Tone | Doom/Day | Phase Boss |
 |---|---|---|---|---|---|
@@ -14,7 +14,7 @@ Seven in-game days, divided into four narrative phases. This is the DST season s
 | 3 — Long Nights | 5 | **Ha → Kyu** (pivot) | Boss night. Major disruption. | +1 | The Eye of Terror (heavy boss) |
 | 4 — Final Hours | 6–7 | **Kyu** (rapid climax) | Survival sprint. Doom races — mostly from what festers. Day 7 opens on the fixed **Last Dawn** (§15.7). | +2 | The Source (final boss; MUST be destroyed by end of Day 7 — §16.1; splits at 5 HP — §12.6) |
 
-The pacing math is deliberate: roughly half the campaign is *Jo*-style exploration where players learn and plan, but the second half compresses sharply. This produces the felt arc players describe as "having a story," not just "having a session." Mid-game compression is the cure for the runaway-leader and dead-turn problems ([PrinciplesOfGoodBoardGames.md §10](../../Archive/PrinciplesOfGoodBoardGames.md)) — late-game decisions matter more than early ones, so a perfect early game cannot win the game alone.
+The pacing math is deliberate: roughly half the campaign is *Jo*-style exploration where players learn and plan, but the second half compresses sharply. This produces the felt arc players describe as "having a story," not just "having a session." Mid-game compression is the cure for the runaway-leader and dead-turn problems ([PrinciplesOfGoodBoardGames.md §16](../../Archive/PrinciplesOfGoodBoardGames.md) — Pitfalls; the feedback-loop mechanics behind them are §8) — late-game decisions matter more than early ones, so a perfect early game cannot win the game alone.
 
 ### 14.1 Phase boss arrivals
 
@@ -124,7 +124,9 @@ Day 7's Dawn is **fixed**, not drawn: *"THE LAST DAWN — the sky is trying to l
 
 Two batch-3 effects sharpen dread through *information design* alone — telegraphed unknowns, never new randomness (the legible-losses contract, §1.4, is untouched):
 
-- **Night Sounds.** At Dusk, if the top card of the Threat deck is a **Hard** threat, a distant growl plays across the table. No rule text, no mechanical tell, deliberately unexplained — veterans learn to brace when they hear it; new players just feel the hair go up. It reveals nothing gameable (not *which* threat, not *where*) and adds zero randomness: it merely *voices* a draw that was already going to happen. The knowledge that something is coming, without knowing what, is the core of horror. Discipline: only on Hard, only at Dusk, once, at low volume — the silence between growls is what makes the growl land.
+- **Night Sounds.** At Dusk, if the top card of the Threat deck is a **Hard** threat, a distant growl plays across the table **and a waning moon appears in the Phase Banner**. No rule text, no mechanical tell, deliberately unexplained — veterans learn to brace; new players just feel the hair go up. It adds zero randomness: it merely *voices* a draw that was already going to happen. The knowledge that something is coming, without knowing what, is the core of horror. Discipline: only on Hard, only at Dusk, once, at low volume — the silence between growls is what makes the growl land. The moon clears at the next Dawn.
+
+  **Why it is double-coded.** An earlier version of this section claimed the growl "reveals nothing gameable." That was wrong: it reveals exactly one bit — *the next threat is Hard* — and the section itself said veterans "learn to brace," which is the admission that it is information. Delivered on audio alone, that bit was unavailable to deaf and hard-of-hearing players, and to anyone playing muted or in voice chat with game audio down, which is a large fraction of the real audience for a virtual-tabletop mod. It was the one place this game's otherwise strong double-coding discipline (severity dots §15.5, boss standee scale §5, the red-bordered constraint panel §10.2) lapsed. The visual twin carries the **same single bit and no more** — not which threat, not where — so the design intent survives intact; only the channel count changed. The standing rule is now §18.19 item 2: every audio cue that carries information has a visual twin.
 - **The Wrongness** (§9.4) applies the same principle to a physical object: a known-but-unresolved threat on the map converts a random Night draw into a *decision with anticipation* — the who-goes-to-look argument is the story.
 
 ---

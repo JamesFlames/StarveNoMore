@@ -397,7 +397,11 @@ function refreshActionButtonReasons(color)
             setActionTooltip("actFight", "Fight a threat at this location. Costs 1 action.")
         end
 
-        setActionTooltip("actRest", "Rest: +1 Hunger or +2 Sanity. At your own house: also +1 Health.")
+        if hasLastNerve(color) then
+            setActionTooltip("actRest", "Rest: +2 Hunger or +3 Sanity (Last Nerve — a stat is below 3). At your own house: also +1 Health.")
+        else
+            setActionTooltip("actRest", "Rest: +1 Hunger or +2 Sanity. At your own house: also +1 Health.")
+        end
         setActionTooltip("actCleanse", "Cleanse Doom -2. Costs 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink.")
         setActionTooltip("actTrade", "Trade with another player. Free once per turn at your tile; otherwise 1 action.")
         setActionTooltip("actUndo", "Undo your last action's stat, position, and Doom changes (once per action).")
