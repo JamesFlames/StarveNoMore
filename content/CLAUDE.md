@@ -14,6 +14,7 @@ matching generator leaves the game out of sync (and fails a freshness test).
 | `notebook/*.md`, `help/glossary.md` | `generate_notebook.py` + `generate_player_rules.py` |
 | `help/whatnow_hints.md` | `generate_whatnow_hints.py` |
 | any `cards_*.csv` (art/text) | `generate_card_atlases.py` |
+| `achievements.csv` | `generate_achievement_data.py` + `generate_achievement_icons.py` |
 
 Then `python scripts/build_save.py`. Generator map: [`../scripts/CLAUDE.md`](../scripts/CLAUDE.md).
 

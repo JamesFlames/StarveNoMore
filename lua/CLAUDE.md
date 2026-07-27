@@ -14,9 +14,9 @@ explicit `LUA_LOAD_ORDER`. **There is one shared global namespace and no
   `build_save.py`, in the correct position (definitions must load before
   consumers). Files not in the list are appended last — order not guaranteed.
 - **File-size budget:** if a file passes ~500 lines, split it before adding more.
-- Six files are AUTO-GENERATED (`audio_manifest`, `whatnow_hints`, `market_data`,
-  `threat_types`, `recipe_data`, `notebook_data`) — never hand-edit; see
-  [`../scripts/CLAUDE.md`](../scripts/CLAUDE.md).
+- Seven files are AUTO-GENERATED (`audio_manifest`, `whatnow_hints`, `market_data`,
+  `threat_types`, `recipe_data`, `notebook_data`, `achievement_data`) — never
+  hand-edit; see [`../scripts/CLAUDE.md`](../scripts/CLAUDE.md).
 - All object lookups use `getObjectsWithTag(tag)` (never GUIDs); wrap
   non-critical calls in `safecall(fn, label)`; all gameplay randomness goes
   through `gameRoll(a, b)` (never `math.random`).
