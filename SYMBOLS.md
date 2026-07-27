@@ -583,29 +583,41 @@
 | 605 | function | `onBriefDismiss` |
 | 633 | function | `finalizeGuidedSetup` |
 | 761 | function | `showWelcomeSequence` |
-| 794 | function | `onHostSetupGuided` |
+| 797 | function | `onHostSetupGuided` |
 
-## lua/ui_help.lua (17 symbols)
+## lua/ui_help.lua (20 symbols)
 
 | line | kind | symbol |
 |---|---|---|
-| 13 | function | `getHelpCharContent` |
-| 53 | function | `getHelpDawnContent` |
-| 76 | function | `getHelpDoomContent` |
-| 120 | function | `onHelpClick` |
-| 130 | function | `onHelpClose` |
-| 134 | function | `onHelpTab` |
-| 145 | function | `refreshHelpPanel` |
-| 205 | function | `onWhatNowClick` |
-| 342 | function | `onWhatNowClose` |
-| 346 | function | `substitutePlaceholders` |
-| 363 | function | `refreshActionButtonReasons` |
-| 411 | function | `setActionTooltip` |
-| 435 | function | `quickStartTextForVariant` |
-| 458 | value | `QUICKSTART_CARD_BUDGET` |
-| 460 | function | `quickStartCardText` |
-| 475 | function | `refreshQuickStartCard` |
-| 481 | function | `populateNotebook` |
+| 14 | function | `getHelpCharContent` |
+| 54 | function | `getHelpDawnContent` |
+| 77 | function | `getHelpDoomContent` |
+| 125 | function | `onHelpClick` |
+| 135 | function | `onHelpClose` |
+| 139 | function | `onHelpTab` |
+| 153 | function | `helpTabContent` |
+| 172 | function | `onHelpPagePrev` |
+| 177 | function | `onHelpPageNext` |
+| 182 | function | `refreshHelpPanel` |
+| 243 | function | `onWhatNowClick` |
+| 380 | function | `onWhatNowClose` |
+| 384 | function | `substitutePlaceholders` |
+| 401 | function | `refreshActionButtonReasons` |
+| 449 | function | `setActionTooltip` |
+| 473 | function | `quickStartTextForVariant` |
+| 496 | value | `QUICKSTART_CARD_BUDGET` |
+| 498 | function | `quickStartCardText` |
+| 514 | function | `refreshQuickStartCard` |
+| 520 | function | `populateNotebook` |
+
+## lua/ui_help_pages.lua (4 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 29 | value | `HELP_PAGE_LINES` |
+| 30 | value | `HELP_PAGE_LINE_CHARS` |
+| 52 | function | `paginateHelpText` |
+| 101 | function | `rulebookText` |
 
 ## lua/ui_msglog.lua (7 symbols)
 
@@ -737,6 +749,8 @@
 | `EFFECT_RULE_ORDER` | lua/ui_rules.lua | 68 |
 | `ENABLED_ACTIONS` | lua/ui_actionbar_display.lua | 200 |
 | `HELP_GLOSSARY` | lua/notebook_data.lua | 246 |
+| `HELP_PAGE_LINES` | lua/ui_help_pages.lua | 29 |
+| `HELP_PAGE_LINE_CHARS` | lua/ui_help_pages.lua | 30 |
 | `HELP_QUICKSTART` | lua/notebook_data.lua | 210 |
 | `HIGHLIGHT_DURATION` | lua/ui_actionbar_core.lua | 119 |
 | `LAST_NERVE_THRESHOLD` | lua/helpers.lua | 443 |
@@ -760,7 +774,7 @@
 | `PEEK_DECKS` | lua/actions_social.lua | 141 |
 | `PHASE_NAMES` | lua/ui_banner.lua | 6 |
 | `PRY_TOOLS` | lua/actions_social.lua | 278 |
-| `QUICKSTART_CARD_BUDGET` | lua/ui_help.lua | 458 |
+| `QUICKSTART_CARD_BUDGET` | lua/ui_help.lua | 496 |
 | `REACTION_SLOTS` | lua/ui_reactions.lua | 33 |
 | `RECIPE_DATA` | lua/recipe_data.lua | 10 |
 | `RESOURCE_LABELS` | lua/ui_actionbar_core.lua | 148 |
@@ -920,9 +934,9 @@
 | `getDoomRate` | lua/global.lua | 229 |
 | `getHandZone` | lua/helpers.lua | 120 |
 | `getHeartSupply` | lua/helpers.lua | 100 |
-| `getHelpCharContent` | lua/ui_help.lua | 13 |
-| `getHelpDawnContent` | lua/ui_help.lua | 53 |
-| `getHelpDoomContent` | lua/ui_help.lua | 76 |
+| `getHelpCharContent` | lua/ui_help.lua | 14 |
+| `getHelpDawnContent` | lua/ui_help.lua | 54 |
+| `getHelpDoomContent` | lua/ui_help.lua | 77 |
 | `getLocationTile` | lua/helpers.lua | 108 |
 | `getMainBoard` | lua/helpers.lua | 93 |
 | `getMarketDeck` | lua/helpers.lua | 96 |
@@ -946,6 +960,7 @@
 | `ghostDrift` | lua/tick_victory.lua | 292 |
 | `giveResource` | lua/helpers.lua | 248 |
 | `hasLastNerve` | lua/helpers.lua | 445 |
+| `helpTabContent` | lua/ui_help.lua | 153 |
 | `highlightCTA` | lua/ui_banner.lua | 387 |
 | `identifyThreatType` | lua/night.lua | 349 |
 | `isBossOnMap` | lua/day_loop.lua | 189 |
@@ -995,14 +1010,16 @@
 | `onFightTargetClick` | lua/ui_actionbar_targets.lua | 392 |
 | `onFightTogetherClick` | lua/ui_actionbar_targets.lua | 396 |
 | `onFinishCombat` | lua/ui_actionbar_handlers.lua | 314 |
-| `onHelpClick` | lua/ui_help.lua | 120 |
-| `onHelpClose` | lua/ui_help.lua | 130 |
-| `onHelpTab` | lua/ui_help.lua | 134 |
+| `onHelpClick` | lua/ui_help.lua | 125 |
+| `onHelpClose` | lua/ui_help.lua | 135 |
+| `onHelpPageNext` | lua/ui_help.lua | 177 |
+| `onHelpPagePrev` | lua/ui_help.lua | 172 |
+| `onHelpTab` | lua/ui_help.lua | 139 |
 | `onHostBeginDay` | lua/ui_controls.lua | 180 |
 | `onHostEndTurn` | lua/ui_controls.lua | 210 |
 | `onHostResolveNight` | lua/ui_controls.lua | 197 |
 | `onHostRestart` | lua/ui_controls.lua | 220 |
-| `onHostSetupGuided` | lua/ui_setup.lua | 794 |
+| `onHostSetupGuided` | lua/ui_setup.lua | 797 |
 | `onLoad` | lua/global.lua | 294 |
 | `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 323 |
 | `onMsgLogClear` | lua/ui_msglog.lua | 65 |
@@ -1037,18 +1054,19 @@
 | `onTradeTargetClick` | lua/ui_actionbar_handlers.lua | 363 |
 | `onVariantsContinue` | lua/ui_setup.lua | 208 |
 | `onWeekReviewClose` | lua/ui_controls.lua | 492 |
-| `onWhatNowClick` | lua/ui_help.lua | 205 |
-| `onWhatNowClose` | lua/ui_help.lua | 342 |
+| `onWhatNowClick` | lua/ui_help.lua | 243 |
+| `onWhatNowClose` | lua/ui_help.lua | 380 |
+| `paginateHelpText` | lua/ui_help_pages.lua | 52 |
 | `placeBossStandee` | lua/effects/dawn_effects.lua | 70 |
 | `placeCharacterAtTile` | lua/helpers.lua | 313 |
 | `playerHasBackpack` | lua/actions.lua | 296 |
 | `playerPryTool` | lua/actions_social.lua | 297 |
 | `poolBossStandee` | lua/effects/dawn_effects.lua | 104 |
-| `populateNotebook` | lua/ui_help.lua | 481 |
+| `populateNotebook` | lua/ui_help.lua | 520 |
 | `pressAttack` | lua/combat_resolve.lua | 326 |
 | `pulseHandZone` | lua/ui_banner.lua | 455 |
-| `quickStartCardText` | lua/ui_help.lua | 460 |
-| `quickStartTextForVariant` | lua/ui_help.lua | 435 |
+| `quickStartCardText` | lua/ui_help.lua | 498 |
+| `quickStartTextForVariant` | lua/ui_help.lua | 473 |
 | `rallyTargets` | lua/actions_social.lua | 234 |
 | `raymanLoudTonight` | lua/night.lua | 25 |
 | `recipeIngredientCost` | lua/crafting.lua | 165 |
@@ -1062,7 +1080,7 @@
 | `recordTurnEnd` | lua/telemetry.lua | 58 |
 | `refillMarketSlot` | lua/crafting.lua | 126 |
 | `refreshActionBar` | lua/ui_actionbar_display.lua | 54 |
-| `refreshActionButtonReasons` | lua/ui_help.lua | 363 |
+| `refreshActionButtonReasons` | lua/ui_help.lua | 401 |
 | `refreshActionButtonStates` | lua/ui_actionbar_display.lua | 98 |
 | `refreshCharRoster` | lua/ui_banner.lua | 149 |
 | `refreshCombatPanel` | lua/ui_actionbar_handlers.lua | 279 |
@@ -1070,11 +1088,11 @@
 | `refreshDawnChecklist` | lua/ui_rules.lua | 278 |
 | `refreshDuskReadyLabel` | lua/turns.lua | 206 |
 | `refreshDynamicTooltips` | lua/ui_controls.lua | 553 |
-| `refreshHelpPanel` | lua/ui_help.lua | 145 |
+| `refreshHelpPanel` | lua/ui_help.lua | 182 |
 | `refreshHostControls` | lua/ui_controls.lua | 151 |
 | `refreshMsgLog` | lua/ui_msglog.lua | 38 |
 | `refreshPhaseBanner` | lua/ui_banner.lua | 54 |
-| `refreshQuickStartCard` | lua/ui_help.lua | 475 |
+| `refreshQuickStartCard` | lua/ui_help.lua | 514 |
 | `refreshReactionsPanel` | lua/ui_reactions.lua | 123 |
 | `refreshRulesPanel` | lua/ui_rules.lua | 215 |
 | `refreshStandeeTooltips` | lua/ui_banner.lua | 203 |
@@ -1094,13 +1112,14 @@
 | `revealTrophy` | lua/combat.lua | 277 |
 | `reviveCharacter` | lua/tick_victory.lua | 232 |
 | `rollAttackDice` | lua/combat.lua | 10 |
+| `rulebookText` | lua/ui_help_pages.lua | 101 |
 | `runSelfTest` | lua/selftest.lua | 139 |
 | `safeHasTag` | lua/helpers.lua | 59 |
 | `safeNickname` | lua/helpers.lua | 52 |
 | `safecall` | lua/helpers.lua | 506 |
 | `setActionCubes` | lua/ui_actionbar_display.lua | 84 |
 | `setActionEnabled` | lua/ui_actionbar_display.lua | 202 |
-| `setActionTooltip` | lua/ui_help.lua | 411 |
+| `setActionTooltip` | lua/ui_help.lua | 449 |
 | `setButtonLabel` | lua/helpers.lua | 83 |
 | `setNightOmen` | lua/ui_banner.lua | 44 |
 | `setPhaseMood` | lua/ui_mood.lua | 45 |
@@ -1125,7 +1144,7 @@
 | `stopStandeeBob` | lua/ui_banner.lua | 347 |
 | `stringToColorTint` | lua/ui_banner.lua | 311 |
 | `stripMarketHelp` | lua/crafting.lua | 39 |
-| `substitutePlaceholders` | lua/ui_help.lua | 346 |
+| `substitutePlaceholders` | lua/ui_help.lua | 384 |
 | `syncBossHP` | lua/combat.lua | 119 |
 | `syncSourceHP` | lua/combat.lua | 109 |
 | `syncThreatHP` | lua/combat.lua | 135 |
@@ -1139,7 +1158,7 @@
 | `wakeTreeguard` | lua/treeguard.lua | 15 |
 | `witnessTargets` | lua/actions_haunted.lua | 27 |
 
-## XML UI ids (236 ids)
+## XML UI ids (241 ids)
 
 *Element ids across xml/ (alphabetical). Lua targets these via `UI.show/hide/setAttribute`; onClick names the Lua handler.*
 
@@ -1190,26 +1209,26 @@
 | `charName_Luca` | xml/setup.xml | 205 | Text |  |
 | `charName_Rayman` | xml/setup.xml | 165 | Text |  |
 | `charRoster` | xml/hud.xml | 507 | Panel |  |
-| `combatPanel` | xml/dialogs.xml | 459 | Panel |  |
-| `combatStatus` | xml/dialogs.xml | 467 | Text |  |
+| `combatPanel` | xml/dialogs.xml | 498 | Panel |  |
+| `combatStatus` | xml/dialogs.xml | 506 | Text |  |
 | `confirmBody` | xml/dialogs.xml | 20 | Text |  |
 | `confirmDialog` | xml/dialogs.xml | 9 | Panel |  |
 | `confirmNo` | xml/dialogs.xml | 30 | Button | `onConfirmNo` |
 | `confirmTitle` | xml/dialogs.xml | 18 | Text |  |
 | `confirmYes` | xml/dialogs.xml | 25 | Button | `onConfirmYes` |
-| `cookCancel` | xml/dialogs.xml | 201 | Button | `onCookCancel` |
-| `cookDialog` | xml/dialogs.xml | 158 | Panel |  |
-| `cookDialogHint` | xml/dialogs.xml | 169 | Text |  |
-| `cookOpt1` | xml/dialogs.xml | 171 | Button | `onCookOptionClick` |
-| `cookOpt10` | xml/dialogs.xml | 198 | Button | `onCookOptionClick` |
-| `cookOpt2` | xml/dialogs.xml | 174 | Button | `onCookOptionClick` |
-| `cookOpt3` | xml/dialogs.xml | 177 | Button | `onCookOptionClick` |
-| `cookOpt4` | xml/dialogs.xml | 180 | Button | `onCookOptionClick` |
-| `cookOpt5` | xml/dialogs.xml | 183 | Button | `onCookOptionClick` |
-| `cookOpt6` | xml/dialogs.xml | 186 | Button | `onCookOptionClick` |
-| `cookOpt7` | xml/dialogs.xml | 189 | Button | `onCookOptionClick` |
-| `cookOpt8` | xml/dialogs.xml | 192 | Button | `onCookOptionClick` |
-| `cookOpt9` | xml/dialogs.xml | 195 | Button | `onCookOptionClick` |
+| `cookCancel` | xml/dialogs.xml | 240 | Button | `onCookCancel` |
+| `cookDialog` | xml/dialogs.xml | 197 | Panel |  |
+| `cookDialogHint` | xml/dialogs.xml | 208 | Text |  |
+| `cookOpt1` | xml/dialogs.xml | 210 | Button | `onCookOptionClick` |
+| `cookOpt10` | xml/dialogs.xml | 237 | Button | `onCookOptionClick` |
+| `cookOpt2` | xml/dialogs.xml | 213 | Button | `onCookOptionClick` |
+| `cookOpt3` | xml/dialogs.xml | 216 | Button | `onCookOptionClick` |
+| `cookOpt4` | xml/dialogs.xml | 219 | Button | `onCookOptionClick` |
+| `cookOpt5` | xml/dialogs.xml | 222 | Button | `onCookOptionClick` |
+| `cookOpt6` | xml/dialogs.xml | 225 | Button | `onCookOptionClick` |
+| `cookOpt7` | xml/dialogs.xml | 228 | Button | `onCookOptionClick` |
+| `cookOpt8` | xml/dialogs.xml | 231 | Button | `onCookOptionClick` |
+| `cookOpt9` | xml/dialogs.xml | 234 | Button | `onCookOptionClick` |
 | `cube1` | xml/hud.xml | 359 | Text |  |
 | `cube2` | xml/hud.xml | 360 | Text |  |
 | `cube3` | xml/hud.xml | 361 | Text |  |
@@ -1221,24 +1240,29 @@
 | `dawnStep_2` | xml/hud.xml | 157 | Button | `onDawnStepClick` |
 | `dawnStep_3` | xml/hud.xml | 160 | Button | `onDawnStepClick` |
 | `dawnStep_4` | xml/hud.xml | 163 | Button | `onDawnStepClick` |
-| `duskBadmintonCourt` | xml/dialogs.xml | 519 | Button | `onDuskMoveClick` |
-| `duskBasketballCourt` | xml/dialogs.xml | 514 | Button | `onDuskMoveClick` |
-| `duskEllieLucaHouse` | xml/dialogs.xml | 504 | Button | `onDuskMoveClick` |
-| `duskJamesHouse` | xml/dialogs.xml | 499 | Button | `onDuskMoveClick` |
-| `duskPanel` | xml/dialogs.xml | 486 | Panel |  |
-| `duskRaymanHouse` | xml/dialogs.xml | 509 | Button | `onDuskMoveClick` |
-| `duskReadyBtn` | xml/dialogs.xml | 526 | Button | `onDuskReadyClick` |
-| `finishCombatBtn` | xml/dialogs.xml | 474 | Button | `onFinishCombat` |
-| `helpBody` | xml/dialogs.xml | 139 | Text |  |
+| `duskBadmintonCourt` | xml/dialogs.xml | 558 | Button | `onDuskMoveClick` |
+| `duskBasketballCourt` | xml/dialogs.xml | 553 | Button | `onDuskMoveClick` |
+| `duskEllieLucaHouse` | xml/dialogs.xml | 543 | Button | `onDuskMoveClick` |
+| `duskJamesHouse` | xml/dialogs.xml | 538 | Button | `onDuskMoveClick` |
+| `duskPanel` | xml/dialogs.xml | 525 | Panel |  |
+| `duskRaymanHouse` | xml/dialogs.xml | 548 | Button | `onDuskMoveClick` |
+| `duskReadyBtn` | xml/dialogs.xml | 565 | Button | `onDuskReadyClick` |
+| `finishCombatBtn` | xml/dialogs.xml | 513 | Button | `onFinishCombat` |
+| `helpBody` | xml/dialogs.xml | 158 | Text |  |
 | `helpBtn` | xml/hud.xml | 76 | Button | `onHelpClick` |
-| `helpClose` | xml/dialogs.xml | 143 | Button | `onHelpClose` |
-| `helpPanel` | xml/dialogs.xml | 102 | Panel |  |
-| `helpTabChar` | xml/dialogs.xml | 118 | Button | `onHelpTab` |
-| `helpTabDawn` | xml/dialogs.xml | 122 | Button | `onHelpTab` |
-| `helpTabDoom` | xml/dialogs.xml | 126 | Button | `onHelpTab` |
-| `helpTabGlossary` | xml/dialogs.xml | 130 | Button | `onHelpTab` |
-| `helpTabQuick` | xml/dialogs.xml | 114 | Button | `onHelpTab` |
-| `helpTabTitle` | xml/dialogs.xml | 136 | Text |  |
+| `helpClose` | xml/dialogs.xml | 182 | Button | `onHelpClose` |
+| `helpPageLabel` | xml/dialogs.xml | 172 | Text |  |
+| `helpPageNav` | xml/dialogs.xml | 163 | HorizontalLayout |  |
+| `helpPageNext` | xml/dialogs.xml | 175 | Button | `onHelpPageNext` |
+| `helpPagePrev` | xml/dialogs.xml | 167 | Button | `onHelpPagePrev` |
+| `helpPanel` | xml/dialogs.xml | 114 | Panel |  |
+| `helpTabChar` | xml/dialogs.xml | 137 | Button | `onHelpTab` |
+| `helpTabDawn` | xml/dialogs.xml | 141 | Button | `onHelpTab` |
+| `helpTabDoom` | xml/dialogs.xml | 145 | Button | `onHelpTab` |
+| `helpTabGlossary` | xml/dialogs.xml | 149 | Button | `onHelpTab` |
+| `helpTabQuick` | xml/dialogs.xml | 133 | Button | `onHelpTab` |
+| `helpTabRules` | xml/dialogs.xml | 127 | Button | `onHelpTab` |
+| `helpTabTitle` | xml/dialogs.xml | 155 | Text |  |
 | `hintBtn` | xml/hud.xml | 84 | Button | `onWhatNowClick` |
 | `hostControls` | xml/hud.xml | 183 | Panel |  |
 | `logBtn` | xml/hud.xml | 92 | Button | `onMsgLogToggle` |
@@ -1246,16 +1270,16 @@
 | `msgLogBody` | xml/msglog.xml | 34 | Text |  |
 | `msgLogClear` | xml/msglog.xml | 23 | Button | `onMsgLogClear` |
 | `msgLogHide` | xml/msglog.xml | 28 | Button | `onMsgLogHide` |
-| `peekBtn_Market` | xml/dialogs.xml | 306 | Button | `onPeekDeckClick` |
-| `peekBtn_Phase` | xml/dialogs.xml | 300 | Button | `onPeekDeckClick` |
-| `peekBtn_Threat` | xml/dialogs.xml | 303 | Button | `onPeekDeckClick` |
-| `peekBtn_Visitor` | xml/dialogs.xml | 309 | Button | `onPeekDeckClick` |
-| `peekCancel` | xml/dialogs.xml | 312 | Button | `onPeekCancel` |
-| `peekDialog` | xml/dialogs.xml | 287 | Panel |  |
-| `peekResultBody` | xml/dialogs.xml | 337 | Text |  |
-| `peekResultClose` | xml/dialogs.xml | 340 | Button | `onPeekResultClose` |
-| `peekResultPanel` | xml/dialogs.xml | 323 | Panel |  |
-| `peekResultTitle` | xml/dialogs.xml | 335 | Text |  |
+| `peekBtn_Market` | xml/dialogs.xml | 345 | Button | `onPeekDeckClick` |
+| `peekBtn_Phase` | xml/dialogs.xml | 339 | Button | `onPeekDeckClick` |
+| `peekBtn_Threat` | xml/dialogs.xml | 342 | Button | `onPeekDeckClick` |
+| `peekBtn_Visitor` | xml/dialogs.xml | 348 | Button | `onPeekDeckClick` |
+| `peekCancel` | xml/dialogs.xml | 351 | Button | `onPeekCancel` |
+| `peekDialog` | xml/dialogs.xml | 326 | Panel |  |
+| `peekResultBody` | xml/dialogs.xml | 376 | Text |  |
+| `peekResultClose` | xml/dialogs.xml | 379 | Button | `onPeekResultClose` |
+| `peekResultPanel` | xml/dialogs.xml | 362 | Panel |  |
+| `peekResultTitle` | xml/dialogs.xml | 374 | Text |  |
 | `phaseBanner` | xml/hud.xml | 9 | Panel |  |
 | `pickCoco` | xml/setup.xml | 156 | Button | `onPickChar` |
 | `pickCompact` | xml/setup.xml | 27 | Button | `onPickPath` |
@@ -1267,31 +1291,31 @@
 | `pickRing` | xml/setup.xml | 42 | Button | `onPickPath` |
 | `pickSprawl` | xml/setup.xml | 31 | Button | `onPickPath` |
 | `pickStar` | xml/setup.xml | 46 | Button | `onPickPath` |
-| `pressAttackBtn` | xml/dialogs.xml | 470 | Button | `onPressAttack` |
-| `rallyBtn_Blue` | xml/dialogs.xml | 378 | Button | `onRallyTargetClick` |
-| `rallyBtn_Green` | xml/dialogs.xml | 375 | Button | `onRallyTargetClick` |
-| `rallyBtn_Red` | xml/dialogs.xml | 369 | Button | `onRallyTargetClick` |
-| `rallyBtn_White` | xml/dialogs.xml | 366 | Button | `onRallyTargetClick` |
-| `rallyBtn_Yellow` | xml/dialogs.xml | 372 | Button | `onRallyTargetClick` |
-| `rallyCancel` | xml/dialogs.xml | 381 | Button | `onRallyCancel` |
-| `rallyDialog` | xml/dialogs.xml | 353 | Panel |  |
+| `pressAttackBtn` | xml/dialogs.xml | 509 | Button | `onPressAttack` |
+| `rallyBtn_Blue` | xml/dialogs.xml | 417 | Button | `onRallyTargetClick` |
+| `rallyBtn_Green` | xml/dialogs.xml | 414 | Button | `onRallyTargetClick` |
+| `rallyBtn_Red` | xml/dialogs.xml | 408 | Button | `onRallyTargetClick` |
+| `rallyBtn_White` | xml/dialogs.xml | 405 | Button | `onRallyTargetClick` |
+| `rallyBtn_Yellow` | xml/dialogs.xml | 411 | Button | `onRallyTargetClick` |
+| `rallyCancel` | xml/dialogs.xml | 420 | Button | `onRallyCancel` |
+| `rallyDialog` | xml/dialogs.xml | 392 | Panel |  |
 | `reactBtn_1` | xml/hud.xml | 398 | Button | `onReactionClick` |
 | `reactBtn_2` | xml/hud.xml | 401 | Button | `onReactionClick` |
 | `reactBtn_3` | xml/hud.xml | 404 | Button | `onReactionClick` |
 | `reactionsPanel` | xml/hud.xml | 385 | Panel |  |
-| `resPickBattery` | xml/dialogs.xml | 445 | Button | `onResourcePickClick` |
-| `resPickCancel` | xml/dialogs.xml | 448 | Button | `onResourcePickCancel` |
-| `resPickCloth` | xml/dialogs.xml | 437 | Button | `onResourcePickClick` |
-| `resPickEnergy` | xml/dialogs.xml | 443 | Button | `onResourcePickClick` |
-| `resPickFood` | xml/dialogs.xml | 441 | Button | `onResourcePickClick` |
-| `resPickMetal` | xml/dialogs.xml | 435 | Button | `onResourcePickClick` |
-| `resPickWood` | xml/dialogs.xml | 433 | Button | `onResourcePickClick` |
-| `resourcePickBody` | xml/dialogs.xml | 430 | Text |  |
-| `resourcePickTitle` | xml/dialogs.xml | 428 | Text |  |
-| `resourcePickerDialog` | xml/dialogs.xml | 419 | Panel |  |
-| `restChoiceDialog` | xml/dialogs.xml | 390 | Panel |  |
-| `restHunger` | xml/dialogs.xml | 403 | Button | `onRestHunger` |
-| `restSanity` | xml/dialogs.xml | 407 | Button | `onRestSanity` |
+| `resPickBattery` | xml/dialogs.xml | 484 | Button | `onResourcePickClick` |
+| `resPickCancel` | xml/dialogs.xml | 487 | Button | `onResourcePickCancel` |
+| `resPickCloth` | xml/dialogs.xml | 476 | Button | `onResourcePickClick` |
+| `resPickEnergy` | xml/dialogs.xml | 482 | Button | `onResourcePickClick` |
+| `resPickFood` | xml/dialogs.xml | 480 | Button | `onResourcePickClick` |
+| `resPickMetal` | xml/dialogs.xml | 474 | Button | `onResourcePickClick` |
+| `resPickWood` | xml/dialogs.xml | 472 | Button | `onResourcePickClick` |
+| `resourcePickBody` | xml/dialogs.xml | 469 | Text |  |
+| `resourcePickTitle` | xml/dialogs.xml | 467 | Text |  |
+| `resourcePickerDialog` | xml/dialogs.xml | 458 | Panel |  |
+| `restChoiceDialog` | xml/dialogs.xml | 429 | Panel |  |
+| `restHunger` | xml/dialogs.xml | 442 | Button | `onRestHunger` |
+| `restSanity` | xml/dialogs.xml | 446 | Button | `onRestSanity` |
 | `rosterHealthVal_Coco` | xml/hud.xml | 571 | Text |  |
 | `rosterHealthVal_Ellie` | xml/hud.xml | 647 | Text |  |
 | `rosterHealthVal_James` | xml/hud.xml | 533 | Text |  |
@@ -1338,13 +1362,13 @@
 | `setupStep1` | xml/setup.xml | 11 | Panel |  |
 | `setupStep2` | xml/setup.xml | 105 | Panel |  |
 | `setupStepVariants` | xml/setup.xml | 57 | Panel |  |
-| `sigTargetBtn_Blue` | xml/dialogs.xml | 274 | Button | `onSignatureTargetClick` |
-| `sigTargetBtn_Green` | xml/dialogs.xml | 271 | Button | `onSignatureTargetClick` |
-| `sigTargetBtn_Red` | xml/dialogs.xml | 265 | Button | `onSignatureTargetClick` |
-| `sigTargetBtn_White` | xml/dialogs.xml | 262 | Button | `onSignatureTargetClick` |
-| `sigTargetBtn_Yellow` | xml/dialogs.xml | 268 | Button | `onSignatureTargetClick` |
-| `sigTargetCancel` | xml/dialogs.xml | 277 | Button | `onSignatureCancel` |
-| `signatureTargetDialog` | xml/dialogs.xml | 249 | Panel |  |
+| `sigTargetBtn_Blue` | xml/dialogs.xml | 313 | Button | `onSignatureTargetClick` |
+| `sigTargetBtn_Green` | xml/dialogs.xml | 310 | Button | `onSignatureTargetClick` |
+| `sigTargetBtn_Red` | xml/dialogs.xml | 304 | Button | `onSignatureTargetClick` |
+| `sigTargetBtn_White` | xml/dialogs.xml | 301 | Button | `onSignatureTargetClick` |
+| `sigTargetBtn_Yellow` | xml/dialogs.xml | 307 | Button | `onSignatureTargetClick` |
+| `sigTargetCancel` | xml/dialogs.xml | 316 | Button | `onSignatureCancel` |
+| `signatureTargetDialog` | xml/dialogs.xml | 288 | Panel |  |
 | `statCharName` | xml/hud.xml | 443 | Text |  |
 | `statDisplay` | xml/hud.xml | 433 | Panel |  |
 | `statHealthBar` | xml/hud.xml | 451 | ProgressBar |  |
@@ -1365,13 +1389,13 @@
 | `toggleDifficulty` | xml/setup.xml | 71 | Button | `onToggleDifficulty` |
 | `toggleRotation` | xml/setup.xml | 78 | Button | `onToggleRotation` |
 | `toggleScenario` | xml/setup.xml | 85 | Button | `onToggleScenario` |
-| `tradeBtn_Blue` | xml/dialogs.xml | 236 | Button | `onTradeTargetClick` |
-| `tradeBtn_Green` | xml/dialogs.xml | 233 | Button | `onTradeTargetClick` |
-| `tradeBtn_Red` | xml/dialogs.xml | 227 | Button | `onTradeTargetClick` |
-| `tradeBtn_White` | xml/dialogs.xml | 224 | Button | `onTradeTargetClick` |
-| `tradeBtn_Yellow` | xml/dialogs.xml | 230 | Button | `onTradeTargetClick` |
-| `tradeCancel` | xml/dialogs.xml | 239 | Button | `onTradeCancel` |
-| `tradeDialog` | xml/dialogs.xml | 211 | Panel |  |
+| `tradeBtn_Blue` | xml/dialogs.xml | 275 | Button | `onTradeTargetClick` |
+| `tradeBtn_Green` | xml/dialogs.xml | 272 | Button | `onTradeTargetClick` |
+| `tradeBtn_Red` | xml/dialogs.xml | 266 | Button | `onTradeTargetClick` |
+| `tradeBtn_White` | xml/dialogs.xml | 263 | Button | `onTradeTargetClick` |
+| `tradeBtn_Yellow` | xml/dialogs.xml | 269 | Button | `onTradeTargetClick` |
+| `tradeCancel` | xml/dialogs.xml | 278 | Button | `onTradeCancel` |
+| `tradeDialog` | xml/dialogs.xml | 250 | Panel |  |
 | `uiToggle` | xml/hud.xml | 108 | Button | `onToggleCustomUI` |
 | `variantsContinue` | xml/setup.xml | 90 | Button | `onVariantsContinue` |
 | `weekReviewBody` | xml/dialogs.xml | 82 | Text |  |

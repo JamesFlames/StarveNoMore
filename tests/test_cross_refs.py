@@ -603,3 +603,30 @@ def test_dawn_display_does_not_collide_with_the_rest_of_the_board():
 
     # Clear of the Doom track along the south edge.
     assert z0 > g.DOOM_TRACK_WORLD_Z + 0.5, "the Dawn box reaches the Doom track"
+
+
+def test_ingame_rulebook_mirrors_the_player_rulebook():
+    """Help > Rulebook (rulebookText, lua/ui_help_pages.lua) and
+    PlayerRules.md/.html (scripts/generate_player_rules.py) are the same book
+    shown two ways. They are assembled by different code from the same
+    content/ markdown, so nothing but this test stops one gaining a section the
+    other never hears about — and the in-game one is the copy a player at the
+    table actually reads."""
+    gen = read_text(os.path.join(SCRIPTS, "generate_player_rules.py"))
+    lua = read_text(os.path.join(LUA_DIR, "ui_help_pages.lua"))
+
+    # ("Quick Start", "content/notebook/quickstart.md"), ...
+    sections = re.findall(r'\(\s*"([^"]+)"\s*,\s*"(content/[^"]+)"\s*\)', gen)
+    assert len(sections) >= 4, (
+        f"could not parse SECTIONS out of generate_player_rules.py (got {sections})")
+
+    body = re.search(r"function rulebookText\(\)(.*?)\nend", lua, re.S)
+    assert body, "rulebookText() not found in lua/ui_help_pages.lua"
+    book = body.group(1)
+
+    missing = [title for title, _src in sections
+               if title.upper() not in book.upper()]
+    assert not missing, (
+        f"PlayerRules has section(s) {missing} that the in-game Rulebook tab "
+        "does not: add them to rulebookText() (or drop them from SECTIONS). "
+        "A rule a player can only read outside the game is a rule they won't.")

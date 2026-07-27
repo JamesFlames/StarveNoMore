@@ -766,7 +766,10 @@ function showWelcomeSequence()
     broadcastEvent("warn", "Welcome to Starve No More.")
     broadcastEvent("warn", "Sit at any colour for now — when you pick your character during Setup, your seat colour changes to match it (James=Blue, Coco=White, Rayman=Green, Ellie=Yellow, Luca=Red).")
     broadcastEvent("warn", "Click 'Setup Game' on the Host Controls panel (top-left), or hover anything to see what it does.")
-    broadcastEvent("gain", "Press '?' anytime for help. Press 'What now?' if you're stuck. The Message Log (bottom right) keeps everything said — nothing is lost when a broadcast fades.")
+    broadcastEvent("gain", "Press '?' anytime for help — its first tab, RULEBOOK, is the complete player rulebook, page by page, so nobody has to go looking for rules outside the game. Press 'What now?' if you're stuck. The Message Log (bottom right) keeps everything said — nothing is lost when a broadcast fades.")
+    -- Content note (§18.19 item 5): stated before characters are chosen, not
+    -- discovered mid-game.
+    broadcastEvent("proc", "Content note: cosmic horror. Darkness that hunts you, bodies that fail, and some grim writing when a character falls.")
 
     -- Camera tween to the main board for all players
     local board = getMainBoard()

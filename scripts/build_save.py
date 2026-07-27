@@ -1341,7 +1341,8 @@ quickstart_text = (
     "STATS: Health / Hunger / Sanity. Any at 0 = Down.\n"
     "DARK: no light at night = Charlie attacks.\n"
     "TRADE: free, on your tile, any time.\n"
-    "\nHover anything for its rule. '?' = full rules.\n"
+    "\nHover anything for its rule.\n"
+    "'?' > RULEBOOK = the whole rulebook.\n"
     "'What now?' tells you your next move."
 )
 

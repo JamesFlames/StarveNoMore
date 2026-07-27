@@ -306,15 +306,20 @@ This single popup is the on-ramp. New players read it, dismiss it, and they have
 
 ### 18.17 The Help menu and the "What now?" hint
 
-A floating **Help (?)** button on the Phase Banner opens a side panel with five tabs. The panel is read-only (no game state changes); it stays open while the game continues.
+A floating **Help (?)** button on the Phase Banner opens a side panel with six tabs. The panel is read-only (no game state changes); it stays open while the game continues.
 
 | Tab | Content | Source |
 |---|---|---|
-| **Quick Start** | 1-page summary of the loop and victory conditions | Notebook content (§A.5) |
-| **Your character** | Active player's perks, constraints, suggested first move | Per-character data |
-| **Active Dawn** | Full text of the current Dawn card and any ongoing effects | `gameState.activeDawn` |
+| **Rulebook** | **The complete player rulebook**, page by page | The four `content/` sections, in `PlayerRules.md` order |
+| **Start** | 1-page summary of the loop and victory conditions | Notebook content, rewritten for the chosen difficulty |
+| **You** | Active player's perks, constraints, suggested first move | Per-character data |
+| **Dawn** | Full text of the current Dawn card and any ongoing effects | `gameState.activeDawn` |
 | **Doom** | Current value, next threshold, all threshold rules | `gameState.doom` lookup |
-| **Glossary** | Every icon and keyword in the game | Static reference |
+| **Terms** | Every icon and keyword in the game | Static reference |
+
+**The Rulebook tab is the answer to "where are the rules?"** It carries the same four sections in the same order as the browser rulebook (`PlayerRules.md` / `PlayerRules.html`) — Quick Start, Full Rules, The Characters, Glossary — assembled from the same `content/` markdown, so the book at the table and the book in the browser cannot drift. A rule a player can only read by leaving the game is a rule they will not read. (`tests/test_cross_refs.py::test_ingame_rulebook_mirrors_the_player_rulebook` fails if one gains a section the other lacks.)
+
+**Every tab is paged, and this is not a nicety.** A TTS `Text` element renders what fits and **clips the rest silently** — no scrollbar, no ellipsis, no warning, no error. The Quick Start *notecard* taught this lesson once already (hence `QUICKSTART_CARD_BUDGET`), but the Help panel had the same defect at larger scale and unmeasured: the Glossary is ~7,000 characters against a body that holds roughly 2,000, so **two thirds of the game's own reference material was invisible** and the tab looked fine. Pagination (`lua/ui_help_pages.lua`) splits on line boundaries, keeps a heading with the text beneath it, and hides its own nav row on single-page tabs. Two tests hold the line: pagination must lose nothing, and no page may exceed the body's estimated line capacity — otherwise paging has merely relocated the clipping.
 
 A second smaller button next to Help: **"What now?"** — context-aware advice. Click during:
 - Day Phase: "It's your turn, Ellie. You have 2 actions left. Suggested: cook a recipe at the Kitchen — you have 2 Food and 1 Wood available."

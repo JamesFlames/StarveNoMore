@@ -16,6 +16,8 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 | Change the day/night flow | `lua/day_loop.lua`, `lua/night.lua` | `generate_symbol_index.py` |
 | Change victory/defeat | `lua/tick_victory.lua` | `generate_symbol_index.py`; mirror in `scripts/simulate_balance.py` |
 | Change in-game rules text | `content/notebook/*.md` + `content/help/*.md` | `generate_notebook.py`, `generate_player_rules.py` |
+| Change the in-game Rulebook tab / Help paging | `lua/ui_help_pages.lua` + `lua/ui_help.lua` + `xml/dialogs.xml` | `generate_symbol_index.py` |
+| Add an off-turn (reaction) action | `lua/ui_reactions.lua` + `xml/hud.xml` | `generate_symbol_index.py` |
 | Change a UI panel | matching `lua/ui_*.lua` + `xml/*.xml` | `generate_symbol_index.py` |
 | Rebalance | `scripts/simulate_balance.py`, `content/cards_*.csv` | rerun sim both rulesets; update `test_sim.py` bands |
 | Add/adjust a Signature Move | `lua/signatures.lua` | `generate_symbol_index.py` |

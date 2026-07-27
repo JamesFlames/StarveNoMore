@@ -97,53 +97,92 @@
 </Panel>
 
 <!-- ================================================================== -->
-<!-- H.3  HELP PANEL — side panel with 5 tabs (Design §18.17)          -->
+<!-- H.3  HELP PANEL — side panel with 6 tabs (Design §18.17)           -->
+<!--                                                                    -->
+<!-- The RULEBOOK tab carries the whole player rulebook — the same four  -->
+<!-- sections, in the same order, as PlayerRules.md/.html at the repo    -->
+<!-- root (Quick Start, Full Rules, The Characters, Glossary), all from  -->
+<!-- the one content/ source. It is the answer to "where are the rules?" -->
+<!-- without leaving the table.                                          -->
+<!--                                                                    -->
+<!-- Every tab is PAGED (ui_help_pages.lua). A TTS Text element clips    -->
+<!-- silently — no scrollbar, no ellipsis, no warning — and the Glossary  -->
+<!-- alone is ~7,000 characters against a body that holds ~2,000, so the  -->
+<!-- back half of that tab was simply invisible before paging existed.   -->
+<!-- The nav row hides itself on single-page tabs.                       -->
 <!-- ================================================================== -->
 <Panel id="helpPanel"
        rectAlignment="MiddleRight"
        offsetXY="-10 0"
-       width="400" height="650"
+       width="430" height="650"
        color="#050A14F0"
        outline="#50B4DC4C"
        outlineSize="1"
        active="false">
   <VerticalLayout spacing="4" padding="10 10 10 10"
                   childForceExpandHeight="false">
-    <!-- Tab bar -->
-    <HorizontalLayout spacing="4" preferredHeight="32">
+    <!-- Tab bar. Labels are short so six tabs fit 410px of usable width
+         (~64px each) without the text clipping mid-word. -->
+    <HorizontalLayout spacing="3" preferredHeight="30">
+      <Button id="helpTabRules"
+              onClick="onHelpTab"
+              fontSize="11" color="#142828CC" textColor="#AACCCC"
+              tooltip="The whole player rulebook, in the game: Quick Start, Full Rules, The Characters, Glossary. The same text as PlayerRules.html."
+              tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
+              text="Rulebook" />
       <Button id="helpTabQuick"
               onClick="onHelpTab"
-              fontSize="12" color="#14323CE6" textColor="#88DDFF"
-              text="Quick Start" />
+              fontSize="11" color="#14323CE6" textColor="#88DDFF"
+              text="Start" />
       <Button id="helpTabChar"
               onClick="onHelpTab"
-              fontSize="12" color="#142828CC" textColor="#AACCCC"
-              text="Character" />
+              fontSize="11" color="#142828CC" textColor="#AACCCC"
+              text="You" />
       <Button id="helpTabDawn"
               onClick="onHelpTab"
-              fontSize="12" color="#142828CC" textColor="#AACCCC"
+              fontSize="11" color="#142828CC" textColor="#AACCCC"
               text="Dawn" />
       <Button id="helpTabDoom"
               onClick="onHelpTab"
-              fontSize="12" color="#142828CC" textColor="#AACCCC"
+              fontSize="11" color="#142828CC" textColor="#AACCCC"
               text="Doom" />
       <Button id="helpTabGlossary"
               onClick="onHelpTab"
-              fontSize="12" color="#142828CC" textColor="#AACCCC"
-              text="Glossary" />
+              fontSize="11" color="#142828CC" textColor="#AACCCC"
+              text="Terms" />
     </HorizontalLayout>
     <!-- Tab title -->
     <Text id="helpTabTitle" fontSize="16" fontStyle="Bold" color="#88DDFF"
           text="Quick Start" preferredHeight="22" />
     <!-- Tab content -->
     <Text id="helpBody" fontSize="12" color="#BBCCDD"
+          alignment="UpperLeft"
           text=""
-          preferredHeight="530" />
+          preferredHeight="498" />
+    <!-- Page nav — shown by refreshHelpPanel only when the tab has >1 page -->
+    <HorizontalLayout id="helpPageNav" spacing="6" preferredHeight="28"
+                      childForceExpandWidth="false"
+                      childAlignment="MiddleCenter"
+                      active="false">
+      <Button id="helpPagePrev"
+              onClick="onHelpPagePrev"
+              fontSize="14" color="#14323CE6" textColor="#88DDFF"
+              preferredWidth="90" preferredHeight="26"
+              text="◀ Back" />
+      <Text id="helpPageLabel" fontSize="12" color="#7799AA"
+            preferredWidth="150" alignment="MiddleCenter"
+            text="" />
+      <Button id="helpPageNext"
+              onClick="onHelpPageNext"
+              fontSize="14" color="#14323CE6" textColor="#88DDFF"
+              preferredWidth="90" preferredHeight="26"
+              text="More ▶" />
+    </HorizontalLayout>
     <!-- Close -->
     <Button id="helpClose"
             onClick="onHelpClose"
             fontSize="14" color="#282828E6" textColor="#AAAAAA"
-            preferredHeight="30"
+            preferredHeight="28"
             text="Close" />
   </VerticalLayout>
 </Panel>

@@ -1,7 +1,8 @@
--- ui_help.lua  (H.3/H.4 Help panel 5 tabs + H.5 What-now hints + H.7 Why-disabled + H.8 Notebook)
+-- ui_help.lua  (H.3/H.4 Help panel: 6 paged tabs incl. the in-game Rulebook +
+-- H.5 What-now hints + H.7 Why-disabled + H.8 Notebook)
 
 -----------------------------------------------------------------------
--- H.3 — Help Panel Content (5 tabs)
+-- H.3 — Help Panel Content (6 tabs; pagination in ui_help_pages.lua)
 --
 -- The static text (HELP_QUICKSTART, HELP_GLOSSARY, NOTEBOOK_*) lives in
 -- lua/notebook_data.lua, AUTO-GENERATED from content/notebook/*.md and
@@ -117,6 +118,10 @@ end
 -----------------------------------------------------------------------
 local currentHelpTab = "quick"
 
+-- Per-tab page position, so switching away from page 4 of the Rulebook and
+-- back returns you to page 4 instead of the cover.
+local helpPage = {}
+
 function onHelpClick(player, value, id)
     local visible = UI.getAttribute("helpPanel", "active")
     if visible == "true" then
@@ -132,7 +137,8 @@ function onHelpClose(player, value, id)
 end
 
 function onHelpTab(player, value, id)
-    if id == "helpTabQuick" then currentHelpTab = "quick"
+    if id == "helpTabRules" then currentHelpTab = "rules"
+    elseif id == "helpTabQuick" then currentHelpTab = "quick"
     elseif id == "helpTabChar" then currentHelpTab = "char"
     elseif id == "helpTabDawn" then currentHelpTab = "dawn"
     elseif id == "helpTabDoom" then currentHelpTab = "doom"
@@ -142,10 +148,42 @@ function onHelpTab(player, value, id)
     refreshHelpPanel(player)
 end
 
+-- Title + full (unpaged) body for a tab. Split out so the pager and the
+-- tests can both ask "what does this tab say?" without touching the UI.
+function helpTabContent(tab, player)
+    if tab == "rules" then
+        return "Player Rules", rulebookText()
+    elseif tab == "quick" then
+        -- The difficulty-aware rewrite, not the raw markdown: a Story or Long
+        -- Weekend table must not be told to survive 7 nights below Doom 30.
+        return "Quick Start", quickStartTextForVariant()
+    elseif tab == "char" then
+        return "Your Character", getHelpCharContent(player)
+    elseif tab == "dawn" then
+        return "Active Dawn Card", getHelpDawnContent()
+    elseif tab == "doom" then
+        return "Doom Track", getHelpDoomContent()
+    elseif tab == "glossary" then
+        return "Glossary", HELP_GLOSSARY
+    end
+    return "", ""
+end
+
+function onHelpPagePrev(player, value, id)
+    helpPage[currentHelpTab] = math.max(1, (helpPage[currentHelpTab] or 1) - 1)
+    refreshHelpPanel(player)
+end
+
+function onHelpPageNext(player, value, id)
+    helpPage[currentHelpTab] = (helpPage[currentHelpTab] or 1) + 1
+    refreshHelpPanel(player)
+end
+
 function refreshHelpPanel(player)
     -- Highlight active tab
-    local tabs = {"helpTabQuick", "helpTabChar", "helpTabDawn", "helpTabDoom", "helpTabGlossary"}
-    local tabKeys = {"quick", "char", "dawn", "doom", "glossary"}
+    local tabs = {"helpTabRules", "helpTabQuick", "helpTabChar", "helpTabDawn",
+                  "helpTabDoom", "helpTabGlossary"}
+    local tabKeys = {"rules", "quick", "char", "dawn", "doom", "glossary"}
     for i, tabId in ipairs(tabs) do
         if tabKeys[i] == currentHelpTab then
             UI.setAttribute(tabId, "color", "#14323CE6")
@@ -156,28 +194,28 @@ function refreshHelpPanel(player)
         end
     end
 
-    local title = ""
-    local body = ""
+    local title, body = helpTabContent(currentHelpTab, player)
 
-    if currentHelpTab == "quick" then
-        title = "Quick Start"
-        body = HELP_QUICKSTART
-    elseif currentHelpTab == "char" then
-        title = "Your Character"
-        body = getHelpCharContent(player)
-    elseif currentHelpTab == "dawn" then
-        title = "Active Dawn Card"
-        body = getHelpDawnContent()
-    elseif currentHelpTab == "doom" then
-        title = "Doom Track"
-        body = getHelpDoomContent()
-    elseif currentHelpTab == "glossary" then
-        title = "Glossary"
-        body = HELP_GLOSSARY
+    -- Page it. A TTS Text clips silently, so an unpaged Glossary lost two
+    -- thirds of itself with no visible sign (ui_help_pages.lua).
+    local pages = paginateHelpText(body)
+    local page = math.min(math.max(1, helpPage[currentHelpTab] or 1), #pages)
+    helpPage[currentHelpTab] = page
+
+    if #pages > 1 then
+        title = title .. "  (" .. page .. "/" .. #pages .. ")"
+        UI.setAttribute("helpPageNav", "active", "true")
+        UI.setAttribute("helpPageLabel", "text", "page " .. page .. " of " .. #pages)
+        -- Dim rather than hide the ends: a button that vanishes moves the row
+        -- and makes the player hunt for it.
+        UI.setAttribute("helpPagePrev", "textColor", page > 1 and "#88DDFF" or "#3A4A55")
+        UI.setAttribute("helpPageNext", "textColor", page < #pages and "#88DDFF" or "#3A4A55")
+    else
+        UI.setAttribute("helpPageNav", "active", "false")
     end
 
     UI.setAttribute("helpTabTitle", "text", title)
-    UI.setAttribute("helpBody", "text", body)
+    UI.setAttribute("helpBody", "text", pages[page] or "")
 end
 
 -----------------------------------------------------------------------
@@ -467,7 +505,8 @@ function quickStartCardText()
         .. "STATS: Health / Hunger / Sanity. Any at 0 = Down.\n"
         .. "DARK: no light at night = Charlie attacks.\n"
         .. "TRADE: free, on your tile, any time.\n"
-        .. "\nHover anything for its rule. '?' = full rules.\n"
+        .. "\nHover anything for its rule.\n"
+        .. "'?' > RULEBOOK = the whole rulebook.\n"
         .. "'What now?' tells you your next move."
 end
 
