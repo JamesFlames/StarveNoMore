@@ -240,6 +240,87 @@ def test_guided_setup_reseats_players_to_character_colors():
     assert sorted(seated) == ["Blue", "White"], seated
 
 
+def _run_guided_setup(env):
+    """The two-player guided walkthrough, clicked through end to end."""
+    populate_full_world(env)
+    env.globals().onLoad("")
+    flush(env)
+    env.execute('TTS.seated = {"White", "Blue"}')
+    env.execute('onHostSetupGuided(Player["White"])')
+    env.execute('onPickPath(Player["White"], "-1", "pickCompact")')
+    env.execute('onVariantsContinue(Player["White"], "-1", "variantsContinue")')
+    flush(env)
+    # White picks James -> reseated onto Blue; the player parked there swaps
+    # onto White and picks next.
+    env.execute('onPickChar(Player["White"], "-1", "pickJames")')
+    env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
+    env.execute('onPickChar(Player["White"], "-1", "pickCoco")')
+    env.execute('onBriefDismiss(Player["White"], "-1", "briefDismiss")')
+    flush(env)
+
+
+def _visible(env, panel):
+    vis = lua_to_py(env.eval("TTS.ui.visible")) or {}
+    return bool(vis.get(panel))
+
+
+SETUP_PANELS = ("setupStep1", "setupStepVariants", "setupStep2", "charBriefing")
+
+
+def test_finalize_closes_every_walkthrough_panel():
+    """Once the game starts, no setup panel may be left on screen. TTS
+    rebuilds a player's UI canvas on Player.changeColor, so the reseat inside
+    a pick can eat that client's hide — and nothing downstream ever hid
+    setupStep2 again, leaving the reseated player clicking dead cards on a
+    game that had already begun."""
+    env = make_env()
+    _run_guided_setup(env)
+    assert env.eval("gameState.started") is True
+    for panel in SETUP_PANELS:
+        assert not _visible(env, panel), f"{panel} still on screen after setup finished"
+
+
+def test_leftover_pick_panel_closes_instead_of_swallowing_the_click():
+    env = make_env()
+    _run_guided_setup(env)
+    party_before = sorted(c["name"] for c in lua_to_py(env.eval("gameState.activeChars")).values())
+
+    # The client that missed the hide still has the panel up (simulated here
+    # by re-showing it) and clicks a card.
+    env.execute('UI.show("setupStep2")')
+    env.execute('TTS.broadcasts = {}')
+    env.execute('onPickChar(Player["Blue"], "-1", "pickRayman")')
+    flush(env)
+
+    assert not _visible(env, "setupStep2"), "a click on the ghost panel must close it"
+    party_after = sorted(c["name"] for c in lua_to_py(env.eval("gameState.activeChars")).values())
+    assert party_after == party_before, "a post-setup pick click changed the party"
+    assert any("Begin Day" in m for m in _broadcast_messages(env)), (
+        "the dead click must explain itself, not vanish")
+
+
+def test_late_briefing_clicks_cannot_rerun_setup():
+    """Both briefing buttons are reachable from a ghost panel. 'I understand'
+    ends in finalizeGuidedSetup — unguarded, a stray click mid-game wiped the
+    party and reset the table to a fresh Day 1."""
+    env = make_env()
+    _run_guided_setup(env)
+    env.globals().BeginDay()
+    flush(env)
+    env.execute('gameState.activeChars["Blue"].health = 3')
+    subphase_before = subphase(env)
+
+    env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
+    env.execute('onBriefBack(Player["Blue"], "-1", "briefBack")')
+    flush(env)
+
+    assert env.eval('gameState.activeChars["Blue"].health') == 3, (
+        "a late briefing click re-ran setup and restored the party")
+    assert subphase(env) == subphase_before, "a late briefing click rewound the phase"
+    for panel in SETUP_PANELS:
+        assert not _visible(env, panel), f"{panel} reopened mid-game"
+
+
 def test_restart_then_resetup_is_clean():
     env = make_env()
     start_game(env)

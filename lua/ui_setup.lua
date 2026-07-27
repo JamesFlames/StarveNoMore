@@ -20,6 +20,29 @@ function isGuidedSetupRunning()
     return setupState.inProgress == true
 end
 
+-- Re-assert every walkthrough panel's visibility from setupState.step
+-- (step 0/4 = walkthrough over, so everything closes).
+--
+-- Why this exists: Player.changeColor — the reseat in onPickChar — rebuilds
+-- that client's UI canvas, so a UI.show/UI.hide issued in the same handler
+-- never lands for the player being reseated. They were left staring at a
+-- frozen Step 2 panel (cards greyed mid-pick, someone else's name in the
+-- title) while the rest of the table finished setup and started Day 1 —
+-- and no code path could ever close it again. Re-run this a few frames
+-- after a reseat, and again at finalize, to repair any client that missed
+-- a show/hide.
+local function syncSetupPanels()
+    if not UI then return end
+    local s = setupState.step
+    local function set(id, on)
+        if on then UI.show(id) else UI.hide(id) end
+    end
+    set("setupStep1", s == 1)
+    set("setupStepVariants", s == 1.5)
+    set("setupStep2", s == 2)
+    set("charBriefing", s == 3)
+end
+
 -- Re-open whatever step the walkthrough is on (used when someone clicks
 -- Setup again mid-walkthrough — usually because they lost the window).
 function reshowSetupStep()
@@ -37,12 +60,8 @@ function cancelGuidedSetup()
     setupState.step = 0
     setupState.charPicks = {}
     setupState.pendingColors = {}
-    if UI then
-        UI.hide("setupStep1")
-        UI.hide("setupStepVariants")
-        UI.hide("setupStep2")
-        UI.hide("charBriefing")
-    end
+    setupState.briefingColor = nil
+    syncSetupPanels()
 end
 
 function startGuidedSetup(hostColor)
@@ -350,7 +369,18 @@ end
 function onPickChar(player, value, id)
     local charName = CHAR_BUTTON_MAP[id]
     if not charName then return end
-    if setupState.step ~= 2 then return end
+    if setupState.step ~= 2 then
+        -- A click off a ghost panel: this client missed a hide (see
+        -- syncSetupPanels). Swallowing it silently is what made the bug
+        -- unescapable — the player clicked every card on a dead window
+        -- while the game had already started. Close it and say why.
+        safecall(syncSetupPanels, "SetupSync")
+        if gameState.started then
+            broadcastToColor("Setup already finished — closing that leftover pick window. Click 'Begin Day' to start Day 1.",
+                player.color, BROADCAST_COLORS.warn)
+        end
+        return
+    end
 
     -- Verify this character isn't taken
     for _, name in pairs(setupState.charPicks) do
@@ -385,15 +415,23 @@ function onPickChar(player, value, id)
         if c == color then table.remove(setupState.pendingColors, i) break end
     end
 
+    -- Close the pick panel BEFORE the reseat: Player.changeColor rebuilds
+    -- the moved player's UI canvas, and anything issued after it can miss
+    -- that client entirely.
+    UI.hide("setupStep2")
+
     local finalColor = color
     safecall(function() finalColor = reseatPlayerForCharacter(color, charName) end, "Reseat")
     setupState.charPicks[finalColor] = charName
     broadcastEvent("proc", charName .. " assigned to " .. finalColor .. ".")
 
-    UI.hide("setupStep2")
-
     -- Show briefing for this player (Step 3 interleaved)
     showCharBriefing(finalColor, charName)
+
+    -- ...then repair the reseated client once its rebuilt canvas exists.
+    safecall(function()
+        Wait.frames(function() safecall(syncSetupPanels, "SetupSync") end, 3)
+    end, "SetupSync")
 end
 
 -----------------------------------------------------------------------
@@ -437,6 +475,13 @@ end
 -- Step 2 pick for the same player.
 function onBriefBack(player, value, id)
     UI.hide("charBriefing")
+    if not setupState.inProgress then
+        -- Ghost briefing on a client that missed a hide: returning a
+        -- character "to the pool" after setup finished would drag the whole
+        -- table back into the walkthrough mid-game.
+        safecall(syncSetupPanels, "SetupSync")
+        return
+    end
     local color = setupState.briefingColor
     if color and setupState.charPicks[color] then
         broadcastEvent("proc", setupState.charPicks[color] .. " returned to the pool — " ..
@@ -450,6 +495,13 @@ end
 
 function onBriefDismiss(player, value, id)
     UI.hide("charBriefing")
+    if not setupState.inProgress then
+        -- Same ghost-click guard as onBriefBack, and the costlier one: this
+        -- path ends in finalizeGuidedSetup, so a stray late click used to
+        -- re-run setup — wiping the party and resetting the game to Day 1.
+        safecall(syncSetupPanels, "SetupSync")
+        return
+    end
 
     -- Mark as briefed
     local color = setupState.briefingColor
@@ -472,6 +524,11 @@ end
 function finalizeGuidedSetup()
     setupState.step = 4
     setupState.inProgress = false
+    setupState.pendingColors = {}
+    setupState.briefingColor = nil
+    -- Close every walkthrough panel. Nothing below re-opens them, so a panel
+    -- still on screen once the game starts is a dead end with no way back.
+    safecall(syncSetupPanels, "SetupSync")
 
     -- Run the actual Setup logic with the picked characters
     broadcastEvent("phase", "Setting up Starve No More...")
@@ -577,6 +634,9 @@ function finalizeGuidedSetup()
 
     -- Refresh UI
     Wait.time(function()
+        -- Second pass, after every reseat's canvas rebuild has settled:
+        -- the last picker's client is the one that misses the first hide.
+        safecall(syncSetupPanels, "SetupSync")
         refreshPhaseBanner()
         updateActivePlayerIndicator()
         applyTooltips()
