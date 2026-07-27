@@ -129,6 +129,9 @@ function applyThreatDefeat(threatName, colors)
     local bossKey = Audio and Audio.threatNameToBossKey and Audio.threatNameToBossKey(threatName)
     if bossKey then safecall(function() Audio.stopBossLoop(bossKey) end, "Audio") end
     if bossKey == "treeguard" then safecall(function() treeguardDefeated() end, "Treeguard") end
+    -- A kill is the moment its achievement should land, not the end of the
+    -- week — and both flags and the chronicle are up to date by here.
+    safecall(function() checkAchievements("kill") end, "Achievements")
 end
 
 -- Enemy counter-attack against the live combat, then leave HP as-is.

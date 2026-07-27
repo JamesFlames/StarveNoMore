@@ -2,6 +2,47 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Achievements (2026-07)
+
+24 achievements, a Steam-style panel in the mod, and a Steamworks manifest for
+a future standalone app. Full detail: [`docs/achievements.md`](docs/achievements.md).
+
+**What players see:** a *Trophies* button beside Hide UI opens a paged panel —
+icon, name, description, and when it was earned. Unlocks raise a toast bottom
+right and a chat line. Three of the 24 are hidden and show as `???` until they
+happen. The roster spans the week's shape: living through Day 1, winning at
+all, winning on Nightmare / Long Weekend / solo, each boss, the ten-meal cook,
+the fifteen-kill week, the three-press finisher, everyone spending their
+Signature, and the two endings that are worth the retelling (winning with two
+Doom left, winning with one character standing).
+
+**What it does not do, and why:** a Tabletop Simulator Workshop mod runs inside
+someone else's Steam app. It has no appid and no Steamworks surface, so it
+cannot set a real Steam achievement — nothing can, from inside TTS. The panel
+is the working half; `steam/achievements.json` is generated from the same CSV
+so that a future port is a copy-paste, not a redesign.
+
+**Where unlocks live:** `gameState.achievements`, which rides the mod's saved
+script state — the only store TTS gives a mod. It is deliberately *not* cleared
+by Restart: it records what the table has done, not what this week did. A fresh
+load from the Workshop starts empty (a TTS limit), so the panel's *Copy my
+code* button writes a `SNM-ACH-1:` string to the Notes panel that restores
+every unlock at another table.
+
+**Nothing new is recorded at the table.** Every number the unlock rules read
+was already tracked for the Week in Review (§16.5) or the session telemetry
+(§20.2). The rules are pure reads of `gameState`, re-tested at four checkpoints
+(a kill, end of turn, end of day, game over), each `pcall`-ed so a broken rule
+costs its own achievement and nothing else.
+
+**Adding one is a CSV row plus a predicate.** `content/achievements.csv` feeds
+the in-game roster, the Steam manifest and the ComfyUI art prompt;
+`lua/achievement_rules.lua` holds the condition. A row without a rule, or a
+rule without a row, fails the test suite. Art comes from the same ComfyUI
+pipeline as the cards ([`docs/comfyui-achievement-icons.md`](docs/comfyui-achievement-icons.md)
+is the run book) and falls back to a procedural placeholder so the build is
+never blocked waiting on a render.
+
 ## Design review pass — all 17 findings (2026-07)
 
 The batch that shipped [`possible-design-improvements-to-snm.md`](possible-design-improvements-to-snm.md),

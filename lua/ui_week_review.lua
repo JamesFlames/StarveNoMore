@@ -219,6 +219,13 @@ function showWeekInReview()
     -- call twice: it overwrites the same day's entry.
     safecall(function() recordDayInChronicle() end, "Chronicle")
 
+    -- Game over is where most of the roster resolves (won / won pristine /
+    -- won with one standing / all three bosses down), and the chronicle is
+    -- complete as of the line above. Count the game first so an unlock earned
+    -- on the last night is filed under the game that earned it.
+    safecall(function() recordGameFinished() end, "Achievements")
+    safecall(function() checkAchievements("gameOver") end, "Achievements")
+
     local ch = ensureChronicle()
     local lines = {}
 

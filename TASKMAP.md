@@ -15,6 +15,8 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 | Change a Dawn event | `lua/effects/dawn_effects*.lua` + `content/cards_phase*.csv` | `generate_symbol_index.py` |
 | Change the day/night flow | `lua/day_loop.lua`, `lua/night.lua` | `generate_symbol_index.py` |
 | Change victory/defeat | `lua/tick_victory.lua` | `generate_symbol_index.py`; mirror in `scripts/simulate_balance.py` |
+| Add/change an achievement | `content/achievements.csv` + `lua/achievement_rules.lua` (read [`docs/achievements.md`](docs/achievements.md)) | `generate_achievement_data.py`, `generate_achievement_icons.py`, `generate_symbol_index.py` |
+| Regenerate the achievement art | [`docs/comfyui-achievement-icons.md`](docs/comfyui-achievement-icons.md) | `generate_achievement_icons.py` |
 | Change in-game rules text | `content/notebook/*.md` + `content/help/*.md` | `generate_notebook.py`, `generate_player_rules.py` |
 | Change the in-game Rulebook tab / Help paging | `lua/ui_help_pages.lua` + `lua/ui_help.lua` + `xml/dialogs.xml` | `generate_symbol_index.py` |
 | Add an off-turn (reaction) action | `lua/ui_reactions.lua` + `xml/hud.xml` | `generate_symbol_index.py` |

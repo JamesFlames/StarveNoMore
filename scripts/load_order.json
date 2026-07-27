@@ -32,6 +32,9 @@
     "treeguard.lua",
     "signatures.lua",
     "telemetry.lua",
+    "achievement_data.lua",
+    "achievement_rules.lua",
+    "achievements.lua",
     "ui_banner.lua",
     "ui_actionbar_core.lua",
     "ui_actionbar_targets.lua",
@@ -39,6 +42,7 @@
     "ui_actionbar_display.lua",
     "ui_controls.lua",
     "ui_week_review.lua",
+    "ui_achievements.lua",
     "ui_setup.lua",
     "ui_help.lua",
     "ui_help_pages.lua",
@@ -53,6 +57,7 @@
     "hud.xml",
     "setup.xml",
     "dialogs.xml",
+    "achievements.xml",
     "msglog.xml"
   ]
 }

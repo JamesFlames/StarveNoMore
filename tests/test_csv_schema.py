@@ -21,6 +21,8 @@ SCHEMAS = {
     "locations.csv": (["id", "name", "yields", "special", "sanity_modifier", "defense", "threat_rate", "house_owner"], r"L_[A-Z0-9_]+"),
     "resources.csv": (["id", "name", "color", "icon", "tag", "sources", "uses"], r"R_[A-Z0-9_]+"),
     "cards_starting.csv": (["id", "character", "name", "count", "effect"], r"S_[A-Z0-9_]+"),
+    "achievements.csv": (["id", "api_name", "name", "description", "hidden",
+                          "category", "condition", "art_notes"], r"A_[A-Z0-9_]+"),
 }
 
 CSV_FILES = sorted(SCHEMAS)

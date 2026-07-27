@@ -286,6 +286,12 @@ function migrateGameState()
     gs.duskPending          = gs.duskPending or {}           -- banked secret Dusk moves (§11.3 variant)
     if gs.duskSecret == nil then gs.duskSecret = false end   -- §11.3 A/B variant
     if gs.solo == nil then gs.solo = false end               -- §20.3 solo mode
+    -- The achievement vault (achievements.lua). It spans games rather than
+    -- belonging to one, which is why Restart preserves it — but it still
+    -- rides gameState, because onSave/onLoad is the only store a TTS mod has.
+    gs.achievements         = gs.achievements or {}
+    gs.achievements.unlocked = gs.achievements.unlocked or {}
+    gs.achievements.games   = gs.achievements.games or 0
     for _, char in pairs(gs.activeChars) do
         if char.signatureUsed == nil then char.signatureUsed = false end -- batch 2
     end

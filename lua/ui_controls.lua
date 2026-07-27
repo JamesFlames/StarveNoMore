@@ -109,7 +109,7 @@ CUSTOM_UI_PANELS = {
     "phaseBanner", "cycleStrip", "dawnChecklist", "hostControls",
     "rulesPanel", "actionBar", "actionTooltip", "statDisplay",
     "charRoster", "duskPanel", "combatPanel", "msgLog", "whatNowPanel",
-    "reactionsPanel",
+    "reactionsPanel", "achievementsBtn", "achievementsPanel", "achToast",
 }
 
 function onToggleCustomUI(player, value, id)
@@ -125,6 +125,10 @@ function onToggleCustomUI(player, value, id)
         -- The banner is always on; every state-driven panel (including
         -- Host Controls) returns via the normal refresh path.
         UI.setAttribute("phaseBanner", "active", "true")
+        -- The Trophies button is permanent furniture like the banner, so it
+        -- comes back with it rather than waiting on a state change.
+        UI.setAttribute("achievementsBtn", "active", "true")
+        if achievementsPanelOpen then UI.show("achievementsPanel") end
         if gameState.subPhase == "Dusk" then UI.show("duskPanel") end
         refreshPhaseBanner()
         safecall(function() refreshCombatPanel() end, "CombatPanel")
@@ -224,6 +228,12 @@ function onHostRestart(player, value, id)
         "Restart the game?",
         "This will reset all progress. Are you sure?",
         function()
+            -- The achievement vault is the one thing that outlives a game:
+            -- it records what this TABLE has done, not what this week did.
+            -- Carried across the reset by hand, because the reset builds a
+            -- fresh table rather than clearing the old one.
+            local keptAchievements = gameState.achievements
+
             -- Reset gameState
             gameState = {
                 day = 1, phase = 1, doom = 0,
@@ -238,8 +248,11 @@ function onHostRestart(player, value, id)
                 ongoingDawnEffects = {},
                 activeChars = {},
                 chronicle = nil,   -- lazily rebuilt by ensureChronicle()
+                achievements = keptAchievements,
             }
             safecall(function() cancelGuidedSetup() end, "CancelSetup")
+            UI.hide("achievementsPanel")
+            achievementsPanelOpen = false
             UI.hide("weekReviewPanel")
             UI.hide("combatPanel")
             broadcastEvent("phase", "Game reset. Click Setup to begin a new game.")

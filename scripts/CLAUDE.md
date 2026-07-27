@@ -20,6 +20,7 @@ The generator map below is mirrored machine-readably in [`generators.json`](gene
 | `content/cards_recipes.csv` | `generate_recipe_data.py` | `lua/recipe_data.lua` |
 | `content/notebook/*.md` + `help/glossary.md` | `generate_notebook.py` | `lua/notebook_data.lua` |
 | `content/notebook/*.md` + `help/glossary.md` | `generate_player_rules.py` | `PlayerRules.md` + `.html` |
+| `content/achievements.csv` | `generate_achievement_data.py` | `lua/achievement_data.lua` + `steam/achievements.json` |
 | **any** `lua/*.lua` | `generate_symbol_index.py` | `SYMBOLS.md` + `.luacheckrc` |
 
 Generators are idempotent and order-independent; `tests/test_generated_freshness.py`
@@ -37,6 +38,7 @@ clone) are skipped rather than erroring. `--no-build` / `--list` are available.
 |---|---|---|
 | `art/tiles/<name>.png` | `normalize_tile_art.py` | `art/tiles/<name>_tile.png` |
 | `art/characters/<name>.png` | `normalize_standee_art.py` | `art/characters/<name>_standee.png` |
+| `art/achievements/src/<base>.png` | `generate_achievement_icons.py` | `art/achievements/<base>.png` + `steam/*.jpg` |
 
 `ASSET_MAP` loads the **derived** files, so new art that skips this step never
 appears in the game. TTS reshapes both families before the player sees them (a

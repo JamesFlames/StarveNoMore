@@ -1,0 +1,25 @@
+id,api_name,name,description,hidden,category,condition,art_notes
+A_FIRST_NIGHT,ACH_FIRST_NIGHT,First Night,Live through the end of Day 1.,0,Progress,reached the end of day 1,a single lit bedroom window in a dark suburban street seen from outside
+A_MIDWEEK,ACH_MIDWEEK,Hump Day,Reach Day 4 with somebody still on their feet.,0,Progress,reached day 4,a wall calendar with the first three days crossed out in red marker
+A_SURVIVOR,ACH_SURVIVOR,Starve No More,Survive the whole week.,0,Progress,won the week,five mismatched dinner plates on a kitchen table at sunrise
+A_PRISTINE,ACH_PRISTINE,Not a Scratch,Win with everyone still standing and nobody brought back.,0,Mastery,won with no downs and no revives,five clean sneakers lined up by a front door
+A_HERO,ACH_HERO,Hero Run,Put down all three phase bosses in a single week.,0,Mastery,defeated deerclops eye and source in one game,three monster skulls mounted on a garage wall
+A_TRUTH,ACH_TRUTH,The Truth,Collect all three Clues.,0,Mastery,found all 3 clues,three torn notebook pages pinned together with red string
+A_NIGHTMARE,ACH_NIGHTMARE,Nightmare Fuel,Win a game on Nightmare.,0,Mastery,won on nightmare difficulty,an empty energy drink can crushed in a shaking hand
+A_WEEKEND,ACH_WEEKEND,Long Weekend,Win a Long Weekend game.,0,Mastery,won a weekend-length game,a sleeping bag and a torch on a living room floor
+A_SOLO,ACH_SOLO,Alone Together,Win a solo game.,0,Mastery,won a solo game,one teenager at a kitchen table with four empty chairs
+A_DEERCLOPS,ACH_DEERCLOPS,Antlers Down,Bring down the Deerclops.,0,Bosses,defeated the deerclops,a snapped antler half-buried in cracked asphalt
+A_EYE,ACH_EYE,Eye Contact,Destroy the Eye of Terror.,0,Bosses,defeated the eye of terror,a cracked glass eye leaking green light
+A_SOURCE,ACH_SOURCE,Cut the Source,Bring down The Source.,0,Bosses,defeated the source,a collapsing knot of black tendrils around a single fading star
+A_TREEGUARD,ACH_TREEGUARD,Timber,Put down a Treeguard.,0,Bosses,defeated a treeguard,a felled tree trunk with a face in the bark going dark
+A_CAMP_MOTHER,ACH_CAMP_MOTHER,Camp Mother,Cook ten meals in one week.,0,Habits,cooked 10 meals in one game,a crockpot boiling over on a suburban kitchen counter
+A_HANDY,ACH_HANDY,Handy,Craft eight items in one week.,0,Habits,crafted 8 items in one game,a workbench covered in duct tape batteries and cut wire
+A_WATCH,ACH_WATCH,Neighbourhood Watch,Defeat fifteen threats in one week.,0,Habits,defeated 15 threats in one game,a baseball bat leaning against a chain-link fence at dusk
+A_PRESS,ACH_PRESS,Press the Attack,Finish three threats by pressing the attack.,0,Habits,3 press kills in one game,a fist closing around a torch mid-swing
+A_ALL_HANDS,ACH_ALL_HANDS,All Hands,Every character in play uses their Signature Move.,0,Habits,every active character used a signature,five hands stacked on top of each other over a scuffed basketball
+A_DARE,ACH_DARE,Hold My Energy Drink,Take five dares in one week.,0,Habits,took 5 dares in one game,a half-full energy drink can passed between two hands
+A_HEART,ACH_HEART,Telltale Heart,Bring a fallen friend back.,0,Habits,revived at least one character,a stitched cloth heart with a battery sewn into it
+A_WIRE,ACH_WIRE,Down to the Wire,Win with two or less Doom left on the track.,0,Mastery,won with doom within 2 of the limit,a doom marker one notch from the end of a painted track
+A_SPLIT,ACH_SPLIT,It Splits,See The Source come apart.,1,Secret,witnessed the source split,a dark mass tearing into two smaller masses mid-air
+A_CHARLIE,ACH_CHARLIE,Who's There?,Survive three nights running with something in the dark following you.,1,Secret,charlie streak reached 3,two white eyes in a pitch black doorway
+A_LAST_ONE,ACH_LAST_ONE,Last One Standing,Win the week with exactly one character still on their feet.,1,Secret,won with exactly 1 character standing,one silhouette on a rooftop at dawn with four long shadows behind

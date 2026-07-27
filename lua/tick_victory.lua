@@ -141,6 +141,10 @@ function resolveTick()
     -- Show end-of-round summary (I.4)
     safecall(function() showEndOfDaySummary() end, "Summary")
 
+    -- The day is on the chronicle now, so the day-count achievements can see
+    -- it. (Game-over runs its own check from showWeekInReview.)
+    safecall(function() checkAchievements("dayEnd") end, "Achievements")
+
     -- Advance to next day
     gameState.day = gameState.day + 1
     gameState.subPhase = "PreDawn"

@@ -20,6 +20,7 @@ GENERATORS = {
     "threat_types.lua": "generate_threat_types.py",
     "recipe_data.lua": "generate_recipe_data.py",
     "notebook_data.lua": "generate_notebook.py",
+    "achievement_data.lua": "generate_achievement_data.py",
 }
 
 

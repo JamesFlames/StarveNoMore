@@ -82,9 +82,9 @@
 | 239 | table | `BROADCAST_COLORS` |
 | 247 | function | `broadcastEvent` |
 | 264 | function | `migrateGameState` |
-| 303 | function | `onLoad` |
-| 363 | function | `onSave` |
-| 372 | function | `onSetupClick` |
+| 309 | function | `onLoad` |
+| 369 | function | `onSave` |
+| 378 | function | `onSetupClick` |
 
 ## lua/audio_manifest.lua (1 symbols)
 
@@ -195,11 +195,11 @@
 | 40 | function | `beginDayPhase` |
 | 67 | function | `advanceToNextPlayer` |
 | 135 | function | `endPlayerTurn` |
-| 159 | function | `spendAction` |
-| 216 | function | `revealDuskCommitments` |
-| 273 | function | `countDuskReady` |
-| 291 | function | `refreshDuskReadyLabel` |
-| 304 | function | `toggleDuskReady` |
+| 162 | function | `spendAction` |
+| 219 | function | `revealDuskCommitments` |
+| 276 | function | `countDuskReady` |
+| 294 | function | `refreshDuskReadyLabel` |
+| 307 | function | `toggleDuskReady` |
 
 ## lua/effects/dawn_effects.lua (6 symbols)
 
@@ -265,14 +265,14 @@
 |---|---|---|
 | 26 | function | `getAttackDice` |
 | 98 | function | `applyThreatDefeat` |
-| 135 | function | `applyCounterAttack` |
-| 184 | function | `maybeJamesReroll` |
-| 214 | function | `beginCombat` |
-| 310 | function | `resolveCombat` |
-| 314 | function | `resolveGroupCombat` |
-| 326 | function | `pressAttack` |
-| 378 | function | `finishCombat` |
-| 392 | function | `resolveCharlieAttack` |
+| 138 | function | `applyCounterAttack` |
+| 187 | function | `maybeJamesReroll` |
+| 217 | function | `beginCombat` |
+| 313 | function | `resolveCombat` |
+| 317 | function | `resolveGroupCombat` |
+| 329 | function | `pressAttack` |
+| 381 | function | `finishCombat` |
+| 395 | function | `resolveCharlieAttack` |
 
 ## lua/clues.lua (8 symbols)
 
@@ -322,14 +322,14 @@
 | line | kind | symbol |
 |---|---|---|
 | 8 | function | `resolveTick` |
-| 158 | table | `DEATH_NARRATIONS` |
-| 181 | function | `checkDownState` |
-| 232 | function | `reviveCharacter` |
-| 292 | function | `ghostDrift` |
-| 311 | function | `doCleanse` |
-| 332 | function | `checkDefeat` |
-| 366 | function | `checkVictory` |
-| 400 | function | `checkBonusVictories` |
+| 162 | table | `DEATH_NARRATIONS` |
+| 185 | function | `checkDownState` |
+| 236 | function | `reviveCharacter` |
+| 296 | function | `ghostDrift` |
+| 315 | function | `doCleanse` |
+| 336 | function | `checkDefeat` |
+| 370 | function | `checkVictory` |
+| 404 | function | `checkBonusVictories` |
 
 ## lua/actions.lua (10 symbols)
 
@@ -430,6 +430,44 @@
 | 110 | function | `buildSessionLog` |
 | 146 | function | `exportSessionLog` |
 | 152 | function | `onCopySessionLog` |
+
+## lua/achievement_data.lua (3 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 13 | table | `ACHIEVEMENTS` |
+| 40 | table | `ACHIEVEMENT_ORDER` |
+| 67 | table | `ACHIEVEMENT_CATEGORIES` |
+
+## lua/achievement_rules.lua (10 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 20 | function | `achChronicle` |
+| 25 | function | `achWon` |
+| 30 | function | `achStanding` |
+| 40 | function | `achUsageTotal` |
+| 51 | function | `achKilledNamed` |
+| 61 | function | `achBossDown` |
+| 74 | function | `achDayCompleted` |
+| 78 | function | `achMealsCooked` |
+| 84 | function | `achBeats` |
+| 91 | table | `ACHIEVEMENT_RULES` |
+
+## lua/achievements.lua (10 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 29 | function | `ensureAchievementVault` |
+| 37 | function | `isAchievementUnlocked` |
+| 41 | function | `unlockedAchievementCount` |
+| 47 | function | `totalAchievementCount` |
+| 55 | function | `unlockAchievement` |
+| 88 | function | `checkAchievements` |
+| 110 | function | `recordGameFinished` |
+| 125 | value | `ACHIEVEMENT_CODE_PREFIX` |
+| 127 | function | `exportAchievementCode` |
+| 136 | function | `importAchievementCode` |
 
 ## lua/ui_banner.lua (20 symbols)
 
@@ -561,16 +599,16 @@
 | 106 | value | `customUIHidden` |
 | 108 | table | `CUSTOM_UI_PANELS` |
 | 115 | function | `onToggleCustomUI` |
-| 153 | function | `refreshHostControls` |
-| 182 | function | `onHostBeginDay` |
-| 199 | function | `onHostResolveNight` |
-| 212 | function | `onHostEndTurn` |
-| 222 | function | `onHostRestart` |
-| 264 | function | `showEndOfDaySummary` |
-| 330 | function | `onSummaryClose` |
-| 338 | table | `TOOLTIP_DATA` |
-| 369 | function | `applyTooltips` |
-| 391 | function | `refreshDynamicTooltips` |
+| 157 | function | `refreshHostControls` |
+| 186 | function | `onHostBeginDay` |
+| 203 | function | `onHostResolveNight` |
+| 216 | function | `onHostEndTurn` |
+| 226 | function | `onHostRestart` |
+| 277 | function | `showEndOfDaySummary` |
+| 343 | function | `onSummaryClose` |
+| 351 | table | `TOOLTIP_DATA` |
+| 382 | function | `applyTooltips` |
+| 404 | function | `refreshDynamicTooltips` |
 
 ## lua/ui_week_review.lua (9 symbols)
 
@@ -584,7 +622,29 @@
 | 121 | function | `weekMarginLines` |
 | 172 | function | `weekReviewHook` |
 | 216 | function | `showWeekInReview` |
-| 294 | function | `onWeekReviewClose` |
+| 301 | function | `onWeekReviewClose` |
+
+## lua/ui_achievements.lua (17 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 11 | value | `ACH_ROWS_PER_PAGE` |
+| 15 | value | `achievementsPage` |
+| 16 | value | `achievementsPanelOpen` |
+| 18 | function | `achievementsPageCount` |
+| 26 | function | `achievementRowText` |
+| 43 | function | `refreshAchievementPanel` |
+| 81 | function | `onAchievementsClick` |
+| 94 | function | `onAchievementsClose` |
+| 99 | function | `onAchievementsPrev` |
+| 104 | function | `onAchievementsNext` |
+| 116 | function | `onAchievementsCopyCode` |
+| 128 | function | `onAchievementsImportCode` |
+| 149 | table | `achToastQueue` |
+| 150 | value | `achToastShowing` |
+| 151 | value | `ACH_TOAST_SECONDS` |
+| 153 | function | `showAchievementToast` |
+| 159 | function | `popAchievementToast` |
 
 ## lua/ui_setup.lua (23 symbols)
 
@@ -722,6 +782,13 @@
 
 | symbol | file | line |
 |---|---|---|
+| `ACHIEVEMENTS` | lua/achievement_data.lua | 13 |
+| `ACHIEVEMENT_CATEGORIES` | lua/achievement_data.lua | 67 |
+| `ACHIEVEMENT_CODE_PREFIX` | lua/achievements.lua | 125 |
+| `ACHIEVEMENT_ORDER` | lua/achievement_data.lua | 40 |
+| `ACHIEVEMENT_RULES` | lua/achievement_rules.lua | 91 |
+| `ACH_ROWS_PER_PAGE` | lua/ui_achievements.lua | 11 |
+| `ACH_TOAST_SECONDS` | lua/ui_achievements.lua | 151 |
 | `ACTIONS_PER_TURN` | lua/global.lua | 119 |
 | `ACTION_TOOLTIPS` | lua/ui_actionbar_display.lua | 322 |
 | `ACTION_TOOLTIP_DELAY` | lua/ui_actionbar_display.lua | 320 |
@@ -766,7 +833,7 @@
 | `DAWN_EFFECTS` | lua/effects/dawn_effects.lua | 5 |
 | `DAWN_MANUAL_STEPS` | lua/effects/dawn_effects_dispatch.lua | 63 |
 | `DAY_FLAVOR` | lua/ui_banner.lua | 16 |
-| `DEATH_NARRATIONS` | lua/tick_victory.lua | 158 |
+| `DEATH_NARRATIONS` | lua/tick_victory.lua | 162 |
 | `DEFAULT_PATH_VARIANT` | lua/ui_actionbar_core.lua | 36 |
 | `DIFFICULTY_BLURBS` | lua/ui_setup.lua | 223 |
 | `DIFFICULTY_CYCLE` | lua/ui_setup.lua | 222 |
@@ -827,7 +894,7 @@
 | `THREAT_STATS` | lua/threat_types.lua | 65 |
 | `THREAT_STATS_BY_NAME` | lua/threat_types.lua | 120 |
 | `THREAT_TYPE_BY_NAME` | lua/threat_types.lua | 9 |
-| `TOOLTIP_DATA` | lua/ui_controls.lua | 338 |
+| `TOOLTIP_DATA` | lua/ui_controls.lua | 351 |
 | `TREEGUARD_STATS` | lua/treeguard.lua | 9 |
 | `TROPHY_BY_BOSS` | lua/combat.lua | 46 |
 | `WEAPON_DICE` | lua/market_data.lua | 114 |
@@ -851,24 +918,39 @@
 | `_spawnCraftButtons` | lua/ui_actionbar_targets.lua | 234 |
 | `_spawnFightButtons` | lua/ui_actionbar_targets.lua | 292 |
 | `_spawnMoveButtons` | lua/ui_actionbar_targets.lua | 88 |
+| `achBeats` | lua/achievement_rules.lua | 84 |
+| `achBossDown` | lua/achievement_rules.lua | 61 |
+| `achChronicle` | lua/achievement_rules.lua | 20 |
+| `achDayCompleted` | lua/achievement_rules.lua | 74 |
+| `achKilledNamed` | lua/achievement_rules.lua | 51 |
+| `achMealsCooked` | lua/achievement_rules.lua | 78 |
+| `achStanding` | lua/achievement_rules.lua | 30 |
+| `achToastQueue` | lua/ui_achievements.lua | 149 |
+| `achToastShowing` | lua/ui_achievements.lua | 150 |
+| `achUsageTotal` | lua/achievement_rules.lua | 40 |
+| `achWon` | lua/achievement_rules.lua | 25 |
+| `achievementRowText` | lua/ui_achievements.lua | 26 |
+| `achievementsPage` | lua/ui_achievements.lua | 15 |
+| `achievementsPageCount` | lua/ui_achievements.lua | 18 |
+| `achievementsPanelOpen` | lua/ui_achievements.lua | 16 |
 | `addMarketHelp` | lua/crafting.lua | 30 |
 | `advanceToNextPlayer` | lua/turns.lua | 67 |
 | `allPlayersGain` | lua/effects/dawn_effects.lua | 44 |
 | `allPlayersLose` | lua/effects/dawn_effects.lua | 15 |
 | `announceInventory` | lua/actions.lua | 298 |
-| `applyCounterAttack` | lua/combat_resolve.lua | 135 |
+| `applyCounterAttack` | lua/combat_resolve.lua | 138 |
 | `applyPathVariant` | lua/ui_actionbar_core.lua | 68 |
 | `applyRandomScenario` | lua/setup.lua | 401 |
 | `applyScenario` | lua/setup.lua | 411 |
 | `applyThreatDefeat` | lua/combat_resolve.lua | 98 |
-| `applyTooltips` | lua/ui_controls.lua | 369 |
+| `applyTooltips` | lua/ui_controls.lua | 382 |
 | `auditBoardGeometry` | lua/audit.lua | 84 |
 | `auditFirstLoad` | lua/audit.lua | 251 |
 | `auditHintCoverage` | lua/audit.lua | 179 |
 | `auditObjectCount` | lua/audit.lua | 7 |
 | `auditObjectFootprints` | lua/audit.lua | 370 |
 | `auditTooltips` | lua/audit.lua | 137 |
-| `beginCombat` | lua/combat_resolve.lua | 214 |
+| `beginCombat` | lua/combat_resolve.lua | 217 |
 | `beginDayPhase` | lua/turns.lua | 40 |
 | `beginDusk` | lua/day_loop.lua | 457 |
 | `beginNight` | lua/day_loop.lua | 598 |
@@ -890,13 +972,14 @@
 | `cancelGuidedSetup` | lua/ui_setup.lua | 58 |
 | `charHasCompany` | lua/helpers.lua | 452 |
 | `characterToColor` | lua/helpers.lua | 486 |
-| `checkBonusVictories` | lua/tick_victory.lua | 400 |
-| `checkDefeat` | lua/tick_victory.lua | 332 |
+| `checkAchievements` | lua/achievements.lua | 88 |
+| `checkBonusVictories` | lua/tick_victory.lua | 404 |
+| `checkDefeat` | lua/tick_victory.lua | 336 |
 | `checkDoomThresholds` | lua/day_loop.lua | 226 |
-| `checkDownState` | lua/tick_victory.lua | 181 |
+| `checkDownState` | lua/tick_victory.lua | 185 |
 | `checkPlayerHasLight` | lua/night.lua | 296 |
 | `checkSourcePhase` | lua/combat.lua | 152 |
-| `checkVictory` | lua/tick_victory.lua | 366 |
+| `checkVictory` | lua/tick_victory.lua | 370 |
 | `checkWrongnessEntry` | lua/effects/dawn_effects_phase2.lua | 115 |
 | `clearActionTargets` | lua/ui_actionbar_targets.lua | 39 |
 | `clearHighlight` | lua/ui_banner.lua | 417 |
@@ -909,7 +992,7 @@
 | `confirmMoveInjuredToThreat` | lua/ui_mood.lua | 142 |
 | `confirmSleepAloneAtCourt` | lua/ui_mood.lua | 91 |
 | `cookTelltaleHeart` | lua/crafting.lua | 324 |
-| `countDuskReady` | lua/turns.lua | 273 |
+| `countDuskReady` | lua/turns.lua | 276 |
 | `countFesteringThreats` | lua/day_loop.lua | 196 |
 | `customUIHidden` | lua/ui_controls.lua | 106 |
 | `dealMarketDisplay` | lua/setup.lua | 204 |
@@ -917,7 +1000,7 @@
 | `dispatchDawnEffect` | lua/effects/dawn_effects_dispatch.lua | 85 |
 | `doAppeaseTreeguard` | lua/treeguard.lua | 77 |
 | `doBarricade` | lua/actions_social.lua | 98 |
-| `doCleanse` | lua/tick_victory.lua | 311 |
+| `doCleanse` | lua/tick_victory.lua | 315 |
 | `doCook` | lua/crafting.lua | 203 |
 | `doCraft` | lua/crafting.lua | 48 |
 | `doDefend` | lua/actions_social.lua | 123 |
@@ -944,15 +1027,17 @@
 | `dropBossLoot` | lua/combat.lua | 54 |
 | `dumpSetupState` | lua/ui_setup.lua | 351 |
 | `endPlayerTurn` | lua/turns.lua | 135 |
+| `ensureAchievementVault` | lua/achievements.lua | 29 |
 | `ensureChronicle` | lua/ui_week_review.lua | 21 |
 | `ensurePlayerResources` | lua/helpers.lua | 154 |
+| `exportAchievementCode` | lua/achievements.lua | 127 |
 | `exportSessionLog` | lua/telemetry.lua | 146 |
 | `fightTargetsAt` | lua/actions_combat.lua | 67 |
 | `finalizeGuidedSetup` | lua/ui_setup.lua | 675 |
 | `findAllByTag` | lua/helpers.lua | 9 |
 | `findOneByTag` | lua/helpers.lua | 19 |
 | `findOneByTags` | lua/helpers.lua | 26 |
-| `finishCombat` | lua/combat_resolve.lua | 378 |
+| `finishCombat` | lua/combat_resolve.lua | 381 |
 | `flashSplitLighting` | lua/combat.lua | 163 |
 | `flashVictoryLighting` | lua/combat.lua | 71 |
 | `gameRoll` | lua/helpers.lua | 500 |
@@ -993,12 +1078,14 @@
 | `getTotalDays` | lua/global.lua | 187 |
 | `getTreeguardStandee` | lua/treeguard.lua | 11 |
 | `getVisitorDeck` | lua/helpers.lua | 98 |
-| `ghostDrift` | lua/tick_victory.lua | 292 |
+| `ghostDrift` | lua/tick_victory.lua | 296 |
 | `giveResource` | lua/helpers.lua | 248 |
 | `hasLastNerve` | lua/helpers.lua | 445 |
 | `helpTabContent` | lua/ui_help.lua | 153 |
 | `highlightCTA` | lua/ui_banner.lua | 431 |
 | `identifyThreatType` | lua/night.lua | 349 |
+| `importAchievementCode` | lua/achievements.lua | 136 |
+| `isAchievementUnlocked` | lua/achievements.lua | 37 |
 | `isBossOnMap` | lua/day_loop.lua | 189 |
 | `isClueCard` | lua/clues.lua | 40 |
 | `isGuidedSetupRunning` | lua/ui_setup.lua | 19 |
@@ -1008,7 +1095,7 @@
 | `lowestStatPlayer` | lua/effects/dawn_effects.lua | 53 |
 | `markBossDefeated` | lua/combat.lua | 231 |
 | `markTurnStart` | lua/telemetry.lua | 89 |
-| `maybeJamesReroll` | lua/combat_resolve.lua | 184 |
+| `maybeJamesReroll` | lua/combat_resolve.lua | 187 |
 | `migrateGameState` | lua/global.lua | 264 |
 | `moveDoomMarker` | lua/setup.lua | 271 |
 | `noteInteraction` | lua/turns.lua | 14 |
@@ -1017,6 +1104,12 @@
 | `nudgeCameraToDawnCard` | lua/ui_mood.lua | 197 |
 | `nudgeCameraToDoom` | lua/ui_mood.lua | 204 |
 | `offerOpeningSuggestion` | lua/ui_banner.lua | 56 |
+| `onAchievementsClick` | lua/ui_achievements.lua | 81 |
+| `onAchievementsClose` | lua/ui_achievements.lua | 94 |
+| `onAchievementsCopyCode` | lua/ui_achievements.lua | 116 |
+| `onAchievementsImportCode` | lua/ui_achievements.lua | 128 |
+| `onAchievementsNext` | lua/ui_achievements.lua | 104 |
+| `onAchievementsPrev` | lua/ui_achievements.lua | 99 |
 | `onActCleanse` | lua/ui_actionbar_handlers.lua | 235 |
 | `onActCook` | lua/ui_actionbar_handlers.lua | 61 |
 | `onActCraft` | lua/ui_actionbar_handlers.lua | 38 |
@@ -1053,12 +1146,12 @@
 | `onHelpPageNext` | lua/ui_help.lua | 177 |
 | `onHelpPagePrev` | lua/ui_help.lua | 172 |
 | `onHelpTab` | lua/ui_help.lua | 139 |
-| `onHostBeginDay` | lua/ui_controls.lua | 182 |
-| `onHostEndTurn` | lua/ui_controls.lua | 212 |
-| `onHostResolveNight` | lua/ui_controls.lua | 199 |
-| `onHostRestart` | lua/ui_controls.lua | 222 |
+| `onHostBeginDay` | lua/ui_controls.lua | 186 |
+| `onHostEndTurn` | lua/ui_controls.lua | 216 |
+| `onHostResolveNight` | lua/ui_controls.lua | 203 |
+| `onHostRestart` | lua/ui_controls.lua | 226 |
 | `onHostSetupGuided` | lua/ui_setup.lua | 844 |
-| `onLoad` | lua/global.lua | 303 |
+| `onLoad` | lua/global.lua | 309 |
 | `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 323 |
 | `onMsgLogClear` | lua/ui_msglog.lua | 65 |
 | `onMsgLogHide` | lua/ui_msglog.lua | 70 |
@@ -1079,11 +1172,11 @@
 | `onRestHunger` | lua/ui_actionbar_handlers.lua | 205 |
 | `onRestSanity` | lua/ui_actionbar_handlers.lua | 216 |
 | `onRulesToggle` | lua/ui_rules.lua | 283 |
-| `onSave` | lua/global.lua | 363 |
-| `onSetupClick` | lua/global.lua | 372 |
+| `onSave` | lua/global.lua | 369 |
+| `onSetupClick` | lua/global.lua | 378 |
 | `onSignatureCancel` | lua/signatures.lua | 279 |
 | `onSignatureTargetClick` | lua/signatures.lua | 264 |
-| `onSummaryClose` | lua/ui_controls.lua | 330 |
+| `onSummaryClose` | lua/ui_controls.lua | 343 |
 | `onToggleCustomUI` | lua/ui_controls.lua | 115 |
 | `onToggleDifficulty` | lua/ui_setup.lua | 230 |
 | `onToggleDuskSecret` | lua/ui_setup.lua | 178 |
@@ -1093,7 +1186,7 @@
 | `onTradeCancel` | lua/ui_actionbar_handlers.lua | 373 |
 | `onTradeTargetClick` | lua/ui_actionbar_handlers.lua | 363 |
 | `onVariantsContinue` | lua/ui_setup.lua | 242 |
-| `onWeekReviewClose` | lua/ui_week_review.lua | 294 |
+| `onWeekReviewClose` | lua/ui_week_review.lua | 301 |
 | `onWhatNowClick` | lua/ui_help.lua | 243 |
 | `onWhatNowClose` | lua/ui_help.lua | 380 |
 | `paginateHelpText` | lua/ui_help_pages.lua | 52 |
@@ -1102,8 +1195,9 @@
 | `playerHasBackpack` | lua/actions.lua | 312 |
 | `playerPryTool` | lua/actions_social.lua | 321 |
 | `poolBossStandee` | lua/effects/dawn_effects.lua | 104 |
+| `popAchievementToast` | lua/ui_achievements.lua | 159 |
 | `populateNotebook` | lua/ui_help.lua | 520 |
-| `pressAttack` | lua/combat_resolve.lua | 326 |
+| `pressAttack` | lua/combat_resolve.lua | 329 |
 | `pulseHandZone` | lua/ui_banner.lua | 499 |
 | `quickStartCardText` | lua/ui_help.lua | 498 |
 | `quickStartTextForVariant` | lua/ui_help.lua | 473 |
@@ -1115,12 +1209,14 @@
 | `recordCharlieInChronicle` | lua/ui_week_review.lua | 59 |
 | `recordClueFound` | lua/clues.lua | 56 |
 | `recordDayInChronicle` | lua/ui_week_review.lua | 69 |
+| `recordGameFinished` | lua/achievements.lua | 110 |
 | `recordKillInChronicle` | lua/ui_week_review.lua | 38 |
 | `recordMealInChronicle` | lua/ui_week_review.lua | 54 |
 | `recordSetupInChronicle` | lua/telemetry.lua | 67 |
 | `recordTurnEnd` | lua/telemetry.lua | 93 |
 | `recordUsage` | lua/telemetry.lua | 38 |
 | `refillMarketSlot` | lua/crafting.lua | 135 |
+| `refreshAchievementPanel` | lua/ui_achievements.lua | 43 |
 | `refreshActionBar` | lua/ui_actionbar_display.lua | 54 |
 | `refreshActionButtonReasons` | lua/ui_help.lua | 401 |
 | `refreshActionButtonStates` | lua/ui_actionbar_display.lua | 98 |
@@ -1128,10 +1224,10 @@
 | `refreshCombatPanel` | lua/ui_actionbar_handlers.lua | 279 |
 | `refreshCycleStrip` | lua/ui_rules.lua | 352 |
 | `refreshDawnChecklist` | lua/ui_rules.lua | 296 |
-| `refreshDuskReadyLabel` | lua/turns.lua | 291 |
-| `refreshDynamicTooltips` | lua/ui_controls.lua | 391 |
+| `refreshDuskReadyLabel` | lua/turns.lua | 294 |
+| `refreshDynamicTooltips` | lua/ui_controls.lua | 404 |
 | `refreshHelpPanel` | lua/ui_help.lua | 182 |
-| `refreshHostControls` | lua/ui_controls.lua | 153 |
+| `refreshHostControls` | lua/ui_controls.lua | 157 |
 | `refreshMsgLog` | lua/ui_msglog.lua | 38 |
 | `refreshPhaseBanner` | lua/ui_banner.lua | 98 |
 | `refreshQuickStartCard` | lua/ui_help.lua | 514 |
@@ -1141,20 +1237,20 @@
 | `refreshStatDisplay` | lua/ui_actionbar_display.lua | 234 |
 | `removeVisualTokens` | lua/helpers.lua | 244 |
 | `reshowSetupStep` | lua/ui_setup.lua | 48 |
-| `resolveCharlieAttack` | lua/combat_resolve.lua | 392 |
-| `resolveCombat` | lua/combat_resolve.lua | 310 |
-| `resolveGroupCombat` | lua/combat_resolve.lua | 314 |
+| `resolveCharlieAttack` | lua/combat_resolve.lua | 395 |
+| `resolveCombat` | lua/combat_resolve.lua | 313 |
+| `resolveGroupCombat` | lua/combat_resolve.lua | 317 |
 | `resolveNightAtLocation` | lua/night.lua | 130 |
 | `resolveSleep` | lua/night.lua | 391 |
 | `resolveStorytelling` | lua/night.lua | 364 |
 | `resolveTick` | lua/tick_victory.lua | 8 |
 | `resolveWrongness` | lua/effects/dawn_effects_phase2.lua | 86 |
 | `revealDawnCard` | lua/day_loop.lua | 338 |
-| `revealDuskCommitments` | lua/turns.lua | 216 |
+| `revealDuskCommitments` | lua/turns.lua | 219 |
 | `revealFirstDawn` | lua/day_loop.lua | 325 |
 | `revealLastDawn` | lua/day_loop.lua | 281 |
 | `revealTrophy` | lua/combat.lua | 295 |
-| `reviveCharacter` | lua/tick_victory.lua | 232 |
+| `reviveCharacter` | lua/tick_victory.lua | 236 |
 | `rollAttackDice` | lua/combat.lua | 10 |
 | `rulebookText` | lua/ui_help_pages.lua | 101 |
 | `runSelfTest` | lua/selftest.lua | 139 |
@@ -1167,10 +1263,11 @@
 | `setButtonLabel` | lua/helpers.lua | 83 |
 | `setNightOmen` | lua/ui_banner.lua | 88 |
 | `setPhaseMood` | lua/ui_mood.lua | 45 |
+| `showAchievementToast` | lua/ui_achievements.lua | 153 |
 | `showCharBriefing` | lua/ui_setup.lua | 615 |
 | `showCharPickForNextPlayer` | lua/ui_setup.lua | 373 |
 | `showConfirm` | lua/ui_controls.lua | 14 |
-| `showEndOfDaySummary` | lua/ui_controls.lua | 264 |
+| `showEndOfDaySummary` | lua/ui_controls.lua | 277 |
 | `showPeekResult` | lua/actions_social.lua | 163 |
 | `showResourcePicker` | lua/ui_controls.lua | 57 |
 | `showSignatureTargetDialog` | lua/signatures.lua | 243 |
@@ -1180,7 +1277,7 @@
 | `sourceSplitIntoBeaks` | lua/combat.lua | 176 |
 | `spawnPosterizeTargets` | lua/signatures.lua | 188 |
 | `spawnResourceAtTile` | lua/helpers.lua | 258 |
-| `spendAction` | lua/turns.lua | 159 |
+| `spendAction` | lua/turns.lua | 162 |
 | `startGuidedSetup` | lua/ui_setup.lua | 67 |
 | `startIdleWatcher` | lua/turns.lua | 32 |
 | `startStandeeBob` | lua/ui_banner.lua | 369 |
@@ -1196,8 +1293,11 @@
 | `takeClueFromMarketDeck` | lua/clues.lua | 156 |
 | `takeResourceFromPlayer` | lua/helpers.lua | 285 |
 | `threatStatsForCard` | lua/actions_combat.lua | 36 |
-| `toggleDuskReady` | lua/turns.lua | 304 |
+| `toggleDuskReady` | lua/turns.lua | 307 |
+| `totalAchievementCount` | lua/achievements.lua | 47 |
 | `treeguardDefeated` | lua/treeguard.lua | 63 |
+| `unlockAchievement` | lua/achievements.lua | 55 |
+| `unlockedAchievementCount` | lua/achievements.lua | 41 |
 | `updateActivePlayerIndicator` | lua/ui_banner.lua | 316 |
 | `validateActivePlayer` | lua/ui_actionbar_display.lua | 9 |
 | `verifyAndPayResources` | lua/ui_actionbar_core.lua | 152 |
@@ -1206,12 +1306,66 @@
 | `weekReviewHook` | lua/ui_week_review.lua | 172 |
 | `witnessTargets` | lua/actions_haunted.lua | 27 |
 
-## XML UI ids (243 ids)
+## XML UI ids (297 ids)
 
 *Element ids across xml/ (alphabetical). Lua targets these via `UI.show/hide/setAttribute`; onClick names the Lua handler.*
 
 | id | file | line | element | onClick |
 |---|---|---|---|---|
+| `achCodeInput` | xml/achievements.xml | 185 | InputField |  |
+| `achCopyCode` | xml/achievements.xml | 180 | Button | `onAchievementsCopyCode` |
+| `achDesc_1` | xml/achievements.xml | 55 | Text |  |
+| `achDesc_2` | xml/achievements.xml | 70 | Text |  |
+| `achDesc_3` | xml/achievements.xml | 85 | Text |  |
+| `achDesc_4` | xml/achievements.xml | 100 | Text |  |
+| `achDesc_5` | xml/achievements.xml | 115 | Text |  |
+| `achDesc_6` | xml/achievements.xml | 130 | Text |  |
+| `achDesc_7` | xml/achievements.xml | 145 | Text |  |
+| `achDesc_8` | xml/achievements.xml | 160 | Text |  |
+| `achIcon_1` | xml/achievements.xml | 51 | Image |  |
+| `achIcon_2` | xml/achievements.xml | 66 | Image |  |
+| `achIcon_3` | xml/achievements.xml | 81 | Image |  |
+| `achIcon_4` | xml/achievements.xml | 96 | Image |  |
+| `achIcon_5` | xml/achievements.xml | 111 | Image |  |
+| `achIcon_6` | xml/achievements.xml | 126 | Image |  |
+| `achIcon_7` | xml/achievements.xml | 141 | Image |  |
+| `achIcon_8` | xml/achievements.xml | 156 | Image |  |
+| `achName_1` | xml/achievements.xml | 53 | Text |  |
+| `achName_2` | xml/achievements.xml | 68 | Text |  |
+| `achName_3` | xml/achievements.xml | 83 | Text |  |
+| `achName_4` | xml/achievements.xml | 98 | Text |  |
+| `achName_5` | xml/achievements.xml | 113 | Text |  |
+| `achName_6` | xml/achievements.xml | 128 | Text |  |
+| `achName_7` | xml/achievements.xml | 143 | Text |  |
+| `achName_8` | xml/achievements.xml | 158 | Text |  |
+| `achNext` | xml/achievements.xml | 174 | Button | `onAchievementsNext` |
+| `achPageLabel` | xml/achievements.xml | 172 | Text |  |
+| `achPrev` | xml/achievements.xml | 170 | Button | `onAchievementsPrev` |
+| `achRow_1` | xml/achievements.xml | 49 | Panel |  |
+| `achRow_2` | xml/achievements.xml | 64 | Panel |  |
+| `achRow_3` | xml/achievements.xml | 79 | Panel |  |
+| `achRow_4` | xml/achievements.xml | 94 | Panel |  |
+| `achRow_5` | xml/achievements.xml | 109 | Panel |  |
+| `achRow_6` | xml/achievements.xml | 124 | Panel |  |
+| `achRow_7` | xml/achievements.xml | 139 | Panel |  |
+| `achRow_8` | xml/achievements.xml | 154 | Panel |  |
+| `achStatus_1` | xml/achievements.xml | 58 | Text |  |
+| `achStatus_2` | xml/achievements.xml | 73 | Text |  |
+| `achStatus_3` | xml/achievements.xml | 88 | Text |  |
+| `achStatus_4` | xml/achievements.xml | 103 | Text |  |
+| `achStatus_5` | xml/achievements.xml | 118 | Text |  |
+| `achStatus_6` | xml/achievements.xml | 133 | Text |  |
+| `achStatus_7` | xml/achievements.xml | 148 | Text |  |
+| `achStatus_8` | xml/achievements.xml | 163 | Text |  |
+| `achToast` | xml/achievements.xml | 203 | Panel |  |
+| `achToastDesc` | xml/achievements.xml | 218 | Text |  |
+| `achToastIcon` | xml/achievements.xml | 212 | Image |  |
+| `achToastName` | xml/achievements.xml | 216 | Text |  |
+| `achievementsBtn` | xml/achievements.xml | 19 | Button | `onAchievementsClick` |
+| `achievementsClose` | xml/achievements.xml | 192 | Button | `onAchievementsClose` |
+| `achievementsPanel` | xml/achievements.xml | 33 | Panel |  |
+| `achievementsProgress` | xml/achievements.xml | 45 | Text |  |
+| `achievementsTitle` | xml/achievements.xml | 43 | Text |  |
 | `actCleanse` | xml/hud.xml | 309 | Button | `onActCleanse` |
 | `actCook` | xml/hud.xml | 294 | Button | `onActCook` |
 | `actCraft` | xml/hud.xml | 289 | Button | `onActCraft` |

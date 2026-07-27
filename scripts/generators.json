@@ -38,6 +38,18 @@
       "auto_generated": true
     },
     {
+      "output": "lua/achievement_data.lua",
+      "script": "scripts/generate_achievement_data.py",
+      "sources": ["content/achievements.csv"],
+      "auto_generated": true
+    },
+    {
+      "output": "steam/achievements.json",
+      "script": "scripts/generate_achievement_data.py",
+      "sources": ["content/achievements.csv"],
+      "auto_generated": true
+    },
+    {
       "output": "SYMBOLS.md",
       "script": "scripts/generate_symbol_index.py",
       "sources": ["lua/"],

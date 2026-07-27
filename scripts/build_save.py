@@ -133,6 +133,27 @@ ASSET_MAP = {
     "boss_charlie_back":       "bosses/charlie.png",
 }
 
+# ---------------------------------------------------------------------------
+# Achievement icons — data-driven, so adding a row to content/achievements.csv
+# is the whole job. One art/achievements/<base>.png per achievement (built by
+# scripts/generate_achievement_icons.py, from ComfyUI art when it exists and a
+# procedural placeholder when it doesn't), plus the `locked` frame the XML
+# ships with. They join ASSET_MAP so art() resolves them like any other asset,
+# and the same list becomes CustomUIAssets so xml/achievements.xml can name
+# them in an <Image image="...">.
+# ---------------------------------------------------------------------------
+ACHIEVEMENT_ICON_NAMES = ["ach_locked"]
+ASSET_MAP["ach_locked"] = "achievements/locked.png"
+with open(os.path.join(CONTENT, "achievements.csv"), "r", encoding="utf-8", newline="") as _f:
+    for _row in csv.DictReader(_f):
+        _aid = (_row.get("id") or "").strip()
+        if not _aid:
+            continue
+        _base = _aid[2:].lower()          # A_HERO -> hero
+        ASSET_MAP["ach_" + _base] = f"achievements/{_base}.png"
+        ACHIEVEMENT_ICON_NAMES.append("ach_" + _base)
+
+
 def served(relpath):
     """URL for a repo-root-relative path: the local dev server by default
     (scripts/serve_art.bat), the hosted base in --publish builds."""
@@ -1526,6 +1547,8 @@ print(f"XML UI assembled: {len(XML_LOAD_ORDER)} files, {len(save['XmlUI'])} char
 save["CustomUIAssets"] = [
     {"Type": 0, "Name": f"char_front_{n}", "URL": art(f"char_{n.lower()}_front")}
     for n in ["James", "Coco", "Rayman", "Ellie", "Luca"]
+] + [
+    {"Type": 0, "Name": name, "URL": art(name)} for name in ACHIEVEMENT_ICON_NAMES
 ]
 
 # Collect all unique tags used across all objects

@@ -1,0 +1,222 @@
+<!-- achievements.xml — the Achievements panel and the unlock toast.
+     Populated by lua/ui_achievements.lua; the roster itself is generated
+     into lua/achievement_data.lua from content/achievements.csv.
+
+     Paged, not scrolled, for the same reason the Help panel is: a TTS Text
+     clips silently — no scrollbar, no ellipsis, no warning — so anything past
+     the visible rows would simply not exist. Eight rows a page, and the nav
+     row reports which page you are on.
+
+     Every icon is a CustomUIAssets entry (ach_<id>) emitted by
+     scripts/build_save.py; the XML ships the locked placeholder and the Lua
+     swaps in the real one row by row. A locked row keeps its silhouette but
+     is tinted down rather than replaced, so the shape of what you have not
+     done yet is still on the wall. -->
+
+<!-- ================================================================== -->
+<!-- ACHIEVEMENTS BUTTON — sits beside the Hide UI toggle, top right    -->
+<!-- ================================================================== -->
+<Button id="achievementsBtn"
+        rectAlignment="UpperRight"
+        offsetXY="-104 -84"
+        width="100" height="26"
+        onClick="onAchievementsClick"
+        fontSize="12"
+        color="#2A2418E6" textColor="#F0D89A"
+        tooltip="Achievements — what this table has done across every game it has played. Kept when you Restart; carried to another table with the code at the bottom of the panel."
+        tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
+        text="Trophies" />
+
+<!-- ================================================================== -->
+<!-- ACHIEVEMENTS PANEL                                                 -->
+<!-- ================================================================== -->
+<Panel id="achievementsPanel"
+       rectAlignment="MiddleCenter"
+       width="780" height="700"
+       color="#08070AF7"
+       outline="#DCB45A8C"
+       outlineSize="2"
+       active="false">
+  <VerticalLayout spacing="6" padding="14 14 12 12"
+                  childForceExpandHeight="false">
+
+    <Text id="achievementsTitle" fontSize="22" fontStyle="Bold" color="#FFD080"
+          text="ACHIEVEMENTS" preferredHeight="30" />
+    <Text id="achievementsProgress" fontSize="14" color="#AA9977"
+          text="0 of 0 unlocked" preferredHeight="22" />
+
+    <!-- == Row 1 == -->
+    <Panel id="achRow_1" preferredHeight="54" color="#14121080">
+      <HorizontalLayout spacing="10" padding="4 6 4 4" childForceExpandWidth="false">
+        <Image id="achIcon_1" image="ach_locked" preferredWidth="46" preferredHeight="46" />
+        <VerticalLayout preferredWidth="540" childForceExpandHeight="false">
+          <Text id="achName_1" fontSize="15" fontStyle="Bold" color="#EEDDBB"
+                alignment="MiddleLeft" preferredHeight="22" text="" />
+          <Text id="achDesc_1" fontSize="12" color="#998877"
+                alignment="UpperLeft" preferredHeight="24" text="" />
+        </VerticalLayout>
+        <Text id="achStatus_1" fontSize="12" color="#776655"
+              alignment="MiddleRight" preferredWidth="120" text="" />
+      </HorizontalLayout>
+    </Panel>
+
+    <!-- == Row 2 == -->
+    <Panel id="achRow_2" preferredHeight="54" color="#14121080">
+      <HorizontalLayout spacing="10" padding="4 6 4 4" childForceExpandWidth="false">
+        <Image id="achIcon_2" image="ach_locked" preferredWidth="46" preferredHeight="46" />
+        <VerticalLayout preferredWidth="540" childForceExpandHeight="false">
+          <Text id="achName_2" fontSize="15" fontStyle="Bold" color="#EEDDBB"
+                alignment="MiddleLeft" preferredHeight="22" text="" />
+          <Text id="achDesc_2" fontSize="12" color="#998877"
+                alignment="UpperLeft" preferredHeight="24" text="" />
+        </VerticalLayout>
+        <Text id="achStatus_2" fontSize="12" color="#776655"
+              alignment="MiddleRight" preferredWidth="120" text="" />
+      </HorizontalLayout>
+    </Panel>
+
+    <!-- == Row 3 == -->
+    <Panel id="achRow_3" preferredHeight="54" color="#14121080">
+      <HorizontalLayout spacing="10" padding="4 6 4 4" childForceExpandWidth="false">
+        <Image id="achIcon_3" image="ach_locked" preferredWidth="46" preferredHeight="46" />
+        <VerticalLayout preferredWidth="540" childForceExpandHeight="false">
+          <Text id="achName_3" fontSize="15" fontStyle="Bold" color="#EEDDBB"
+                alignment="MiddleLeft" preferredHeight="22" text="" />
+          <Text id="achDesc_3" fontSize="12" color="#998877"
+                alignment="UpperLeft" preferredHeight="24" text="" />
+        </VerticalLayout>
+        <Text id="achStatus_3" fontSize="12" color="#776655"
+              alignment="MiddleRight" preferredWidth="120" text="" />
+      </HorizontalLayout>
+    </Panel>
+
+    <!-- == Row 4 == -->
+    <Panel id="achRow_4" preferredHeight="54" color="#14121080">
+      <HorizontalLayout spacing="10" padding="4 6 4 4" childForceExpandWidth="false">
+        <Image id="achIcon_4" image="ach_locked" preferredWidth="46" preferredHeight="46" />
+        <VerticalLayout preferredWidth="540" childForceExpandHeight="false">
+          <Text id="achName_4" fontSize="15" fontStyle="Bold" color="#EEDDBB"
+                alignment="MiddleLeft" preferredHeight="22" text="" />
+          <Text id="achDesc_4" fontSize="12" color="#998877"
+                alignment="UpperLeft" preferredHeight="24" text="" />
+        </VerticalLayout>
+        <Text id="achStatus_4" fontSize="12" color="#776655"
+              alignment="MiddleRight" preferredWidth="120" text="" />
+      </HorizontalLayout>
+    </Panel>
+
+    <!-- == Row 5 == -->
+    <Panel id="achRow_5" preferredHeight="54" color="#14121080">
+      <HorizontalLayout spacing="10" padding="4 6 4 4" childForceExpandWidth="false">
+        <Image id="achIcon_5" image="ach_locked" preferredWidth="46" preferredHeight="46" />
+        <VerticalLayout preferredWidth="540" childForceExpandHeight="false">
+          <Text id="achName_5" fontSize="15" fontStyle="Bold" color="#EEDDBB"
+                alignment="MiddleLeft" preferredHeight="22" text="" />
+          <Text id="achDesc_5" fontSize="12" color="#998877"
+                alignment="UpperLeft" preferredHeight="24" text="" />
+        </VerticalLayout>
+        <Text id="achStatus_5" fontSize="12" color="#776655"
+              alignment="MiddleRight" preferredWidth="120" text="" />
+      </HorizontalLayout>
+    </Panel>
+
+    <!-- == Row 6 == -->
+    <Panel id="achRow_6" preferredHeight="54" color="#14121080">
+      <HorizontalLayout spacing="10" padding="4 6 4 4" childForceExpandWidth="false">
+        <Image id="achIcon_6" image="ach_locked" preferredWidth="46" preferredHeight="46" />
+        <VerticalLayout preferredWidth="540" childForceExpandHeight="false">
+          <Text id="achName_6" fontSize="15" fontStyle="Bold" color="#EEDDBB"
+                alignment="MiddleLeft" preferredHeight="22" text="" />
+          <Text id="achDesc_6" fontSize="12" color="#998877"
+                alignment="UpperLeft" preferredHeight="24" text="" />
+        </VerticalLayout>
+        <Text id="achStatus_6" fontSize="12" color="#776655"
+              alignment="MiddleRight" preferredWidth="120" text="" />
+      </HorizontalLayout>
+    </Panel>
+
+    <!-- == Row 7 == -->
+    <Panel id="achRow_7" preferredHeight="54" color="#14121080">
+      <HorizontalLayout spacing="10" padding="4 6 4 4" childForceExpandWidth="false">
+        <Image id="achIcon_7" image="ach_locked" preferredWidth="46" preferredHeight="46" />
+        <VerticalLayout preferredWidth="540" childForceExpandHeight="false">
+          <Text id="achName_7" fontSize="15" fontStyle="Bold" color="#EEDDBB"
+                alignment="MiddleLeft" preferredHeight="22" text="" />
+          <Text id="achDesc_7" fontSize="12" color="#998877"
+                alignment="UpperLeft" preferredHeight="24" text="" />
+        </VerticalLayout>
+        <Text id="achStatus_7" fontSize="12" color="#776655"
+              alignment="MiddleRight" preferredWidth="120" text="" />
+      </HorizontalLayout>
+    </Panel>
+
+    <!-- == Row 8 == -->
+    <Panel id="achRow_8" preferredHeight="54" color="#14121080">
+      <HorizontalLayout spacing="10" padding="4 6 4 4" childForceExpandWidth="false">
+        <Image id="achIcon_8" image="ach_locked" preferredWidth="46" preferredHeight="46" />
+        <VerticalLayout preferredWidth="540" childForceExpandHeight="false">
+          <Text id="achName_8" fontSize="15" fontStyle="Bold" color="#EEDDBB"
+                alignment="MiddleLeft" preferredHeight="22" text="" />
+          <Text id="achDesc_8" fontSize="12" color="#998877"
+                alignment="UpperLeft" preferredHeight="24" text="" />
+        </VerticalLayout>
+        <Text id="achStatus_8" fontSize="12" color="#776655"
+              alignment="MiddleRight" preferredWidth="120" text="" />
+      </HorizontalLayout>
+    </Panel>
+
+    <!-- == Paging == -->
+    <HorizontalLayout spacing="10" childForceExpandWidth="true" preferredHeight="34">
+      <Button id="achPrev" onClick="onAchievementsPrev"
+              fontSize="14" color="#282828E6" textColor="#CCCCCC" text="&lt; Previous" />
+      <Text id="achPageLabel" fontSize="13" color="#AA9977"
+            alignment="MiddleCenter" text="Page 1 of 1" />
+      <Button id="achNext" onClick="onAchievementsNext"
+              fontSize="14" color="#282828E6" textColor="#CCCCCC" text="Next &gt;" />
+    </HorizontalLayout>
+
+    <!-- == Carrying the vault between tables == -->
+    <HorizontalLayout spacing="10" childForceExpandWidth="false" preferredHeight="34">
+      <Button id="achCopyCode" onClick="onAchievementsCopyCode"
+              fontSize="13" color="#192837E6" textColor="#88CCEE"
+              preferredWidth="180"
+              tooltip="Write this table's achievement code to the Notes panel (top menu &gt; Notes). Copy it out and paste it into another table's box below to carry your unlocks over."
+              text="Copy my code" />
+      <InputField id="achCodeInput" onEndEdit="onAchievementsImportCode"
+                  fontSize="12" preferredWidth="420"
+                  colors="#101010E6|#181818E6|#202020E6|#101010E6"
+                  textColor="#CCCCCC"
+                  placeholder="Paste an achievement code here and press Enter" />
+    </HorizontalLayout>
+
+    <Button id="achievementsClose" onClick="onAchievementsClose"
+            fontSize="15" color="#282828E6" textColor="#AAAAAA"
+            preferredHeight="34" text="Close" />
+  </VerticalLayout>
+</Panel>
+
+<!-- ================================================================== -->
+<!-- UNLOCK TOAST — slides nothing, but appears bottom-right above the  -->
+<!-- Message Log for a few seconds, the way Steam's does. One at a      -->
+<!-- time; showAchievementToast queues the rest.                        -->
+<!-- ================================================================== -->
+<Panel id="achToast"
+       rectAlignment="LowerRight"
+       offsetXY="-10 400"
+       width="400" height="88"
+       color="#0B0906F2"
+       outline="#F0C878B2"
+       outlineSize="2"
+       active="false">
+  <HorizontalLayout spacing="10" padding="8 8 8 8" childForceExpandWidth="false">
+    <Image id="achToastIcon" image="ach_locked" preferredWidth="64" preferredHeight="64" />
+    <VerticalLayout preferredWidth="296" childForceExpandHeight="false">
+      <Text fontSize="11" color="#F0C878" alignment="MiddleLeft"
+            preferredHeight="18" text="ACHIEVEMENT UNLOCKED" />
+      <Text id="achToastName" fontSize="15" fontStyle="Bold" color="#FFEECC"
+            alignment="MiddleLeft" preferredHeight="22" text="" />
+      <Text id="achToastDesc" fontSize="11" color="#AA9977"
+            alignment="UpperLeft" preferredHeight="26" text="" />
+    </VerticalLayout>
+  </HorizontalLayout>
+</Panel>

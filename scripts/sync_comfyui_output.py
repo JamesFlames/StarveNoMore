@@ -26,11 +26,19 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 COMFYUI_OUTPUT_DIR = r"c:\Users\GGPC\Documents\ComfyUI\output"
 
 # Map snm_<category>_ → art/<subdir>/
+#
+# Achievement renders land in art/achievements/**src**/, not in
+# art/achievements/ itself: the icons the game loads are the *processed*
+# versions (square-cropped, vignetted, framed, resized, plus the Steam jpgs)
+# that scripts/generate_achievement_icons.py builds from these. Writing the
+# raw render straight into art/achievements/ would put a 1024px unframed image
+# where the mod expects a 256px framed one.
 CATEGORY_DIRS = {
     "snm_card_":  os.path.join(REPO_ROOT, "art", "decks", "illustrations"),
     "snm_loc_":   os.path.join(REPO_ROOT, "art", "tiles"),
     "snm_path_":  os.path.join(REPO_ROOT, "art", "board"),
     "snm_boss_":  os.path.join(REPO_ROOT, "art", "bosses"),
+    "snm_ach_":   os.path.join(REPO_ROOT, "art", "achievements", "src"),
 }
 
 # Character standees are hand-drawn — never overwrite art/characters/* from

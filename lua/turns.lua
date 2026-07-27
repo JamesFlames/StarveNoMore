@@ -152,6 +152,9 @@ function endPlayerTurn(color)
     safecall(function() clearActionTargets() end, "ClearTargets")
     safecall(function() finishCombat() end, "FinishCombat")  -- an open press window resolves before priority passes
     gameState.undoSnapshot = nil  -- undo can't cross a turn boundary
+    -- The general mid-game checkpoint: everything a turn could have earned
+    -- (a craft, a cook, a Signature, a revive, a Clue) is banked by now.
+    safecall(function() checkAchievements("turnEnd") end, "Achievements")
     gameState.turnIndex = gameState.turnIndex + 1
     advanceToNextPlayer()
 end

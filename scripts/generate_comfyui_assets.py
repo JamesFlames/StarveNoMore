@@ -7,6 +7,7 @@ Generates:
   - 10 character standees (512x1024) — front + back per character
   - 8 boss/creature standees (512x1024)
   - ~150 card illustrations (1024x1024) — one per row of content/cards_*.csv
+  - 24 achievement icons (1024x1024) — one per row of content/achievements.csv
 
 Usage:
   1. Start ComfyUI (default: http://127.0.0.1:8000)
@@ -14,7 +15,8 @@ Usage:
   3. Images save to ComfyUI output/ with prefixed filenames
   4. python scripts/sync_comfyui_output.py   # copies outputs into repo art/
   5. python scripts/generate_card_atlases.py  # composites cards
-  6. python scripts/build_save.py             # packages the TTS save
+  6. python scripts/generate_achievement_icons.py  # crops/frames the icons
+  7. python scripts/build_save.py             # packages the TTS save
 
 Options:
   --cards-only         Queue only card illustrations
@@ -22,6 +24,8 @@ Options:
   --deck NAME          Limit cards to one deck (phase1..4, market, recipes,
                        threats, visitors, trophies). May be repeated.
   --only ID            Queue only one card by exact id (e.g. P1_QUIET_EVENING)
+  --achievements-only  Queue only the achievement icons
+  --no-achievements    Skip the achievement icons
   --skip-existing      Skip any prompt whose ComfyUI output PNG already exists
   [substring]          Backward-compatible positional filter (e.g. snm_boss)
 
@@ -69,6 +73,25 @@ NEGATIVE = (
 CARD_QUALIFIER = (
     "full-bleed square card illustration, no text, no border, no UI, "
     "single coherent scene"
+)
+
+# --------------------------------------------------------------------------
+# Achievement icons. Different job from a card: an icon is read at 46px in the
+# panel and 64px in the Steam overlay, so it needs ONE object, centred, on a
+# dark field, with nothing in the corners (generate_achievement_icons.py
+# vignettes and frames it, which eats the edges). Everything that makes a card
+# illustration good — a scene, a horizon, several figures — makes an icon mud.
+# --------------------------------------------------------------------------
+ACHIEVEMENT_PREFIX = (
+    "a single centred emblem object, one clear silhouette on a plain dark "
+    "background, dramatic single warm light source, heavy contrast, "
+    "no horizon, no background scenery, nothing in the corners"
+)
+
+ACHIEVEMENT_QUALIFIER = (
+    "icon composition, subject centred and filling two thirds of the frame, "
+    "readable as a shape at thumbnail size, no text, no border, no UI, "
+    "no frame, square"
 )
 
 # Per-deck visual framing. Combined with the row's art_notes column.
@@ -251,6 +274,32 @@ def load_card_assets(deck_filter=None, only_id=None):
     return out
 
 
+def load_achievement_assets(only_id=None):
+    """Yield (filename_prefix, w, h, prompt) for content/achievements.csv.
+
+    The `art_notes` column is the subject; the icon framing and the shared
+    STYLE do the rest, so adding an achievement means adding a CSV row and
+    nothing else. Output lands as snm_ach_<base>_00001_.png, which
+    sync_comfyui_output.py files under art/achievements/src/ — the *source*
+    tree, not the icons themselves: generate_achievement_icons.py crops,
+    vignettes and frames those into the sizes the mod and Steam want.
+    """
+    path = os.path.join(CONTENT_DIR, "achievements.csv")
+    if not os.path.isfile(path):
+        print(f"  warn: missing {path}")
+        return []
+    out = []
+    with open(path, "r", encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            aid = (row.get("id") or "").strip()
+            if not aid or (only_id and aid != only_id):
+                continue
+            subject = (row.get("art_notes") or "").strip() or row.get("name", aid)
+            prompt = ", ".join([ACHIEVEMENT_PREFIX, subject, ACHIEVEMENT_QUALIFIER, STYLE])
+            out.append((f"snm_ach_{aid[2:].lower()}", 1024, 1024, prompt))
+    return out
+
+
 def output_already_exists(filename_prefix):
     """True if ComfyUI has already written <prefix>_*.png to its output dir."""
     pattern = os.path.join(COMFYUI_OUTPUT_DIR, f"{filename_prefix}_*.png")
@@ -384,25 +433,36 @@ def main():
                         choices=[d for d, _ in CARD_DECK_FILES],
                         help="Limit cards to one deck. May be repeated.")
     parser.add_argument("--only", default=None,
-                        help="Queue only one card by exact id (e.g. P1_QUIET_EVENING).")
+                        help="Queue only one card (or achievement) by exact id "
+                             "(e.g. P1_QUIET_EVENING, A_HERO).")
+    parser.add_argument("--achievements-only", action="store_true",
+                        help="Queue only the achievement icons.")
+    parser.add_argument("--no-achievements", action="store_true",
+                        help="Skip the achievement icons.")
     parser.add_argument("--skip-existing", action="store_true",
                         help="Skip prompts whose ComfyUI output PNG already exists.")
     args = parser.parse_args()
 
     if args.cards_only and args.no_cards:
         parser.error("--cards-only and --no-cards are mutually exclusive")
+    if args.achievements_only and args.no_achievements:
+        parser.error("--achievements-only and --no-achievements are mutually exclusive")
 
     # ---- Assemble the prompt list ----
     assets = []  # list of (prefix, w, h, prompt) — stripped of card-only fields
 
-    if not args.cards_only:
+    if not args.cards_only and not args.achievements_only:
         for tup in ASSETS:
             assets.append(tup)
 
-    if not args.no_cards:
+    if not args.no_cards and not args.achievements_only:
         deck_filter = set(args.deck) if args.deck else None
         for prefix, w, h, prompt, _deck, _cid in load_card_assets(deck_filter, args.only):
             assets.append((prefix, w, h, prompt))
+
+    if not args.no_achievements and not args.cards_only:
+        only = args.only if (args.only or "").startswith("A_") else None
+        assets.extend(load_achievement_assets(only))
 
     if args.filter:
         assets = [a for a in assets if args.filter in a[0]]
@@ -439,9 +499,10 @@ def main():
     print(f"Done: {success}/{len(assets)} queued.")
     print()
     print("Wait for ComfyUI to finish, then:")
-    print("  python scripts/sync_comfyui_output.py    # copy outputs into repo art/")
-    print("  python scripts/generate_card_atlases.py  # composite card faces")
-    print("  python scripts/build_save.py             # rebuild the TTS save")
+    print("  python scripts/sync_comfyui_output.py          # copy outputs into repo art/")
+    print("  python scripts/generate_card_atlases.py        # composite card faces")
+    print("  python scripts/generate_achievement_icons.py   # crop/frame the icons")
+    print("  python scripts/build_save.py                   # rebuild the TTS save")
 
 
 if __name__ == "__main__":

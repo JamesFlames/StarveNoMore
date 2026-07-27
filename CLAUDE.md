@@ -58,7 +58,8 @@ local conventions + the "regenerate after edit" rule for that directory.
 Each carries an `AUTO-GENERATED` banner; regenerate its source instead:
 
 - `lua/audio_manifest.lua`, `lua/whatnow_hints.lua`, `lua/market_data.lua`,
-  `lua/threat_types.lua`, `lua/recipe_data.lua`, `lua/notebook_data.lua`
+  `lua/threat_types.lua`, `lua/recipe_data.lua`, `lua/notebook_data.lua`,
+  `lua/achievement_data.lua` (+ `steam/achievements.json`)
 - `SYMBOLS.md` + `.luacheckrc` — `python scripts/generate_symbol_index.py`
   (rerun after **any** `lua/` change; a freshness test enforces it).
 
