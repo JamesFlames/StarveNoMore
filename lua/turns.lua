@@ -84,9 +84,16 @@ function advanceToNextPlayer()
         local char = gameState.activeChars[color]
         if char and not char.down and char.actionsLeft > 0 then
             gameState.activeColor = color
-            -- Per-turn perk windows reset with each new turn (§6.1 / §6.5).
+            -- Per-turn perk window resets with each new turn (§6.1).
             gameState.jamesRerollUsed = false
-            gameState.lucaRallyUsed = false
+            -- Rally does NOT reset here any more. It became firable on other
+            -- players' turns (§6.5, §11.2 downtime relief), and a per-turn
+            -- reset would then have handed Luca one rally per PLAYER turn —
+            -- up to +4 actions a day at 5 players, which is a power spike, not
+            -- a downtime cure. It resets once per round in BeginDay instead,
+            -- which keeps his old effective power (one rally a day) and
+            -- changes only WHEN he may spend it. That is the whole point:
+            -- an interruption-shaped decision instead of a pre-allocation.
             -- Backboard Block (§6.3) holds "until Rayman's next turn".
             if char.name == "Rayman" and gameState.raymanDefending then
                 gameState.raymanDefending = false

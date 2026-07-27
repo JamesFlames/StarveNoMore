@@ -98,6 +98,13 @@ EFFECT_ACTIONS = {
     "doFightTarget", "doFlee", "doTrade", "doEnergyDrink", "doEatRaw", "doPass",
     "doBarricade", "doDefend", "doRally", "doPry", "doStabilize", "doCraft",
     "doCook", "doSignature", "doCleanse", "doAppeaseTreeguard",
+    # Witness (§10.1): it *reveals* an ally's Haunted threat, but the product
+    # is a state change — the witness's Sanity is spent and they gain the right
+    # to fight it — and both halves land in the Message Log and the Rules
+    # panel, which lists who can now see what. Not an information action:
+    # there is no payload to lose, because the threat card is already on the
+    # table in front of everyone.
+    "doWitness",
 }
 
 

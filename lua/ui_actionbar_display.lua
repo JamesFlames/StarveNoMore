@@ -137,13 +137,14 @@ function refreshActionButtonStates(color)
                    or ("Pattern Recognition (free). Unavailable: " .. (peekWhy or "")))
     end
 
-    -- Rally (Luca only, §6.5): free, once per turn, needs a nearby ally
+    -- Rally (Luca only, §6.5): free, once per ROUND, needs a nearby ally.
+    -- Also firable off-turn from the Reactions panel (ui_reactions.lua).
     UI.setAttribute("actRally", "active", char.name == "Luca" and "true" or "false")
     if char.name == "Luca" then
         local rallyOk, rallyWhy = canRally(color)
         setActionEnabled("actRally", rallyOk and true or false)
         setActionTooltip("actRally",
-            rallyOk and "Rally: give an ally at your tile or adjacent a free non-movement action — free, once per turn."
+            rallyOk and "Rally: give an ally at your tile or adjacent a free non-movement action — free, once per round. You may also fire it on THEIR turn, from the Reactions panel."
                     or ("Rally (free). Unavailable: " .. (rallyWhy or "")))
     end
 
@@ -325,7 +326,7 @@ ACTION_TOOLTIPS = {
     actCook      = "Cook a recipe at a Crockpot location. Costs 1 action + ingredients.",
     actFight     = "Fight a threat or boss at this location — click FIGHT on the target (TOGETHER = group fight). Costs 1 action.",
     actPeek      = "Pattern Recognition (James): peek at the top card of any deck. Free action, once per day.",
-    actRally     = "Rally (Luca): give an ally at your tile or adjacent a free non-movement action. Free, once per turn.",
+    actRally     = "Rally (Luca): give an ally at your tile or adjacent a free non-movement action. Free, once per round — and firable on their turn from the Reactions panel.",
     actRest      = "Rest: +1 Hunger or +2 Sanity. At your own house: also +1 Health.",
     actCleanse   = "Cleanse the Doom track (-2). Costs 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink.",
     actTrade     = "Trade resources/items with another player. Free once per turn at your tile; otherwise 1 action.",

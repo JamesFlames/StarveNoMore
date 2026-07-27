@@ -205,17 +205,23 @@ function doPeek(color, deckKey)
 end
 
 -----------------------------------------------------------------------
--- RALLY (Luca, free, once per turn) — Design §6.5
+-- RALLY (Luca, free, once per ROUND — any turn) — Design §6.5
 -- Give an ally at Luca's tile or an adjacent one a free non-movement
 -- action: +1 to their action pool for this Day. (The "non-movement" part
 -- is a table rule — the script can't earmark a specific future action.)
+--
+-- Firable on ANOTHER player's turn, via the Reactions panel
+-- (ui_reactions.lua) — the cheapest downtime cure there is (§11.2), and
+-- the one that makes Luca's identity land: the orator acts *through* other
+-- people. Because of that it is once per round rather than once per turn;
+-- see the note in turns.lua.
 -----------------------------------------------------------------------
 function canRally(color)
     local char = gameState.activeChars[color]
     if not char then return false, "No character." end
     if char.name ~= "Luca" then return false, "Only Luca can Rally." end
     if char.down then return false, "You are Down." end
-    if gameState.lucaRallyUsed then return false, "Rally is spent for this turn." end
+    if gameState.lucaRallyUsed then return false, "Rally is spent for this round." end
     if #rallyTargets(color) == 0 then
         return false, "No ally nearby who can still act (same or adjacent tile, actions remaining)."
     end

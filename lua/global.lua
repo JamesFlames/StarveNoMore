@@ -277,6 +277,7 @@ function migrateGameState()
     gs.threatDamage         = gs.threatDamage or {}          -- schema 3: chip damage on threat cards
     gs.messageLog           = gs.messageLog or {}            -- Message Log panel (ui_msglog.lua)
     gs.resources            = gs.resources or {}             -- authoritative held resources per colour
+    gs.haunted              = gs.haunted or {}               -- who is Haunted today + who witnessed it (§10.1)
     for _, char in pairs(gs.activeChars) do
         if char.signatureUsed == nil then char.signatureUsed = false end -- batch 2
     end

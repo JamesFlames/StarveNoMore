@@ -18,7 +18,22 @@ When any stat is below 25%, **Bad Things Happen**:
 
 - **Low Health (<3):** Movement costs +1 action.
 - **Low Hunger (<3):** Cannot fight. Cannot use any action card with the [Effort] tag. (Flee is still legal — §12.4. A starving character can always run.)
-- **Low Sanity (<3):** **Haunted.** At each Dawn, draw 1 Threat card at your location. It is real to you: only *you* may fight or flee it — allies cannot help with what they cannot see. Discard it once resolved (defeated or fled); it never festers on the Doom track, because it was never really there. (An earlier draft had a hidden-information hallucination rule — "only the affected player knows it's not real" — cut for being unrunnable at a physical table and unimplementable with the public-information model of §18.9. Haunted keeps the isolation horror with zero hidden state.)
+- **Low Sanity (<3):** **Haunted.** At each Dawn, draw 1 Threat card at your location. It is real to you. Discard it once resolved (defeated or fled); it never festers on the Doom track, because it was never really there. (An earlier draft had a hidden-information hallucination rule — "only the affected player knows it's not real" — cut for being unrunnable at a physical table and unimplementable with the public-information model of §18.9. Haunted keeps the isolation horror with zero hidden state.)
+
+  **Witness (the buy-in).** *An ally at your location may pay 1 Sanity to see what you see — and may then fight your Haunted threat alongside you.* Free, no action cost, once per ally per haunting.
+
+  Haunted used to be absolute: only you could fight or flee it, because allies "cannot help with what they cannot see." As horror that is the best rule in the document. As co-op design it was the harshest: it stripped the cooperative layer from the one player who most needed it, at the worst moment, compounding daily — converting a struggling player into a *solo player inside a co-op game*. Per [§20](../../Archive/PrinciplesOfGoodBoardGames.md) — Cooperative Games Are a Different Genre — a player with a private unwinnable problem in a shared game is worse off than one who is simply behind. It also interacted badly with the Flee trap that §10.1.1 fixes: Haunted arrives at Sanity <3, and Flee was priced in Sanity.
+
+  The buy-in preserves everything good about the rule and fixes what was wrong with it:
+
+  - **The isolation horror survives.** Help is neither free nor automatic, and the helper *takes on the madness* to reach you.
+  - **It is a textbook mismatched-currency trade** (§8.4), on the diagonal-*avoiding* side: you pay Sanity to solve someone else's Sanity problem.
+  - **It restores agency to the table rather than to the haunted player**, which is the right place for it in a co-op — the decision becomes "who goes in after them," which is exactly the storied-collaboration beat §1.4 ranks third.
+  - **It gives the haunted player something to negotiate about** instead of a private chore.
+
+  It is priced in Sanity rather than in an action deliberately: pricing it in actions would make it compete with Fight, which is the very thing you are buying the right to do, and would turn a question about courage into a question about the action economy. The engine blocks the buy-in if it would put the witness Down — trading your own collapse for someone else's rescue is not a bargain the rule should offer silently. In the TTS build it appears in the **Reactions panel** (§18.13.1), because it must be available on the haunted player's turn, not only on the witness's own.
+
+  *If it proves too generous* the alternative already on the balance list (§20.1) is to leave the isolation absolute and cap Haunted threats at 2 HP instead — cheaper, but it solves lethality rather than agency, which is the wrong one of the two.
 
 ### 10.1.1 Last Nerve (the individual death-spiral valve)
 
@@ -92,6 +107,13 @@ Players take turns clockwise from the **First Player marker**. Each player has 3
 - **Special (varies)** — Character-specific or location-specific actions (e.g., James's "Pattern Recognition," Rayman's "Defend").
 
 Once every player has spent or passed all 3 actions, Day ends.
+
+**Downtime: the cheapest cure first.** [PrinciplesOfGoodBoardGames.md §11](../../Archive/PrinciplesOfGoodBoardGames.md) — Turn Structure, Action Economy, and Downtime — lists four cures for waiting. The design was A/B-testing the two most disruptive (shorter turns, more of them — the Rotation variant below) and had never tried the cheapest: **decisions that occur on other players' turns.** It already had exactly one, free Trade (§8.2), and that one works. Two more now exist, both nearly free in rules cost:
+
+1. **Luca's Rally fires on the recipient's turn** (§6.5). The orator acts *through* other people, so he is always partly engaged, and the gift arrives while the recipient can still spend it.
+2. **The Haunted buy-in** (§10.1) is a decision any co-located ally can take at any point during the Day.
+
+Both surface in the TTS build's **Reactions panel** (§18.13.1). Both should be measured *before* the Rotation A/B is decided, because they may reduce the problem Rotation exists to solve — and Rotation's acknowledged cost (fragmenting each player's 3-action plan) is a real one.
 
 **Rotation variant (optional, chosen at setup).** Instead of spending all 3 actions in one sitting, each player spends **exactly 1 action per visit**, and priority cycles around the table until everyone's actions are gone. Passing *after* acting banks your remaining actions for your next visit; passing *without* acting forfeits them (so the day always ends). Free actions (Trade, character specials) are unaffected. Why it exists: with full turns at 5 players, a player can wait through 12 consecutive foreign actions between decisions — the Rotation variant caps that wait at 4, at the cost of chopping up each player's 3-action plan. Both modes are implemented in the TTS build (a setup toggle); which one *feels* better is an open playtest question (§20.2) — the design's default is full turns, because the §18.10 onboarding principle favors one coherent turn over four fragmented ones for a first game.
 

@@ -107,6 +107,7 @@ CUSTOM_UI_PANELS = {
     "phaseBanner", "cycleStrip", "dawnChecklist", "hostControls",
     "rulesPanel", "actionBar", "actionTooltip", "statDisplay",
     "charRoster", "duskPanel", "combatPanel", "msgLog", "whatNowPanel",
+    "reactionsPanel",
 }
 
 function onToggleCustomUI(player, value, id)

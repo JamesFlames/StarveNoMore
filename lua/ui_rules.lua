@@ -148,7 +148,18 @@ local function collectActiveRules()
             table.insert(lines, char.name .. " is DOWN: ghost — drifts 1 tile/round, 1 word/round. Revive with a Telltale Heart at their tile.")
         else
             if char.sanity > 0 and char.sanity < 3 then
-                table.insert(lines, char.name .. " is Haunted (Sanity < 3): draws a personal threat at next Dawn that allies can't help with.")
+                local rec = (gameState.haunted or {})[color]
+                local seers = {}
+                for wColor in pairs((rec or {}).witnesses or {}) do
+                    local w = gameState.activeChars[wColor]
+                    if w then table.insert(seers, w.name) end
+                end
+                if #seers > 0 then
+                    table.insert(lines, char.name .. " is Haunted (Sanity < 3) — but " ..
+                        table.concat(seers, " & ") .. " can see it too, and may fight it with them.")
+                else
+                    table.insert(lines, char.name .. " is Haunted (Sanity < 3): a personal threat only they can fight. An ally at their tile may pay 1 Sanity to Witness it and join the fight.")
+                end
             end
             if char.hunger == 0 then
                 table.insert(lines, char.name .. " is starving (Hunger 0): loses 1 Health every Tick.")

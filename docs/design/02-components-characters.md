@@ -90,7 +90,7 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Identity.** Caucasian male. Articulate, persuasive, the team's morale officer. Lives at Ellie & Luca's House (with Ellie).
 - **Visual style.** Round-frame glasses, a slightly worn cardigan, a paperback in his pocket.
 - **Base Stats.** Health **7**, Hunger **8**, Sanity **10**.
-- **Perk: Rally.** Once per turn, give an adjacent ally a free non-movement action.
+- **Perk: Rally.** Once per **round**, give an ally at his tile or an adjacent one a free non-movement action — **and he may fire it on that ally's own turn**, not only during his. (Retuned from "once per turn": once Rally became firable off-turn, a per-turn window would have given Luca one rally per *player* turn, up to +4 actions a day at five players. Once per round keeps his old effective power and changes only *when* he spends it — which is the whole point: an interruption-shaped decision instead of a pre-allocation. See §11.2.)
 - **Perk: Calm Words.** When a Sanity-loss event occurs in his location, Luca may roll a d6: on 4+, the entire group at his location ignores the loss.
 - **Perk: Storyteller.** During Night, players in Luca's location regain +1 Sanity.
 - **Signature: The Speech (once per game, §6.7).** Every character, anywhere, gains +2 Sanity. Only speakable while an ally is Down or below 3 Sanity — it has to *matter*.
@@ -123,6 +123,8 @@ Each character has one **Signature** — a once-per-game, named, board-printed m
 | Rayman | **Posterize** — instantly defeat one non-boss threat at his tile | The noise: +1 Threat draw here tonight |
 | Ellie | **The Feast** — cook any number of recipes in a single action | Consumes **all** her held Food |
 | Luca | **The Speech** — every character, anywhere, +2 Sanity | Only while an ally is Down or below 3 Sanity |
+
+*(Rayman's Speed and Luca's Rally both read as "once per turn" historically; Rally is now once per round and off-turn — §6.5.)*
 
 *Interaction watch (intended drama, not a bug):* James can All-Nighter (−3 Sanity pending), press attacks (−1 Sanity each, §12.5), and go Down from his own aggression. Both costs are surfaced in the Rules panel and confirm dialogs so it is always a visible, chosen risk.
 

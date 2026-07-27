@@ -40,7 +40,7 @@ Every character has one **Signature** — a once-per-game named move, fired from
 
 ## Luca — The Orator
 - Stats: Health 7 / Hunger 8 / Sanity 10
-- **Rally:** once per turn give an adjacent ally a free non-movement action.
+- **Rally:** once per round give an ally at your tile or adjacent a free non-movement action. You can fire it on *their* turn, not just your own — watch for the Reactions panel.
 - **Calm Words:** at his tile, on a Sanity-loss event, roll d6 — 4+ negates the loss for everyone here.
 - **Storyteller:** allies at his tile +1 Sanity at Night.
 - **The Speech (Signature, 1×):** every character, anywhere, +2 Sanity. Only usable while an ally is Down or below 3 Sanity.

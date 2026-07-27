@@ -121,6 +121,11 @@ function refreshPhaseBanner()
     safecall(function() refreshCycleStrip() end, "CycleStrip")
     safecall(function() refreshDawnChecklist() end, "DawnChecklist")
 
+    -- Off-turn reactions (ui_reactions.lua): Witness, Luca's off-turn Rally.
+    -- Refreshed here so a reaction appears the moment it becomes available —
+    -- an off-turn option nobody notices is not a downtime cure.
+    safecall(function() refreshReactionsPanel() end, "Reactions")
+
     -- Host Controls show only the buttons valid right now (ui_controls.lua)
     safecall(function() refreshHostControls() end, "HostControls")
 

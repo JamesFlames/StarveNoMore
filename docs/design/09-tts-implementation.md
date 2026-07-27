@@ -181,6 +181,21 @@ Three **Action Cubes** sit next to the bar. Each click of an action button consu
 
 The bar gives the new player two things at once: a **menu** of legal moves and a **vocabulary** for understanding the game.
 
+#### 18.13.1 The Reactions panel (off-turn decisions)
+
+The Action Bar cannot host an off-turn move, and the reason is structural rather than stylistic: it is a **single shared XML panel**. A button's enabled state is global, not per-seat, and every handler runs through `validateActivePlayer`, so a non-active player's click is rejected by construction. Any rule that says "you may do this on someone else's turn" therefore needs a different home.
+
+The **Reactions panel** is that home — a small panel, bottom-right, that appears only when something is actually available and hides itself otherwise. It carries the free off-turn decisions of §11.2:
+
+| Reaction | Who | Cost | Why it is off-turn |
+|---|---|---|---|
+| **Witness** (§10.1) | any ally at a Haunted character's tile | 1 Sanity | The haunting is resolved on the *haunted* player's turn; the helper is by definition not the active player. |
+| **Rally** (§6.5) | Luca | free, once per round | The gift has to arrive while the recipient can still spend it. |
+
+**The pattern that makes a shared panel safe:** every row **names its actor** ("Rayman: see what Coco sees — pay 1 Sanity"), and the click handler verifies that the clicking player *is* that actor. This matters more here than for an ordinary button, because both reactions spend the actor's own stat — a shared panel must never let one player spend another player's Sanity. Rows are rebuilt on every state change and re-validated on click, so a row whose preconditions expired between render and click says so instead of firing.
+
+Naming the actor also does onboarding work for free: the panel is a public, readable statement that *this player has a live option right now*, which is exactly the table-talk prompt the two rules were added to create.
+
 ### 18.14 Component teaching: tooltips, confirms, broadcasts
 
 Three patterns ensure that every interaction is self-teaching.

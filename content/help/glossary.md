@@ -9,7 +9,7 @@
 - Below 3 in any stat: **Bad Things Happen**.
   - Low Health: Move costs +1 action.
   - Low Hunger: cannot Fight; cannot use [Effort] Items. (You may always Flee.)
-  - Low Sanity: **Haunted** — each Dawn, draw 1 Threat at your tile. Only you may fight or flee it; allies can't help. Discard when resolved; it never festers.
+  - Low Sanity: **Haunted** — each Dawn, draw 1 Threat at your tile. Only you may fight or flee it — unless an ally at your tile pays 1 Sanity to **Witness** it, after which they can fight it with you. Discard when resolved; it never festers.
 
 ## Resources
 - **Wood, Metal, Cloth, Food, Energy Drink, Battery** — see Resource bag tooltips.
@@ -56,7 +56,8 @@
 - **Dare** — an *optional* hook on some early-week Dawn cards: a temptation the team may take or decline (extra loot for extra risk). Never mandatory; the card and the Rules panel state the terms.
 - **Pry** — a free action with a Crowbar, Lockpick, or Pry Bar: open a sealed thing at your tile for its printed reward. Sealed Threat cards and the Sealed Basement (at Ellie & Luca's House from setup) all open this way.
 - **The Wrongness** — a face-down, unresolved Threat placed at a tile by a Dawn card. Someone can go look (it resolves on entering the tile) — or it resolves at the next Dawn, where it stands. It doesn't fester while face-down.
-- **Source split** — the first time The Source drops to 5 HP or below, two Terror Beaks peel off to adjacent tiles. Its HP is script-tracked from arrival.
+- **Witness** (free, 1 Sanity) — an ally standing with a **Haunted** character may pay 1 Sanity to see their threat too, and then fight it alongside them. Use the Reactions panel; it works on their turn, not just yours.
+- **Source split** — the first time The Source drops to its split threshold or below, two Terror Beaks peel off to adjacent tiles (Standard: 8 HP, splits at 5; Story: 6 HP, splits at 4). Its HP is script-tracked from arrival, and the Rules panel prints the live numbers.
 
 ## Severity Dots
 - ●○○○○ atmospheric • ●●○○○ minor • ●●●○○ combat/lasting • ●●●●○ phase-shift • ●●●●● apocalyptic.
@@ -70,8 +71,14 @@
 - A Recipe (not a Market Item). Cook 1 Cloth + 1 Battery + 1 Food + 2 cook Health → 1 Heart token.
 - 5 Hearts max in supply. Used Hearts return to the supply pool.
 
+## Reactions (things you can do off-turn)
+- The **Reactions panel** (bottom right) appears when you have a free move available on somebody *else's* turn. Each row names whose call it is.
+- **Witness** — pay 1 Sanity to see an ally's Haunted threat and fight it with them.
+- **Rally** (Luca) — once per round, give an ally a free non-movement action, firable during their turn.
+- **Trade** is the original off-turn move: free, same tile, any time.
+
 ## Doom Track
-- Public 0–30 track. At 30, the team loses.
+- Public 0–30 track (Story: 35; Long Weekend: 15). At the end of the track, the team loses.
 - Advances each Dawn by the phase rate, **+1 per threat still on the map** (festering, max +3), **+2 per boss / +1 for the Treeguard** (no cap), and **+1 whenever a character goes Down**.
 - Thresholds: 10 (threats +1), 15 (crafts +1 resource), 20 (-1 Sanity Tick), 25 (bosses any phase + **Nothing Left to Lose**: +1 attack die for everyone, Rest heals +1 Health anywhere).
 - Cleanse (Day action) reduces Doom by 2.

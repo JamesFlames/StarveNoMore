@@ -14,6 +14,7 @@ function BeginDay()
     gameState.raymanFoughtToday = false
     gameState.raymanDefending = false   -- Backboard Block never outlives the night
     gameState.jamesPeekUsed = false     -- Pattern Recognition: once per day (§6.1)
+    gameState.lucaRallyUsed = false     -- Rally: once per ROUND, any turn (§6.5)
     gameState.loudSignature = {}        -- Posterize echo lasts one night only
     safecall(function() setNightOmen(false) end, "NightOmen")  -- last night's moon sets
     safecall(function() setPhaseMood("Dawn") end, "Mood")
@@ -113,14 +114,30 @@ function BeginDay()
     end
 
     -- Haunted (Design §10.1): a character below 3 Sanity draws 1 Threat at
-    -- their tile at Dawn. Only they can fight or flee it — allies can't
-    -- help with what they can't see. Discard it once resolved; it's not
-    -- real, so it never festers.
+    -- their tile at Dawn. It is real to them. Discard it once resolved; it's
+    -- not real, so it never festers.
+    --
+    -- Allies can now BUY IN (§10.1, 2026-07): one at the haunted character's
+    -- tile may pay 1 Sanity to see what they see and fight it alongside them.
+    -- As pure isolation the rule was the harshest in the game — it stripped
+    -- the cooperative layer from the player who most needed it, at the worst
+    -- moment, compounding daily, converting a struggling player into a solo
+    -- player inside a co-op. The buy-in keeps every good part (help is
+    -- neither free nor automatic, and the helper takes on the madness to
+    -- reach you) and moves the decision to the table, where "who goes in
+    -- after them" is the storied-collaboration beat §1.4 ranks third.
+    --
+    -- gameState.haunted is the record the buy-in reads; rebuilt each Dawn so
+    -- yesterday's witnesses don't carry over.
+    gameState.haunted = {}
     for color, char in pairs(gameState.activeChars) do
         if not char.down and char.sanity > 0 and char.sanity < 3 then
+            gameState.haunted[color] = { location = char.location, witnesses = {} }
             broadcastEvent("warn", char.name .. " is Haunted (Sanity < 3): draw 1 Threat card at " ..
                 (char.location or "?") .. ". Only " .. char.name ..
-                " may fight or flee it — allies can't help. Discard it when resolved; it never festers.")
+                " may fight or flee it. Discard it when resolved; it never festers.")
+            broadcastEvent("proc", "An ally standing with " .. char.name ..
+                " may pay 1 Sanity to SEE what they see — and then fight it with them (the Witness button).")
         end
     end
 

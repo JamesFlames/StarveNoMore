@@ -366,6 +366,48 @@
 </Panel>
 
 <!-- ================================================================== -->
+<!-- REACTIONS — free things you can do on SOMEBODY ELSE'S turn.        -->
+<!--                                                                    -->
+<!-- The Action Bar is one shared panel gated to the active player, so   -->
+<!-- it cannot host an off-turn move: a non-active player's click is     -->
+<!-- rejected by validateActivePlayer, and a button's enabled state is   -->
+<!-- global rather than per-seat. This panel is the home for reactions   -->
+<!-- instead. Each row NAMES its actor ("Rayman: ...") and the handler   -->
+<!-- checks that the clicking player is that actor, which is what makes  -->
+<!-- a shared panel safe.                                               -->
+<!--                                                                    -->
+<!-- Two reactions live here (Design §10.1, §6.5): Witness — pay 1       -->
+<!-- Sanity to see an ally's Haunted threat and fight it with them; and  -->
+<!-- Luca's Rally, which fires on the recipient's own turn so Luca is    -->
+<!-- always partly engaged (§11.2 downtime relief).                     -->
+<!-- Refreshed by refreshReactionsPanel() in ui_reactions.lua.           -->
+<!-- ================================================================== -->
+<Panel id="reactionsPanel"
+       rectAlignment="LowerRight"
+       offsetXY="-10 130"
+       width="330" height="150"
+       color="#0A0814EE"
+       outline="#8878C87F"
+       outlineSize="2"
+       active="false">
+  <VerticalLayout spacing="4" padding="10 10 8 8"
+                  childForceExpandHeight="false">
+    <Text fontSize="13" fontStyle="Bold" color="#CCC0FF"
+          text="You can act now — even off-turn"
+          preferredHeight="18" />
+    <Button id="reactBtn_1" onClick="onReactionClick(1)" active="false"
+            fontSize="12" color="#1C1830E6" textColor="#DDD5FF"
+            alignment="MiddleLeft" preferredHeight="34" text="" />
+    <Button id="reactBtn_2" onClick="onReactionClick(2)" active="false"
+            fontSize="12" color="#1C1830E6" textColor="#DDD5FF"
+            alignment="MiddleLeft" preferredHeight="34" text="" />
+    <Button id="reactBtn_3" onClick="onReactionClick(3)" active="false"
+            fontSize="12" color="#1C1830E6" textColor="#DDD5FF"
+            alignment="MiddleLeft" preferredHeight="34" text="" />
+  </VerticalLayout>
+</Panel>
+
+<!-- ================================================================== -->
 <!-- ACTION TOOLTIP — custom help strip for the action buttons. Sits    -->
 <!-- just ABOVE the action bar, fully opaque, and appears only after    -->
 <!-- a hover delay (onActionTooltipEnter/Exit in ui_actionbar.lua).     -->
