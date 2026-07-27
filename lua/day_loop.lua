@@ -301,7 +301,47 @@ function revealLastDawn()
     safecall(function() refreshDawnChecklist() end, "DawnChecklist")
 end
 
+-----------------------------------------------------------------------
+-- The First Dawn (Design §15.9) — the guided opening.
+--
+-- Day 1's Dawn is fixed, like Day 7's. First turns are structurally the
+-- hardest in most games ([PrinciplesOfGoodBoardGames.md §9]) — widest
+-- options, least context — and here turn one asks a brand-new player to
+-- choose among 8 action types across a 5-tile map with a 3-action budget,
+-- a private hand of 5 cards, a perk set, a constraint and a Signature,
+-- immediately after a 12-step setup. §22 identifies the guided opening as
+-- the highest-value, lowest-cost onboarding intervention available.
+--
+-- It uses the precedent the design already set twice: the Last Dawn
+-- (§15.7) and the Treeguard (§14.2) are both scheduled rather than drawn,
+-- on the stated logic that predictable structure with unpredictable
+-- details is the DST seasons principle. Applying it to the opening costs
+-- the same thing it cost at the other end of the week — Day 1 stops being
+-- a surprise — and buys a first turn nobody has to guess their way
+-- through. It also means the Phase 1 deck only ever has to cover Day 2.
+--
+-- Severity ●○○○○, no penalty. Tone and a nudge, nothing else.
+-----------------------------------------------------------------------
+function revealFirstDawn()
+    broadcastEvent("phase", "DAWN: THE FIRST MORNING")
+    broadcastEvent("proc", "The street looks exactly as it always has, which is somehow worse. Gather what you can. The dark is eight hours away.")
+
+    gameState.activeDawn = {
+        id = "FIRST_DAWN",
+        title = "The First Morning",
+        description = "No penalty today — the world hasn't started yet. Gather what you can. The dark is eight hours away.",
+    }
+    gameState.dawnChecklist = {}
+    safecall(function() refreshDawnChecklist() end, "DawnChecklist")
+end
+
 function revealDawnCard()
+    -- The first day never draws either — the opening is scripted so that a
+    -- brand-new table's hardest turn isn't also a surprise (§15.9).
+    if gameState.day <= 1 then
+        revealFirstDawn()
+        return
+    end
     -- The final day never draws from the phase deck — the finale is scripted.
     if gameState.day >= getTotalDays() then
         revealLastDawn()

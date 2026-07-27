@@ -735,6 +735,7 @@ function finalizeGuidedSetup()
     gameState.cluesFound = {}          -- Truth Run (§16.2)
     gameState.clueCount = 0
     gameState.cluesSurfaced = 0
+    gameState.openingOffered = {}      -- guided opening (§15.9)
 
     local counter = getDayCounter()
     if counter then counter.setValue(1) end

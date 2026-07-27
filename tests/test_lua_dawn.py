@@ -280,7 +280,9 @@ class TestDawnRevealSurvivesDeadHandles:
             "tags": ["PhaseCard:P1Deck"], "position": [50, 1, 0],
             "contained": [{"nickname": "P1_QUIET_EVENING",
                            "tags": ["P1_QUIET_EVENING"]} for _ in range(n)]}))
-        env.execute("gameState.day = 1; gameState.phase = 1")
+        # Day 2, not 1: Day 1's Dawn is the scripted First Dawn (§15.9) and
+        # never touches the deck, so a deck-draw test must start on Day 2.
+        env.execute("gameState.day = 2; gameState.phase = 1")
 
     _DEAD = """
         local dead = setmetatable({}, { __index = function()
@@ -430,3 +432,63 @@ class TestOneOptionIsHighlighted:
         self._day(env)
         env.execute('gameState.activeChars.White.actionsLeft = 0')
         assert lua_to_py(env.globals().getNextCTA()) == ["actPass"]
+
+
+class TestTheFirstDawnAndTheGuidedOpening:
+    """Day 1 is scripted (§15.9), and each player gets one concrete three-action
+    plan on their first turn — the highest-value, lowest-cost onboarding
+    intervention available (§22), aimed at the turn with the least context and
+    the widest option set.
+    """
+
+    def test_day_one_never_draws_from_the_phase_deck(self, env):
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["PhaseCard:P1Deck"], "position": [50, 1, 0],
+            "contained": [{"nickname": "P1_PHONES_DEAD", "tags": ["P1_PHONES_DEAD"]}
+                          for _ in range(5)]}))
+        env.execute("gameState.day = 1; gameState.phase = 1")
+        before = env.eval("getPhaseDeck(1).getQuantity()")
+
+        env.globals().revealDawnCard()
+        flush(env)
+
+        assert env.eval("getPhaseDeck(1).getQuantity()") == before, (
+            "Day 1 drew a card — the Phase 1 deck should only have to cover Day 2")
+        assert env.eval("gameState.activeDawn.id") == "FIRST_DAWN"
+        assert any("FIRST MORNING" in m for m in broadcasts(env))
+
+    def test_the_first_dawn_carries_no_penalty(self, env):
+        add_char(env, "White", "Coco")
+        env.execute("gameState.day = 1; gameState.phase = 1")
+        before = tuple(env.eval(f"gameState.activeChars.White.{s}")
+                       for s in ("health", "hunger", "sanity"))
+        env.globals().revealDawnCard()
+        flush(env)
+        after = tuple(env.eval(f"gameState.activeChars.White.{s}")
+                      for s in ("health", "hunger", "sanity"))
+        assert before == after, "the guided opening must not cost anything"
+
+    def test_each_character_has_a_three_action_opening(self, env):
+        for name in ("James", "Coco", "Rayman", "Ellie", "Luca"):
+            line = env.eval(f'OPENING_MOVES["{name}"]')
+            assert line, f"{name} has no suggested opening"
+            assert len(line) > 40, f"{name}'s opening is not a plan: {line!r}"
+
+    def test_the_opening_is_offered_once_on_day_one(self, env):
+        add_char(env, "Yellow", "Ellie")
+        env.execute("gameState.day = 1")
+        env.eval("offerOpeningSuggestion")("Yellow")
+        first = [m for m in broadcasts(env) if "try:" in m]
+        assert len(first) == 1, broadcasts(env)
+        assert "Ellie" in first[0] and "Cook" in first[0]
+
+        env.eval("offerOpeningSuggestion")("Yellow")
+        assert len([m for m in broadcasts(env) if "try:" in m]) == 1, (
+            "the opening suggestion repeated — it is for turn one only")
+
+    def test_no_opening_suggestion_after_day_one(self, env):
+        add_char(env, "Yellow", "Ellie")
+        env.execute("gameState.day = 2")
+        env.eval("offerOpeningSuggestion")("Yellow")
+        assert not [m for m in broadcasts(env) if "try:" in m], (
+            "still coaching the opening on Day 2")

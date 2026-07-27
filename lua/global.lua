@@ -281,6 +281,7 @@ function migrateGameState()
     gs.cluesFound           = gs.cluesFound or {}            -- Truth Run (§16.2): which of the 3 Clues are in hand
     gs.clueCount            = gs.clueCount or 0
     gs.cluesSurfaced        = gs.cluesSurfaced or 0          -- how many the refill seam has put on offer
+    gs.openingOffered       = gs.openingOffered or {}        -- Day-1 opening suggestion, once per player (§15.9)
     for _, char in pairs(gs.activeChars) do
         if char.signatureUsed == nil then char.signatureUsed = false end -- batch 2
     end

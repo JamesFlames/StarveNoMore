@@ -8,7 +8,7 @@ Seven in-game days, divided into four narrative phases. This is the DST season s
 
 | Phase | Days | Jo-Ha-Kyu beat | Tone | Doom/Day | Phase Boss |
 |---|---|---|---|---|---|
-| 1 — Dusk of the Week | 1–2 | **Jo** (slow open) | Calm, exploratory. Resources are findable. Players learn the map. | +1 | None |
+| 1 — Dusk of the Week | 1–2 | **Jo** (slow open) | Calm, exploratory. Resources are findable. Players learn the map. Day 1 opens on the fixed **First Dawn** (§15.9), so the deck only covers Day 2. | +1 | None |
 | 2 — Strange Days | 3–4 | **Ha** (break) | Pressure rises. Threats appear regularly. | +1 | The Deerclops (mid-tier; Day 4) |
 | 2.5 — The Grove Wakes | Dusk of Day 4 | **Ha** (aftershock) | Interlude mini-boss. The map itself pushes back. | — | The Treeguard (mini-boss; scheduled, not deck-drawn — §14.2) |
 | 3 — Long Nights | 5 | **Ha → Kyu** (pivot) | Boss night. Major disruption. | +1 | The Eye of Terror (heavy boss) |
@@ -129,5 +129,21 @@ Two batch-3 effects sharpen dread through *information design* alone — telegra
   **Why it is double-coded.** An earlier version of this section claimed the growl "reveals nothing gameable." That was wrong: it reveals exactly one bit — *the next threat is Hard* — and the section itself said veterans "learn to brace," which is the admission that it is information. Delivered on audio alone, that bit was unavailable to deaf and hard-of-hearing players, and to anyone playing muted or in voice chat with game audio down, which is a large fraction of the real audience for a virtual-tabletop mod. It was the one place this game's otherwise strong double-coding discipline (severity dots §15.5, boss standee scale §5, the red-bordered constraint panel §10.2) lapsed. The visual twin carries the **same single bit and no more** — not which threat, not where — so the design intent survives intact; only the channel count changed. The standing rule is now §18.19 item 2: every audio cue that carries information has a visual twin.
 - **The Wrongness** (§9.4) applies the same principle to a physical object: a known-but-unresolved threat on the map converts a random Night draw into a *decision with anticipation* — the who-goes-to-look argument is the story.
 
----
+### 15.9 The First Dawn (the guided opening)
 
+Day 1's Dawn is **fixed**, not drawn — the bookend to the Last Dawn (§15.7): *"THE FIRST MORNING — the street looks exactly as it always has, which is somehow worse. Gather what you can. The dark is eight hours away."* Severity ●○○○○, no penalty, one line of tone and a printed nudge. It bypasses the Phase 1 deck entirely, so that deck only ever has to cover Day 2.
+
+**Why the opening needs scaffolding at all.** First turns are structurally the hardest turn in most games ([PrinciplesOfGoodBoardGames.md §9](../../Archive/PrinciplesOfGoodBoardGames.md) — Pacing and the Game Arc): widest options, least context. Here turn one asks a brand-new player to choose among 8 action types across a 5-tile map with a 3-action budget, a private hand of 5 cards, a personal perk set, a constraint and a Signature — immediately after a 12-step setup (§17.1). [§22](../../Archive/PrinciplesOfGoodBoardGames.md) — Onboarding — identifies the guided opening as the highest-value, lowest-cost intervention available, and §19.6 item 9 is still ❌ (no blind playtest yet), so this is the cheapest thing that can be done before one.
+
+The design's onboarding instincts elsewhere are strong — the severity dots (§15.5) teach at two skill levels, the Phase Banner (§11) walks the round, the player boards are built to be read without the rulebook (§10.2), the "Rules in effect" panel keeps Scenario state visible (§17.3). What was missing was guidance on the *first decision*, which is the one with none of that context yet.
+
+Two components:
+
+1. **The fixed Day 1 Dawn**, above. This uses the precedent the design already established twice: the Last Dawn (§15.7) and the Treeguard (§14.2) are both scheduled rather than drawn, on the stated logic that **predictable structure with unpredictable details** is the DST seasons principle. The cost is exactly the trade §15.7 already made at the other end of the week: Day 1 stops being a surprise.
+2. **A per-character suggested opening**, printed privately to each player on their first turn of Day 1 and only then — *"Ellie — try: Gather with Knows the Pantry (pick Food), Gather again, then Cook for everyone standing in your kitchen. One action, the whole team fed."* It is phrased as the whole three-action turn rather than a first step, because **the classic unrecoverable turn-one mistake is not a wrong action; it is three actions spent without a plan.** Each one demonstrates the loop and half of them teach the cooperation dividend (§8.5).
+
+The character briefing (§18.16 step 3) already ends with "Your first move," but that is a setup popup the player dismissed several minutes and one Dawn card ago. This is the same advice at the moment it is actionable.
+
+**Risk: nearly none.** A suggestion is not a constraint, and it fires once. **Cost:** one scripted Dawn plus five one-line strings; no rules change.
+
+---

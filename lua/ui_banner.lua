@@ -24,6 +24,50 @@ DAY_FLAVOR = {
 }
 
 -----------------------------------------------------------------------
+-- The guided opening (Design §15.9 / §18.16) — a concrete three-action
+-- plan for turn one, and turn one only.
+--
+-- The character briefing already ends with "Your first move", but that is
+-- a setup popup the player dismissed several minutes and one Dawn card
+-- ago. This is the same advice at the moment it is actionable, phrased as
+-- the whole turn rather than the first step: three actions, in order, that
+-- demonstrate the loop and teach the cooperation dividend (§8.5).
+--
+-- It is a suggestion, not a constraint — which is why the risk here is
+-- close to zero and why it is worth doing. The classic unrecoverable
+-- turn-one mistake is not a wrong action; it is three actions spent
+-- without a plan.
+-----------------------------------------------------------------------
+OPENING_MOVES = {
+    James  = "Gather at The Stash (2 Energy Drinks — that's today's Wired sorted), Gather again, then Peek the Threat deck (free) and tell the table.",
+    Coco   = "Move toward whoever will be alone tonight, Gather, Rest. You have no house — your job all week is being where somebody else is.",
+    Rayman = "Move to the Basketball Court (you go 2 tiles), Gather Wood, Gather again. Eat before Tick — you lose 2 Hunger a night.",
+    Ellie  = "Gather with Knows the Pantry (pick Food), Gather again, then Cook for everyone standing in your kitchen. One action, the whole team fed.",
+    Luca   = "Rally Ellie so she can cook for free, Gather, Rest. Stay with someone — your Sanity doesn't come back alone.",
+}
+
+function suggestedOpening(color)
+    local char = color and gameState.activeChars[color]
+    if not char then return nil end
+    return OPENING_MOVES[char.name]
+end
+
+-- Fired once per player, on their first turn of Day 1.
+function offerOpeningSuggestion(color)
+    if (gameState.day or 1) ~= 1 then return end
+    gameState.openingOffered = gameState.openingOffered or {}
+    if gameState.openingOffered[color] then return end
+    local line = suggestedOpening(color)
+    if not line then return end
+    gameState.openingOffered[color] = true
+    local char = gameState.activeChars[color]
+    printToColor("First turn — a plan that works, if you want one:\n  " .. char.name ..
+                 " — try: " .. line ..
+                 "\n(A suggestion, not a rule. 'What now?' will keep advising all week.)",
+                 color, BROADCAST_COLORS.gain)
+end
+
+-----------------------------------------------------------------------
 -- Night omen — the VISUAL TWIN of the Dusk growl (Design §15.8).
 --
 -- Night Sounds used to be audio-only, which made it the one place the

@@ -101,6 +101,10 @@ function advanceToNextPlayer()
             end
             safecall(function() markTurnStart() end, "Telemetry")
             broadcastEvent("proc", char.name .. "'s turn. " .. char.actionsLeft .. " action(s) remaining.")
+            -- The guided opening (§15.9): a concrete 3-action plan, once, on
+            -- Day 1. The hardest turn in the game is the one with the least
+            -- context, and it is the first one.
+            safecall(function() offerOpeningSuggestion(color) end, "Opening")
             -- G.2: Update UI for new active player
             refreshPhaseBanner()
             updateActivePlayerIndicator()
