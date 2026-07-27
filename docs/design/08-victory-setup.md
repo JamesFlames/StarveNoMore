@@ -59,6 +59,13 @@ When the game ends — victory or defeat — the table gets the week read back t
 
 Why it's a rule and not a nicety: **storied collaboration (§1.4 #3) is a stated aesthetic, and the retelling is the actual replayability engine** ([PrinciplesOfGoodBoardGames.md §15](../../Archive/PrinciplesOfGoodBoardGames.md)). The Week in Review hands the table a script to retell from — the week becomes a story with a shape, which is exactly what makes "one more game" happen.
 
+**It ends on two lines that are not narration.** The Review used to report the week beautifully and then stop, which left the most important job undone. Per [§25](../../Archive/PrinciplesOfGoodBoardGames.md) — Perceived Fairness — near-misses drive replay far more strongly than comfortable wins, and *"a results ritual that reveals how near the margin was converts a loss into a rematch."* The Closing Notes define this design's success test as a group that "loses on Day 6 to the Eye of Terror, immediately resets, and starts over with different characters." **The Review is the exact moment that either happens or doesn't.** So it closes with:
+
+1. **The margin** — how close it actually was, phrased for the way the game ended: *"The Source had 2 HP left. 2 more damage and the week was yours."* / *"You finished 2 Doom from the end of the track."* / *"Everyone fell at once on Day 5 — with Doom still 12 short of the end. The clock wasn't what beat you."* Plus how many were still standing, because that is the other margin.
+2. **The hook** — one concrete, generated suggestion drawn from what actually went wrong, ordered so the table is handed the biggest lever rather than a list: *"You lost 3 nights running to the dark. Try Coco — she never triggers Charlie — or make a Flashlight and a spare Battery the first thing you craft."* A comfortable win gets a harder question instead of a fix (*"Try Standard — same seven days, a tighter Doom track"*).
+
+Both are computed from data the build already tracks; **nothing new is recorded at the table**, which is this section's standing constraint. This is presentation, not mechanics — and per [§24](../../Archive/PrinciplesOfGoodBoardGames.md) it is exactly what a digital implementation's budget should be spent on.
+
 ---
 
 ## 17. Setup

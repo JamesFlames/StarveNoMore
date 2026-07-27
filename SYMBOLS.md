@@ -528,36 +528,43 @@
 | 341 | function | `onActionTooltipEnter` |
 | 354 | function | `onActionTooltipExit` |
 
-## lua/ui_controls.lua (26 symbols)
+## lua/ui_controls.lua (19 symbols)
 
 | line | kind | symbol |
 |---|---|---|
-| 12 | function | `showConfirm` |
-| 25 | function | `onConfirmYes` |
-| 35 | function | `onConfirmNo` |
-| 55 | function | `showResourcePicker` |
-| 71 | function | `onResourcePickClick` |
-| 86 | function | `onResourcePickCancel` |
-| 104 | value | `customUIHidden` |
-| 106 | table | `CUSTOM_UI_PANELS` |
-| 113 | function | `onToggleCustomUI` |
-| 151 | function | `refreshHostControls` |
-| 180 | function | `onHostBeginDay` |
-| 197 | function | `onHostResolveNight` |
-| 210 | function | `onHostEndTurn` |
-| 220 | function | `onHostRestart` |
-| 262 | function | `showEndOfDaySummary` |
-| 328 | function | `onSummaryClose` |
-| 339 | function | `ensureChronicle` |
-| 356 | function | `recordKillInChronicle` |
-| 372 | function | `recordMealInChronicle` |
-| 377 | function | `recordCharlieInChronicle` |
-| 387 | function | `recordDayInChronicle` |
-| 425 | function | `showWeekInReview` |
-| 492 | function | `onWeekReviewClose` |
-| 500 | table | `TOOLTIP_DATA` |
-| 531 | function | `applyTooltips` |
-| 553 | function | `refreshDynamicTooltips` |
+| 14 | function | `showConfirm` |
+| 27 | function | `onConfirmYes` |
+| 37 | function | `onConfirmNo` |
+| 57 | function | `showResourcePicker` |
+| 73 | function | `onResourcePickClick` |
+| 88 | function | `onResourcePickCancel` |
+| 106 | value | `customUIHidden` |
+| 108 | table | `CUSTOM_UI_PANELS` |
+| 115 | function | `onToggleCustomUI` |
+| 153 | function | `refreshHostControls` |
+| 182 | function | `onHostBeginDay` |
+| 199 | function | `onHostResolveNight` |
+| 212 | function | `onHostEndTurn` |
+| 222 | function | `onHostRestart` |
+| 264 | function | `showEndOfDaySummary` |
+| 330 | function | `onSummaryClose` |
+| 338 | table | `TOOLTIP_DATA` |
+| 369 | function | `applyTooltips` |
+| 391 | function | `refreshDynamicTooltips` |
+
+## lua/ui_week_review.lua (9 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 21 | function | `ensureChronicle` |
+| 38 | function | `recordKillInChronicle` |
+| 54 | function | `recordMealInChronicle` |
+| 59 | function | `recordCharlieInChronicle` |
+| 69 | function | `recordDayInChronicle` |
+| 121 | function | `weekMarginLines` |
+| 172 | function | `weekReviewHook` |
+| 216 | function | `showWeekInReview` |
+| 294 | function | `onWeekReviewClose` |
 
 ## lua/ui_setup.lua (21 symbols)
 
@@ -730,7 +737,7 @@
 | `CLEANSE_REDUCTION` | lua/global.lua | 137 |
 | `COMBAT_SPECIALS` | lua/actions_combat.lua | 32 |
 | `COOK_DIALOG_SLOTS` | lua/ui_actionbar_handlers.lua | 101 |
-| `CUSTOM_UI_PANELS` | lua/ui_controls.lua | 106 |
+| `CUSTOM_UI_PANELS` | lua/ui_controls.lua | 108 |
 | `DAWN_EFFECTS` | lua/effects/dawn_effects.lua | 5 |
 | `DAWN_MANUAL_STEPS` | lua/effects/dawn_effects_dispatch.lua | 63 |
 | `DAY_FLAVOR` | lua/ui_banner.lua | 16 |
@@ -794,7 +801,7 @@
 | `THREAT_STATS` | lua/threat_types.lua | 65 |
 | `THREAT_STATS_BY_NAME` | lua/threat_types.lua | 120 |
 | `THREAT_TYPE_BY_NAME` | lua/threat_types.lua | 9 |
-| `TOOLTIP_DATA` | lua/ui_controls.lua | 500 |
+| `TOOLTIP_DATA` | lua/ui_controls.lua | 338 |
 | `TREEGUARD_STATS` | lua/treeguard.lua | 9 |
 | `WEAPON_DICE` | lua/market_data.lua | 114 |
 | `WHATNOW_HINTS` | lua/whatnow_hints.lua | 5 |
@@ -827,7 +834,7 @@
 | `applyRandomScenario` | lua/setup.lua | 396 |
 | `applyScenario` | lua/setup.lua | 406 |
 | `applyThreatDefeat` | lua/combat_resolve.lua | 98 |
-| `applyTooltips` | lua/ui_controls.lua | 531 |
+| `applyTooltips` | lua/ui_controls.lua | 369 |
 | `auditBoardGeometry` | lua/audit.lua | 84 |
 | `auditFirstLoad` | lua/audit.lua | 251 |
 | `auditHintCoverage` | lua/audit.lua | 179 |
@@ -875,7 +882,7 @@
 | `cookTelltaleHeart` | lua/crafting.lua | 304 |
 | `countDuskReady` | lua/turns.lua | 188 |
 | `countFesteringThreats` | lua/day_loop.lua | 196 |
-| `customUIHidden` | lua/ui_controls.lua | 104 |
+| `customUIHidden` | lua/ui_controls.lua | 106 |
 | `dealMarketDisplay` | lua/setup.lua | 199 |
 | `dealStartingHands` | lua/setup.lua | 142 |
 | `dispatchDawnEffect` | lua/effects/dawn_effects_dispatch.lua | 85 |
@@ -908,7 +915,7 @@
 | `dropBossLoot` | lua/combat.lua | 45 |
 | `dumpSetupState` | lua/ui_setup.lua | 309 |
 | `endPlayerTurn` | lua/turns.lua | 131 |
-| `ensureChronicle` | lua/ui_controls.lua | 339 |
+| `ensureChronicle` | lua/ui_week_review.lua | 21 |
 | `ensurePlayerResources` | lua/helpers.lua | 154 |
 | `exportSessionLog` | lua/telemetry.lua | 107 |
 | `fightTargetsAt` | lua/actions_combat.lua | 67 |
@@ -998,8 +1005,8 @@
 | `onBeginDayClick` | lua/setup.lua | 301 |
 | `onBriefBack` | lua/ui_setup.lua | 585 |
 | `onBriefDismiss` | lua/ui_setup.lua | 605 |
-| `onConfirmNo` | lua/ui_controls.lua | 35 |
-| `onConfirmYes` | lua/ui_controls.lua | 25 |
+| `onConfirmNo` | lua/ui_controls.lua | 37 |
+| `onConfirmYes` | lua/ui_controls.lua | 27 |
 | `onCookCancel` | lua/ui_actionbar_handlers.lua | 163 |
 | `onCookOptionClick` | lua/ui_actionbar_handlers.lua | 154 |
 | `onCopySessionLog` | lua/telemetry.lua | 113 |
@@ -1015,10 +1022,10 @@
 | `onHelpPageNext` | lua/ui_help.lua | 177 |
 | `onHelpPagePrev` | lua/ui_help.lua | 172 |
 | `onHelpTab` | lua/ui_help.lua | 139 |
-| `onHostBeginDay` | lua/ui_controls.lua | 180 |
-| `onHostEndTurn` | lua/ui_controls.lua | 210 |
-| `onHostResolveNight` | lua/ui_controls.lua | 197 |
-| `onHostRestart` | lua/ui_controls.lua | 220 |
+| `onHostBeginDay` | lua/ui_controls.lua | 182 |
+| `onHostEndTurn` | lua/ui_controls.lua | 212 |
+| `onHostResolveNight` | lua/ui_controls.lua | 199 |
+| `onHostRestart` | lua/ui_controls.lua | 222 |
 | `onHostSetupGuided` | lua/ui_setup.lua | 797 |
 | `onLoad` | lua/global.lua | 294 |
 | `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 323 |
@@ -1036,8 +1043,8 @@
 | `onRallyCancel` | lua/ui_actionbar_handlers.lua | 445 |
 | `onRallyTargetClick` | lua/ui_actionbar_handlers.lua | 435 |
 | `onReactionClick` | lua/ui_reactions.lua | 153 |
-| `onResourcePickCancel` | lua/ui_controls.lua | 86 |
-| `onResourcePickClick` | lua/ui_controls.lua | 71 |
+| `onResourcePickCancel` | lua/ui_controls.lua | 88 |
+| `onResourcePickClick` | lua/ui_controls.lua | 73 |
 | `onRestHunger` | lua/ui_actionbar_handlers.lua | 205 |
 | `onRestSanity` | lua/ui_actionbar_handlers.lua | 216 |
 | `onRulesToggle` | lua/ui_rules.lua | 265 |
@@ -1045,15 +1052,15 @@
 | `onSetupClick` | lua/global.lua | 363 |
 | `onSignatureCancel` | lua/signatures.lua | 279 |
 | `onSignatureTargetClick` | lua/signatures.lua | 264 |
-| `onSummaryClose` | lua/ui_controls.lua | 328 |
-| `onToggleCustomUI` | lua/ui_controls.lua | 113 |
+| `onSummaryClose` | lua/ui_controls.lua | 330 |
+| `onToggleCustomUI` | lua/ui_controls.lua | 115 |
 | `onToggleDifficulty` | lua/ui_setup.lua | 196 |
 | `onToggleRotation` | lua/ui_setup.lua | 157 |
 | `onToggleScenario` | lua/ui_setup.lua | 164 |
 | `onTradeCancel` | lua/ui_actionbar_handlers.lua | 373 |
 | `onTradeTargetClick` | lua/ui_actionbar_handlers.lua | 363 |
 | `onVariantsContinue` | lua/ui_setup.lua | 208 |
-| `onWeekReviewClose` | lua/ui_controls.lua | 492 |
+| `onWeekReviewClose` | lua/ui_week_review.lua | 294 |
 | `onWhatNowClick` | lua/ui_help.lua | 243 |
 | `onWhatNowClose` | lua/ui_help.lua | 380 |
 | `paginateHelpText` | lua/ui_help_pages.lua | 52 |
@@ -1072,10 +1079,10 @@
 | `recipeIngredientCost` | lua/crafting.lua | 165 |
 | `recommendNext` | lua/ui_banner.lua | 236 |
 | `recordBeat` | lua/telemetry.lua | 19 |
-| `recordCharlieInChronicle` | lua/ui_controls.lua | 377 |
-| `recordDayInChronicle` | lua/ui_controls.lua | 387 |
-| `recordKillInChronicle` | lua/ui_controls.lua | 356 |
-| `recordMealInChronicle` | lua/ui_controls.lua | 372 |
+| `recordCharlieInChronicle` | lua/ui_week_review.lua | 59 |
+| `recordDayInChronicle` | lua/ui_week_review.lua | 69 |
+| `recordKillInChronicle` | lua/ui_week_review.lua | 38 |
+| `recordMealInChronicle` | lua/ui_week_review.lua | 54 |
 | `recordSetupInChronicle` | lua/telemetry.lua | 36 |
 | `recordTurnEnd` | lua/telemetry.lua | 58 |
 | `refillMarketSlot` | lua/crafting.lua | 126 |
@@ -1087,9 +1094,9 @@
 | `refreshCycleStrip` | lua/ui_rules.lua | 334 |
 | `refreshDawnChecklist` | lua/ui_rules.lua | 278 |
 | `refreshDuskReadyLabel` | lua/turns.lua | 206 |
-| `refreshDynamicTooltips` | lua/ui_controls.lua | 553 |
+| `refreshDynamicTooltips` | lua/ui_controls.lua | 391 |
 | `refreshHelpPanel` | lua/ui_help.lua | 182 |
-| `refreshHostControls` | lua/ui_controls.lua | 151 |
+| `refreshHostControls` | lua/ui_controls.lua | 153 |
 | `refreshMsgLog` | lua/ui_msglog.lua | 38 |
 | `refreshPhaseBanner` | lua/ui_banner.lua | 54 |
 | `refreshQuickStartCard` | lua/ui_help.lua | 514 |
@@ -1125,12 +1132,12 @@
 | `setPhaseMood` | lua/ui_mood.lua | 45 |
 | `showCharBriefing` | lua/ui_setup.lua | 573 |
 | `showCharPickForNextPlayer` | lua/ui_setup.lua | 331 |
-| `showConfirm` | lua/ui_controls.lua | 12 |
-| `showEndOfDaySummary` | lua/ui_controls.lua | 262 |
+| `showConfirm` | lua/ui_controls.lua | 14 |
+| `showEndOfDaySummary` | lua/ui_controls.lua | 264 |
 | `showPeekResult` | lua/actions_social.lua | 163 |
-| `showResourcePicker` | lua/ui_controls.lua | 55 |
+| `showResourcePicker` | lua/ui_controls.lua | 57 |
 | `showSignatureTargetDialog` | lua/signatures.lua | 243 |
-| `showWeekInReview` | lua/ui_controls.lua | 425 |
+| `showWeekInReview` | lua/ui_week_review.lua | 216 |
 | `showWelcomeSequence` | lua/ui_setup.lua | 761 |
 | `snapshotForUndo` | lua/actions.lua | 7 |
 | `sourceSplitIntoBeaks` | lua/combat.lua | 167 |
@@ -1156,6 +1163,8 @@
 | `validateActivePlayer` | lua/ui_actionbar_display.lua | 9 |
 | `verifyAndPayResources` | lua/ui_actionbar_core.lua | 152 |
 | `wakeTreeguard` | lua/treeguard.lua | 15 |
+| `weekMarginLines` | lua/ui_week_review.lua | 121 |
+| `weekReviewHook` | lua/ui_week_review.lua | 172 |
 | `witnessTargets` | lua/actions_haunted.lua | 27 |
 
 ## XML UI ids (241 ids)

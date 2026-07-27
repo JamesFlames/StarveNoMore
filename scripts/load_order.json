@@ -37,6 +37,7 @@
     "ui_actionbar_handlers.lua",
     "ui_actionbar_display.lua",
     "ui_controls.lua",
+    "ui_week_review.lua",
     "ui_setup.lua",
     "ui_help.lua",
     "ui_help_pages.lua",

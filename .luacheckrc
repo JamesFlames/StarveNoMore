@@ -460,6 +460,8 @@ globals = {
     "validateActivePlayer",
     "verifyAndPayResources",
     "wakeTreeguard",
+    "weekMarginLines",
+    "weekReviewHook",
     "witnessTargets",
 }
 -- The TTS engine API (read-only from the bundle's perspective):
