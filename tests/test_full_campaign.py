@@ -321,6 +321,75 @@ def test_late_briefing_clicks_cannot_rerun_setup():
         assert not _visible(env, panel), f"{panel} reopened mid-game"
 
 
+def _begin_walkthrough(env, seated, host):
+    populate_full_world(env)
+    env.globals().onLoad("")
+    flush(env)
+    env.execute("TTS.seated = {%s}" % ", ".join(f'"{c}"' for c in seated))
+    env.execute(f'onHostSetupGuided(Player["{host}"])')
+    env.execute(f'onPickPath(Player["{host}"], "-1", "pickCompact")')
+    env.execute(f'onVariantsContinue(Player["{host}"], "-1", "variantsContinue")')
+    flush(env)
+
+
+def _setup_field(env, field):
+    """Read one field out of dumpSetupState()'s line (setupState is local)."""
+    line = env.eval("dumpSetupState()")
+    order = ["waiting:", "| picked:", "| seated:"]
+    seg = line.split(field)[1]
+    for nxt in order:
+        if nxt != field and nxt in seg:
+            seg = seg.split(nxt)[0]
+    seg = seg.strip()
+    return [] if seg == "nobody" else [p.strip() for p in seg.split(",")]
+
+
+def test_pick_never_requeues_the_picker_under_their_new_colour():
+    """A pick MOVES the picker onto their character's colour. When that
+    colour was itself still queued (its player left, or an earlier swap
+    freed it), the picker became the head of their own queue — "<name> picks
+    a character" that never advances, one more card greyed out per click."""
+    env = make_env()
+    _begin_walkthrough(env, ("Blue", "Green", "Yellow"), "Green")
+    # The Blue player leaves the table; Blue is still in the queue.
+    env.execute('TTS.seated = {"Green", "Yellow"}')
+    # Green picks James, whose seat is Blue — straight onto the queued seat.
+    env.execute('onPickChar(Player["Green"], "-1", "pickJames")')
+    env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
+    flush(env)
+
+    waiting = [w.split("=")[0] for w in _setup_field(env, "waiting:")]
+    assert waiting == ["Yellow"], f"picker re-queued under their new colour: {waiting}"
+
+
+def test_a_seated_player_the_queue_missed_can_still_pick():
+    """Sitting down after Setup started (or moving seats) left a real player
+    out of the queue, and the walkthrough refused every card they clicked —
+    a dead end, since the queue was waiting on a seat they weren't in."""
+    env = make_env()
+    _begin_walkthrough(env, ("White", "Blue"), "White")
+    env.execute('TTS.seated = {"White", "Blue", "Yellow"}')
+    env.execute('onPickChar(Player["Yellow"], "-1", "pickEllie")')
+    flush(env)
+
+    assert "Yellow=Ellie" in _setup_field(env, "| picked:"), (
+        "a seated player without a character must pick for themself")
+
+
+def test_a_player_leaving_mid_setup_does_not_hang_the_walkthrough():
+    env = make_env()
+    _begin_walkthrough(env, ("White", "Blue"), "White")
+    env.execute('onPickChar(Player["White"], "-1", "pickCoco")')
+    env.execute('TTS.seated = {"White"}')      # the Blue player quits
+    env.execute('onBriefDismiss(Player["White"], "-1", "briefDismiss")')
+    flush(env)
+
+    assert env.eval("gameState.started") is True, (
+        "setup hung waiting on a seat nobody is sitting in")
+    party = sorted(c["name"] for c in lua_to_py(env.eval("gameState.activeChars")).values())
+    assert party == ["Coco"], party
+
+
 def test_restart_then_resetup_is_clean():
     env = make_env()
     start_game(env)

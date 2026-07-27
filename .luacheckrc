@@ -202,6 +202,7 @@ globals = {
     "doomStepWorld",
     "drawThreatsAt",
     "dropBossLoot",
+    "dumpSetupState",
     "endPlayerTurn",
     "ensureChronicle",
     "ensurePlayerResources",

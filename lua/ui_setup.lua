@@ -74,6 +74,13 @@ function startGuidedSetup(hostColor)
         return
     end
 
+    -- TTS's built-in Turns tracker stays off (same rule as onLoad and
+    -- BeginDay — this mod runs its own turns). It matters most here: the
+    -- walkthrough reseats people, and TTS re-announces "<player>'s turn."
+    -- on every colour change, so one setup flooded the chat with a dozen
+    -- identical turn messages.
+    pcall(function() if Turns and Turns.enable then Turns.enable = false end end)
+
     setupState.inProgress = true
     setupState.step = 1
     setupState.hostColor = hostColor
@@ -250,7 +257,62 @@ local function _seatLabel(color)
     return name or ("the " .. tostring(color) .. " seat")
 end
 
+-- Rebuild the pick queue from who is ACTUALLY seated right now.
+--
+-- The walkthrough moves people between seats while it runs (every pick
+-- reseats the picker onto their character's colour, sometimes swapping two
+-- players through a spare), and real tables also gain, lose and reshuffle
+-- players mid-setup. Any of that can leave the queue holding a colour
+-- nobody sits on, or a colour whose occupant has already picked — the
+-- walkthrough then waits forever on a seat that can never answer, which is
+-- what "Step 2 — <name> picks a character" that never advances actually
+-- is. A seated player with no character is always added back, so nobody
+-- can be locked out of their own setup either.
+local function reconcilePendingColors()
+    local queue, queued = {}, {}
+    local function offer(c)
+        if queued[c] or setupState.charPicks[c] then return end
+        local seated = false
+        pcall(function() seated = (Player[c] and Player[c].seated) or false end)
+        if not seated then return end
+        queued[c] = true
+        queue[#queue + 1] = c
+    end
+    for _, c in ipairs(setupState.pendingColors) do offer(c) end
+    for _, c in ipairs(getActivePlayerColors()) do offer(c) end
+    setupState.pendingColors = queue
+end
+
+-- Console diagnostic (docs/debugging.md). The walkthrough's state is a
+-- file-local table, so a stuck setup was invisible from outside the game —
+-- this prints it, and logs it where the autosave keeps it.
+function dumpSetupState()
+    local function join(t, empty)
+        return (#t > 0) and table.concat(t, ", ") or empty
+    end
+    local queue = {}
+    for _, c in ipairs(setupState.pendingColors) do
+        queue[#queue + 1] = c .. "=" .. _seatLabel(c)
+    end
+    local picks = {}
+    for c, n in pairs(setupState.charPicks) do picks[#picks + 1] = c .. "=" .. n end
+    local seats = {}
+    for _, c in ipairs(getActivePlayerColors()) do seats[#seats + 1] = c .. "=" .. _seatLabel(c) end
+    local msg = string.format(
+        "[setup] step=%s running=%s host=%s | waiting: %s | picked: %s | seated: %s",
+        tostring(setupState.step), tostring(setupState.inProgress),
+        tostring(setupState.hostColor),
+        join(queue, "nobody"), join(picks, "nobody"), join(seats, "nobody"))
+    print(msg)
+    if logMessage then pcall(function() logMessage("proc", msg) end) end
+    return msg
+end
+
 function showCharPickForNextPlayer()
+    reconcilePendingColors()
+    -- Log-only (not a broadcast): players don't need the queue narrated,
+    -- but a stuck table's autosave has to carry it.
+    if logMessage then safecall(function() dumpSetupState() end, "SetupDump") end
     if #setupState.pendingColors == 0 then
         -- All players picked — finalize setup
         finalizeGuidedSetup()
@@ -399,11 +461,29 @@ function onPickChar(player, value, id)
     for _, c in ipairs(setupState.pendingColors) do
         if c == color then waiting = true break end
     end
+    -- A seated player who hasn't got a character yet always picks for
+    -- themself, even when the queue has lost track of their seat (they
+    -- joined late, or moved while the walkthrough ran). The old code
+    -- refused them outright — a dead end, because the queue was waiting on
+    -- a seat they were no longer in, so nothing they clicked could ever
+    -- register and nothing on screen said why.
+    if not waiting and not setupState.charPicks[player.color] then
+        local seatedNow = false
+        pcall(function()
+            seatedNow = (Player[player.color] and Player[player.color].seated) or false
+        end)
+        if seatedNow then
+            color = player.color
+            waiting = true
+        end
+    end
     if not waiting then
         color = setupState.pendingColors[1]
         if not color then return end
         if player.color ~= setupState.hostColor and not setupState.charPicks[player.color] then
-            broadcastToColor("You're not in this game's seat list — ask the host to pick for you.",
+            broadcastEvent("proc", tostring(player.steam_name or player.color) ..
+                " clicked a character but is not seated in this game — sit at a colour, or ask the host to pick.")
+            broadcastToColor("Sit down at a colour first (or ask the host to pick for you) — spectators can't pick a character.",
                 player.color, BROADCAST_COLORS.damage)
             return
         end
@@ -423,6 +503,15 @@ function onPickChar(player, value, id)
     local finalColor = color
     safecall(function() finalColor = reseatPlayerForCharacter(color, charName) end, "Reseat")
     setupState.charPicks[finalColor] = charName
+    -- The picker can land on a colour that is itself still in the queue
+    -- (their character's seat was empty but queued from an earlier swap).
+    -- Left there, they became the head of their own queue — "<name> picks a
+    -- character" forever, one more card greyed out on every click.
+    for i = #setupState.pendingColors, 1, -1 do
+        if setupState.pendingColors[i] == finalColor then
+            table.remove(setupState.pendingColors, i)
+        end
+    end
     broadcastEvent("proc", charName .. " assigned to " .. finalColor .. ".")
 
     -- Show briefing for this player (Step 3 interleaved)
@@ -526,6 +615,7 @@ function finalizeGuidedSetup()
     setupState.inProgress = false
     setupState.pendingColors = {}
     setupState.briefingColor = nil
+    pcall(function() if Turns and Turns.enable then Turns.enable = false end end)
     -- Close every walkthrough panel. Nothing below re-opens them, so a panel
     -- still on screen once the game starts is a dead end with no way back.
     safecall(syncSetupPanels, "SetupSync")
