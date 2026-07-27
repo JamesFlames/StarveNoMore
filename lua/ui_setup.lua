@@ -179,6 +179,12 @@ function onVariantsContinue(player, value, id)
             " days, Doom track to " .. diff.doomLimit ..
             ((diff.doomDelta or 0) > 0 and (", Doom rate +" .. diff.doomDelta .. " per phase") or "") .. ".")
     end
+    -- The path variant was picked (and the board painted) in step 1, BEFORE
+    -- the difficulty existed — so a Long Weekend game got the 30-cell board
+    -- and the marker stopped halfway down a track labelled to 30. Repaint now
+    -- that the Doom limit is known. applyPathVariant no-ops when the image is
+    -- already the right one, so Standard costs nothing.
+    safecall(function() applyPathVariant(gameState.pathVariant) end, "BoardForDifficulty")
     -- The Scenario (if any) is applied in finalizeGuidedSetup, after the
     -- characters exist (some scenarios modify character stats).
 

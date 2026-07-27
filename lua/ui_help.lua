@@ -441,11 +441,37 @@ function quickStartTextForVariant()
         .. limit .. "]\n\n" .. text
 end
 
+-- A TTS Notecard renders a fixed-size page and simply CLIPS whatever does not
+-- fit — no scrollbar, no ellipsis, no warning. The full Quick Start is ~1900
+-- characters, so the card cut off mid-word ("...the neighbo") and the player
+-- never saw the day loop, the stats or the light rule at all.
+--
+-- So the physical card carries a deliberately short brief and points at the
+-- places that CAN hold the long version (the Notebook tab and the ? panel,
+-- both of which scroll). Keep it under QUICKSTART_CARD_BUDGET —
+-- tests/test_lua_actions.py::TestQuickStartCardFits guards it for every
+-- difficulty, because the header line grows with the difficulty label.
+QUICKSTART_CARD_BUDGET = 420
+
+function quickStartCardText()
+    local d = getDifficulty()
+    local days, limit = d.days or 7, d.doomLimit or 30
+    return "[" .. (d.label or "Standard") .. " — " .. days .. " days, Doom to " .. limit .. "]\n"
+        .. "\nGOAL: survive " .. days .. " nights, keep Doom under " .. limit
+        .. ", don't all go Down, and kill The Source.\n"
+        .. "\nDAY: Dawn - Day (3 actions each) - Dusk - Night - Tick.\n"
+        .. "STATS: Health / Hunger / Sanity. Any at 0 = Down.\n"
+        .. "DARK: no light at night = Charlie attacks.\n"
+        .. "TRADE: free, on your tile, any time.\n"
+        .. "\nHover anything for its rule. '?' = full rules.\n"
+        .. "'What now?' tells you your next move."
+end
+
 -- Re-stamp the physical Quick Start notecard for the chosen variant.
 function refreshQuickStartCard()
     local card = findOneByTag("QuickStart")
     if not card then return end
-    safecall(function() card.setDescription(quickStartTextForVariant()) end, "QuickStart")
+    safecall(function() card.setDescription(quickStartCardText()) end, "QuickStart")
 end
 
 function populateNotebook()

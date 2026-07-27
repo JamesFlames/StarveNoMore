@@ -239,8 +239,13 @@ end
 -- the phase decks live in the under-table library, so nothing can be
 -- placed relative to them. Cards dropped on the discard spot pile into a
 -- face-up deck, so nobody ever has to tidy Dawn cards by hand.
-local DAWN_REVEAL_POS    = {x = -7.5, y = 1.9, z = 9.5}
-local DAWN_DISCARD_POS   = {x = -4.5, y = 1.9, z = 9.5}
+-- MIRRORS DAWN_REVEAL_WORLD / DAWN_DISCARD_WORLD in scripts/board_geometry.py,
+-- which is also where generate_assets prints the "DAWN EVENTS" box and its two
+-- captioned slots. At the old (-7.5, 9.5) a 2.3x3.2 card lay across the Day
+-- Counter's printed frame and the board title, so the day's event read as a
+-- stray card. tests/test_cross_refs.py guards the mirror.
+local DAWN_REVEAL_POS    = {x = 6.3, y = 1.9, z = 4.9}
+local DAWN_DISCARD_POS   = {x = 9.3, y = 1.9, z = 4.9}
 
 local function discardActiveDawnCard()
     local guid = gameState.activeDawn and gameState.activeDawn.cardGuid

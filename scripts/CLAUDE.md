@@ -31,6 +31,19 @@ remembering which generator matches your edit. It reads `generators.json`, so it
 can't drift; generators whose sources are absent (e.g. `sounds/` on a clean
 clone) are skipped rather than erroring. `--no-build` / `--list` are available.
 
+## Derived art (not in generators.json — binary output, run when art changes)
+
+| Edit this | Run this | It writes |
+|---|---|---|
+| `art/tiles/<name>.png` | `normalize_tile_art.py` | `art/tiles/<name>_tile.png` |
+| `art/characters/<name>.png` | `normalize_standee_art.py` | `art/characters/<name>_standee.png` |
+
+`ASSET_MAP` loads the **derived** files, so new art that skips this step never
+appears in the game. TTS reshapes both families before the player sees them (a
+tile is cropped to a circle; a standee's whole image is multiplied by its
+`ColorDiffuse` tint) — full rationale in
+[`agents.md`](../agents.md#derived-art-tilepng-and-standeepng).
+
 ## Debug / deploy tools (not generators)
 
 - `inspect_save.py` — read any TTS save like a debugger: `--live` (newest

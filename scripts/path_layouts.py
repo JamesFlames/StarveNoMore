@@ -126,6 +126,12 @@ def adjacency(variant):
     return {k: sorted(v) for k, v in out.items()}
 
 
-def board_art_name(variant):
-    """Asset basename for a variant's board image."""
-    return f"main_board_{variant.lower()}"
+def board_art_name(variant, doom_limit=30):
+    """Asset basename for a variant's board image at a given Doom limit.
+
+    The default limit keeps its historic name (`main_board_star`) so the
+    shipped save and every existing reference stay valid; shorter tracks get
+    a suffix (`main_board_star_d15`).
+    """
+    base = f"main_board_{variant.lower()}"
+    return base if doom_limit == 30 else f"{base}_d{doom_limit}"

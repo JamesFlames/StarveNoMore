@@ -14,7 +14,15 @@
        outline="#50B4DC66"
        outlineSize="1"
        active="true">
-  <HorizontalLayout spacing="12" padding="8 14 8 14"
+  <!-- Slot widths must hold the LONGEST runtime string each field can carry,
+       not the placeholder below: a TTS Text overflows its preferredWidth and
+       draws straight over its neighbours instead of wrapping or clipping, so
+       an undersized slot garbles the whole bar. "Doom 30 / 30  (next: 25)"
+       needs ~250 and had 200; "Rayman's turn (Yellow)" needs ~215 and had
+       180 — which is why whose-turn-it-is was unreadable. The separator bars
+       were dropped to pay for the extra width; spacing does that job.
+       Guard: test_xml_quality.py::test_phase_banner_slots_fit_their_text. -->
+  <HorizontalLayout spacing="16" padding="8 14 8 14"
                     childForceExpandWidth="false"
                     childAlignment="MiddleCenter">
     <!-- Day -->
@@ -23,32 +31,24 @@
           color="#88DDFF"
           preferredWidth="130"
           text="Day 1 of 7" />
-    <!-- Separator -->
-    <Text fontSize="18" color="#445566" text="|" preferredWidth="10" />
     <!-- Phase -->
     <Text id="bannerPhase"
           fontSize="18"
           color="#AACCDD"
-          preferredWidth="220"
+          preferredWidth="170"
           text="Dusk of the Week" />
-    <!-- Separator -->
-    <Text fontSize="18" color="#445566" text="|" preferredWidth="10" />
     <!-- Doom -->
     <Text id="bannerDoom"
           fontSize="20" fontStyle="Bold"
           color="#FFDD66"
-          preferredWidth="200"
+          preferredWidth="270"
           text="Doom 0 / 30" />
-    <!-- Separator -->
-    <Text fontSize="18" color="#445566" text="|" preferredWidth="10" />
     <!-- Active Player -->
     <Text id="bannerActive"
           fontSize="18"
           color="#FFFFFF"
-          preferredWidth="180"
+          preferredWidth="220"
           text="— pre-game —" />
-    <!-- Separator -->
-    <Text fontSize="18" color="#445566" text="|" preferredWidth="10" />
     <!-- Next Action -->
     <Text id="bannerNext"
           fontSize="17" fontStyle="Italic"
@@ -123,8 +123,8 @@
 <!-- ================================================================== -->
 <Panel id="dawnChecklist"
        rectAlignment="UpperRight"
-       offsetXY="-10 -122"
-       width="400" height="180"
+       offsetXY="-10 -136"
+       width="400" height="208"
        color="#140C04E0"
        outline="#F0C87873"
        outlineSize="2"
@@ -154,10 +154,19 @@
 <!-- Draggable: starts right of the TTS chat/menu corner, under the     -->
 <!-- Phase Banner; players can drag it anywhere it isn't in the way.    -->
 <!-- ================================================================== -->
+<!-- offsetXY positions the panel's CENTRE, so its top edge is
+     offsetY + height/2 above that point. At "360 -150" with height 310 the
+     top landed at y=+5 — off the top of the screen and behind the Phase
+     Banner (which spans 10..74 down), hiding the title row and the first
+     buttons: "the end turn button is hidden underneath the Day 1 of 7 phase
+     bar". Height is now its real content height (22 title + 5x38 buttons +
+     5x6 spacing + 16 padding = 258) and the centre is far enough down that
+     the top clears the banner. Guard:
+     test_xml_quality.py::test_top_anchored_panels_clear_the_phase_banner. -->
 <Panel id="hostControls"
        rectAlignment="UpperLeft"
-       offsetXY="360 -150"
-       width="200" height="310"
+       offsetXY="360 -230"
+       width="200" height="264"
        color="#000000B2"
        outline="#FFC8644C"
        outlineSize="1"
@@ -439,7 +448,7 @@
 <Panel id="charRoster"
        rectAlignment="MiddleRight"
        offsetXY="-10 0"
-       width="190" height="360"
+       width="190" height="322"
        color="#000000B2"
        outline="#9696964C"
        outlineSize="1"

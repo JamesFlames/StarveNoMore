@@ -390,6 +390,24 @@ function auditObjectFootprints()
                 local b = obj.getBoundsNormalized()
                 local pos = obj.getPosition()
                 local s = string.format("%s size %.2fx%.2f", p.label, b.size.x, b.size.z)
+                -- VERTICAL facts. Everything on the board once hung in the
+                -- air because a Custom_Tile's Thickness is scaled by scaleY,
+                -- not by the XZ transform scale, and build_save assumed the
+                -- latter — so the computed "board top" was 0.13 too high and
+                -- nothing standing on it could be flush. Report the real top
+                -- and bottom so the next person reads the number instead of
+                -- inferring it from a screenshot.
+                local bottom, top = b.center.y - b.size.y / 2, b.center.y + b.size.y / 2
+                s = s .. string.format(" thick %.3f bottom %.3f top %.3f",
+                                       b.size.y, bottom, top)
+                local board = findOneByTag("MainBoard")
+                if board and p.tag ~= "MainBoard" then
+                    local okb, bb = pcall(function() return board.getBoundsNormalized() end)
+                    if okb and bb then
+                        s = s .. string.format(" gapOverBoard %+.3f",
+                            bottom - (bb.center.y + bb.size.y / 2))
+                    end
+                end
                 -- Offset of the rendered centre from the transform origin:
                 -- a non-zero value means the gadget does not sit where it is
                 -- placed (the Day Counter looks off its printed frame).

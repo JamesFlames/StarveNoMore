@@ -218,7 +218,11 @@ function dealMarketDisplay()
             end
         end
         -- Playtest: "who do these cards belong to?" — say it out loud.
-        broadcastEvent("proc", "The 5 face-up cards west of the map are the shared MARKET — they belong to nobody until someone buys one with the Craft action. The card row south of the map is the RECIPE reference for the Cook action.")
+        -- Only describe things that are ON the table. This used to point at
+        -- "the card row south of the map" for recipes; that row moved into
+        -- the hidden library when the board was decluttered, so players went
+        -- looking for a row that isn't there ("I don't see any card row").
+        broadcastEvent("proc", "The 5 face-up cards west of the map are the shared MARKET — they belong to nobody until someone buys one with the Craft action; hover one to see what it does. Recipes for the Cook action are listed in the action itself, the Notebook, and the ? panel.")
     end, 0.5)
 end
 
@@ -228,7 +232,7 @@ end
 -- Mirrors BOARD_PIECE_Y in scripts/build_save.py (the board's top surface is
 -- ~1.79, well above the table's 1.55 — at 1.72 the marker sat inside the
 -- board and was invisible). test_build_output.py guards the mirror.
-local DOOM_MARKER_Y = 1.755
+local DOOM_MARKER_Y = 1.572
 
 -- Printed Doom track geometry, mirroring board_geometry.py
 -- (DOOM_STEP0_WORLD_X / DOOM_STEP30_WORLD_X / DOOM_TRACK_WORLD_Z).
@@ -238,10 +242,17 @@ DOOM_STEP30_X = 10.9
 DOOM_TRACK_Z  = -11.5
 
 -- World position of a Doom step's printed cell.
+-- The printed track always occupies the same strip of board; the DIFFICULTY
+-- decides how many cells that strip is cut into (Long Weekend prints 16 and
+-- loses at 15). So the marker's position is a fraction of the Doom LIMIT, not
+-- of a hardcoded 30 — with 30 baked in here, a Long Weekend game ended with
+-- the marker sitting halfway down the track, which is what "the doom track is
+-- halved but it still goes up to 30" looked like from the seat.
 function doomStepWorld(step)
-    step = math.max(0, math.min(30, step or 0))
+    local limit = getDoomLimit()
+    step = math.max(0, math.min(limit, step or 0))
     return {
-        x = DOOM_STEP0_X + (DOOM_STEP30_X - DOOM_STEP0_X) * (step / 30),
+        x = DOOM_STEP0_X + (DOOM_STEP30_X - DOOM_STEP0_X) * (step / limit),
         y = DOOM_MARKER_Y,
         z = DOOM_TRACK_Z,
     }
@@ -253,8 +264,8 @@ end
 local _doomMarkerStep = nil
 
 function moveDoomMarker(targetStep)
-    -- The printed track has steps 0..30; pin overshoot to the last cell.
-    targetStep = math.max(0, math.min(30, targetStep or 0))
+    -- The printed track runs 0..getDoomLimit(); pin overshoot to the last cell.
+    targetStep = math.max(0, math.min(getDoomLimit(), targetStep or 0))
     if _doomMarkerStep == targetStep then return end
     local marker = getDoomMarker()
     if not marker then return end

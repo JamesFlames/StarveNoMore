@@ -138,7 +138,11 @@ local function makeObject(spec)
         for i, s in ipairs(state.contained) do
             local tagsCopy = {}
             for _, t in ipairs(s.tags or {}) do tagsCopy[#tagsCopy + 1] = t end
+            -- description/gm_notes are on real TTS's container entries too;
+            -- omitting them silently hid doPeek's whole payload (the peeked
+            -- card's rules text) from the tests.
             out[i] = { name = s.nickname or "", nickname = s.nickname or "",
+                       description = s.description or "", gm_notes = s.gmnotes or "",
                        guid = s.guid or tostring(i), index = i - 1, tags = tagsCopy }
         end
         return out

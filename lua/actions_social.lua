@@ -154,6 +154,26 @@ function canPeek(color)
     return true, nil
 end
 
+-- The answer goes into a per-player PANEL, never a broadcast. Broadcasts
+-- render behind the Phase Banner and fade in seconds (docs/tts-interface.md),
+-- so the whole point of the action — the card you spent your once-per-day
+-- free action to see — flashed past unread: "I did Peek at the threat deck,
+-- but nothing happened." The panel stays until dismissed, is visible only to
+-- the peeker, and is echoed to their chat so it survives the session.
+function showPeekResult(color, title, body)
+    if UI then
+        UI.setAttribute("peekResultTitle", "text", title)
+        UI.setAttribute("peekResultBody", "text", body)
+        UI.setAttribute("peekResultPanel", "visibility", color)
+        UI.show("peekResultPanel")
+    end
+    printToColor(title .. "\n" .. body, color, BROADCAST_COLORS.gain)
+end
+
+function onPeekResultClose(player, value, id)
+    UI.hide("peekResultPanel")
+end
+
 function doPeek(color, deckKey)
     local ok, why = canPeek(color)
     if not ok then
@@ -163,7 +183,12 @@ function doPeek(color, deckKey)
     local entry = PEEK_DECKS[deckKey]
     local deck = entry and entry.get()
     if not deck or not deck.getObjects or (deck.getQuantity and deck.getQuantity() or 0) <= 0 then
-        broadcastToColor("That deck is empty (or missing).", color, BROADCAST_COLORS.damage)
+        -- Through the panel too: a silent failure is indistinguishable from a
+        -- silent success, and this is the branch that fires when a deck runs
+        -- out mid-week. The action is NOT spent.
+        showPeekResult(color, "Pattern Recognition",
+            "The " .. ((entry and entry.label) or "deck") .. " is empty (or missing) — "
+            .. "nothing to read. Your peek is still available today.")
         return false
     end
     local top = deck.getObjects()[1]
@@ -173,9 +198,9 @@ function doPeek(color, deckKey)
     local text = (top and top.description) or ""
     gameState.jamesPeekUsed = true
     broadcastEvent("proc", "James studies the " .. entry.label .. "... Pattern Recognition (free action, once per day).")
-    broadcastToColor("Top of the " .. entry.label .. ": " .. name
-        .. (text ~= "" and ("\n" .. text) or "")
-        .. "\nTell the team — or don't.", color, BROADCAST_COLORS.gain)
+    showPeekResult(color, "Top of the " .. entry.label,
+        name .. (text ~= "" and ("\n\n" .. text) or "")
+             .. "\n\nTell the team — or don't.")
     return true
 end
 

@@ -466,3 +466,140 @@ def test_basketball_ring_clears_the_doom_track():
                 f"z={track_top:.2f}")
     assert not problems, (
         "printed location rings overlap the Doom track:\n  " + "\n  ".join(problems))
+
+
+def test_board_doom_thresholds_mirror_the_lua_table():
+    """The ribbons printed on the board must be the thresholds the game
+    actually fires. This was a third hand-typed copy of DOOM_THRESHOLDS
+    (global.lua has the rules, simulate_balance.py has the sim's copy,
+    generate_assets.py had the board's) — and the board is the copy players
+    read, so a drift here is a rule the table believes and the code ignores."""
+    import sys
+    sys.path.insert(0, SCRIPTS)
+    import board_geometry as g
+
+    src = read_text(os.path.join(LUA_DIR, "global.lua"))
+    body = re.search(r"DOOM_THRESHOLDS\s*=\s*\{(.*?)\n\}", src, re.S)
+    assert body, "DOOM_THRESHOLDS not found in lua/global.lua"
+    lua_steps = sorted(int(v) for v in re.findall(r"=\s*(\d+)", body.group(1)))
+    assert sorted(g.DOOM_THRESHOLDS) == lua_steps, (
+        f"board prints ribbons at {sorted(g.DOOM_THRESHOLDS)} but "
+        f"checkDoomThresholds fires at {lua_steps}")
+
+
+def test_every_difficulty_doom_limit_has_a_board():
+    """DIFFICULTY_PARAMS decides how long the Doom track is; board_geometry
+    decides which track lengths get drawn. A limit with no board falls back
+    to the 30-cell art, which is the original bug: 'I picked Long Weekend,
+    which says the doom track is halved, but it still goes up to 30'."""
+    import sys
+    sys.path.insert(0, SCRIPTS)
+    import board_geometry as g
+    import path_layouts as pl
+
+    src = read_text(os.path.join(LUA_DIR, "global.lua"))
+    body = re.search(r"DIFFICULTY_PARAMS\s*=\s*\{(.*?)\n\}", src, re.S)
+    assert body, "DIFFICULTY_PARAMS not found in lua/global.lua"
+    limits = sorted({int(v) for v in re.findall(r"doomLimit\s*=\s*(\d+)", body.group(1))})
+    assert limits, "no doomLimit entries parsed from DIFFICULTY_PARAMS"
+
+    missing = [lim for lim in limits if lim not in g.DOOM_LIMITS]
+    assert not missing, (
+        f"difficulties use Doom limit(s) {missing} with no board art — add them "
+        f"to board_geometry.DOOM_LIMITS (and DOOM_LIMIT_DAYS) and regenerate")
+
+    # ...and the art for each (variant, limit) pair must be on disk.
+    absent = [pl.board_art_name(v, lim) + ".png"
+              for v in pl.VARIANTS for lim in limits
+              if not os.path.isfile(os.path.join(
+                  ART_DIR, "board", pl.board_art_name(v, lim) + ".png"))]
+    assert not absent, (
+        f"missing board images: {absent} — run scripts/generate_assets.py")
+
+
+def test_lua_knows_a_board_url_for_every_variant_and_doom_limit():
+    """applyPathVariant resolves the board image from BOARD_ART_URLS[variant]
+    [doomLimit]. A gap silently leaves the previous board printed, so a Long
+    Weekend game keeps a 30-cell track under a HUD counting to 15."""
+    import sys
+    sys.path.insert(0, SCRIPTS)
+    import board_geometry as g
+    import path_layouts as pl
+
+    assets = read_text(os.path.join(LUA_DIR, "assets.lua"))
+    table = re.search(r"BOARD_ART_URLS\s*=\s*\{(.*?)\n\}", assets, re.S)
+    assert table, "BOARD_ART_URLS table not found in lua/assets.lua"
+    for v in pl.VARIANTS:
+        row = re.search(rf"^\s*{v}\s*=\s*\{{(.*?)\}}", table.group(1), re.M)
+        assert row, f"BOARD_ART_URLS has no row for {v}"
+        for lim in g.DOOM_LIMITS:
+            assert re.search(rf"\[\s*{lim}\s*\]\s*=", row.group(1)), (
+                f"BOARD_ART_URLS[{v}] has no entry for Doom limit {lim}")
+
+
+def test_lua_dawn_display_mirrors_board_geometry():
+    """The Dawn card's reveal/discard spots are printed on the board AND
+    hard-coded in day_loop.lua. Drift means the day's event lands somewhere
+    the board doesn't explain — it used to land on the Day Counter's frame
+    and across the title, reading as a card someone had dropped there."""
+    import sys
+    sys.path.insert(0, SCRIPTS)
+    import board_geometry as g
+
+    src = read_text(os.path.join(LUA_DIR, "day_loop.lua"))
+    for name, (ex, ez) in (("DAWN_REVEAL_POS", g.DAWN_REVEAL_WORLD),
+                           ("DAWN_DISCARD_POS", g.DAWN_DISCARD_WORLD)):
+        m = re.search(rf"{name}\s*=\s*\{{x\s*=\s*(-?[\d.]+),\s*y\s*=\s*(-?[\d.]+),"
+                      rf"\s*z\s*=\s*(-?[\d.]+)\s*\}}", src)
+        assert m, f"{name} not found in lua/day_loop.lua"
+        assert abs(float(m.group(1)) - ex) < 0.01 and abs(float(m.group(3)) - ez) < 0.01, (
+            f"lua {name}=({m.group(1)}, {m.group(3)}) but board_geometry prints "
+            f"its frame at ({ex}, {ez})")
+
+
+def test_dawn_display_does_not_collide_with_the_rest_of_the_board():
+    """The reason the Dawn cards moved at all: a card is 2.3x3.2 and the old
+    spot overlapped the Day Counter and the printed title. Check the new box
+    against every other printed feature rather than trusting the eye."""
+    import sys
+    sys.path.insert(0, SCRIPTS)
+    import board_geometry as g
+    import path_layouts as pl
+
+    x0, z0, x1, z1 = g.DAWN_BOX
+    assert (abs(x0) < g.BOARD_WORLD_HALF and abs(x1) < g.BOARD_WORLD_HALF
+            and abs(z0) < g.BOARD_WORLD_HALF and abs(z1) < g.BOARD_WORLD_HALF), \
+        "the Dawn box runs off the printed board"
+
+    # Both card slots must sit inside their box.
+    for cx, cz in (g.DAWN_REVEAL_WORLD, g.DAWN_DISCARD_WORLD):
+        assert x0 <= cx - g.DAWN_SLOT_W / 2 and cx + g.DAWN_SLOT_W / 2 <= x1, \
+            f"Dawn slot at x={cx} pokes out of its printed box"
+        assert z0 <= cz - g.DAWN_SLOT_L / 2 and cz + g.DAWN_SLOT_L / 2 <= z1, \
+            f"Dawn slot at z={cz} pokes out of its printed box"
+
+    # The two slots must not overlap each other...
+    (ax, az), (bx, bz) = g.DAWN_REVEAL_WORLD, g.DAWN_DISCARD_WORLD
+    assert (abs(ax - bx) >= g.DAWN_SLOT_W or abs(az - bz) >= g.DAWN_SLOT_L), \
+        "the Dawn reveal and discard frames overlap"
+    # ...and must stay more than the 2-unit match radius apart, or
+    # _findCardAtDawnRevealSpot picks a discarded card as today's Dawn.
+    assert ((ax - bx) ** 2 + (az - bz) ** 2) > 4.0, \
+        "discard pile is inside the reveal spot's 2-unit search radius"
+
+    # Clear of the Day Counter's printed frame.
+    dcx, dcz = g.DAY_COUNTER_WORLD
+    assert not (x0 < dcx + 1.8 and dcx - 1.8 < x1
+                and z0 < dcz + 1.3 and dcz - 1.3 < z1), \
+        "the Dawn box overlaps the DAY COUNTER frame — the original bug"
+
+    # Clear of every location ring.
+    for name, (lx, lz) in pl.LOCATION_WORLD.items():
+        r = pl.LOCATION_RING_R
+        nearest_x = min(max(lx, x0), x1)
+        nearest_z = min(max(lz, z0), z1)
+        assert (nearest_x - lx) ** 2 + (nearest_z - lz) ** 2 >= r * r, \
+            f"the Dawn box overlaps {name}'s printed ring"
+
+    # Clear of the Doom track along the south edge.
+    assert z0 > g.DOOM_TRACK_WORLD_Z + 0.5, "the Dawn box reaches the Doom track"

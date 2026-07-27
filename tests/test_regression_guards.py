@@ -568,7 +568,11 @@ def test_board_pieces_sit_above_the_board_surface():
     src = read_text(os.path.join(ROOT, "scripts", "build_save.py"))
     thickness = float(re.search(r"BOARD_TILE_THICKNESS\s*=\s*([\d.]+)", src).group(1))
     table_y = float(re.search(r"TABLE_SURFACE_Y\s*=\s*([\d.]+)", src).group(1))
-    BOARD_SURFACE_Y = table_y + thickness * g.BOARD_TRANSFORM_SCALE
+    # A Custom_Tile's Thickness is scaled by scaleY (1 for the board), NOT by
+    # the XZ transform scale. Multiplying by the latter here mirrored the same
+    # error in build_save.py and put this "board top" 0.13 above the real one
+    # — so the guard happily passed a board whose every piece hung in the air.
+    BOARD_SURFACE_Y = table_y + thickness
     half = g.BOARD_WORLD_HALF
 
     save = _load_save()

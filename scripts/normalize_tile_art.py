@@ -67,7 +67,10 @@ def normalize(name):
     out = img.crop((left, top, left + side, top + side)).resize(
         (OUT_SIZE, OUT_SIZE), Image.LANCZOS)
     dest = os.path.join(TILES, name + "_tile.png")
-    out.save(dest)
+    # optimize: these are 1024px illustrations shipped in the save's asset
+    # bundle, and the source PNGs arrive straight from the generator with no
+    # compression pass at all.
+    out.save(dest, optimize=True)
     print(f"  {name:16s} content {x1-x0}x{y1-y0} centred at ({cx:.0f},{cy:.0f}) "
           f"-> square {side}px -> {os.path.basename(dest)}")
     return dest

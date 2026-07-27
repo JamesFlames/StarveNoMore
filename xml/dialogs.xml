@@ -315,6 +315,36 @@
   </VerticalLayout>
 </Panel>
 
+<!-- PEEK RESULT — the answer, in a panel that STAYS.
+     The peeked card used to be delivered by broadcastToColor, which renders
+     behind the Phase Banner and fades in seconds: the player spent their
+     once-per-day free action and saw nothing happen. Same per-player
+     visibility trick as whatNowPanel, so the answer stays private to James. -->
+<Panel id="peekResultPanel"
+       rectAlignment="MiddleCenter"
+       offsetXY="0 120"
+       width="540" height="270"
+       color="#0A0A14F5"
+       outline="#6478C8CC"
+       outlineSize="2"
+       allowDragging="true"
+       returnToOriginalPositionWhenReleased="false"
+       active="false">
+  <VerticalLayout spacing="6" padding="12 12 10 10"
+                  childForceExpandHeight="false">
+    <Text id="peekResultTitle" fontSize="16" fontStyle="Bold" color="#AADDFF"
+          text="Pattern Recognition" preferredHeight="22" />
+    <Text id="peekResultBody" fontSize="13" color="#DDE5FF"
+          alignment="UpperLeft"
+          text="" preferredHeight="176" />
+    <Button id="peekResultClose" onClick="onPeekResultClose"
+            fontSize="14" fontStyle="Bold"
+            color="#1E2850E6" textColor="#88BBFF"
+            preferredHeight="34"
+            text="Got it" />
+  </VerticalLayout>
+</Panel>
+
 <!-- ================================================================== -->
 <!-- RALLY DIALOG — Luca's Rally (§6.5): pick an ally at his tile or    -->
 <!-- adjacent; they gain a free non-movement action. Once per turn.     -->

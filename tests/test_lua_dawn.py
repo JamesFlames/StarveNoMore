@@ -394,13 +394,17 @@ class TestVariantAwareQuickStart:
         assert "Survive 7 nights" in text and "below 30" in text
 
     def test_the_physical_card_is_restamped(self, env):
+        """The card gets the SHORT brief (a Notecard clips anything longer),
+        so match on the numbers rather than the Notebook's phrasing."""
         env.eval("TTS.addObject")(py_to_lua(env, {
             "tags": ["QuickStart"], "position": [14.5, 1.65, -14],
             "nickname": "Quick Start", "description": "stale 7-day text"}))
         env.execute('gameState.difficulty = "weekend"')
         env.globals().refreshQuickStartCard()
         desc = env.eval('findOneByTag("QuickStart").getDescription()')
-        assert "Survive 3 nights" in desc, desc[:160]
+        assert "3 nights" in desc, desc[:200]
+        assert "Doom under 15" in desc, desc[:200]
+        assert "7 nights" not in desc, desc[:200]
 
 
 class TestOneOptionIsHighlighted:

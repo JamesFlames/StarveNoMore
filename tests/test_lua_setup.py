@@ -222,3 +222,34 @@ class TestSelfTest:
 # ---------------------------------------------------------------------------
 # Dawn effect dispatch — every entry's apply() runs without hard error
 # ---------------------------------------------------------------------------
+
+
+class TestDoomTrackLength:
+    """The printed track is the same strip of board at every difficulty; the
+    DIFFICULTY decides how many cells it is cut into. So the marker's travel
+    must be a fraction of getDoomLimit(), not of a hardcoded 30 — with 30
+    baked in, a Long Weekend game ended (Doom 15 = defeat) with the marker
+    parked halfway down a track the board labelled up to 30.
+    """
+
+    def _x(self, env, step):
+        return lua_to_py(env.globals().doomStepWorld(step))["x"]
+
+    def test_standard_marker_spans_the_track_from_0_to_30(self, env):
+        env.execute('gameState.difficulty = "standard"')
+        assert self._x(env, 0) == pytest.approx(-10.9, abs=0.01)
+        assert self._x(env, 30) == pytest.approx(10.9, abs=0.01)
+
+    def test_long_weekend_marker_reaches_the_east_end_at_its_own_limit(self, env):
+        env.execute('gameState.difficulty = "weekend"')
+        assert env.globals().getDoomLimit() == 15
+        assert self._x(env, 0) == pytest.approx(-10.9, abs=0.01)
+        assert self._x(env, 15) == pytest.approx(10.9, abs=0.01), (
+            "at Doom 15 the Long Weekend is lost, so the marker must be on the "
+            "last printed cell — not halfway down the track")
+        # ...and the halfway point of the game is the halfway point of the track.
+        assert self._x(env, 7.5) == pytest.approx(0.0, abs=0.01)
+
+    def test_overshoot_pins_to_the_last_cell_of_the_active_track(self, env):
+        env.execute('gameState.difficulty = "weekend"')
+        assert self._x(env, 40) == pytest.approx(self._x(env, 15), abs=0.001)

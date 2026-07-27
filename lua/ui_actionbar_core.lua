@@ -55,13 +55,23 @@ LOCATION_ADJACENCY = buildAdjacency(DEFAULT_PATH_VARIANT)
 
 -- Point the map at a variant: rebuild the Move graph AND repaint the board so
 -- the printed lines match. Called from both setup paths.
+-- The board image encodes TWO choices: the path variant (the printed routes)
+-- and the difficulty (the length of the printed Doom track). Both are picked
+-- during setup, in that order, so the art is resolved from whatever is
+-- current rather than baked in when the variant is clicked.
+function boardArtUrl(variant)
+    local byLimit = BOARD_ART_URLS and BOARD_ART_URLS[variant]
+    if not byLimit then return nil end
+    return byLimit[getDoomLimit()] or byLimit[30]
+end
+
 function applyPathVariant(variant)
     if not PATH_LAYOUTS[variant] then variant = DEFAULT_PATH_VARIANT end
     gameState.pathVariant = variant
     LOCATION_ADJACENCY = buildAdjacency(variant)
 
     local board = getMainBoard()
-    local url = BOARD_ART_URLS and BOARD_ART_URLS[variant]
+    local url = boardArtUrl(variant)
     if not board or not url then return variant end
 
     -- Swapping a Custom_Board's image requires reload(), which DESTROYS the

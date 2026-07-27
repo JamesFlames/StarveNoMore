@@ -78,16 +78,24 @@ happily reports the frame. **Use a `Custom_Tile` for a board-sized surface**
   `getBoundsNormalized().size` reports the collider, which may include
   decoration the artwork does not.
 
-**Open question — which scale multiplies a `Custom_Tile`'s `Thickness`?**
-`BOARD_WORLD_THICKNESS` in `build_save.py` multiplies it by the tile's **XZ**
-transform scale (12.12 for the board), which is what `BOARD_SURFACE_Y` and
-`BOARD_PIECE_Y` are built on. If TTS actually scales thickness by `scaleY`
-(1 here), the board is ~0.07 thick rather than 0.145 and the pieces standing
-on it float ~0.13 above its face. Nothing has gone visibly wrong, and
-"correcting" it blind risks re-sinking the location tiles *into* the board —
-the bug those constants were introduced to fix. Settle it with a measurement
-(`auditObjectFootprints`, extended to report `getBoundsNormalized().size.y`
-and the board's top face) before changing any of it.
+**A `Custom_Tile`'s `Thickness` is multiplied by `scaleY`, not by the XZ
+scale.** `BOARD_WORLD_THICKNESS` used to multiply by `BOARD_TRANSFORM_SCALE`
+(12.12), overstating the board's thickness twelvefold. `BOARD_SURFACE_Y` — the
+"top of the board" every on-board piece is authored against — therefore sat
+0.13 above the board's actual face, and the location tiles, Doom marker and
+Day Counter all hung in the air.
+
+The observation that settled it is worth copying, because it isolates a single
+factor with no instrumentation at all: *"almost everything is levitating above
+the board, apart from the quickstart note."* The Quick Start sits on the
+**felt** via `SURFACE_Y`, which never had the bogus factor; everything on the
+**board** went through `BOARD_SURFACE_Y`, which did. One constant, exactly that
+split. When a height bug hits some objects and not others, sort them by which
+surface constant they were authored against before touching any numbers.
+
+`auditObjectFootprints` now reports `thick / bottom / top / gapOverBoard` per
+probe, so the next height question is answered from the Message Log instead of
+from a screenshot.
 
 ### Hiding things under the table
 

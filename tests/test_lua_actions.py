@@ -644,3 +644,90 @@ class TestMarketHelpTooltip:
             f"found {len(clean)} of {len(self._card_descs(env))}")
         assert "Cost:" in clean[0], (
             f"stripping the help ate the card's own text: {clean[0]!r}")
+
+
+class TestPeekDeliversItsAnswer:
+    """Peek's whole product is the card it shows you. It used to arrive via
+    broadcastToColor — which renders behind the Phase Banner and fades in
+    seconds — so spending the once-per-day free action looked like a no-op
+    ("I did Peek at the threat deck, but nothing happened"). The answer now
+    goes to a per-player panel that stays until dismissed.
+    """
+
+    def _james(self, env, deck_tag="ThreatCardDeck", cards=None):
+        add_char(env, "White", "James")
+        add = env.eval("TTS.addObject")
+        add(py_to_lua(env, {"tags": [deck_tag], "position": [-9, -2.5, -4],
+                            "contained": cards if cards is not None else
+                            [{"nickname": "Something In The Yard",
+                              "description": "Type: Lurker  HP: 3  Atk: 2"}]}))
+
+    def _panel(self, env):
+        return lua_to_py(env.eval("TTS.ui"))
+
+    def test_peek_opens_a_panel_carrying_the_card(self, env):
+        self._james(env)
+        assert env.globals().doPeek("White", "Threat") is True
+        ui = self._panel(env)
+        body = ui["attrs"]["peekResultBody"]["text"]
+        assert "Something In The Yard" in body, body
+        assert "Lurker" in body, "the card's rules text is the useful half"
+        assert ui["visible"].get("peekResultPanel") is True, \
+            "the peek result panel was never shown"
+
+    def test_the_answer_is_private_to_the_peeker(self, env):
+        self._james(env)
+        env.globals().doPeek("White", "Threat")
+        ui = self._panel(env)
+        assert ui["attrs"]["peekResultPanel"]["visibility"] == "White", (
+            "the panel must be restricted to the peeker — Pattern Recognition "
+            "is 'tell the team, or don't'")
+
+    def test_an_empty_deck_still_says_so_and_does_not_spend_the_peek(self, env):
+        self._james(env, cards=[])
+        assert env.globals().doPeek("White", "Threat") is False
+        ui = self._panel(env)
+        assert ui["visible"].get("peekResultPanel") is True, \
+            "a failed peek must not be silent — that is the original bug"
+        assert "empty" in ui["attrs"]["peekResultBody"]["text"].lower()
+        assert not env.eval("gameState.jamesPeekUsed"), \
+            "a peek that showed nothing must not burn the daily use"
+
+
+class TestQuickStartCardFits:
+    """A TTS Notecard renders ONE fixed-size page and clips the overflow with
+    no scrollbar and no ellipsis. The card used to carry the whole ~1900-char
+    quickstart.md and cut off mid-word — "...the neighbo" — so the day loop,
+    the stats and the light rule were never on it at all. The long version
+    belongs in the Notebook tab and the ? panel, which scroll.
+    """
+
+    def _budget(self, env):
+        return int(env.eval("QUICKSTART_CARD_BUDGET"))
+
+    @pytest.mark.parametrize("difficulty", ["weekend", "standard", "nightmare"])
+    def test_card_text_fits_the_notecard_at_every_difficulty(self, env, difficulty):
+        env.execute(f'gameState.difficulty = "{difficulty}"')
+        text = env.globals().quickStartCardText()
+        budget = self._budget(env)
+        assert len(text) <= budget, (
+            f"Quick Start card is {len(text)} chars at {difficulty} (budget "
+            f"{budget}) — a Notecard silently clips the rest. Move detail to "
+            f"the Notebook/? panel instead of growing the card.\n{text}")
+        # The difficulty header is why this varies at all — keep it honest.
+        assert str(env.globals().getDoomLimit()) in text
+        assert str(env.globals().getTotalDays()) in text
+
+    def test_the_full_rules_are_still_reachable_from_the_card(self, env):
+        text = env.globals().quickStartCardText()
+        assert "?" in text and "What now?" in text, (
+            "the short card must point at the places that hold the long "
+            "version, or the detail is simply gone")
+
+    def test_the_notebook_still_carries_the_long_version(self, env):
+        """Shortening the card must not shorten the rules — the Notebook tab
+        is the thing that can actually hold them."""
+        full = env.globals().quickStartTextForVariant()
+        assert len(full) > self._budget(env) * 2, (
+            "the Notebook's Quick Start looks truncated too — the card was "
+            "supposed to shrink, not the rules")

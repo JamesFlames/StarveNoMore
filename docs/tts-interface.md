@@ -128,6 +128,25 @@ and takes the whole action down.
   the player must be able to re-read goes through `broadcastEvent` (which
   also feeds the persistent Message Log) or a dedicated panel — never a bare
   `broadcastToAll`.
+- **The rule bites hardest on actions whose only product is information.**
+  Peek read the top of the Threat deck correctly and handed the answer to
+  `broadcastToColor`: the player spent a once-per-day free action and
+  reported "nothing happened". Private *and* durable means a panel with
+  per-player `visibility` (`peekResultPanel`, `whatNowPanel`) — the Message
+  Log is durable but public.
+- Note what a "does this function mention `broadcastEvent`?" scan would have
+  said about Peek: **fine**. It called `broadcastEvent` for the public
+  flavour line while the payload evaporated. The guard that works is
+  behavioural — `tests/test_lua_durable_output.py` drives each information
+  action with a sentinel card and looks for that sentinel in the durable
+  channels. It also forces every new `do*` verb to be classified as
+  information- or effect-producing, so the question gets asked once per action
+  instead of never.
+- **A `Notecard` renders one fixed-size page and clips the overflow** — no
+  scrollbar, no ellipsis, no warning. The Quick Start card carried the full
+  ~1900-character rules and cut off mid-word. Long text belongs in the
+  Notebook tab or the `?` panel; the card gets a brief inside
+  `QUICKSTART_CARD_BUDGET`. Guard: `TestQuickStartCardFits`.
 - **One global MusicPlayer**: every SFX interrupts the ambient track;
   `audio.lua` owns the resume machinery, so route all audio through it.
 - **Seat colour IS a character** in this game. TTS's own "Change Color"

@@ -164,3 +164,148 @@ def test_per_character_dynamic_ui_ids_exist():
     assert not missing, (
         "per-character UI ids the Lua targets dynamically are missing from the XML: "
         + ", ".join(missing))
+
+
+# --------------------------------------------------------------------------
+# Screen-space layout: TTS silently draws panels over each other.
+# --------------------------------------------------------------------------
+# offsetXY positions an element's CENTRE, so its edges are +/- half its
+# width/height from there. Get that wrong and a panel slides under another one
+# with no error and no visual clue in the XML: hostControls declared height
+# 310 at offsetY -150 put its top edge at y=+5 — off the top of the screen and
+# behind the Phase Banner, hiding the title and the first buttons ("the end
+# turn button is hidden underneath the Day 1 of 7 phase bar").
+
+def _panels(root):
+    """{id: element} for every <Panel>/<Button> with an explicit rect."""
+    out = {}
+    for el in root.iter():
+        if el.get("id") and el.get("width") and el.get("height") and el.get("rectAlignment"):
+            out[el.get("id")] = el
+    return out
+
+
+def _rect(el, screen=(1920, 1080)):
+    """(left, top, right, bottom) in pixels, y measured DOWN from the top."""
+    sw, sh = screen
+    w, h = float(el.get("width")), float(el.get("height"))
+    ox, oy = (float(v) for v in (el.get("offsetXY") or "0 0").split())
+    align = el.get("rectAlignment", "MiddleCenter")
+    ax = {"Left": 0.0, "Center": sw / 2, "Right": sw}[
+        "Left" if "Left" in align else "Right" if "Right" in align else "Center"]
+    ay = {"Upper": 0.0, "Middle": sh / 2, "Lower": sh}[
+        "Upper" if "Upper" in align else "Lower" if "Lower" in align else "Middle"]
+    cx, cy = ax + ox, ay - oy          # offsetY is positive-UP
+    return cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2
+
+
+def _overlap(a, b):
+    return (a[0] < b[2] and b[0] < a[2]) and (a[1] < b[3] and b[1] < a[3])
+
+
+def test_top_anchored_panels_clear_the_phase_banner():
+    """The Phase Banner is always on screen and always on top. Anything else
+    anchored to the top of the screen has to start below it."""
+    root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, "hud.xml")) + "</root>")
+    panels = _panels(root)
+    assert "phaseBanner" in panels, "phaseBanner missing from hud.xml"
+    banner = _rect(panels["phaseBanner"])
+
+    problems = []
+    for pid, el in panels.items():
+        if pid == "phaseBanner" or "Upper" not in el.get("rectAlignment", ""):
+            continue
+        r = _rect(el)
+        if r[1] < 0:
+            problems.append(f"{pid}: top edge at y={r[1]:.0f} is off the top of the screen")
+        if _overlap(r, banner):
+            problems.append(
+                f"{pid}: {tuple(round(v) for v in r)} overlaps the phase banner "
+                f"{tuple(round(v) for v in banner)}")
+    assert not problems, (
+        "top-anchored UI hidden behind the Phase Banner:\n  " + "\n  ".join(problems)
+        + "\n  remember offsetXY sets the CENTRE — the top edge is offsetY + height/2 up.")
+
+
+def test_panel_heights_match_their_contents():
+    """A panel taller than its content pushes its own top edge upward for no
+    reason — which is how hostControls ended up under the banner."""
+    root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, "hud.xml")) + "</root>")
+    problems = []
+    for pid, el in _panels(root).items():
+        layout = el.find("VerticalLayout")
+        if layout is None:
+            continue
+        pad = [float(v) for v in (layout.get("padding") or "0 0 0 0").split()]
+        spacing = float(layout.get("spacing") or 0)
+        kids = [k for k in layout if k.get("preferredHeight")]
+        if len(kids) < 2:
+            continue
+        need = (sum(float(k.get("preferredHeight")) for k in kids)
+                + spacing * (len(kids) - 1) + pad[2] + pad[3])
+        have = float(el.get("height"))
+        if have < need - 1:
+            problems.append(f"{pid}: height {have:.0f} but contents need {need:.0f}")
+        elif have > need + 40:
+            problems.append(f"{pid}: height {have:.0f} for {need:.0f} of content "
+                            f"({have - need:.0f}px of dead space)")
+    assert not problems, (
+        "panel heights disagree with their contents:\n  " + "\n  ".join(problems))
+
+
+# --------------------------------------------------------------------------
+# A TTS Text overflows preferredWidth by DRAWING OVER its neighbours.
+# --------------------------------------------------------------------------
+# It does not wrap, clip or ellipsise inside a HorizontalLayout, so a slot
+# sized for the placeholder in the XML garbles the bar as soon as the runtime
+# string is longer. The Phase Banner showed "Doom 0 / 30  (next:" written
+# through the active-player field.
+
+# Longest string each banner field can carry at runtime (ui_banner.lua).
+BANNER_WORST_CASE = {
+    "bannerDay":    "Day 7 of 7",
+    "bannerPhase":  "Dusk of the Week",
+    "bannerDoom":   "Doom 30 / 30  (next: 25)",
+    "bannerActive": "Rayman's turn (Yellow)",
+    "bannerNext":   "Click Begin Day to start Day 1",
+}
+
+# Rough advance width per character as a fraction of fontSize. Deliberately
+# generous — this is a "does it obviously not fit" gate, not a text engine.
+CHAR_W = 0.55
+
+
+def test_phase_banner_slots_fit_their_text():
+    root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, "hud.xml")) + "</root>")
+    fields = {el.get("id"): el for el in root.iter("Text") if el.get("id") in BANNER_WORST_CASE}
+    missing = sorted(set(BANNER_WORST_CASE) - set(fields))
+    assert not missing, f"banner field(s) {missing} vanished from hud.xml"
+
+    problems = []
+    for fid, el in fields.items():
+        want = len(BANNER_WORST_CASE[fid]) * float(el.get("fontSize")) * CHAR_W
+        have = float(el.get("preferredWidth"))
+        if have < want:
+            problems.append(
+                f"{fid}: {have:.0f}px for {BANNER_WORST_CASE[fid]!r} (~{want:.0f}px) — "
+                "it will draw over the next field")
+    assert not problems, (
+        "phase banner fields too narrow for their runtime text:\n  " + "\n  ".join(problems))
+
+
+def test_phase_banner_row_fits_inside_its_panel():
+    """...and the widened slots must still fit the bar, or the whole row
+    overflows the panel instead of one field overflowing its slot."""
+    root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, "hud.xml")) + "</root>")
+    banner = next(el for el in root.iter("Panel") if el.get("id") == "phaseBanner")
+    layout = banner.find("HorizontalLayout")
+    pad = [float(v) for v in (layout.get("padding") or "0 0 0 0").split()]
+    spacing = float(layout.get("spacing") or 0)
+    kids = [k for k in layout if k.get("preferredWidth")]
+    need = (sum(float(k.get("preferredWidth")) for k in kids)
+            + spacing * (len(kids) - 1) + pad[0] + pad[1])
+    have = float(banner.get("width"))
+    assert need <= have, (
+        f"phase banner children need {need:.0f}px but the panel is {have:.0f}px — "
+        "trim a slot or drop a separator; widening the panel past ~1470 pushes "
+        "it off narrower screens.")

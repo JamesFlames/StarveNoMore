@@ -20,6 +20,13 @@ ASSETS = {
     BOARD_MAIN_COMPACT   = url("board/main_board_compact.png"),
     BOARD_MAIN_SPRAWL    = url("board/main_board_sprawl.png"),
     BOARD_MAIN_LINEAR    = url("board/main_board_linear.png"),
+    -- Long Weekend halves the Doom track, so it needs its own board: the
+    -- printed track ends (and says DEFEAT) at 15 instead of 30.
+    BOARD_MAIN_STAR_D15    = url("board/main_board_star_d15.png"),
+    BOARD_MAIN_RING_D15    = url("board/main_board_ring_d15.png"),
+    BOARD_MAIN_COMPACT_D15 = url("board/main_board_compact_d15.png"),
+    BOARD_MAIN_SPRAWL_D15  = url("board/main_board_sprawl_d15.png"),
+    BOARD_MAIN_LINEAR_D15  = url("board/main_board_linear_d15.png"),
     PATH_COMPACT          = url("board/path_compact.png"),
     PATH_SPRAWL           = url("board/path_sprawl.png"),
     PATH_LINEAR           = url("board/path_linear.png"),
@@ -105,10 +112,13 @@ ASSETS = {
 -- Board art per path variant. The printed lines ARE the map, so this
 -- table and PATH_LAYOUTS (ui_actionbar_core.lua) must offer the same
 -- variant names — tests/test_regression_guards.py checks that.
+-- Keyed [variant][doomLimit]: the printed Doom track is part of the board,
+-- so Long Weekend's halved track means a different image, not just different
+-- text in the HUD. Standard and Nightmare share the 30 board.
 BOARD_ART_URLS = {
-    Star = ASSETS.BOARD_MAIN_STAR,
-    Ring = ASSETS.BOARD_MAIN_RING,
-    Compact = ASSETS.BOARD_MAIN_COMPACT,
-    Sprawl = ASSETS.BOARD_MAIN_SPRAWL,
-    Linear = ASSETS.BOARD_MAIN_LINEAR,
+    Star    = { [30] = ASSETS.BOARD_MAIN_STAR,    [15] = ASSETS.BOARD_MAIN_STAR_D15 },
+    Ring    = { [30] = ASSETS.BOARD_MAIN_RING,    [15] = ASSETS.BOARD_MAIN_RING_D15 },
+    Compact = { [30] = ASSETS.BOARD_MAIN_COMPACT, [15] = ASSETS.BOARD_MAIN_COMPACT_D15 },
+    Sprawl  = { [30] = ASSETS.BOARD_MAIN_SPRAWL,  [15] = ASSETS.BOARD_MAIN_SPRAWL_D15 },
+    Linear  = { [30] = ASSETS.BOARD_MAIN_LINEAR,  [15] = ASSETS.BOARD_MAIN_LINEAR_D15 },
 }

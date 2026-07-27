@@ -558,10 +558,19 @@ def generate_player_board(char_name, data):
 # ---------------------------------------------------------------------------
 # MAIN BOARD (4096x4096)
 # ---------------------------------------------------------------------------
-def generate_main_board(variant=None):
-    """Render the board for a path variant. The printed lines ARE the map:
-    whatever this draws, LOCATION_ADJACENCY must allow (path_layouts.py)."""
+def generate_main_board(variant=None, doom_limit=None):
+    """Render the board for a path variant and a Doom limit.
+
+    The printed lines ARE the map: whatever this draws, LOCATION_ADJACENCY
+    must allow (path_layouts.py). The printed Doom track is the same promise
+    for the difficulty: Long Weekend halves the track, so it gets its own
+    board whose track ends — and says DEFEAT — at 15. Drawing 31 cells for a
+    15-Doom game left the marker stranded halfway down a track labelled up to
+    30 while the HUD counted to 15.
+    """
     variant = variant or path_layouts.DEFAULT_VARIANT
+    doom_limit = doom_limit or board_geometry.DEFAULT_DOOM_LIMIT
+    nights = board_geometry.DOOM_LIMIT_DAYS[doom_limit]
     S = 4096
     img = Image.new("RGB", (S, S), (35, 32, 28))
     draw = ImageDraw.Draw(img)
@@ -660,10 +669,14 @@ def generate_main_board(variant=None):
     # clear of rings and labels). Pixel geometry comes from board_geometry
     # so the Doom-marker snap points in build_save.py always land on the
     # printed track. ---
-    step_w = board_geometry.DOOM_STEP_PX
+    # The strip is always the same length; doom_limit only decides how many
+    # cells it is cut into. Long Weekend ends at 15, so its board gets 16
+    # fatter cells rather than a half-used 31-cell track.
+    _px1, _ = board_geometry.doom_step_px(1, doom_limit)
+    step_w = _px1 - board_geometry.DOOM_STEP0_PX_X
     doom_y = int(board_geometry.DOOM_TRACK_PX_Y)
     x0 = int(board_geometry.DOOM_STEP0_PX_X - step_w / 2)
-    x30 = int(board_geometry.DOOM_STEP0_PX_X + 30.5 * step_w)
+    x30 = int(board_geometry.doom_step_px(doom_limit, doom_limit)[0] + step_w / 2)
     cell_h = int(0.4 * PX_PER_UNIT)   # slimmer: the track sits close to the board edge
 
     # Track background
@@ -674,12 +687,14 @@ def generate_main_board(variant=None):
     centered_text(draw, int(board_geometry.world_to_px(-9)),
                   doom_y - cell_h - 120, "D O O M", FONT_BOARD_LOC, PAL["red"])
 
-    # Steps 0-30
-    thresholds = {10: "Threats +1", 15: "Crafts +1 cost", 20: "+1 Sa loss", 25: "Bosses any", 30: "DEFEAT"}
-    for step in range(31):
-        sx = int(board_geometry.DOOM_STEP0_PX_X + step * step_w)
+    # Steps 0..doom_limit. Ribbons come from board_geometry (which mirrors
+    # DOOM_THRESHOLDS in lua/global.lua) so the board can only ever promise
+    # rules the game actually applies at this limit.
+    thresholds = board_geometry.doom_thresholds_for(doom_limit)
+    for step in range(doom_limit + 1):
+        sx = int(board_geometry.doom_step_px(step, doom_limit)[0])
         # Color gradient: cool to warm
-        t = step / 30
+        t = step / doom_limit
         r_val = int(40 + t * 180)
         g_val = int(60 - t * 40)
         b_val = int(80 - t * 60)
@@ -704,7 +719,8 @@ def generate_main_board(variant=None):
     t_x = int(board_geometry.world_to_px(-7.5))
     t_y = int(board_geometry.world_to_py(11.0))
     centered_text(draw, t_x, t_y, "STARVE NO MORE", FONT_BOARD_TITLE, PAL["gold"])
-    centered_text(draw, t_x, t_y + 80, "Survive 7 Nights. Hold the Doom.", FONT_BOARD_LABEL, PAL["text"])
+    centered_text(draw, t_x, t_y + 80, f"Survive {nights} Nights. Hold the Doom.",
+                  FONT_BOARD_LABEL, PAL["text"])
     centered_text(draw, t_x, t_y + 130, variant.upper() + " LAYOUT", FONT_BOARD_LABEL, PAL["border"])
 
     # --- DAY COUNTER frame — drawn around the physical Day Counter's real
@@ -721,6 +737,34 @@ def generate_main_board(variant=None):
     draw.rounded_rectangle([dc_x - _dc_w, dc_y - _dc_h, dc_x + _dc_w, dc_y + _dc_h],
                            radius=15, fill=None, outline=PAL["border"], width=4)
     centered_text(draw, dc_x, dc_y + _dc_h + 55, "DAY COUNTER", FONT_BOARD_YIELD, PAL["gold"])
+
+    # --- DAWN EVENTS — the one card the whole table reads each morning, and
+    # the pile of spent ones. Printed because an unmarked card on bare board
+    # reads as litter: today's Dawn used to land on the Day Counter's frame
+    # and across the title, and nothing said what it was. ---
+    _bx0, _bz0, _bx1, _bz1 = board_geometry.DAWN_BOX
+    draw.rounded_rectangle(
+        [board_geometry.world_to_px(_bx0), board_geometry.world_to_py(_bz1),
+         board_geometry.world_to_px(_bx1), board_geometry.world_to_py(_bz0)],
+        radius=18, fill=(28, 30, 36), outline=PAL["border"], width=3)
+    centered_text(draw, int(board_geometry.world_to_px((_bx0 + _bx1) / 2)),
+                  int(board_geometry.world_to_py(_bz1 - 0.5)),
+                  "DAWN EVENTS", FONT_BOARD_LOC, PAL["gold"])
+
+    _slot_hw = board_geometry.DAWN_SLOT_W / 2
+    _slot_hl = board_geometry.DAWN_SLOT_L / 2
+    for _cx, _cz, _caption in (
+            board_geometry.DAWN_REVEAL_WORLD + ("TODAY",),
+            board_geometry.DAWN_DISCARD_WORLD + ("ALREADY PLAYED",)):
+        draw.rounded_rectangle(
+            [board_geometry.world_to_px(_cx - _slot_hw),
+             board_geometry.world_to_py(_cz + _slot_hl),
+             board_geometry.world_to_px(_cx + _slot_hw),
+             board_geometry.world_to_py(_cz - _slot_hl)],
+            radius=10, fill=(20, 21, 25), outline=PAL["border"], width=2)
+        centered_text(draw, int(board_geometry.world_to_px(_cx)),
+                      int(board_geometry.world_to_py(_cz - _slot_hl - 0.35)),
+                      _caption, FONT_BOARD_LABEL, PAL["text"])
 
     # (No printed market/deck boxes: the Market slots are physical notecards
     # west of the board and the decks sit on the north edge; the old printed
@@ -747,18 +791,21 @@ def generate_main_board(variant=None):
     # image is rotated here once — everything above reads upright in play.
     img = img.rotate(180)
 
-    # One image per variant, plus main_board.png for the default (the save
-    # ships that one; setup swaps to the picked variant at runtime).
-    name = path_layouts.board_art_name(variant) + ".png"
+    # One image per (variant, doom limit), plus main_board.png for the
+    # default pair (the save ships that one; setup swaps to the picked
+    # variant and difficulty at runtime).
+    name = path_layouts.board_art_name(variant, doom_limit) + ".png"
     img.save(os.path.join(DIRS["board"], name))
-    if variant == path_layouts.DEFAULT_VARIANT:
+    if (variant == path_layouts.DEFAULT_VARIANT
+            and doom_limit == board_geometry.DEFAULT_DOOM_LIMIT):
         img.save(os.path.join(DIRS["board"], "main_board.png"))
-    print(f"  Main board [{variant}]: {name} ({S}x{S})")
+    print(f"  Main board [{variant}, doom {doom_limit}]: {name} ({S}x{S})")
 
 
 def generate_all_main_boards():
     for v in path_layouts.VARIANTS:
-        generate_main_board(v)
+        for limit in board_geometry.DOOM_LIMITS:
+            generate_main_board(v, limit)
 
 # ---------------------------------------------------------------------------
 # PATH DECORATION TILES (3 x 512x512)

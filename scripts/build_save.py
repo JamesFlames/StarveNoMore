@@ -99,17 +99,21 @@ ASSET_MAP = {
     "icon_sanity":         "icons/icon_sanity.png",
     # Severity legend
     "severity_legend":     "legend/severity_legend.png",
-    # Character standees
-    "char_james_front":    "characters/james_front.png",
-    "char_james_back":     "characters/james_back.png",
-    "char_coco_front":     "characters/coco_front.png",
-    "char_coco_back":      "characters/coco_back.png",
-    "char_rayman_front":   "characters/rayman_front.png",
-    "char_rayman_back":    "characters/rayman_back.png",
-    "char_ellie_front":    "characters/ellie_front.png",
-    "char_ellie_back":     "characters/ellie_back.png",
-    "char_luca_front":     "characters/luca_front.png",
-    "char_luca_back":      "characters/luca_back.png",
+    # Character standees — the _standee variants (scripts/normalize_standee_art.py)
+    # are cut to transparent where the source is a figure on a plain backdrop
+    # and sized to a common 512x1024. ColorDiffuse multiplies the standee's tint
+    # over the WHOLE image, so an opaque backdrop turns the figurine into a
+    # tinted rectangle; the same reason ASSET_MAP points at tiles/*_tile.png.
+    "char_james_front":    "characters/james_front_standee.png",
+    "char_james_back":     "characters/james_back_standee.png",
+    "char_coco_front":     "characters/coco_front_standee.png",
+    "char_coco_back":      "characters/coco_back_standee.png",
+    "char_rayman_front":   "characters/rayman_front_standee.png",
+    "char_rayman_back":    "characters/rayman_back_standee.png",
+    "char_ellie_front":    "characters/ellie_front_standee.png",
+    "char_ellie_back":     "characters/ellie_back_standee.png",
+    "char_luca_front":     "characters/luca_front_standee.png",
+    "char_luca_back":      "characters/luca_back_standee.png",
     # Player boards
     "board_james":         "characters/board_james.png",
     "board_coco":          "characters/board_coco.png",
@@ -172,13 +176,33 @@ SURFACE_Y = TABLE_SURFACE_Y + 0.05  # flat pieces ON THE TABLE. Locked objects
 # the board must clear BOARD_SURFACE_Y or the board swallows it — the location
 # tiles and the Doom marker both vanished that way when this was assumed
 # instead of computed.
-BOARD_TILE_THICKNESS = 0.012          # tile-local; world thickness = * scale
-BOARD_WORLD_THICKNESS = BOARD_TILE_THICKNESS * board_geometry.BOARD_TRANSFORM_SCALE
+# A Custom_Tile's Thickness is scaled by scaleY, NOT by the XZ transform
+# scale. This cost a bug: BOARD_WORLD_THICKNESS used to multiply by
+# BOARD_TRANSFORM_SCALE (12.12), overstating the board's thickness by 12x, so
+# BOARD_SURFACE_Y sat 0.13 above the board's real top face and every piece
+# authored against it hung in the air.
+#
+# The observation that settled it: "almost everything is levitating above the
+# board, apart from the quickstart note". The Quick Start is on the FELT, via
+# SURFACE_Y, which never had the bogus factor; everything on the BOARD went
+# through BOARD_SURFACE_Y, which did. One factor, exactly that split.
+BOARD_TILE_THICKNESS = 0.012          # tile-local
+BOARD_WORLD_THICKNESS = BOARD_TILE_THICKNESS * 1.0   # scaleY of the board is 1
 BOARD_Y = TABLE_SURFACE_Y + BOARD_WORLD_THICKNESS / 2     # rests on the table
 BOARD_SURFACE_Y = TABLE_SURFACE_Y + BOARD_WORLD_THICKNESS  # its top face
 # Rounded: DOOM_MARKER_Y in lua/setup.lua mirrors this exactly and a test
 # compares them, so it must be a value you can write down.
-BOARD_PIECE_Y = round(BOARD_SURFACE_Y + 0.06, 3)   # flat pieces on the board
+# Flat pieces resting ON the board. The clearance is an anti-z-fight hair,
+# not a cushion: at the old +0.06 the location tiles visibly hovered over the
+# board from a low camera ("I would rather they sit on top of the board rather
+# than very slightly levitating over it"). Keep the pieces themselves thin
+# (BOARD_PIECE_THICKNESS) so the gap can't come back as bulk instead.
+BOARD_PIECE_Y = round(BOARD_SURFACE_Y + 0.01, 3)   # flat pieces on the board
+
+# Thickness for a flat tile lying on the board. 0.1 rendered the location
+# tiles as chunky pucks with a visible white rim; they are printed artwork,
+# so they should read as ink on the board, not as counters standing on it.
+BOARD_PIECE_THICKNESS = 0.02
 
 _guid_counter = [0]
 def guid():
@@ -577,7 +601,7 @@ for loc_key, (name, url, pos) in loc_data.items():
         "WidthScale": 0,
         "CustomTile": {
             "Type": 2,  # rounded square
-            "Thickness": 0.1,
+            "Thickness": BOARD_PIECE_THICKNESS,
             "Stackable": False,
             "Stretch": True
         }
@@ -776,16 +800,22 @@ def table_label(x, z, text, guid_tag, font_size=64, color=(0.85, 0.78, 0.55)):
     }
     return lbl
 
+# 3DText renders CENTRED on its position and is far wider than the column it
+# titles, so anything but a very short string spills east over the board —
+# where the board, being taller, simply covers it ("the title with description
+# MARKET - shared etc is covered up by the board"). Park the header NORTH of
+# the board's edge instead, where it has the whole width of the felt.
 objects.append(table_label(
-    MARKET_COLUMN_X, MARKET_SLOT_POSITIONS[0][1] + MARKET_LABEL_DZ + 1.3,
+    MARKET_COLUMN_X, board_geometry.BOARD_WORLD_HALF + 2.0,
     "MARKET — shared shop.\nBuy with the Craft action.",
-    "Label:Market", 48))
+    "Label:Market", 40))
 
-# One title per slot, north of its frame. Small: it names the slot the Craft
-# action's target list names, nothing more — the explanation lives on the card.
+# One title per slot, north of its frame. Deliberately terse: it only has to
+# identify which slot the Craft action means, and it has to fit inside a
+# 2.5-unit column without reaching the board — "Market Slot 1" did not.
 for i, (msx, msz) in enumerate(MARKET_SLOT_POSITIONS):
     objects.append(table_label(msx, msz + MARKET_LABEL_DZ,
-                               f"Market Slot {i+1}", f"Label:MarketSlot:{i}", 28))
+                               f"SLOT {i+1}", f"Label:MarketSlot:{i}", 28))
 # (No RECIPES label: the printed reference row it pointed at now lives in
 # the hidden library - recipes are read from the Notebook tab, the Help
 # panel, and the Cook action's own list.)
@@ -1204,12 +1234,25 @@ objects.append(boss_pool)
 # and clearly inside Ellie & Luca's circle. West rather than south because
 # the location's name/yields text is printed in the southern annulus, and
 # north-west of the standee row (z = -1.7).
+# LOCKED: it is scenery belonging to a location, not a component anybody is
+# meant to pick up. Unlocked it drifted off its tile and fell through the
+# tabletop's partial-hull collider — a live autosave had it at (-3.18, 1.21),
+# i.e. inside the table, where Pry's "is there a Sealed Basement at your
+# tile?" check could still find it but no player could see it.
+#
+# Its resting height is derived, not padded: a BlockSquare's mesh is 1 unit
+# tall, so at scaleY it stands BASEMENT_H high and its centre must sit half
+# of that above the board's top face to rest ON the board.
 _elh = loc_positions["EllieLucaHouse"]
+BASEMENT_SCALE_Y = 0.5
+BASEMENT_H = 1.0 * BASEMENT_SCALE_Y
 basement = base_obj("BlockSquare",
-                    tf(_elh["x"] - 3.0, BOARD_SURFACE_Y + 0.15, _elh["z"], sx=1.4, sy=0.5, sz=1.4),
+                    tf(_elh["x"] - 3.0, round(BOARD_SURFACE_Y + BASEMENT_H / 2, 3), _elh["z"],
+                       sx=1.4, sy=BASEMENT_SCALE_Y, sz=1.4),
                     nickname="The Sealed Basement",
                     desc="A padlocked hatch under Ellie & Luca's House. Someone stocked it before the week began.\n\nPry (free action + Crowbar / Lockpick / Pry Bar): a free Market Item, plus 2 Food + 1 Wood + 1 Battery.",
-                    tags=["SealedBasement"])
+                    tags=["SealedBasement"],
+                    locked=True)
 basement["ColorDiffuse"] = {"r": 0.28, "g": 0.22, "b": 0.15}
 objects.append(basement)
 
@@ -1259,10 +1302,26 @@ objects.append(legend)
 # E.20  Rules Quick-Start notecard
 # ---------------------------------------------------------------------------
 
-# The notecard body is content/notebook/quickstart.md — the same single
-# source the Notebook tab and Help panel render (see generate_notebook.py).
-with open(os.path.join(CONTENT, "notebook", "quickstart.md"), "r", encoding="utf-8") as _f:
-    quickstart_text = md_to_text(_f.read())
+# A TTS Notecard renders one fixed-size page and CLIPS the overflow silently.
+# This used to carry the whole of content/notebook/quickstart.md (~1900
+# chars); the card cut off mid-word and the player never saw the day loop, the
+# stats, or the light rule ("The Quick Start note is too small to fit all the
+# text"). The long version lives where it can scroll: the Notebook tab and the
+# ? panel, both rendered from that same markdown by generate_notebook.py.
+#
+# refreshQuickStartCard (lua/ui_help.lua) re-stamps this with the
+# difficulty-aware wording at setup; this is what the card says before then,
+# and it must fit the same budget (QUICKSTART_CARD_BUDGET).
+quickstart_text = (
+    "GOAL: survive 7 nights, keep Doom under 30, don't all go Down, "
+    "and kill The Source.\n"
+    "\nDAY: Dawn - Day (3 actions each) - Dusk - Night - Tick.\n"
+    "STATS: Health / Hunger / Sanity. Any at 0 = Down.\n"
+    "DARK: no light at night = Charlie attacks.\n"
+    "TRADE: free, on your tile, any time.\n"
+    "\nHover anything for its rule. '?' = full rules.\n"
+    "'What now?' tells you your next move."
+)
 
 # On the board's clear SE patch — it used to sit at the board's very edge,
 # where it slid under the board and turned invisible. ry=0: a Notecard's
