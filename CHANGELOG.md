@@ -2,6 +2,80 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Design review pass — all 17 findings (2026-07)
+
+The batch that shipped [`possible-design-improvements-to-snm.md`](possible-design-improvements-to-snm.md),
+a review against `Archive/PrinciplesOfGoodBoardGames.md` §1–26 (especially its
+Part IV co-op / attrition / onboarding / accessibility / measurement chapters).
+That document is now the *rationale record*, not a proposal list.
+
+**Defects — three rules didn't do what they said, and one couldn't run at all:**
+
+- **Pristine Run was unreachable at 3–4 players.** `checkBonusVictories` gated
+  on `count >= 5`, but §6.6 turns spare characters into Visitor NPCs, so the
+  *recommended* player count could never earn it. Now "every character in play,
+  nobody revived".
+- **The Truth Run could not fire under any draw.** Nothing in the mod ever
+  incremented `gameState.clueCount` — three Clue cards, a Trophy and a Dawn card
+  all pointed at a counter stuck on zero.
+- **The default victory condition was circular** ("all *surviving* characters
+  are alive"). §16.1 now states the permissive rule `checkVictory()` always
+  enforced: one survivor, Doom under the limit, Source dead.
+- **Night Sounds was audio-only** while carrying a gameable bit. The Dusk growl
+  now ships with a moon glyph in the Phase Banner.
+
+**Rules changes:**
+
+- **Last Nerve** (§10.1.1) — while any stat is below 3, Flee costs 0 Sanity and
+  Rest restores 1 extra. The individual mirror of Doom 25, closing the gap where
+  a player could spiral into irrelevance on a healthy team clock. *Measured:
+  best line 42% → 51%, collapse-losses 27.3% → 11.8%.*
+- **Witness** (§10.1) — an ally at a Haunted character's tile may pay 1 Sanity
+  to see their threat and fight it with them. Haunted stops deleting the co-op
+  layer for the player who most needs it.
+- **Rally is once per round and fires off-turn** (§6.5) — the cheapest downtime
+  cure (§11) and the one that makes Luca's identity land. Retuned from per-turn,
+  which off-turn would have made +4 actions a day at five players.
+- **Truth Run is findable by decision** (§16.2) — a guaranteed Clue behind the
+  Sealed Basement, Market checkpoints on Days 3 and 5, and James can *take* a
+  Clue he peeks.
+- **Difficulty and length are separate dials** (§17.2) — new **Story** mode
+  (full 7-day arc, Doom 35, a 6 HP Source that splits at 4) is the new default;
+  **Long Weekend** is reframed as a *short* mode and listed last. The old "Easy"
+  was Long Weekend, so easy mode omitted the Eye, the Source, Doom 25 and every
+  Signature's intended moment. *Measured ordering: Story 67/80%, Standard
+  51/50%, Nightmare 0/2%.*
+- **A guided opening** (§15.9) — Day 1's Dawn is fixed like Day 7's, and each
+  player gets one concrete three-action plan on their first turn.
+- **Two new off-by-default toggles:** **Secret Dusk** (§11.3 — argue freely,
+  commit privately, all revealed at once) and **Solo** (§20.3, promoted from an
+  expansion hook to an official mode: 3 characters, anti-alpha rules suspended).
+
+**Measurement and documentation:**
+
+- **§8.5 states the daily attrition ledger** — the per-day drain, the realistic
+  restoration, a ~50% maintenance-tax target, and the cooperation dividend that
+  makes the Crockpot the tax-reduction engine. It is a regression check.
+- **Option utilization** (§20.2 item 8) — session logs (schema 2) now record
+  every craft, cook, action, location, Visitor and Trophy, and
+  `analyze_sessions.py` scores them against the authored catalog so unused
+  content shows as explicit zeros. `simulate_balance.py --utilization` covers
+  the action mix. *Confirmed: Cleanse is ≤1.5% of actions and 0.00/game for two
+  of four policies. Not confirmed: the Badminton-Court prediction is untestable
+  in the sim, because every policy hardcodes the Basketball Court.*
+- **§18.19 states the accessibility floor** as six checkable rules, and
+  **§19.6 item 5** now audits strategies (two measured lines) rather than
+  claiming four victory paths.
+- **The Week in Review ends on a margin and a hook**, not on statistics.
+- **The whole rulebook is readable in-game** — a paged Rulebook tab in the Help
+  panel, carrying the same four sections as `PlayerRules.md`. Paging also fixed
+  a silent clip: the Glossary was ~7,000 characters in a body that holds ~2,000.
+
+**Not done, deliberately:** Standard is *not* retuned to absorb the gentler
+rules. Last Nerve, the Haunted buy-in, Secret Dusk and the difficulty axis all
+push the same way, and §17's regression list forbids evaluating them together.
+The knobs are named in §20.1 in the order to spend them.
+
 ## Repo structure follow-ups (2026-07)
 
 Tooling/docs only — no rule changes. The next layer after the completed

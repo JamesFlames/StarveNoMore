@@ -9,8 +9,34 @@ because the general theory in Parts I–III didn't cover the genres this game is
 actually standing on: a *cooperative*, *attrition-economy*, *digitally-implemented*
 horror game.
 
-**This document proposes; it does not decide.** Nothing here is implemented.
-Each item is a candidate for the design's own change protocol
+> ## ✅ SHIPPED — all 17 findings were implemented in the 2026-07 design pass.
+>
+> **This document is now the rationale record, not a proposal list.** Read it
+> for *why* a rule looks the way it does; read [`docs/design/`](docs/design/README.md)
+> for what the rule actually is. The change itself is summarised in
+> [`CHANGELOG.md`](CHANGELOG.md).
+>
+> Three things came out differently from the proposal, and the differences are
+> recorded where the rules live rather than edited into the text below:
+>
+> - **Finding 10** turned out to describe a *second*, worse problem: the Truth
+>   Run could not fire under any draw, because nothing ever incremented the clue
+>   counter. Also, "shuffle one Clue into each third of the deck" is not
+>   expressible in TTS (no insert-at-index); the shipped rule achieves the same
+>   observable property at the Market refill. See §16.2.
+> - **Finding 13's** Badminton-Court prediction proved **untestable in the
+>   simulator** — every policy hardcodes the Basketball Court, so the probe
+>   encodes the assumption the prediction was meant to test. The Cleanse
+>   prediction was confirmed strongly. See §20.2 item 8.
+> - **Finding 8** was measured rather than assumed: it moves the best line from
+>   42% to 51%, and free Flee carries essentially all of that. Standard was
+>   deliberately **not** retuned to compensate — see the note under "Suggested
+>   order of work" below, which turned out to be the most important paragraph
+>   in this document. See §20.1.
+
+**This document proposes; it does not decide.** *(As written. All of it was
+subsequently decided in favour and implemented.)* Each item was a candidate for
+the design's own change protocol
 ([PrinciplesOfGoodBoardGames.md §17](Archive/PrinciplesOfGoodBoardGames.md)):
 delete → retune → change a trigger → merge → and only then add.
 
@@ -25,25 +51,25 @@ delete → retune → change a trigger → merge → and only then add.
 
 ## Summary
 
-| # | Finding | Kind | Priority |
-|---|---|---|---|
-| 1 | Pristine Run is unachievable at 3–4 players | 🐛 | **P1** |
-| 2 | The default victory condition is circularly worded | 🐛 | **P1** |
-| 3 | Night Sounds carries gameable information on audio alone | 🐛 | **P1** |
-| 4 | Stale §-references to the principles doc throughout `docs/design/` | 📋 | **P1** |
-| 5 | The attrition ledger is never written down | 📋 | **P1** |
-| 6 | Anti-alpha defenses are mostly optional or cosmetic | ➕ | **P2** |
-| 7 | Difficulty and length are the same dial | 🔧 | **P2** |
-| 8 | No individual-level death-spiral valve | ➕ | **P2** |
-| 9 | Haunted deletes the co-op layer exactly when it's needed | 🔧 | **P2** |
-| 10 | Truth Run is a lottery, not a strategy | 🔧 | **P2** |
-| 11 | No guided opening; the hardest turn is turn one | ➕ | **P2** |
-| 12 | The §19.6 self-audit over-claims on victory paths | 📋 | **P2** |
-| 13 | Option-utilization is unmeasured; the Visitor question stays open | 📋 | **P2** |
-| 14 | Downtime relief cheaper than the Rotation variant | ➕ | **P3** |
-| 15 | The Week in Review reports but doesn't hook | ➕ | **P3** |
-| 16 | No accessibility standard anywhere in the design | 📋 | **P3** |
-| 17 | Solo mode is nearly free and shelved as an expansion | ➕ | **P3** |
+| # | Finding | Kind | Priority | Shipped as |
+|---|---|---|---|---|
+| 1 | Pristine Run is unachievable at 3–4 players | 🐛 | **P1** | §16.2 + `checkBonusVictories` |
+| 2 | The default victory condition is circularly worded | 🐛 | **P1** | §16.1 |
+| 3 | Night Sounds carries gameable information on audio alone | 🐛 | **P1** | §15.8 + `bannerOmen` |
+| 4 | Stale §-references to the principles doc throughout `docs/design/` | 📋 | **P1** | `tests/test_doc_section_refs.py` |
+| 5 | The attrition ledger is never written down | 📋 | **P1** | §8.5 |
+| 6 | Anti-alpha defenses are mostly optional or cosmetic | ➕ | **P2** | §11.3 Secret Dusk (toggle) + §19.5 regrade |
+| 7 | Difficulty and length are the same dial | 🔧 | **P2** | §17.2 Story mode |
+| 8 | No individual-level death-spiral valve | ➕ | **P2** | §10.1.1 Last Nerve |
+| 9 | Haunted deletes the co-op layer exactly when it's needed | 🔧 | **P2** | §10.1 Witness |
+| 10 | Truth Run is a lottery, not a strategy | 🔧 | **P2** | §16.2 + `lua/clues.lua` |
+| 11 | No guided opening; the hardest turn is turn one | ➕ | **P2** | §15.9 First Dawn |
+| 12 | The §19.6 self-audit over-claims on victory paths | 📋 | **P2** | §19.6 item 5 |
+| 13 | Option-utilization is unmeasured; the Visitor question stays open | 📋 | **P2** | §20.2 item 8 |
+| 14 | Downtime relief cheaper than the Rotation variant | ➕ | **P3** | §11.2 + §18.13.1 Reactions panel |
+| 15 | The Week in Review reports but doesn't hook | ➕ | **P3** | §16.5 margin + hook |
+| 16 | No accessibility standard anywhere in the design | 📋 | **P3** | §18.19 |
+| 17 | Solo mode is nearly free and shelved as an expansion | ➕ | **P3** | §20.3 Solo toggle |
 
 ---
 
