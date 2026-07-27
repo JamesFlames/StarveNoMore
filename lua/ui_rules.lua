@@ -124,7 +124,8 @@ local function collectActiveRules()
                 " HP. It has already split — finish it.")
         else
             table.insert(lines, "The Source stands at " .. gameState.bossHP.source ..
-                " HP. At 5 HP it SPLITS: two Terror Beaks peel off to adjacent tiles.")
+                " HP. At " .. getSourceSplitHP() ..
+                " HP it SPLITS: two Terror Beaks peel off to adjacent tiles.")
         end
     end
 

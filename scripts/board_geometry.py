@@ -144,12 +144,16 @@ DOOM_STEP0_PX_X = world_to_px(DOOM_STEP0_WORLD_X)
 DEFAULT_DOOM_LIMIT = 30
 
 # Every distinct Doom limit DIFFICULTY_PARAMS (lua/global.lua) can produce.
-# Standard and Nightmare both end at 30 and share one board.
-DOOM_LIMITS = (30, 15)
+# Standard and Nightmare both end at 30 and share one board; Story runs the
+# same 7-day arc on a longer track (35); Long Weekend is the 3-day board (15).
+# tests/test_cross_refs.py::test_every_difficulty_doom_limit_has_a_board fails
+# if a difficulty ever names a limit absent from here.
+DOOM_LIMITS = (30, 15, 35)
 
 # Nights survived per limit, for the board's printed subtitle — same source,
-# so a board can't advertise 7 nights on a 3-day game.
-DOOM_LIMIT_DAYS = {30: 7, 15: 3}
+# so a board can't advertise 7 nights on a 3-day game. Story is 7 nights like
+# Standard: it is a difficulty, not a length (§17.2).
+DOOM_LIMIT_DAYS = {30: 7, 15: 3, 35: 7}
 
 # Printed threshold ribbons. MIRRORS DOOM_THRESHOLDS in lua/global.lua — the
 # board must promise exactly what checkDoomThresholds actually fires, and this

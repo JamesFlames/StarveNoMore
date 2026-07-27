@@ -249,6 +249,8 @@ globals = {
     "getPlayerResources",
     "getResourceBag",
     "getSeverityLegend",
+    "getSourceMaxHP",
+    "getSourceSplitHP",
     "getThreatDeck",
     "getTotalDays",
     "getTreeguardStandee",

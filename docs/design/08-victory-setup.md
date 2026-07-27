@@ -78,15 +78,47 @@ Why it's a rule and not a nicety: **storied collaboration (§1.4 #3) is a stated
 11. Set Day Counter to 1, Doom marker to 0.
 12. First player is the player whose real-life kitchen is currently most cluttered. (Theme.)
 
-### 17.2 Difficulty variants
+### 17.2 Difficulty and length are separate dials
 
-Implemented (batch 4 W3): selectable in the setup Variants step, driven by `DIFFICULTY_PARAMS` (global.lua).
+**They used to be the same dial**, and that was a real cost. "Easy" *was* "Long Weekend": 3 days instead of 7 with the Doom track halved. Collapsing the two means a new group can never experience the full arc without also facing the full challenge ([PrinciplesOfGoodBoardGames.md §20](../../Archive/PrinciplesOfGoodBoardGames.md) — Cooperative Games Are a Different Genre).
 
-- **Easy / Long Weekend** — 3 days only, Phase 1 + half of Phase 2 (day-phase map 1/1/2). Doom track halved: defeat at **15**. Good for teaching; the final day still gets the Last Dawn.
-- **Standard** — 7 days, full rules. Calibrated 2026-07: sim best line 40–50% with Days 6–7 losses (§20.1 boss-HP knob).
-- **Nightmare** — 7 days, Doom rate +1 in every phase, no Phase 1 (the day-phase map starts on Strange Days).
+That bites harder here than in most games, **because the arc *is* the design.** §14 maps seven days onto Jo-Ha-Kyu with four phases, three bosses and a scripted Last Dawn; §14.1 tunes boss rewards to "rescue the week"; §6.7 tunes all five Signatures "for the finale, Days 5–7." A group playing the old Easy got Phase 1 and half of Phase 2 — they never met the Eye of Terror, never fought the Source, never reached Doom 25's "Nothing Left to Lose," and never used a Signature at the moment it was designed for. **The easy mode omitted everything the design is proudest of.**
 
-Long Weekend and Nightmare are derived offsets from the tuned Standard, not separately balanced.
+There are now two independent axes.
+
+**Difficulty — three settings, all on the full 7-day arc:**
+
+| Setting | Days | Doom limit | Source HP | Doom rate | First phase |
+|---|---|---|---|---|---|
+| **Story** | 7 | 35 | 6 (splits at 4) | §15.6 table | Phase 1 |
+| **Standard** | 7 | 30 | 8 (splits at 5) | §15.6 table | Phase 1 |
+| **Nightmare** | 7 | 30 | 8 | **+1 every phase** | Phase 2 (Strange Days) |
+
+**Length — one setting:**
+
+| Setting | Days | Doom limit | What you give up |
+|---|---|---|---|
+| **Long Weekend** | 3 | 15 | The Eye of Terror, The Source, Doom 25, and every Signature's intended moment |
+
+**Story is the default** in the setup walkthrough, and it is the mode a first group should meet: the gentlest *full week*. **Long Weekend is reframed as what it actually is** — a short mode, the weeknight option and the teaching format — and it is listed last in the selector rather than at the bottom of the difficulty ladder, because presenting it as "easy" is exactly how the old cycle mis-taught the choice. The setup broadcast says so out loud when it is picked.
+
+**Why Standard's own numbers didn't move.** Standard targets 40–50% for *experienced* groups (§20.2 item 5), which per §20 is roughly where flagship co-ops put their *highest* setting; survey data puts what players generally want nearer 50–75%, and a first group at a setting calibrated for experienced play will land well under 40%. The right fix for that is a genuinely easier full-length mode, which is what Story is — not a retune of the setting that has actual calibration behind it.
+
+**Measured ordering** (`python scripts/simulate_balance.py --sweep-difficulty`, 500 games/cell, 4 players, best two policies):
+
+| Mode | turtle | spread |
+|---|---|---|
+| Story | 67.4% | 79.8% |
+| Standard | 50.6% | 49.8% |
+| Nightmare | 0.0% | 2.4% |
+| Long Weekend | 100% | 100% |
+
+The **ordering is monotonic and that is what this probe is for** — per [§26](../../Archive/PrinciplesOfGoodBoardGames.md) — Measuring a Design, trust the ordering and playtest the magnitude; §15.6 already records that the probe's combat model is too crude to certify absolute rates. Two magnitudes are nonetheless worth flagging as open items rather than left to be discovered:
+
+- **Nightmare is at or near unwinnable** (0–2% for the best lines). It has always been a derived offset with no calibration of its own, and now that a sweep exists the number is visible. If it should be *hard* rather than *impossible*, the knob is Doom rate +1 in Phases 3–4 only, rather than in all four.
+- **Long Weekend reads as trivial** (100%). Much of that is a sim artifact — three days means no Eye, no Source and almost no festering, so the probe's crude combat model has nothing to lose to. It is still evidence that the short mode carries no difficulty signal at all, which is consistent with treating it as a length rather than a setting.
+
+Story, Nightmare and Long Weekend remain derived offsets from the tuned Standard, not separately balanced. Driven by `DIFFICULTY_PARAMS` (`lua/global.lua`), mirrored by `DIFFICULTIES` in `scripts/simulate_balance.py`.
 
 ### 17.3 Scenarios (optional variant)
 

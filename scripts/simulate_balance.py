@@ -140,6 +140,20 @@ BOSSES = {  # day -> (name, hp, atk, location fn)
     6: ("TheSource", 8, 3, lambda rng: CENTER),
 }
 
+# Difficulty modes — MIRRORS DIFFICULTY_PARAMS in lua/global.lua, which
+# tests/test_sim.py guards. Difficulty and length are separate dials (§17.2):
+# story/standard/nightmare are three difficulties on the same full 7-day arc,
+# and weekend is a 3-day *length*. Only "standard" is calibrated; the others
+# are derived offsets, and this simulator exists to bracket their ordering
+# (§26 — trust the ordering, playtest the magnitude).
+DIFFICULTIES = {
+    "story":     dict(days=7, doom_limit=35, doom_delta=0, source_hp=6, min_phase=None),
+    "standard":  dict(days=7, doom_limit=30, doom_delta=0, source_hp=8, min_phase=None),
+    "nightmare": dict(days=7, doom_limit=30, doom_delta=1, source_hp=8, min_phase=2),
+    "weekend":   dict(days=3, doom_limit=15, doom_delta=0, source_hp=8, min_phase=None,
+                      phase_for_day={1: 1, 2: 1, 3: 2}),
+}
+
 
 class Char:
     def __init__(self, name):
@@ -176,10 +190,20 @@ class Threat:
 
 
 class Game:
-    def __init__(self, policy, players, rules, rng, roster=None):
+    def __init__(self, policy, players, rules, rng, roster=None, difficulty="standard"):
         self.policy = policy
         self.rules = rules          # "new" | "old"
         self.rng = rng
+        # Difficulty is read once into plain attributes so the day loop never
+        # has to know which dial a number came from.
+        d = DIFFICULTIES[difficulty]
+        self.difficulty = difficulty
+        self.days = d["days"]
+        self.doom_limit = d["doom_limit"]
+        self.doom_delta = d["doom_delta"]
+        self.source_hp = d["source_hp"]
+        self.min_phase = d["min_phase"]
+        self.phase_for_day = d.get("phase_for_day") or PHASE_FOR_DAY
         self.chars = [Char(n) for n in (roster or ROSTERS[players])]
         self.players = players
         self.doom = 0
@@ -207,8 +231,15 @@ class Game:
     def at(self, loc):
         return [c for c in self.alive() if c.location == loc]
 
+    def source_split_hp(self):
+        """Mirrors getSourceSplitHP() in lua/global.lua."""
+        return 4 if self.difficulty == "story" else SOURCE_SPLIT_HP
+
     def add_doom(self, n):
-        self.doom = min(35, self.doom + n)
+        # Clamped at the track's own end, not a literal 35 — Story's track is
+        # 35 long, so the old constant happened to be right for exactly one
+        # mode and silently over-clamped Long Weekend's 15-step track.
+        self.doom = min(self.doom_limit, self.doom + n)
 
     def check_down(self, c):
         if not c.down and (c.health <= 0 or c.sanity <= 0):
@@ -218,11 +249,13 @@ class Game:
                 self.add_doom(1)
 
     def check_source_split(self, threat, loc):
-        """Source phase (design_batch2.md §3): the first time it drops to
-        5 HP or below, two Terror Beaks (2/2) peel off at its tile."""
+        """Source phase (design §12.6): the first time it drops to the split
+        threshold or below, two Terror Beaks (2/2) peel off at its tile. The
+        threshold scales with the difficulty's HP pool (Story: 6 HP, split at
+        4) so the beat always keeps a 'before' phase."""
         if self.rules != "new" or threat.name != "TheSource" or self.source_split:
             return
-        if 0 < threat.hp <= SOURCE_SPLIT_HP:
+        if 0 < threat.hp <= self.source_split_hp():
             self.source_split = True
             for _ in range(2):
                 beak = Threat(self.rng)
@@ -316,8 +349,10 @@ class Game:
     def dawn(self):
         self.rayman_tiles = 0        # 3p Big Appetite relief: daily reset
         self.rayman_fought = False
-        phase = PHASE_FOR_DAY[self.day]
-        rate = DOOM_RATES[self.players][phase - 1]
+        phase = self.phase_for_day[min(self.day, max(self.phase_for_day))]
+        if self.min_phase:
+            phase = max(self.min_phase, phase)
+        rate = DOOM_RATES[self.players][phase - 1] + self.doom_delta
         self.add_doom(rate)
 
         # Festering (new rules): ordinary threats +1 each capped at +3;
@@ -348,7 +383,9 @@ class Game:
 
         # Dawn card: random minor effect. Day 7 under new rules is THE LAST
         # DAWN — fixed and toneless, never a penalty (design_batch2.md §3).
-        if not (self.rules == "new" and self.day == 7):
+        # The Last Dawn (§15.7) is the FINAL day's, whatever that day is —
+        # Long Weekend's Day 3 gets it too.
+        if not (self.rules == "new" and self.day == self.days):
             roll = self.rng.random()
             if roll < 0.40:
                 for c in self.alive():
@@ -375,6 +412,8 @@ class Game:
         # doom on top of uncapped festering double-charged the fight.
         if self.day in BOSSES:
             name, hp, atk, locfn = BOSSES[self.day]
+            if name == "TheSource":
+                hp = self.source_hp      # difficulty knob (§17.2 / §20.1)
             loc = locfn(self.rng)
             self.threats.setdefault(loc, []).append(Threat(self.rng, boss=(name, hp, atk)))
             if name == "Deerclops":
@@ -664,10 +703,10 @@ class Game:
               f"threats={threats} tg={self.treeguard}\n    {chars}")
 
     def run(self):
-        for self.day in range(1, 8):
+        for self.day in range(1, self.days + 1):
             self.dawn()
             self.trace_state("dawn")
-            if self.doom >= 30:
+            if self.doom >= self.doom_limit:
                 self.loss = "doom"
                 return False
             if not self.alive():
@@ -678,7 +717,7 @@ class Game:
             self.trace_state("day")
             self.dusk_and_night()
             self.trace_state("night")
-            if self.doom >= 30:
+            if self.doom >= self.doom_limit:
                 self.loss = "doom"
                 return False
             if not self.alive():
@@ -900,14 +939,14 @@ POLICIES = {p.name: p for p in (Turtle(), Spread(), Balanced(), CourtCamper())}
 # Runner
 # ---------------------------------------------------------------------------
 
-def simulate(policy_name, players, rules, sims, seed, roster=None):
+def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="standard"):
     rng = random.Random(seed)
     wins = 0
     losses = Counter()
     dooms, downs, festers, loss_days = [], [], [], []
     for _ in range(sims):
         g = Game(POLICIES[policy_name], players, rules, random.Random(rng.random()),
-                 roster=roster)
+                 roster=roster, difficulty=difficulty)
         won = g.run()
         wins += won
         if not won:
@@ -944,7 +983,34 @@ def main():
                          "policy (--policy, default balanced). Answers: is "
                          "every 3-char subset viable, or is a sanity-support "
                          "character (Coco/Luca) mandatory?")
+    ap.add_argument("--difficulty", default="standard", choices=list(DIFFICULTIES),
+                    help="which mode to simulate (§17.2). story/standard/nightmare "
+                         "are difficulties on the full 7-day arc; weekend is a "
+                         "3-day length.")
+    ap.add_argument("--sweep-difficulty", action="store_true",
+                    help="run every mode and print them together — the check "
+                         "that the difficulty ORDERING is monotonic. Per §26, "
+                         "trust this ordering and playtest the magnitude.")
     args = ap.parse_args()
+
+    if args.sweep_difficulty:
+        names = [args.policy] if args.policy else list(POLICIES)
+        print(f"Starve No More difficulty sweep — {args.sims} games/cell, "
+              f"{args.players} players, rules={args.rules}")
+        print("story/standard/nightmare are the full 7-day arc; weekend is 3 days "
+              "(a length, not a difficulty).\n")
+        print(f"{'mode':<12}{'days':>6}{'doom':>6}{'srcHP':>7}  " +
+              "".join(f"{n:>16}" for n in names))
+        for mode in DIFFICULTIES:
+            d = DIFFICULTIES[mode]
+            cells = []
+            for name in names:
+                r = simulate(name, args.players, args.rules, args.sims, args.seed,
+                             difficulty=mode)
+                cells.append(f"{r['win']*100:>15.1f}%")
+            print(f"{mode:<12}{d['days']:>6}{d['doom_limit']:>6}{d['source_hp']:>7}  "
+                  + "".join(cells))
+        return
 
     if args.sweep3:
         from itertools import combinations
@@ -955,7 +1021,8 @@ def main():
               f"{'loss:source':>13}{'avg doom':>10}{'avg downs':>11}")
         rows = []
         for combo in combinations(CHARACTERS, 3):
-            r = simulate(policy, 3, args.rules, args.sims, args.seed, roster=list(combo))
+            r = simulate(policy, 3, args.rules, args.sims, args.seed, roster=list(combo),
+                         difficulty=args.difficulty)
             rows.append((combo, r))
         rows.sort(key=lambda cr: -cr[1]["win"])
         for combo, r in rows:
@@ -967,7 +1034,7 @@ def main():
 
     if args.trace:
         g = Game(POLICIES[args.policy or "balanced"], args.players, args.rules,
-                 random.Random(args.seed))
+                 random.Random(args.seed), difficulty=args.difficulty)
         g.trace = True
         won = g.run()
         print("RESULT:", "WIN" if won else f"LOSS ({g.loss})")
@@ -975,11 +1042,12 @@ def main():
 
     names = [args.policy] if args.policy else list(POLICIES)
     print(f"Starve No More balance sim — {args.sims} games/policy, "
-          f"{args.players} players, rules={args.rules}\n")
+          f"{args.players} players, rules={args.rules}, mode={args.difficulty}\n")
     print(f"{'policy':<14}{'win%':>7}{'loss:doom':>11}{'loss:down':>11}{'loss:source':>13}"
           f"{'avg doom':>10}{'avg downs':>11}{'fester/dawn':>13}{'late-loss%':>12}")
     for name in names:
-        r = simulate(name, args.players, args.rules, args.sims, args.seed)
+        r = simulate(name, args.players, args.rules, args.sims, args.seed,
+                     difficulty=args.difficulty)
         print(f"{name:<14}{r['win']*100:>6.1f}%{r['loss_doom']*100:>10.1f}%"
               f"{r['loss_all_down']*100:>10.1f}%{r['loss_source']*100:>12.1f}%{r['doom']:>10.1f}"
               f"{r['downs']:>11.2f}{r['fester']:>13.2f}{r['late_loss']*100:>11.1f}%")

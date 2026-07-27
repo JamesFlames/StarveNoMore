@@ -27,6 +27,13 @@ ASSETS = {
     BOARD_MAIN_COMPACT_D15 = url("board/main_board_compact_d15.png"),
     BOARD_MAIN_SPRAWL_D15  = url("board/main_board_sprawl_d15.png"),
     BOARD_MAIN_LINEAR_D15  = url("board/main_board_linear_d15.png"),
+    -- Story lengthens the Doom track to 35 (§17.2) — same 7-day week, more
+    -- room before the world ends — so it needs its own board too.
+    BOARD_MAIN_STAR_D35    = url("board/main_board_star_d35.png"),
+    BOARD_MAIN_RING_D35    = url("board/main_board_ring_d35.png"),
+    BOARD_MAIN_COMPACT_D35 = url("board/main_board_compact_d35.png"),
+    BOARD_MAIN_SPRAWL_D35  = url("board/main_board_sprawl_d35.png"),
+    BOARD_MAIN_LINEAR_D35  = url("board/main_board_linear_d35.png"),
     PATH_COMPACT          = url("board/path_compact.png"),
     PATH_SPRAWL           = url("board/path_sprawl.png"),
     PATH_LINEAR           = url("board/path_linear.png"),
@@ -116,9 +123,11 @@ ASSETS = {
 -- so Long Weekend's halved track means a different image, not just different
 -- text in the HUD. Standard and Nightmare share the 30 board.
 BOARD_ART_URLS = {
-    Star    = { [30] = ASSETS.BOARD_MAIN_STAR,    [15] = ASSETS.BOARD_MAIN_STAR_D15 },
-    Ring    = { [30] = ASSETS.BOARD_MAIN_RING,    [15] = ASSETS.BOARD_MAIN_RING_D15 },
-    Compact = { [30] = ASSETS.BOARD_MAIN_COMPACT, [15] = ASSETS.BOARD_MAIN_COMPACT_D15 },
-    Sprawl  = { [30] = ASSETS.BOARD_MAIN_SPRAWL,  [15] = ASSETS.BOARD_MAIN_SPRAWL_D15 },
-    Linear  = { [30] = ASSETS.BOARD_MAIN_LINEAR,  [15] = ASSETS.BOARD_MAIN_LINEAR_D15 },
+    -- One row per line: tests/test_cross_refs.py matches each row with a
+    -- single-line regex, so wrapping an entry onto a second line hides it.
+    Star    = { [30] = ASSETS.BOARD_MAIN_STAR,    [15] = ASSETS.BOARD_MAIN_STAR_D15,    [35] = ASSETS.BOARD_MAIN_STAR_D35 },
+    Ring    = { [30] = ASSETS.BOARD_MAIN_RING,    [15] = ASSETS.BOARD_MAIN_RING_D15,    [35] = ASSETS.BOARD_MAIN_RING_D35 },
+    Compact = { [30] = ASSETS.BOARD_MAIN_COMPACT, [15] = ASSETS.BOARD_MAIN_COMPACT_D15, [35] = ASSETS.BOARD_MAIN_COMPACT_D35 },
+    Sprawl  = { [30] = ASSETS.BOARD_MAIN_SPRAWL,  [15] = ASSETS.BOARD_MAIN_SPRAWL_D15,  [35] = ASSETS.BOARD_MAIN_SPRAWL_D35 },
+    Linear  = { [30] = ASSETS.BOARD_MAIN_LINEAR,  [15] = ASSETS.BOARD_MAIN_LINEAR_D15,  [35] = ASSETS.BOARD_MAIN_LINEAR_D35 },
 }

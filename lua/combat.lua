@@ -141,7 +141,9 @@ function syncThreatHP(threat, hp)
 end
 
 function checkSourcePhase(hp)
-    if hp > 0 and hp <= SOURCE_SPLIT_HP and not gameState.sourceSplit then
+    -- getSourceSplitHP(), not the constant: the threshold scales with the
+    -- difficulty's HP pool (§17.2) so the beat keeps a "before" phase.
+    if hp > 0 and hp <= getSourceSplitHP() and not gameState.sourceSplit then
         gameState.sourceSplit = true
         safecall(function() recordBeat("sourceSplit") end, "Telemetry")
         safecall(function() sourceSplitIntoBeaks() end, "SourceSplit")

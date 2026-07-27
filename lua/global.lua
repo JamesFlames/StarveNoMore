@@ -137,22 +137,46 @@ CLEANSE_COST = { Wood = 1, Cloth = 1, Battery = 1, EnergyDrink = 1 }
 CLEANSE_REDUCTION = 2
 
 -----------------------------------------------------------------------
--- Difficulty modes (Design §17.2, batch 4 W3). gameState.difficulty is
--- "standard" unless the host picks otherwise in the setup Variants step.
---   weekend   — 3 days (Phase 1 + half of Phase 2), Doom track halved
---               (defeat at 15). Good for teaching.
---   standard  — the full 7-day week.
---   nightmare — Doom rate +1 in every phase; no Phase 1 (the week starts
---               on Strange Days).
--- Long Weekend and Nightmare are derived offsets from the tuned Standard,
--- not separately balanced.
+-- Difficulty and length are SEPARATE DIALS (Design §17.2).
+--
+-- They used to be the same one: "Easy" *was* "Long Weekend" — 3 days
+-- instead of 7 with the Doom track halved. That conflation is costly here
+-- in a way it isn't in most games, because the arc IS the design: §14
+-- maps seven days onto Jo-Ha-Kyu with four phases, three bosses and a
+-- scripted Last Dawn; §14.1 tunes boss rewards to "rescue the week"; §6.7
+-- tunes all five Signatures for Days 5-7. A group on the old Easy got
+-- Phase 1 and half of Phase 2 — they never met the Eye of Terror, never
+-- fought the Source, never reached Doom 25's Nothing Left to Lose, and
+-- never used a Signature at the moment it was designed for. The easy mode
+-- omitted everything the design is proudest of.
+--
+-- So there are now two independent axes:
+--   * LENGTH — `days` (+ phaseForDay). Long Weekend is a SHORT mode: the
+--     teaching format and the weeknight option, not a difficulty setting.
+--   * DIFFICULTY — doomLimit / doomDelta / sourceHP / minPhase, all on the
+--     full 7-day arc, so every difficulty delivers the whole week.
+--
+--   story     — the full arc, gentler: Doom track to 35, Source at 6 HP.
+--               This is the easy mode a first group should meet.
+--   standard  — the tuned 7-day week (§20.1 calibration).
+--   nightmare — Doom rate +1 in every phase; no Phase 1 (starts on
+--               Strange Days).
+--   weekend   — 3 days. A length, offered alongside the difficulties
+--               because the setup UI has one selector; still gets the
+--               Last Dawn on its final day.
+--
+-- Story, Nightmare and Long Weekend are derived offsets from the tuned
+-- Standard, not separately balanced — the simulator brackets the ordering
+-- and the table settles the magnitude (§26).
 -----------------------------------------------------------------------
 DIFFICULTY_PARAMS = {
-    weekend   = { label = "Long Weekend", days = 3, doomLimit = 15, doomDelta = 0,
-                  phaseForDay = {1, 1, 2} },
+    story     = { label = "Story",        days = 7, doomLimit = 35, doomDelta = 0,
+                  sourceHP = 6, sourceSplitHP = 4 },
     standard  = { label = "Standard",     days = 7, doomLimit = 30, doomDelta = 0 },
     nightmare = { label = "Nightmare",    days = 7, doomLimit = 30, doomDelta = 1,
                   minPhase = 2 },
+    weekend   = { label = "Long Weekend", days = 3, doomLimit = 15, doomDelta = 0,
+                  phaseForDay = {1, 1, 2} },
 }
 
 function getDifficulty()
@@ -161,6 +185,21 @@ end
 
 function getTotalDays() return getDifficulty().days end
 function getDoomLimit() return getDifficulty().doomLimit end
+
+-- The Source's HP is a difficulty knob (§20.1's first sanctioned one), so it
+-- must be read through here and never off the SOURCE_MAX_HP constant — that
+-- constant is Standard's value and the base the others offset from.
+function getSourceMaxHP()
+    return getDifficulty().sourceHP or SOURCE_MAX_HP or 8
+end
+
+-- The split threshold (§12.6) moves with the HP pool, or the beat loses its
+-- "before" phase: a 6 HP Source against a fixed threshold of 5 would split on
+-- the first point of damage, which reads as an opening rather than a climax.
+-- Story scales it to 4 so there are still two damaging turns before the adds.
+function getSourceSplitHP()
+    return getDifficulty().sourceSplitHP or SOURCE_SPLIT_HP or 5
+end
 
 -- Phase→day mapping: which phase deck is active on which day
 function getPhaseForDay(day)

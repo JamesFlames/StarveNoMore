@@ -28,14 +28,19 @@ DAWN_EFFECTS["P4_SOURCE_ARRIVES"] = {
         broadcastEvent("warn", "THE SOURCE ARRIVES at the center of the map!")
         gameState.ongoingDawnEffects.sourceActive = true
         -- Persistent boss HP (§12.6): the script tracks the Source's HP from
-        -- here on — and at 5 HP it splits (checkSourcePhase, combat.lua).
+        -- here on, and it splits at getSourceSplitHP() (checkSourcePhase,
+        -- combat.lua). Both numbers come from the difficulty (§17.2), never
+        -- from the SOURCE_MAX_HP constant — Story fights a 6 HP Source that
+        -- splits at 4, and announcing Standard's numbers there would make the
+        -- one deterministic, announced beat in the game a lie.
         gameState.bossHP = gameState.bossHP or {}
-        gameState.bossHP.source = SOURCE_MAX_HP or 8
+        gameState.bossHP.source = getSourceMaxHP()
         gameState.sourceSplit = false
         safecall(function() placeBossStandee("TheSource", "EllieLucaHouse") end, "BossPlace")
         broadcastEvent("warn", "ONGOING: The Source is the final boss. It MUST be destroyed before Day 7 ends — while it stands, there is no victory.")
         broadcastEvent("proc", "The Source: HP " .. gameState.bossHP.source ..
-            " (script-tracked). At 5 HP it will SPLIT — two Terror Beaks peel off to adjacent tiles.")
+            " (script-tracked). At " .. getSourceSplitHP() ..
+            " HP it will SPLIT — two Terror Beaks peel off to adjacent tiles.")
         safecall(function() nudgeCameraToBoss("TheSource", "EllieLucaHouse") end, "CameraNudge")
         -- No audio folder for "the_source" yet — Audio.playBossLoop no-ops
         -- when CREATURES[name] is missing, so ambient continues normally.

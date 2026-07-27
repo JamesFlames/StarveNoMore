@@ -13,13 +13,19 @@ local FIGHT_RADIUS = 7   -- same "at this tile" radius as festering / Pry
 
 -- Phase-boss statlines, mirroring the standee descriptions baked by
 -- build_save.py (bosses list) and the balance sim's BOSSES table. The
--- Source reads SOURCE_MAX_HP (combat.lua, loaded earlier) so the batch-4
--- calibration knob stays single-sourced; the Treeguard resolves through
--- TREEGUARD_STATS at call time (treeguard.lua loads after this file).
+-- Treeguard resolves through TREEGUARD_STATS at call time (treeguard.lua
+-- loads after this file).
+--
+-- The Source's HP is `hpFromDifficulty`, resolved in bossStatsFor by
+-- getSourceMaxHP() at CALL time rather than baked in here at load time:
+-- it is a difficulty knob now (§17.2 — Story fights a 6 HP Source), and a
+-- load-time capture of SOURCE_MAX_HP would have frozen every mode at
+-- Standard's 8.
 BOSS_BASE_STATS = {
-    ["Boss:Deerclops"]   = { name = "Deerclops",     hp = 6,             attack = 3 },
-    ["Boss:EyeOfTerror"] = { name = "Eye of Terror", hp = 8,             attack = 3 },
-    ["Boss:TheSource"]   = { name = "The Source",    hp = SOURCE_MAX_HP, attack = 3 },
+    ["Boss:Deerclops"]   = { name = "Deerclops",     hp = 6, attack = 3 },
+    ["Boss:EyeOfTerror"] = { name = "Eye of Terror", hp = 8, attack = 3 },
+    ["Boss:TheSource"]   = { name = "The Source",    hp = 8, attack = 3,
+                             hpFromDifficulty = true },
 }
 
 -- Card-text combat riders the statline columns can't express.
@@ -46,7 +52,9 @@ end
 function bossStatsFor(obj)
     for tag, s in pairs(BOSS_BASE_STATS) do
         if obj.hasTag and obj.hasTag(tag) then
-            return { name = s.name, hp = s.hp, attack = s.attack }
+            local hp = s.hp
+            if s.hpFromDifficulty then hp = getSourceMaxHP() end
+            return { name = s.name, hp = hp, attack = s.attack }
         end
     end
     if obj.hasTag and obj.hasTag("Boss:Treeguard") and TREEGUARD_STATS then

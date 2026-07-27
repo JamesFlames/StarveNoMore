@@ -88,11 +88,12 @@ function startGuidedSetup(hostColor)
     setupState.charPicks = {}
     setupState.pendingColors = {}
 
-    -- Difficulty defaults to the teaching game (Long Weekend, easiest);
-    -- each click on the toggle steps UP: Standard, then Nightmare.
-    setupState.difficulty = "weekend"
+    -- Defaults to STORY: the gentlest *full week*, not the short game. Each
+    -- click steps up — Standard, Nightmare — and then offers Long Weekend as
+    -- a length. See DIFFICULTY_CYCLE below for why the order matters.
+    setupState.difficulty = "story"
     if UI then
-        UI.setAttribute("toggleDifficulty", "text", DIFFICULTY_BLURBS.weekend)
+        UI.setAttribute("toggleDifficulty", "text", DIFFICULTY_BLURBS.story)
         UI.setAttribute("toggleDifficulty", "color", "#CFE6C2FF")
         UI.setAttribute("toggleDifficulty", "textColor", "#1E5A1E")
     end
@@ -167,21 +168,33 @@ function onToggleScenario(player, value, id)
         "Random Scenario: OFF\n(a week-long twist like The Long Winter — recommended after your first game)")
 end
 
--- Difficulty selector (Design §17.2, batch 4 W3): cycles through the
--- DIFFICULTY_PARAMS modes, ordered easiest → hardest so each click steps
--- up in difficulty (wrapping from Nightmare back to the teaching game).
--- Long Weekend (easiest) unless changed — new tables learn on it.
+-- Mode selector (Design §17.2). Difficulty and length are separate dials:
+-- STORY / STANDARD / NIGHTMARE are three difficulties on the same full
+-- 7-day arc, and LONG WEEKEND is a *length* — a 3-day teaching format —
+-- listed last because it is not "easy mode", it is "short mode".
+--
+-- Ordered easiest → hardest → short, so each click steps up in difficulty
+-- and the length option sits at the end rather than masquerading as the
+-- bottom of the difficulty ladder (which is exactly how the old
+-- weekend/standard/nightmare cycle mis-taught it).
+--
+-- Default is Story: a first group gets the gentlest *full week*, so they
+-- meet the Eye of Terror, fight the Source, and get to use a Signature at
+-- the moment §6.7 tuned it for. The old default (Long Weekend) handed them
+-- Phase 1 and half of Phase 2 and called it Easy.
+--
 -- Global (not local): startGuidedSetup resets the toggle label from these
 -- before this point in the chunk is reached lexically.
-DIFFICULTY_CYCLE = { "weekend", "standard", "nightmare" }
+DIFFICULTY_CYCLE = { "story", "standard", "nightmare", "weekend" }
 DIFFICULTY_BLURBS = {
-    standard  = "Difficulty: STANDARD\n(the full 7-day week)",
-    weekend   = "Difficulty: LONG WEEKEND\n(3 days, Doom track halved — recommended for your first game)",
-    nightmare = "Difficulty: NIGHTMARE\n(Doom +1 every phase; the week starts on Strange Days)",
+    story     = "Mode: STORY — the full week, gentler\n(7 days, Doom track to 35, a 6 HP Source. Recommended for your first game.)",
+    standard  = "Mode: STANDARD\n(the full 7-day week, as tuned)",
+    nightmare = "Mode: NIGHTMARE\n(7 days, Doom +1 every phase; the week starts on Strange Days)",
+    weekend   = "Mode: LONG WEEKEND — short, not easy\n(3 days, Doom track to 15. A weeknight game or a teach; you won't meet the Eye or the Source.)",
 }
 
 function onToggleDifficulty(player, value, id)
-    local current = setupState.difficulty or "weekend"
+    local current = setupState.difficulty or "story"
     local idx = 1
     for i, d in ipairs(DIFFICULTY_CYCLE) do
         if d == current then idx = i break end
@@ -201,9 +214,16 @@ function onVariantsContinue(player, value, id)
     gameState.difficulty = setupState.difficulty or "standard"
     if gameState.difficulty ~= "standard" then
         local diff = getDifficulty()
-        broadcastEvent("proc", "Difficulty: " .. diff.label .. " — " .. diff.days ..
+        broadcastEvent("proc", "Mode: " .. diff.label .. " — " .. diff.days ..
             " days, Doom track to " .. diff.doomLimit ..
-            ((diff.doomDelta or 0) > 0 and (", Doom rate +" .. diff.doomDelta .. " per phase") or "") .. ".")
+            ((diff.doomDelta or 0) > 0 and (", Doom rate +" .. diff.doomDelta .. " per phase") or "") ..
+            (diff.sourceHP and (", The Source at " .. diff.sourceHP .. " HP") or "") .. ".")
+        -- Say out loud which dial was turned. A table that picks Long Weekend
+        -- expecting "easy" and gets three days is the exact confusion the
+        -- separated dials exist to prevent (§17.2).
+        if (diff.days or 7) < 7 then
+            broadcastEvent("warn", "Long Weekend is a SHORT game, not an easy one: 3 days means you won't meet the Eye of Terror or The Source. For a gentler full week, restart and pick Story.")
+        end
     end
     -- The path variant was picked (and the board painted) in step 1, BEFORE
     -- the difficulty existed — so a Long Weekend game got the 30-cell board
