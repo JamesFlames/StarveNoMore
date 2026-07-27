@@ -119,7 +119,7 @@ There are now two independent axes.
 |---|---|---|---|---|---|
 | **Story** | 7 | 35 | 6 (splits at 4) | §15.6 table | Phase 1 |
 | **Standard** | 7 | 30 | 8 (splits at 5) | §15.6 table | Phase 1 |
-| **Nightmare** | 7 | 30 | 8 | **+1 every phase** | Phase 2 (Strange Days) |
+| **Nightmare** | 7 | 30 | **9** | **+1 in Phases 3–4 only** | Phase 2 (Strange Days) |
 
 **Length — one setting:**
 
@@ -131,19 +131,38 @@ There are now two independent axes.
 
 **Why Standard's own numbers didn't move.** Standard targets 40–50% for *experienced* groups (§20.2 item 5), which per §20 is roughly where flagship co-ops put their *highest* setting; survey data puts what players generally want nearer 50–75%, and a first group at a setting calibrated for experienced play will land well under 40%. The right fix for that is a genuinely easier full-length mode, which is what Story is — not a retune of the setting that has actual calibration behind it.
 
-**Measured ordering** (`python scripts/simulate_balance.py --sweep-difficulty`, 500 games/cell, 4 players, best two policies):
+#### Why Nightmare's Doom surcharge is per-phase
 
-| Mode | turtle | spread |
-|---|---|---|
-| Story | 67.4% | 79.8% |
-| Standard | 50.6% | 49.8% |
-| Nightmare | 0.0% | 2.4% |
-| Long Weekend | 100% | 100% |
+**A flat +1 made Nightmare unwinnable, not hard.** Measured at 0–6% for the best lines — a mode nobody beats is a broken mode, not a difficulty setting. The reason is compounding: most Doom pressure is already *responsive* (§15.1 — festering threats, festering bosses, fallen friends), so a flat surcharge starting on Day 1 taxes the exploratory half of the week that §14 deliberately wants calm, and the clock runs out before the arc reaches its climax. The losses were mid-week strangulation, which is the exact failure §20.1's calibration gate exists to catch.
 
-The **ordering is monotonic and that is what this probe is for** — per [§26](../../Archive/PrinciplesOfGoodBoardGames.md) — Measuring a Design, trust the ordering and playtest the magnitude; §15.6 already records that the probe's combat model is too crude to certify absolute rates. Two magnitudes are nonetheless worth flagging as open items rather than left to be discovered:
+Loading the surcharge onto **Phases 3–4** keeps the early week merely tense and makes the back half the part that kills you — which is where §14's Jo-Ha-Kyu mapping wants the pressure anyway. The second half of the knob is a **9 HP Source**: one point above Standard's calibrated 8, so Nightmare's finale is a genuinely harder fight rather than the same fight on a shorter fuse.
 
-- **Nightmare is at or near unwinnable** (0–2% for the best lines). It has always been a derived offset with no calibration of its own, and now that a sweep exists the number is visible. If it should be *hard* rather than *impossible*, the knob is Doom rate +1 in Phases 3–4 only, rather than in all four.
+**Measured ladder at the 4-player calibration count** (`--sweep-difficulty`, best line of four policies):
+
+| Nightmare variant | Best line |
+|---|---|
+| Doom +1 **every** phase, Source 8 *(the old setting)* | **6.5%** — unwinnable |
+| Doom +1 Phases 3–4, Source 8 | 25.0% |
+| **Doom +1 Phases 3–4, Source 9** *(shipped)* | **~21%** |
+| Doom +1 Phases 3–4, Source 10 | 16.6% |
+| Doom +1 Phase 3, +2 Phase 4, Source 8 | 12.1% |
+
+At the shipped setting, **100% of losses fall on Days 6–7** and most are Doom losses — a near-miss finish rather than a mid-week strangle, which is what §20.1's gate asks for. Roughly one win in five, and the table number will be *lower* than that: the simulator cannot model `minPhase` at all (phases 1 and 2 share a Doom rate), so it never sees that Nightmare opens on the Strange Days deck instead of the gentle Phase 1 one. That deck swap is real difficulty the probe is blind to.
+
+**Measured ordering across all modes** (4 players, best line):
+
+| Mode | Best line |
+|---|---|
+| Story | ~82% |
+| Standard | ~53% |
+| Nightmare | ~21% |
+| Long Weekend | 100% |
+
+The **ordering is monotonic and that is what this probe is for** — per [§26](../../Archive/PrinciplesOfGoodBoardGames.md) — Measuring a Design, trust the ordering and playtest the magnitude; §15.6 already records that the probe's combat model is too crude to certify absolute rates. Three caveats belong on the record rather than being discovered later:
+
+- **The probe is only trustworthy at 4 players**, which is the count everything else is calibrated against (§15.6). At 3 players every mode reads ≥98%, including Standard — `ROSTERS[3]` is the *strongest* trio by construction (see the comment on it), so the 3p row is an upper bound, not a difficulty reading. At 5 players every mode reads high too, because five bodies clear festering threats faster than the extra phase rate charges for them. **Neither spread is caused by the difficulty settings, and neither is fixed by tuning them.** Establishing real 3p and 5p bands is the open work in §20.1's composition item.
 - **Long Weekend reads as trivial** (100%). Much of that is a sim artifact — three days means no Eye, no Source and almost no festering, so the probe's crude combat model has nothing to lose to. It is still evidence that the short mode carries no difficulty signal at all, which is consistent with treating it as a length rather than a setting.
+- **Nightmare has not been played by humans.** ~21% is a probe reading with a known blind spot in the harsher direction. If tables find it impossible anyway, drop the Source back to 8 (25%); if they find it soft, Source 10 is the next rung (16.6%).
 
 Story, Nightmare and Long Weekend remain derived offsets from the tuned Standard, not separately balanced. Driven by `DIFFICULTY_PARAMS` (`lua/global.lua`), mirrored by `DIFFICULTIES` in `scripts/simulate_balance.py`.
 

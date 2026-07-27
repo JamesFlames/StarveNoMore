@@ -2,6 +2,41 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Nightmare is winnable now (2026-07)
+
+Follow-up to the design pass, which had made Nightmare's problem visible for the
+first time: a flat Doom +1 in every phase measured at **0-6%** for the best lines
+at 4 players. That is a broken mode, not a hard one.
+
+The cause is compounding. Most Doom pressure is already *responsive* (§15.1 -
+festering threats, festering bosses, fallen friends), so a flat surcharge from
+Day 1 taxes the exploratory half of the week §14 deliberately wants calm, and
+runs the clock out before the arc reaches its climax. The losses were mid-week
+strangulation, which is exactly what §20.1's calibration gate exists to catch.
+
+**Retuned:** the surcharge moved to **Phases 3-4 only**, and the Source went to
+**9 HP** (one above Standard's calibrated 8), so Nightmare's finale is a harder
+*fight* rather than the same fight on a shorter fuse. Best line **20.3%** over
+3000 games with **100% of losses on Days 6-7** - a near-miss finish. Roughly one
+win in five, and the real table number is lower: the probe cannot model
+`minPhase` (phases 1 and 2 share a Doom rate), so it never sees that Nightmare
+opens on the Strange Days deck instead of the gentle Phase 1 one.
+
+`doomDelta` therefore accepts a per-phase table as well as a flat number, read
+through the new `getDoomDelta(phase)` / `describeDoomDelta(diff)`. The setup
+announcement used to do `(diff.doomDelta or 0) > 0`, which throws "attempt to
+compare table with number" the moment the surcharge went per-phase - fixed, and
+a test now describes every mode's delta to keep that from coming back.
+
+Also recorded honestly in §17.2: **the probe is only trustworthy at 4 players.**
+At 3 players every mode reads >=98% including Standard, because `ROSTERS[3]` is
+the strongest trio by construction; at 5 players every mode reads high because
+five bodies clear festering faster than the extra phase rate charges for it.
+Neither spread is caused by the difficulty settings and neither is fixed by
+tuning them - establishing real 3p/5p bands is §20.1's open composition work.
+*(This also makes the achievements batch's **Nightmare win** unlock earnable —
+it shipped against a mode measuring 0-6%.)*
+
 ## Achievements (2026-07)
 
 24 achievements, a Steam-style panel in the mod, and a Steamworks manifest for

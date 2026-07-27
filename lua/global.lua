@@ -174,7 +174,15 @@ DIFFICULTY_PARAMS = {
     story     = { label = "Story",        days = 7, doomLimit = 35, doomDelta = 0,
                   sourceHP = 6, sourceSplitHP = 4 },
     standard  = { label = "Standard",     days = 7, doomLimit = 30, doomDelta = 0 },
-    nightmare = { label = "Nightmare",    days = 7, doomLimit = 30, doomDelta = 1,
+    -- Nightmare's Doom surcharge is PER PHASE, not flat. A flat +1 measured at
+    -- 0-6% for the best lines — not "hard", unwinnable — because it compounds
+    -- from Day 1 against an already-responsive clock (§15.1). Loading it onto
+    -- Phases 3-4 keeps the early week merely tense and makes the back half the
+    -- part that kills you, which is where §14's arc wants the pressure anyway.
+    -- The tougher Source is the second half of the knob; see §17.2 for the
+    -- measured ladder.
+    nightmare = { label = "Nightmare",    days = 7, doomLimit = 30,
+                  doomDelta = {0, 0, 1, 1}, sourceHP = 9,
                   minPhase = 2 },
     weekend   = { label = "Long Weekend", days = 3, doomLimit = 15, doomDelta = 0,
                   phaseForDay = {1, 1, 2} },
@@ -227,10 +235,41 @@ DOOM_RATES = {
     [5] = {1, 1, 2, 2},
 }
 
+-- A difficulty's doomDelta is EITHER a flat number (Story/Standard/Long
+-- Weekend: 0) OR a per-phase table (Nightmare: {0,0,1,1}). Per-phase exists
+-- because a flat surcharge is the wrong shape for a difficulty setting — it
+-- taxes the exploratory half of the week that §14 wants calm, and compounds
+-- into an unwinnable clock long before the arc reaches its climax.
+function getDoomDelta(phase)
+    local d = getDifficulty().doomDelta
+    if type(d) == "table" then return d[phase] or 0 end
+    return d or 0
+end
+
 function getDoomRate()
     local pc = math.max(3, math.min(5, gameState.playerCount))
     local rates = DOOM_RATES[pc] or DOOM_RATES[4]
-    return (rates[gameState.phase] or 1) + (getDifficulty().doomDelta or 0)
+    local phase = gameState.phase
+    return (rates[phase] or 1) + getDoomDelta(phase)
+end
+
+-- Human-readable Doom surcharge for a difficulty, for the setup announcement
+-- and the Rules panel. Exists because doomDelta has two shapes and every
+-- caller that assumed "number" was a latent crash.
+function describeDoomDelta(diff)
+    local d = (diff or getDifficulty()).doomDelta
+    if type(d) == "table" then
+        local hit = {}
+        for phase = 1, 4 do
+            if (d[phase] or 0) > 0 then
+                table.insert(hit, "Phase " .. phase .. " +" .. d[phase])
+            end
+        end
+        if #hit == 0 then return "" end
+        return ", Doom rate " .. table.concat(hit, " / ")
+    end
+    if (d or 0) > 0 then return ", Doom rate +" .. d .. " every phase" end
+    return ""
 end
 
 -----------------------------------------------------------------------

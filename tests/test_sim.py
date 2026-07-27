@@ -145,7 +145,7 @@ def test_treeguard_stats_match_build_save():
 def test_difficulty_params_invariants(lua_globals):
     """DIFFICULTY_PARAMS (global.lua) must stay internally consistent —
     every mode playable by the same loop code."""
-    modes = ["standard", "weekend", "nightmare"]
+    modes = ["story", "standard", "weekend", "nightmare"]
     for mode in modes:
         days = lua_globals.eval(f"DIFFICULTY_PARAMS.{mode}.days")
         limit = lua_globals.eval(f"DIFFICULTY_PARAMS.{mode}.doomLimit")
@@ -254,3 +254,53 @@ def test_old_ruleset_still_frozen():
     assert r["win"] >= 0.9, (
         f"old-rules spread win rate {r['win']:.1%} < 90% — the frozen pre-2026-07 "
         "ruleset appears to have been modified.")
+
+
+def test_sim_difficulties_mirror_the_lua_table(lua_globals):
+    """DIFFICULTIES (simulate_balance.py) is the probe's copy of
+    DIFFICULTY_PARAMS (global.lua). A drift here doesn't error — it silently
+    means the numbers quoted in §17.2 and §20.1 were measured against a game
+    nobody plays, which is the worst kind of balance bug."""
+    import simulate_balance as sb
+
+    src = read_text(os.path.join(LUA_DIR, "global.lua"))
+    body = _re.search(r"DIFFICULTY_PARAMS\s*=\s*\{(.*?)\n\}", src, _re.S).group(1)
+    # Anchor on `label` so nested keys (doomDelta, phaseForDay are themselves
+    # tables) aren't mistaken for modes.
+    lua_modes = set(_re.findall(r"^\s*(\w+)\s*=\s*\{\s*label\s*=", body, _re.M))
+    assert lua_modes == set(sb.DIFFICULTIES), (
+        f"modes differ — lua {sorted(lua_modes)} vs sim {sorted(sb.DIFFICULTIES)}")
+
+    for mode, spec in sb.DIFFICULTIES.items():
+        lua_globals.execute(f'gameState.difficulty = "{mode}"')
+        assert lua_globals.globals().getTotalDays() == spec["days"], mode
+        assert lua_globals.globals().getDoomLimit() == spec["doom_limit"], mode
+        assert lua_globals.globals().getSourceMaxHP() == spec["source_hp"], mode
+        # Per-phase Doom surcharge, the knob that made Nightmare winnable.
+        for phase in (1, 2, 3, 4):
+            want = sb.phase_delta(spec["doom_delta"], phase)
+            got = lua_globals.globals().getDoomDelta(phase)
+            assert got == want, f"{mode} phase {phase}: lua {got} vs sim {want}"
+    lua_globals.execute("gameState.difficulty = nil")
+
+
+def test_nightmare_is_winnable_but_only_just(lua_globals):
+    """The point of the retune. A difficulty nobody can beat is not a
+    difficulty, it is a broken mode — and a flat +1 measured at 0-6%.
+
+    Bands are deliberately wide: this asserts the ORDERING and that Nightmare
+    is off both floors, which is what §26 says a probe can certify. The exact
+    magnitude needs a table (§20.2 item 10)."""
+    import simulate_balance as sb
+
+    def best(mode, sims=400):
+        return max(sb.simulate(p, 4, "new", sims, 7, difficulty=mode)["win"]
+                   for p in sb.POLICIES)
+
+    story, standard, nightmare = best("story"), best("standard"), best("nightmare")
+    assert nightmare > 0.08, (
+        f"Nightmare best line {nightmare:.1%} — that is unwinnable, not hard")
+    assert nightmare < standard, (
+        f"Nightmare ({nightmare:.1%}) is not harder than Standard ({standard:.1%})")
+    assert standard < story, (
+        f"Standard ({standard:.1%}) is not harder than Story ({story:.1%})")

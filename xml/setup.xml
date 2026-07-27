@@ -72,7 +72,7 @@
             onClick="onToggleDifficulty"
             fontSize="14" color="#CFE6C2FF" textColor="#1E5A1E"
             preferredHeight="64"
-            tooltip="Difficulty and length are separate dials. Three difficulties on the full 7-day arc: Story (Doom to 35, a 6 HP Source — start here) / Standard (as tuned) / Nightmare (Doom +1 per phase, starts on Strange Days). Then Long Weekend, which is a SHORT game (3 days, Doom to 15) — good for a weeknight or a teach, but you won't meet the Eye of Terror or The Source."
+            tooltip="Difficulty and length are separate dials. Three difficulties on the full 7-day arc: Story (Doom to 35, a 6 HP Source — start here) / Standard (as tuned) / Nightmare (Doom +1 in Phases 3-4, a 9 HP Source, starts on Strange Days - winnable, barely). Then Long Weekend, which is a SHORT game (3 days, Doom to 15) — good for a weeknight or a teach, but you won't meet the Eye of Terror or The Source."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
             text="Mode: STORY — the full week, gentler&#10;(7 days, Doom track to 35, a 6 HP Source. Recommended for your first game.)" />
     <Button id="toggleRotation"

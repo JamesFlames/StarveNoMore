@@ -146,13 +146,23 @@ BOSSES = {  # day -> (name, hp, atk, location fn)
 # and weekend is a 3-day *length*. Only "standard" is calibrated; the others
 # are derived offsets, and this simulator exists to bracket their ordering
 # (§26 — trust the ordering, playtest the magnitude).
+# doom_delta is either a flat int or a {phase: delta} dict — see getDoomDelta
+# in lua/global.lua, which this mirrors.
 DIFFICULTIES = {
     "story":     dict(days=7, doom_limit=35, doom_delta=0, source_hp=6, min_phase=None),
     "standard":  dict(days=7, doom_limit=30, doom_delta=0, source_hp=8, min_phase=None),
-    "nightmare": dict(days=7, doom_limit=30, doom_delta=1, source_hp=8, min_phase=2),
+    "nightmare": dict(days=7, doom_limit=30, doom_delta={3: 1, 4: 1}, source_hp=9,
+                      min_phase=2),
     "weekend":   dict(days=3, doom_limit=15, doom_delta=0, source_hp=8, min_phase=None,
                       phase_for_day={1: 1, 2: 1, 3: 2}),
 }
+
+
+def phase_delta(doom_delta, phase):
+    """Flat int or per-phase dict → this phase's Doom surcharge."""
+    if isinstance(doom_delta, dict):
+        return doom_delta.get(phase, 0)
+    return doom_delta or 0
 
 
 class Char:
@@ -361,7 +371,7 @@ class Game:
         phase = self.phase_for_day[min(self.day, max(self.phase_for_day))]
         if self.min_phase:
             phase = max(self.min_phase, phase)
-        rate = DOOM_RATES[self.players][phase - 1] + self.doom_delta
+        rate = DOOM_RATES[self.players][phase - 1] + phase_delta(self.doom_delta, phase)
         self.add_doom(rate)
 
         # Festering (new rules): ordinary threats +1 each capped at +3;

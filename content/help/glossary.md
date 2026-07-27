@@ -20,6 +20,12 @@
 - **Lantern / Campfire / Hairspray flame** — Fire (more reliable).
 - Without light at night: **Charlie attacks** — 2 Sanity + 1 Health. Each consecutive night in darkness she grows bolder: +1 to both. A night with light resets her interest.
 
+## Difficulty and length (chosen at setup)
+- **Story** — the full 7-day week, gentler: Doom track to 35, a 6 HP Source. Start here.
+- **Standard** — the full week as tuned.
+- **Nightmare** — the full week, and it wants you dead: Doom +1 per day in Phases 3–4, a 9 HP Source, and the week opens on Strange Days instead of the quiet Phase 1 deck. Winnable, barely.
+- **Long Weekend** — a SHORT game, not an easy one: 3 days, Doom to 15. You won't meet the Eye of Terror or The Source.
+
 ## Phases
 - Phase 1 (Days 1–2) — Dusk of the Week.
 - Phase 2 (Days 3–4) — Strange Days. Mid-tier boss arrives Day 4 (Deerclops).
@@ -59,7 +65,7 @@
 - **Pry** — a free action with a Crowbar, Lockpick, or Pry Bar: open a sealed thing at your tile for its printed reward. Sealed Threat cards and the Sealed Basement (at Ellie & Luca's House from setup) all open this way.
 - **The Wrongness** — a face-down, unresolved Threat placed at a tile by a Dawn card. Someone can go look (it resolves on entering the tile) — or it resolves at the next Dawn, where it stands. It doesn't fester while face-down.
 - **Witness** (free, 1 Sanity) — an ally standing with a **Haunted** character may pay 1 Sanity to see their threat too, and then fight it alongside them. Use the Reactions panel; it works on their turn, not just yours.
-- **Source split** — the first time The Source drops to its split threshold or below, two Terror Beaks peel off to adjacent tiles (Standard: 8 HP, splits at 5; Story: 6 HP, splits at 4). Its HP is script-tracked from arrival, and the Rules panel prints the live numbers.
+- **Source split** — the first time The Source drops to its split threshold or below, two Terror Beaks peel off to adjacent tiles (Story: 6 HP, splits at 4; Standard: 8, splits at 5; Nightmare: 9, splits at 5). Its HP is script-tracked from arrival, and the Rules panel prints the live numbers.
 
 ## Severity Dots
 - ●○○○○ atmospheric • ●●○○○ minor • ●●●○○ combat/lasting • ●●●●○ phase-shift • ●●●●● apocalyptic.

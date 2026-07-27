@@ -223,7 +223,7 @@ DIFFICULTY_CYCLE = { "story", "standard", "nightmare", "weekend" }
 DIFFICULTY_BLURBS = {
     story     = "Mode: STORY — the full week, gentler\n(7 days, Doom track to 35, a 6 HP Source. Recommended for your first game.)",
     standard  = "Mode: STANDARD\n(the full 7-day week, as tuned)",
-    nightmare = "Mode: NIGHTMARE\n(7 days, Doom +1 every phase; the week starts on Strange Days)",
+    nightmare = "Mode: NIGHTMARE\n(7 days. Doom +1 in Phases 3-4, a 9 HP Source, and the week opens on Strange Days. Winnable — barely.)",
     weekend   = "Mode: LONG WEEKEND — short, not easy\n(3 days, Doom track to 15. A weeknight game or a teach; you won't meet the Eye or the Source.)",
 }
 
@@ -256,9 +256,13 @@ function onVariantsContinue(player, value, id)
     gameState.difficulty = setupState.difficulty or "standard"
     if gameState.difficulty ~= "standard" then
         local diff = getDifficulty()
+        -- doomDelta is a flat number OR a per-phase table (§17.2), so it is
+        -- described through describeDoomDelta rather than concatenated — the
+        -- old `(diff.doomDelta or 0) > 0` threw "attempt to compare table with
+        -- number" the moment Nightmare's surcharge became per-phase.
         broadcastEvent("proc", "Mode: " .. diff.label .. " — " .. diff.days ..
             " days, Doom track to " .. diff.doomLimit ..
-            ((diff.doomDelta or 0) > 0 and (", Doom rate +" .. diff.doomDelta .. " per phase") or "") ..
+            describeDoomDelta(diff) ..
             (diff.sourceHP and (", The Source at " .. diff.sourceHP .. " HP") or "") .. ".")
         -- Say out loud which dial was turned. A table that picks Long Weekend
         -- expecting "easy" and gets three days is the exact confusion the
