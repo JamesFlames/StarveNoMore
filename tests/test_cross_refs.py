@@ -630,3 +630,20 @@ def test_ingame_rulebook_mirrors_the_player_rulebook():
         f"PlayerRules has section(s) {missing} that the in-game Rulebook tab "
         "does not: add them to rulebookText() (or drop them from SECTIONS). "
         "A rule a player can only read outside the game is a rule they won't.")
+
+
+def test_trophy_names_mirror_the_trophies_csv():
+    """TROPHY_BY_BOSS (lua/combat.lua) feeds the option-utilization report,
+    which scores against content/cards_trophies.csv. A drifted name doesn't
+    error — it just makes every Trophy read as never earned, which is the one
+    conclusion the report must never produce by accident."""
+    src = read_text(os.path.join(LUA_DIR, "combat.lua"))
+    body = re.search(r"TROPHY_BY_BOSS\s*=\s*\{(.*?)\n\}", src, re.S)
+    assert body, "TROPHY_BY_BOSS not found in lua/combat.lua"
+    lua_names = set(re.findall(r'=\s*"([^"]+)"', body.group(1)))
+
+    csv_names = {r["boss"] for r in read_csv_rows("cards_trophies.csv") if r.get("boss")}
+    missing = sorted(lua_names - csv_names)
+    assert not missing, (
+        f"TROPHY_BY_BOSS names {missing} are not in cards_trophies.csv — the "
+        "utilization report would score them as never earned")

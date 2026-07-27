@@ -98,6 +98,21 @@ Two ❌ marks are acceptable at v1 (this document is the brief, not a finished g
 5. **Stress test difficulty** — repeat plays with the same group to find the win rate (target: 40–50% on Standard difficulty for experienced groups). *Status (batch 4 W3, 2026-07): calibrated on the simulator — best line 42% with ~100% of losses on Days 6–7, via the Source HP 10 → 8 knob; the three difficulty modes (§17.2) are selectable at setup. Table confirmation pending; each session's Copy Session Log export feeds this.*
 6. **Turn-structure A/B (5 players)** — play one full game with default 3-action turns and one with the Rotation variant (§11.2), same group. Watch for: time between one player's decisions, phone-checking during others' turns, and whether Rotation fragments planning ("I forgot what my second action was for"). This decides whether Rotation stays a variant, becomes the 5-player default, or gets cut. *Status (batch 4 W0/W1): fully instrumented — the session log records `turnStyle` and per-turn durations in seconds, so the two games are directly comparable. Protocol in [playtest/facilitator_script.md](../../playtest/facilitator_script.md). Decision pending table data.*
 7. **Scenario pass** — once the base game's win rate is settled, one game per Scenario (§17.3) to catch degenerate combinations (e.g., Total Blackout with a Coco-less team that can't survive dark nights).
+8. **Option utilization** — *"which of this game's options does anybody actually use?"* [§26](../../Archive/PrinciplesOfGoodBoardGames.md) — Measuring a Design — calls this "the single most actionable report a simulator or session log produces" and notes it is the metric most often skipped. This repo was unusually well placed to collect it (a simulator, a session log, a one-click export) and collected none of it. Now instrumented on both sides:
+
+   - **Session logs** (`scripts/analyze_sessions.py`) report, across N logged games, the fraction in which each Market item is crafted, each recipe cooked, each action type taken, each location visited, each Visitor drawn and each Trophy earned — **scored against the full catalog in `content/`**, so options nobody has ever touched appear as explicit zeros instead of being invisible. Sorted ascending; the top of each list is the cut-candidate end. (Session log schema 2; schema-1 logs still aggregate for everything else.)
+   - **The simulator** (`--utilization`) reports the action mix and where the team actually sleeps.
+
+   **Predictions, recorded so the report either confirms or refutes them** (§26's discipline: write the prediction down *before* the data arrives):
+
+   | Prediction | Status |
+   |---|---|
+   | Cleanse is rarely used | ✅ **Confirmed, and starkly.** Across 400 games/policy: ≤1.5% of all actions on the best line, and **0.00 per game** for two of four policies. A 4-resource bundle plus an action for Doom −2 competes badly against boss rebates of −2/−3 that also pay spoils and a Trophy. |
+   | The Badminton Court is visited less than the Basketball Court | ⚠️ **Not testable in the simulator, and the apparent zero is an artifact.** Every policy's `berths()` hardcodes `COURTS[0]` (Basketball, for Rayman's Court Master), so no policy can ever choose Badminton. The probe encodes the very assumption the prediction was meant to test. Needs a court-choosing policy or table data. |
+   | The Visitor deck is under-used | ⏳ Needs table data — the sim has no Visitors. This is §19.6 item 3's standing question, and it is substantially a *measurement* question rather than a judgement call: if Visitors are drawn in 90% of 3-player games and change the outcome they stay; if they are drawn and ignored they go. |
+   | Several of the 49 Market items are never crafted | ⏳ Needs table data — the sim abstracts the Market to two craft targets. |
+
+   The Cleanse result is actionable now and deliberately **not** acted on in this pass: it is a fifth change pushing difficulty in the same direction as findings 6–9, and §17's regression list forbids evaluating those together. Recorded as a knob, not spent.
 
 ### 20.3 Expansion hooks (post-launch)
 

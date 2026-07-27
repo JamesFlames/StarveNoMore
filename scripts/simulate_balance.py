@@ -223,6 +223,15 @@ class Game:
         self.wrongness_done = False   # the deferred Wrongness threat (batch 3)
         self.rayman_tiles = 0         # 3p Big Appetite relief (batch 4 W2)
         self.rayman_fought = False
+        # Option utilization (design §20.2 item 8). The sim models resources
+        # abstractly, so it cannot speak to individual Market items or
+        # recipes — that data has to come from real session logs
+        # (scripts/analyze_sessions.py). What it CAN answer are the two
+        # predictions in that section that are about geometry and pricing:
+        # is the Badminton Court visited less than the Basketball Court, and
+        # is Cleanse ever a rational spend?
+        self.action_counts = Counter()
+        self.night_locations = Counter()
 
     # ---------------- helpers ----------------
     def alive(self):
@@ -515,6 +524,7 @@ class Game:
         self.fire_signatures()
 
     def act_gather(self, c):
+        self.action_counts["Gather"] += 1
         loc = c.location
         if self.rules == "new" and self.treeguard == loc:
             return  # the Treeguard guards the timber
@@ -526,6 +536,7 @@ class Game:
             self.pool["food"] += 1  # Knows the Pantry
 
     def act_cook(self, c):
+        self.action_counts["Cook"] += 1
         cost_food = 1 if c.name == "Ellie" else 2  # Crockpot Master
         self.pool["food"] -= cost_food
         self.pool["wood"] -= 1
@@ -547,6 +558,14 @@ class Game:
                 c.location = target
                 if c.name == "Rayman":
                     self.rayman_tiles += 1
+
+        # Where the team actually SLEEPS is the sharpest read on whether a
+        # location is doing work (§20.2 item 8): the standing prediction is
+        # that the Badminton Court is visited less than the Basketball Court,
+        # because it shares Moonlit Salvage but carries the highest threat
+        # rate and no Rayman synergy.
+        for c in self.alive():
+            self.night_locations[c.location] += 1
 
         # Treeguard wakes at Dusk of Day 4 (new rules)
         if self.rules == "new" and self.day == 4 and self.treeguard is None:
@@ -799,11 +818,13 @@ class Policy:
             for k, v in bundle.items():
                 g.pool[k] -= v
             g.doom = max(0, g.doom - CLEANSE_REDUCTION)
+            g.action_counts["Cleanse"] += 1
             return 1
         # rest if shaky. Last Nerve (design §10.1.1, new rules only): with any
         # stat below 3, Rest restores 1 extra. Mirrored from doRest in
         # lua/actions.lua — tests/test_sim.py guards the pair.
         if c.sanity <= 4 or c.health <= 3:
+            g.action_counts["Rest"] += 1
             c.gain("sanity", 2 + (1 if last_nerve(g, c) else 0))
             # home bonus — or anywhere under Nothing Left to Lose (Doom 25)
             if c.home == c.location or (g.rules == "new" and g.doom >= DOOM_THRESHOLDS["anyPhaseBosses"]):
@@ -814,6 +835,7 @@ class Policy:
         for t in list(g.threats.get(c.location, [])):
             if not t.boss or self.fight_bosses or \
                (g.rules == "new" and t.name == "TheSource"):
+                g.action_counts["Fight"] += 1
                 if g.group_fight(g.at(c.location), t, max_rounds=1):
                     g.threats[c.location].remove(t)
                     if t.name == "Deerclops":
@@ -944,6 +966,7 @@ def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="s
     wins = 0
     losses = Counter()
     dooms, downs, festers, loss_days = [], [], [], []
+    actions_total, nights_total = Counter(), Counter()
     for _ in range(sims):
         g = Game(POLICIES[policy_name], players, rules, random.Random(rng.random()),
                  roster=roster, difficulty=difficulty)
@@ -955,6 +978,8 @@ def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="s
         dooms.append(g.doom)
         downs.append(g.downs)
         festers.append(statistics.mean(g.fester_log) if g.fester_log else 0)
+        actions_total.update(g.action_counts)
+        nights_total.update(g.night_locations)
     return dict(
         win=wins / sims,
         loss_doom=losses["doom"] / sims,
@@ -966,6 +991,9 @@ def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="s
         # W3 calibration gate: losses should cluster on Days 6-7 (a
         # near-miss finish, not a mid-week strangle).
         late_loss=(sum(1 for d in loss_days if d >= 6) / len(loss_days)) if loss_days else 0.0,
+        # Option utilization (§20.2 item 8), per game
+        actions_per_game={k: v / sims for k, v in actions_total.items()},
+        nights_per_game={k: v / sims for k, v in nights_total.items()},
     )
 
 
@@ -987,11 +1015,54 @@ def main():
                     help="which mode to simulate (§17.2). story/standard/nightmare "
                          "are difficulties on the full 7-day arc; weekend is a "
                          "3-day length.")
+    ap.add_argument("--utilization", action="store_true",
+                    help="option-utilization report (§20.2 item 8): action mix "
+                         "and where the team actually sleeps. Tests the two "
+                         "standing predictions the sim can reach — is the "
+                         "Badminton Court doing less work than the Basketball "
+                         "Court, and is Cleanse ever a rational spend? Item- "
+                         "and recipe-level data needs real logs: see "
+                         "scripts/analyze_sessions.py.")
     ap.add_argument("--sweep-difficulty", action="store_true",
                     help="run every mode and print them together — the check "
                          "that the difficulty ORDERING is monotonic. Per §26, "
                          "trust this ordering and playtest the magnitude.")
     args = ap.parse_args()
+
+    if args.utilization:
+        names = [args.policy] if args.policy else list(POLICIES)
+        print(f"Option utilization — {args.sims} games/policy, {args.players} players, "
+              f"mode={args.difficulty}\n")
+        for name in names:
+            r = simulate(name, args.players, args.rules, args.sims, args.seed,
+                         difficulty=args.difficulty)
+            print(f"[{name}]  win {r['win']*100:.1f}%")
+            acts = r["actions_per_game"]
+            total = sum(acts.values()) or 1
+            print("  actions per game (share):")
+            for act, n in sorted(acts.items(), key=lambda kv: kv[1]):
+                print(f"    {act:<12} {n:>6.2f}  ({100*n/total:>4.1f}%)")
+            nights = r["nights_per_game"]
+            nt = sum(nights.values()) or 1
+            print("  character-nights per location:")
+            for loc, n in sorted(nights.items(), key=lambda kv: kv[1]):
+                print(f"    {loc:<18} {n:>6.2f}  ({100*n/nt:>4.1f}%)")
+            print()
+        print("Reading this (§20.2 item 8):\n"
+              "  * CLEANSE — testable here, and the answer is stark: it is ~1.5% of\n"
+              "    actions at best and 0.00 for two policies. A 4-resource bundle plus\n"
+              "    an action for Doom -2 competes badly against boss rebates of -2/-3\n"
+              "    that also pay spoils and a Trophy.\n"
+              "  * BADMINTON COURT — NOT testable here, and the zero above is an\n"
+              "    artifact, not a finding. Every policy's berths() hardcodes\n"
+              "    COURTS[0] (Basketball, for Rayman's Court Master), so no policy can\n"
+              "    ever choose Badminton. The simulator encodes the very assumption\n"
+              "    the prediction was meant to test. Answering it needs either a\n"
+              "    court-choosing policy or real table data — do not cite these rows\n"
+              "    as evidence that the Badminton Court is dead content.\n"
+              "Item-, recipe- and Visitor-level utilization needs real session logs:\n"
+              "  python scripts/analyze_sessions.py")
+        return
 
     if args.sweep_difficulty:
         names = [args.policy] if args.policy else list(POLICIES)

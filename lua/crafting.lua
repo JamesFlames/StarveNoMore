@@ -104,6 +104,9 @@ function doCraft(color, marketSlotIndex)
     -- until it existed gameState.clueCount was never incremented by anything,
     -- so the Truth Run was unreachable in code rather than merely unlikely.
     safecall(function() recordClueFound(color, card) end, "Clue")
+    -- Option utilization (§20.2 item 8): which of the 49 Market items does
+    -- anyone ever actually craft?
+    safecall(function() recordUsage("crafted", itemName) end, "Usage")
 
     -- Move card to the player's hand zone
     stripMarketHelp(card)
@@ -248,6 +251,7 @@ function doCook(color, recipeId)
 
     broadcastEvent("proc", char.name .. " cooks " .. recipe.name .. "!")
     safecall(function() recordMealInChronicle(char.name) end, "Chronicle")
+    safecall(function() recordUsage("cooked", recipe.name or recipeId) end, "Usage")
 
     -- Cook penalty (e.g., Battery Acid Soup costs health, Telltale Heart costs 2 health)
     if recipe.cookPenalty then

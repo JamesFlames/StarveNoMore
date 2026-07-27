@@ -63,6 +63,7 @@ gameState = {
         setup = {},                             -- player count / roster / variants / difficulty
         turns = {},                             -- { {day, name, seconds}, ... } per player turn
         beats = { pressKills = 0, signaturesUsed = {}, sourceSplit = false, daresTaken = 0 },
+        usage = {},                             -- option utilization (§20.2 item 8)
     },
 }
 
@@ -291,6 +292,7 @@ function migrateGameState()
         gs.chronicle.turns = gs.chronicle.turns or {}
         gs.chronicle.beats = gs.chronicle.beats or
             { pressKills = 0, signaturesUsed = {}, sourceSplit = false, daresTaken = 0 }
+        gs.chronicle.usage = gs.chronicle.usage or {}   -- option utilization (§20.2 item 8)
     end
     gs.schemaVersion = SCHEMA_VERSION
 end

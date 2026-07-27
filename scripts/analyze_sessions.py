@@ -16,11 +16,17 @@ Reports:
     verdict lives here)
   * batch-beat usage — press kills, Signatures, Source splits, dares
     (do the built moments actually fire at real tables?)
+  * OPTION UTILIZATION — the fraction of games in which each Market item is
+    crafted, each recipe cooked, each action taken, each location visited,
+    each Visitor drawn and each Trophy earned, sorted ascending, scored
+    against the full catalog in content/. Everything near zero is a cut
+    candidate under the design's §3 complexity-budget audit.
 
 Without this file, "instrumented humans" decays back into anecdote at the
 aggregation step (I in frameworkimprovements.md).
 """
 
+import csv
 import json
 import os
 import statistics
@@ -28,8 +34,45 @@ import sys
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DEFAULT_DIR = os.path.join(REPO_ROOT, "playtest", "sessions")
+CONTENT = os.path.join(REPO_ROOT, "content")
 
-KNOWN_SCHEMAS = {1}
+# Schema 1 predates the `usage` block; it still aggregates for everything
+# else, and simply contributes no utilization data. Rejecting old logs would
+# throw away the win-rate history for the sake of a newer report.
+KNOWN_SCHEMAS = {1, 2}
+
+# Which usage bucket is scored against which authored catalog. The catalog is
+# the point: a report over only the things that WERE used can never show you
+# the things that never are, and the never-used tail is the whole finding.
+# The column is the card's PRINTED name, because that is what the Lua side
+# records (recordUsage is fed getNickname()). A mismatch here silently turns
+# the whole report into "nothing was ever used", so it is worth a test.
+CATALOGS = {
+    "crafted":   ("cards_market.csv",   "name",      "Market items"),
+    "cooked":    ("cards_recipes.csv",  "name",      "recipes"),
+    "visitors":  ("cards_visitors.csv", "character", "Visitors"),
+    "trophies":  ("cards_trophies.csv", "boss",      "Trophies"),
+}
+# Not CSV-backed — small fixed sets defined in the rules.
+STATIC_CATALOGS = {
+    "actions":   (["Move", "Gather", "Craft", "Cook", "Fight", "Rest", "Cleanse",
+                   "Barricade", "Defend", "Stabilize", "Trade (remote)",
+                   "Trade (extra)"], "action types"),
+    "locations": (["JamesHouse", "RaymanHouse", "EllieLucaHouse",
+                   "BasketballCourt", "BadmintonCourt"], "locations"),
+}
+
+
+def load_catalog(filename, column):
+    """Authored names for a content deck, or None if the file isn't there."""
+    path = os.path.join(CONTENT, filename)
+    if not os.path.isfile(path):
+        return None
+    with open(path, "r", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    if not rows or column not in rows[0]:
+        return None
+    return [r[column] for r in rows if r.get(column)]
 
 
 def load_sessions(directory):
@@ -109,6 +152,42 @@ def analyze(sessions):
         beats_total["sourceSplit"] += 1 if b.get("sourceSplit") else 0
         beats_total["daresTaken"] += b.get("daresTaken") or 0
     out["beats"] = beats_total
+
+    # ---- option utilization (§26 / design §20.2 item 8) -------------------
+    # Two numbers per option: the fraction of GAMES it appeared in (the one
+    # that decides whether content is dead), and the raw count (which
+    # separates "used once, in one game" from "used constantly, in one game").
+    logged = [s for s in sessions if s.get("usage")]
+    util = {}
+    for bucket in list(CATALOGS) + list(STATIC_CATALOGS):
+        games_with, totals = {}, {}
+        for s in logged:
+            counts = (s.get("usage") or {}).get(bucket) or {}
+            for name, n in counts.items():
+                games_with[name] = games_with.get(name, 0) + 1
+                totals[name] = totals.get(name, 0) + int(n or 0)
+
+        if bucket in CATALOGS:
+            filename, column, label = CATALOGS[bucket]
+            catalog = load_catalog(filename, column)
+        else:
+            catalog, label = STATIC_CATALOGS[bucket]
+
+        # Score against the catalog so never-used options appear as zeros
+        # rather than being invisible. Anything the log names that the
+        # catalog doesn't is kept too — a renamed card should show up as a
+        # discrepancy, not vanish.
+        names = sorted(set(catalog or []) | set(games_with))
+        rows = [{"name": n,
+                 "games": games_with.get(n, 0),
+                 "uses": totals.get(n, 0),
+                 "share": (games_with.get(n, 0) / len(logged)) if logged else None}
+                for n in names]
+        rows.sort(key=lambda r: (r["games"], r["uses"], r["name"]))
+        util[bucket] = {"label": label, "rows": rows,
+                        "catalog_known": catalog is not None}
+    out["utilization"] = util
+    out["utilization_games"] = len(logged)
     return out
 
 
@@ -148,6 +227,39 @@ def main():
     print("\nBatch beats across all sessions:")
     print(f"  press kills: {b['pressKills']}   signatures used: {b['signaturesUsed']}   "
           f"source splits: {b['sourceSplit']}   dares taken: {b['daresTaken']}")
+
+    print_utilization(r)
+
+
+def print_utilization(r, top=12):
+    """Sorted ascending, because the interesting end is the bottom."""
+    n = r.get("utilization_games", 0)
+    print(f"\n{'=' * 68}\nOPTION UTILIZATION — {n} session(s) carry usage data")
+    if not n:
+        print("  No logs with a `usage` block yet (schema 2+). Play a game and\n"
+              "  export it; every option below will read 0/0 until then.")
+        return
+    print("  Sorted ascending: the top of each list is the cut-candidate end.\n"
+          "  'games' = sessions the option appeared in; 'uses' = total times.")
+
+    for bucket, data in r["utilization"].items():
+        rows = data["rows"]
+        unused = [x for x in rows if x["games"] == 0]
+        print(f"\n  {data['label'].upper()}  ({len(rows)} authored"
+              + ("" if data["catalog_known"] else ", catalog file not found")
+              + f"; {len(unused)} never used)")
+        for row in rows[:top]:
+            share = f"{100 * row['share']:.0f}%" if row["share"] is not None else "—"
+            flag = "  <- never used" if row["games"] == 0 else ""
+            print(f"    {row['name'][:38]:<40} {row['games']:>3} games "
+                  f"({share:>4})  {row['uses']:>4} uses{flag}")
+        if len(rows) > top:
+            print(f"    … and {len(rows) - top} more (rising)")
+
+    print("\n  Reading it: anything at 0 games across a decent sample is a cut\n"
+          "  candidate under the design's §3 complexity-budget audit. The\n"
+          "  Visitor deck (§19.6 item 3) is the standing open question — if\n"
+          "  Visitors are drawn and ignored, they go.")
 
 
 if __name__ == "__main__":

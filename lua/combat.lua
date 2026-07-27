@@ -39,6 +39,15 @@ BOSS_KILL_NARRATIONS = {
     source    = "The Source comes apart without a sound. Whatever it was, it isn't anymore.",
 }
 local BOSS_STANDEE_TAG = { deerclops = "Boss:Deerclops", eye = "Boss:EyeOfTerror", source = "Boss:TheSource" }
+
+-- Boss key → the Trophy it awards. MIRRORS the `boss` column of
+-- content/cards_trophies.csv (which holds the trophy NAMES, despite the
+-- column heading); tests/test_cross_refs.py guards the mirror.
+TROPHY_BY_BOSS = {
+    deerclops = "The Antler Sled",
+    eye       = "The Watching Jar",
+    source    = "The Source Defeated",
+}
 local BOSS_LOOT_RESOURCES = { "Wood", "Metal", "Cloth", "Food" }
 
 -- Resource shower + a nod to the Trophy at the fallen boss's tile.
@@ -224,6 +233,15 @@ function markBossDefeated(threatName)
     gameState.bossesDefeated = gameState.bossesDefeated or {}
     local e = gameState.ongoingDawnEffects
     local key = nil
+
+    -- Trophies are awarded with the boss kill, so the kill is where the
+    -- utilization report learns whether anyone ever earned one (§20.2 item 8).
+    -- Record the TROPHY's printed name, not the boss's: the report scores
+    -- against the `boss` column of content/cards_trophies.csv, which holds the
+    -- trophy names, and "Deerclops" would never match "The Antler Sled".
+    safecall(function()
+        recordUsage("trophies", TROPHY_BY_BOSS[bossKeyForName(threatName) or ""] or threatName)
+    end, "Usage")
 
     if string.find(lower, "deerclops", 1, true) then
         key = "deerclops"

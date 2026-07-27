@@ -16,6 +16,35 @@
 -- Beat recording — called from combat.lua / signatures.lua / the dare
 -- sites via safecall (a telemetry failure must never break the game).
 -----------------------------------------------------------------------
+-----------------------------------------------------------------------
+-- OPTION UTILIZATION (Design §20.2 item 8) — which of the game's options
+-- does anyone actually use?
+--
+-- [PrinciplesOfGoodBoardGames.md §26] calls this "the single most
+-- actionable report a simulator or session log produces", and notes it is
+-- the metric most often skipped. This repo was unusually well placed to
+-- collect it — a simulator, a session log and a one-click export all
+-- already existed — and collected none of it.
+--
+-- It matters because the design ships 49 Market items, ~20 recipes, 51
+-- threat cards, 8 scenarios and 4 trophies, and §19.6 item 3 has the
+-- Visitor deck sitting open as a judgement call awaiting playtests when it
+-- is substantially a MEASUREMENT question: if Visitors are drawn in 90% of
+-- 3-player games and change the outcome, they stay; if they are drawn and
+-- ignored, they go. Anything near zero here is a cut candidate under §3's
+-- complexity-budget audit.
+--
+-- Counts, not booleans: "crafted 4 Flashlights" and "crafted 1" are
+-- different facts about the same card.
+-----------------------------------------------------------------------
+function recordUsage(kind, name)
+    if not name or name == "" then return end
+    local ch = ensureChronicle()
+    ch.usage = ch.usage or {}
+    ch.usage[kind] = ch.usage[kind] or {}
+    ch.usage[kind][tostring(name)] = (ch.usage[kind][tostring(name)] or 0) + 1
+end
+
 function recordBeat(kind, value)
     local ch = ensureChronicle()
     ch.beats = ch.beats or { pressKills = 0, signaturesUsed = {}, sourceSplit = false, daresTaken = 0 }
@@ -85,7 +114,10 @@ function buildSessionLog()
     end
     table.sort(chars, function(a, b) return (a.name or "") < (b.name or "") end)
     return {
-        schema  = 1,
+        -- schema 2 adds `usage` (option-utilization, §20.2 item 8).
+        -- analyze_sessions.py accepts 1 and 2; a schema-1 log simply has no
+        -- utilization data rather than being rejected.
+        schema  = 2,
         setup   = ch.setup or {},
         outcome = {
             cause = gameState.gameOverCause,
@@ -98,6 +130,7 @@ function buildSessionLog()
         meals  = ch.meals or {},
         turns  = ch.turns or {},
         beats  = ch.beats or {},
+        usage  = ch.usage or {},
         peakDoom = ch.peakDoom,
         downs = ch.downs or 0,
         revives = ch.revives or 0,

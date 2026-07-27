@@ -26,7 +26,7 @@ function ensureChronicle()
             peakDoom = { value = 0, day = 0 },
             maxCharlieStreak = { value = 0, name = "" },
             downs = 0, revives = 0,
-            setup = {}, turns = {},
+            setup = {}, turns = {}, usage = {},
             beats = { pressKills = 0, signaturesUsed = {}, sourceSplit = false, daresTaken = 0 },
         }
     end

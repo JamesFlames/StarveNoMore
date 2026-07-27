@@ -189,6 +189,11 @@ DAWN_EFFECTS["P2_VISITOR"] = {
                     pcall(function()
                         broadcastEvent("proc", "VISITOR: " .. (vCard.getNickname() or "Visitor") ..
                             " — read the card for instructions.")
+                        -- §19.6 item 3 has the Visitor deck open as a
+                        -- judgement call awaiting playtests, when it is
+                        -- substantially a measurement question. Record which
+                        -- Visitor actually turned up (§20.2 item 8).
+                        recordUsage("visitors", vCard.getNickname() or "Visitor")
                     end)
                 end
             })

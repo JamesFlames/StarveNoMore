@@ -179,6 +179,14 @@ function spendAction(color, actionName)
     safecall(function() snapshotForUndo(color) end, "Undo")
     char.actionsLeft = char.actionsLeft - 1
     gameState.actedThisVisit = true
+    -- Option utilization (§20.2 item 8): every action verb funnels through
+    -- here, so this one hook answers "which of the 8 action types does anyone
+    -- take, and which tiles does anyone stand on?" — the two cheapest and most
+    -- actionable columns of the unused-content report.
+    safecall(function()
+        recordUsage("actions", actionName)
+        recordUsage("locations", char.location)
+    end, "Usage")
     broadcastEvent("proc", char.name .. " uses " .. actionName .. ". (" .. char.actionsLeft .. " left)")
     return true
 end

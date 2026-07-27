@@ -68,7 +68,9 @@ class TestTelemetry:
         add_char(env, "White", "James")
         env.execute("gameState.day = 5; gameState.doom = 18; gameState.gameOverCause = 'victory'")
         log = _json.loads(env.globals().exportSessionLog())
-        assert log["schema"] == 1
+        # Schema 2 added the `usage` block (option utilization, §20.2 item 8).
+        assert log["schema"] == 2
+        assert "usage" in log
         assert log["outcome"]["cause"] == "victory"
         assert log["outcome"]["day"] == 5
         assert log["outcome"]["doom"] == 18
@@ -129,3 +131,40 @@ class TestTelemetry:
 # ---------------------------------------------------------------------------
 # Difficulty modes (Design §17.2, design_batch4.md W3)
 # ---------------------------------------------------------------------------
+
+
+class TestOptionUtilization:
+    """§20.2 item 8. The value of this report is entirely in its zeros — the
+    options nobody uses — so what matters is that the hooks fire at all, on the
+    seams that already exist, without a rules change.
+    """
+
+    def test_taking_an_action_records_the_verb_and_the_tile(self, env):
+        add_char(env, "White", "Coco", location="BadmintonCourt")
+        env.globals().spendAction("White", "Gather")
+        usage = lua_to_py(env.eval("gameState.chronicle.usage"))
+        assert usage["actions"]["Gather"] == 1
+        assert usage["locations"]["BadmintonCourt"] == 1
+
+    def test_usage_counts_rather_than_flags(self, env):
+        """'Crafted 4 Flashlights' and 'crafted 1' are different facts."""
+        add_char(env, "White", "Coco")
+        for _ in range(3):
+            env.globals().spendAction("White", "Gather")
+            env.execute("gameState.activeChars.White.actionsLeft = 3")
+        assert lua_to_py(env.eval("gameState.chronicle.usage"))["actions"]["Gather"] == 3
+
+    def test_usage_reaches_the_exported_session_log(self, env):
+        add_char(env, "White", "Coco")
+        env.globals().spendAction("White", "Rest")
+        log = _json.loads(env.globals().exportSessionLog())
+        assert log["usage"]["actions"]["Rest"] == 1, (
+            "the hook fires but the export drops it — the report would read "
+            "every option as unused")
+
+    def test_recording_an_empty_name_is_ignored(self, env):
+        """Locations can be nil mid-setup; a nil key would blow up JSON encode."""
+        env.eval("recordUsage")("actions", None)
+        env.eval("recordUsage")("actions", "")
+        usage = lua_to_py(env.eval("gameState.chronicle.usage") or {})
+        assert not (usage.get("actions") or {})
