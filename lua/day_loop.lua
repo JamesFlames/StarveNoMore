@@ -467,8 +467,14 @@ function beginDusk()
         safecall(function() wakeTreeguard() end, "Treeguard")
     end
 
+    gameState.duskPending = {}
     refreshPhaseBanner()
-    broadcastEvent("phase", "DUSK — Last chance to move: each character may scramble 1 tile (costs 1 Hunger). You sleep where you stand.")
+    if gameState.duskSecret then
+        broadcastEvent("phase", "DUSK — SECRET COMMITMENT. Argue it out, then choose: your scramble is banked and nobody sees it until the light goes. You sleep where you stand.")
+        broadcastEvent("proc", "Talk all you like. Nobody can check that you did what you said.")
+    else
+        broadcastEvent("phase", "DUSK — Last chance to move: each character may scramble 1 tile (costs 1 Hunger). You sleep where you stand.")
+    end
 
     -- Night Sounds (Design §15.8): if the top of the Threat deck is a Hard
     -- threat, a distant growl crosses the table. Pure ambient information —
@@ -543,6 +549,10 @@ function beginDusk()
 
     -- Per-player Dusk warnings: advisory printToColor messages. Each player
     -- may still scramble 1 tile (1 Hunger) via the Dusk panel before Night.
+    --
+    -- Under secret commitment these describe where you stand RIGHT NOW, which
+    -- is the honest thing to warn about — where you (or anyone) will end up is
+    -- precisely what nobody is allowed to know yet.
     for color, char in pairs(gameState.activeChars) do
         if not char.down then
             local loc = char.location
@@ -588,6 +598,9 @@ end
 function beginNight()
     gameState.subPhase = "Night"
     if UI then UI.hide("duskPanel") end
+    -- Secret Dusk commitment (§11.3 variant): every banked scramble lands now,
+    -- simultaneously, before anything else reads a position.
+    safecall(function() revealDuskCommitments() end, "DuskReveal")
     safecall(function() setPhaseMood("Night") end, "Mood")
     safecall(function() Audio.startNightAmbience() end, "Audio")
     refreshPhaseBanner()

@@ -109,6 +109,7 @@ function Setup(hostColor)
     gameState.clueCount = 0
     gameState.cluesSurfaced = 0
     gameState.openingOffered = {}      -- guided opening (§15.9)
+    gameState.duskPending = {}         -- secret Dusk commitments (§11.3)
 
     local counter = getDayCounter()
     if counter then counter.setValue(1) end

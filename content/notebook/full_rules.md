@@ -35,6 +35,8 @@ Each player has **3 actions**, taken as one turn (default) — or, with the **Ro
 ### Dusk
 Last chance to move: each character may **scramble 1 tile** (costs 1 Hunger, once per character), or stay. You sleep where you stand. Declarations are public — argue it out.
 
+*Secret Dusk variant (off by default):* argue as normal, then commit your scramble privately. Everyone's move lands at once when Night begins, and the Hunger is charged then. Nobody can verify that you did what you said.
+
 ### Night
 For each occupied tile, least-populated first:
 - Draw threats per the location's threat rate (modified by Doom thresholds).

@@ -34,8 +34,22 @@ In a co-op game with public boards, the most common failure mode is the **alpha 
 3. **Ghost word-limit.** Down players can speak only one word per round to the team (§16.4). This stops a "dead" alpha from quarterbacking the survivors. (It also produces some of the game's funniest moments.)
 4. **Soft turn timer (optional).** Default rules suggest a 60-second sand timer per player turn during Day Phase. Strictly optional, but groups with a known alpha player should turn it on — it short-circuits over-optimization.
 5. **Trade-not-give.** When a stronger player wants to "fix" a weaker player's hand, they must publicly trade for it. The transaction is visible and reciprocal, not unilateral.
+6. **Secret Dusk (optional variant, §11.3).** The table argues, then everyone commits their night simultaneously and in secret. The alpha can still argue; they can no longer confirm compliance.
 
-The design does *not* hide the global game state. Resources, the Doom track, and stat values are all public — that is necessary for the co-op layer to function. What is hidden is *the room to maneuver inside one player's options*. That is the right partition.
+**Graded honestly against [§20](../../Archive/PrinciplesOfGoodBoardGames.md)**, because five fronts is not the same as five *working* fronts:
+
+| Front | Assessment |
+|---|---|
+| Private item hands | ✅ Real, but thin — 5 hidden cards against a fully public board, Doom track, stat set and threat map |
+| Asymmetric perks + constraints | ✅ **The strongest one.** Five genuinely different games is the fix that costs nothing at the table |
+| Ghost word-limit | ✅ Excellent, and unusually well-targeted — a freely-talking ghost is a *promoted* alpha |
+| Soft turn timer | ❌ Optional and etiquette-shaped. §20 is explicit that optional social fixes reliably fail |
+| Trade-not-give | ❌ A formality. The alpha announces the trade and it happens |
+| Secret Dusk | ⏳ Structural, and the one that targets the highest-stakes decision of the round — but off by default until table data (§20.2 item 9) |
+
+So two and a half of the original five hold up. The design's own summary — "what is hidden is the room to maneuver inside one player's options" — is the right partition; the maneuvering room was just small, and Dusk was the obvious place to widen it.
+
+The design does *not* hide the global game state. Resources, the Doom track, and stat values are all public — that is necessary for the co-op layer to function.
 
 ### 19.6 Designer's Checklist self-audit
 
@@ -113,14 +127,28 @@ Two ❌ marks are acceptable at v1 (this document is the brief, not a finished g
    | Several of the 49 Market items are never crafted | ⏳ Needs table data — the sim abstracts the Market to two craft targets. |
 
    The Cleanse result is actionable now and deliberately **not** acted on in this pass: it is a fifth change pushing difficulty in the same direction as findings 6–9, and §17's regression list forbids evaluating those together. Recorded as a knob, not spent.
+9. **Secret Dusk A/B (§11.3 variant)** — the same protocol as the turn-structure A/B: one group, two games, one with public declaration and one with secret commitment. Measure **decisions announced by another player before the owner spoke** (the alpha metric), and ask the table directly whether the Dusk argument got *better or worse* — the variant is only worth its risk if the argument improves. Watch specifically for a miscoordinated Coco No-Home hit and whether the table read it as a great story or as the rules cheating them. The session log records `duskSecret`, so the two games are directly comparable. **Do not make it the default before this runs.**
+10. **Solo calibration (§20.3)** — Solo is now an official mode, not an expansion hook, and its win rate is *not* the same number as Standard's: one brain running three characters plays the action economy far better than three brains coordinating, and every anti-alpha rule is suspended. Run enough solo games to establish its own band before quoting a difficulty to a solo player. The session log records `solo`.
 
 ### 20.3 Expansion hooks (post-launch)
 
 - **More characters.** A Year 2 box adds 5 new survivors (e.g., a Musician, a Mechanic, a Dog).
 - **More locations.** Extend the map to 8 locations: Library, Convenience Store, the Park.
 - **The Source's Backstory** (campaign mode). A 5-game arc where decisions persist between sessions: which characters survived, which clues were found, what the Source actually was. (Borrowing HPHB's box-progression idea, InterestingGames.md §1.3.6.)
-- **Co-op vs. Traitor variant.** One player secretly serves the Source. Raises the game's social-deduction layer.
-- **Solo mode.** Single player controls 2–3 characters as a personal cast.
+- **Co-op vs. Traitor variant.** One player secretly serves the Source. Raises the game's social-deduction layer. (Deliberately shelved rather than built: per §20 it would solve quarterbacking almost completely and turn this into a social-deduction game, which is a different aesthetic from §1.4's cozy dread.)
+
+**Solo is no longer on this list — it shipped as an official mode.** Multi-handed solo (one player, three characters) is the cheapest solo mode that exists, and this game was unusually close to it already:
+
+- **The game state is public by design** (§19.5). The usual blocker for multi-handed solo is hidden information, and the only hidden state here is item hands — which a solo player simply holds.
+- **There is no opponent to automate.** The Dawn deck, the threat draws and the Doom track *are* the opponent, and they already run themselves.
+- `scripts/simulate_balance.py` is, functionally, already playing the game solo.
+- The 3-player minimum in §3 is set on *social* grounds ("at 2 players the social/specialization layer collapses"), which is an argument about a two-*player* game, not about one player running three characters.
+
+The only real work was that **every anti-alpha mechanism is anti-solo by definition** — the ghost word-limit, private hands and Secret Dusk are all meaningless or merely annoying with one brain. So that is what the mode *is*: a setup toggle that runs 3 characters with those rules suspended (hands open, no ghost word-limit, no Dusk secrecy; the toggle turns Secret Dusk off for you rather than silently ignoring it).
+
+**Why bother.** Solo play is a large and growing share of the tabletop audience, it is the format in which a designer can most cheaply accumulate plays, and per §18 this design needs dozens of plays before it is finished. **A solo mode is a development tool before it is a feature.**
+
+**Risk, and it is a real one:** the win-rate band differs for solo and needs its own calibration (§20.2 item 10). Do not ship claiming Standard means the same thing — one brain coordinating three characters plays the action economy far better than three brains coordinating.
 
 ### 20.4 What's deliberately not in the design
 

@@ -11,11 +11,9 @@
 --             lives or dies on this; hooked in day_loop.lua).
 --   beats   — which batch-1/2/3 moments fired: presses that killed,
 --             Signatures used, the Source split, dares taken.
+--   usage   — option utilization (§20.2 item 8): every craft, cook, action,
+--             location, Visitor and Trophy, counted. Schema 2.
 
------------------------------------------------------------------------
--- Beat recording — called from combat.lua / signatures.lua / the dare
--- sites via safecall (a telemetry failure must never break the game).
------------------------------------------------------------------------
 -----------------------------------------------------------------------
 -- OPTION UTILIZATION (Design §20.2 item 8) — which of the game's options
 -- does anyone actually use?
@@ -45,6 +43,10 @@ function recordUsage(kind, name)
     ch.usage[kind][tostring(name)] = (ch.usage[kind][tostring(name)] or 0) + 1
 end
 
+-----------------------------------------------------------------------
+-- Beat recording — called from combat.lua / signatures.lua / the dare
+-- sites via safecall (a telemetry failure must never break the game).
+-----------------------------------------------------------------------
 function recordBeat(kind, value)
     local ch = ensureChronicle()
     ch.beats = ch.beats or { pressKills = 0, signaturesUsed = {}, sourceSplit = false, daresTaken = 0 }
@@ -76,6 +78,10 @@ function recordSetupInChronicle()
         scenario    = gameState.scenario,
         turnStyle   = gameState.turnStyle,
         difficulty  = gameState.difficulty or "standard",
+        -- The two A/B variants (§20.2 items 9-10). Without these on the log,
+        -- the aggregate win rate silently mixes rule sets.
+        duskSecret  = gameState.duskSecret or false,
+        solo        = gameState.solo or false,
     }
 end
 

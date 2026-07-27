@@ -283,6 +283,9 @@ function migrateGameState()
     gs.clueCount            = gs.clueCount or 0
     gs.cluesSurfaced        = gs.cluesSurfaced or 0          -- how many the refill seam has put on offer
     gs.openingOffered       = gs.openingOffered or {}        -- Day-1 opening suggestion, once per player (§15.9)
+    gs.duskPending          = gs.duskPending or {}           -- banked secret Dusk moves (§11.3 variant)
+    if gs.duskSecret == nil then gs.duskSecret = false end   -- §11.3 A/B variant
+    if gs.solo == nil then gs.solo = false end               -- §20.3 solo mode
     for _, char in pairs(gs.activeChars) do
         if char.signatureUsed == nil then char.signatureUsed = false end -- batch 2
     end

@@ -98,6 +98,13 @@ local function collectActiveRules()
         table.insert(lines, "VARIANT — Rotation turns: take 1 action, then the next player goes; play circles the table until everyone has used all 3. Pass after acting = keep your remaining actions for your next go; pass without acting = forfeit them.")
     end
 
+    -- 0.4) The two A/B variants (§11.3 / §20.3)
+    if gameState.duskSecret then
+        table.insert(lines, "VARIANT — Secret Dusk: talk it through, then commit your scramble privately. Every move lands at once when Night begins. Nobody can check that you did what you said.")
+    end
+    if gameState.solo then
+        table.insert(lines, "SOLO MODE: hands open, no ghost word-limit, no Dusk secrecy — the anti-alpha rules are off because there is only one of you.")
+    end
     -- 0.6) Active Scenario (§17.3): its rules apply all game
     if gameState.scenario and SCENARIOS and SCENARIOS[gameState.scenario] then
         local sc = SCENARIOS[gameState.scenario]

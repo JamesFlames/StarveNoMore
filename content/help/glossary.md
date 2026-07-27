@@ -30,6 +30,8 @@
 ## Variants (optional, chosen at setup)
 - **Rotation turns** — instead of taking all 3 of your actions in one turn, you take 1 action and play passes to the next player, going around the table until everyone has used all 3. Pass after acting = keep your remaining actions for your next go; pass without acting = forfeit them.
 - **Scenario** — one week-long world modifier revealed at setup (e.g. The Long Winter, Total Blackout). Its rules stay in the "Rules in effect" panel all game. One per game, off by default.
+- **Secret Dusk** — instead of declaring your night out loud in turn order, the table argues freely and then everyone commits their scramble privately. Every move lands at once when Night begins, so nobody can check that you did what you said. Expect "I thought you were coming with me". Off by default.
+- **Solo** — one player runs three characters. The anti-alpha rules are suspended, because they exist to stop one player driving everyone and that is the point here: play every hand face up, ignore the ghost's one-word limit, skip Dusk secrecy. The difficulty labels do *not* mean the same thing in solo — it has not been calibrated.
 
 ## Treeguard (mini-boss)
 - Wakes at Dusk of Day 4 at a random sport court. HP 5, Attack 2.

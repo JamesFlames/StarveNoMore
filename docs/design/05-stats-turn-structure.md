@@ -124,6 +124,19 @@ Dusk is the round's last decision, and it is a real one:
 1. **Scramble (optional).** Each character may make **one 1-tile move, paying 1 Hunger**. No action cost — all actions are spent by now. This is the last chance to reach a safer tile, join an ally, or deliberately stay out at a court for the Moonlit Salvage gamble (§7.4).
 2. **Declare.** Each player declares publicly where they sleep. You sleep where you stand — the declaration is the table-talk moment where the group argues geometry: who pairs with whom, who takes the floor (§11.4), who risks the court.
 
+**Secret Dusk (optional variant, off by default).** *The table discusses freely, then every player commits their scramble **simultaneously and in secret**, and all the moves land together when Night begins.*
+
+The argument is untouched; only the commitment changes. The case for it is that Dusk is the game's unexploited anti-alpha lever: §19.5 fights the alpha player on five fronts, of which [§20.1](../../Archive/PrinciplesOfGoodBoardGames.md) grades two and a half as real — the soft turn timer is an optional social fix (which §20 says reliably fail) and trade-not-give is a formality the alpha simply narrates. Meanwhile the highest-stakes decision of the round is a *sequential public argument over a shared optimum*, which is precisely the stage an alpha player performs on. This is one rule and it pays four ways:
+
+1. **Anti-alpha, structurally.** §20 names simultaneous commitment as the most under-used lever in the genre. The alpha can still argue; they can no longer confirm that everyone complied.
+2. **It generates the game's best stories.** *"I thought you were coming with me"* is a better Week in Review headline than any threat draw, and it comes from one rule rather than from scripted content ([§7](../../Archive/PrinciplesOfGoodBoardGames.md) — emergence over scripting). §1.4 ranks storied collaboration third among the target aesthetics.
+3. **It is thematically exact.** People scatter in the dark. They mean to regroup. They don't.
+4. **It is nearly free digitally.** [§24](../../Archive/PrinciplesOfGoodBoardGames.md) notes that simultaneous secret commitment is trivial in a digital implementation and awkward physically — exactly the kind of thing this build should spend its budget on. (For a print edition it is a face-down tile per player, revealed together.)
+
+**The risk, stated plainly.** It cuts directly against the paragraph above it: §11.3 celebrates the public declaration, and that is a real design position, not an oversight. It can also produce a genuinely bad outcome — Coco's No Home constraint (§6.2) costs her 3 Sanity for ending the night alone, which under secret commitment can happen through miscoordination rather than through choice. Whether that is the best moment in the game or an unfair one depends on the table, which is exactly why **it ships as an A/B toggle and not as the default**, on the same pattern (and with the same telemetry) as the Rotation variant. The session log records which mode was played, so aggregate win rates can't silently mix rule sets. Protocol and what to watch: §20.2 item 9.
+
+Two implementation details follow from the intent rather than from convenience: the Hunger cost is charged **on reveal, not on commit** (you have not moved yet), and the reveal **names everyone who ended up alone** — that beat is the point of the variant, so it is announced rather than discovered at Tick.
+
 The Hunger cost matters: a scramble is cheap insurance early in the week and a real price late, when Hunger is scarce. Groups that plan their Day-phase movement well rarely need to scramble; groups that didn't pay for it.
 
 ### 11.4 Phase 4 — Night (5–10 minutes)

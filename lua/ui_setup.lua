@@ -87,6 +87,8 @@ function startGuidedSetup(hostColor)
     setupState.pickedPath = nil
     setupState.charPicks = {}
     setupState.pendingColors = {}
+    setupState.duskSecret = false   -- §11.3 A/B variant, off by default
+    setupState.solo = false         -- §20.3 → an official mode
 
     -- Defaults to STORY: the gentlest *full week*, not the short game. Each
     -- click steps up — Standard, Nightmare — and then offers Long Weekend as
@@ -168,6 +170,38 @@ function onToggleScenario(player, value, id)
         "Random Scenario: OFF\n(a week-long twist like The Long Winter — recommended after your first game)")
 end
 
+-- Secret Dusk (§11.3 variant, A/B — §20.2 item 9). OFF by default, exactly
+-- like Rotation turns: this cuts against §11.3's explicit intent (the public
+-- declaration is celebrated there as "the table-talk moment where the group
+-- argues geometry"), so it must earn the default with table data, not with an
+-- argument. §20.1 records what to watch.
+function onToggleDuskSecret(player, value, id)
+    setupState.duskSecret = not setupState.duskSecret
+    refreshVariantToggle("toggleDuskSecret", setupState.duskSecret,
+        "Secret Dusk: ON\n(argue freely, then commit your night in secret — all revealed at once)",
+        "Secret Dusk: OFF\n(standard — you declare where you sleep out loud, in turn order)")
+end
+
+-- Solo (§20.3 → an official mode). One player runs three characters. Every
+-- anti-alpha mechanism is anti-SOLO by definition — private hands, the ghost
+-- word-limit and Secret Dusk are all meaningless or merely annoying with one
+-- brain — so the mode's actual content is suspending them.
+function onToggleSolo(player, value, id)
+    setupState.solo = not setupState.solo
+    if setupState.solo then
+        -- Secrecy against yourself is pure friction. Turning it off with the
+        -- toggle (rather than silently ignoring it later) keeps the setup
+        -- panel an honest description of the game about to be played.
+        setupState.duskSecret = false
+        refreshVariantToggle("toggleDuskSecret", false,
+            "Secret Dusk: ON\n(argue freely, then commit your night in secret — all revealed at once)",
+            "Secret Dusk: OFF\n(standard — you declare where you sleep out loud, in turn order)")
+    end
+    refreshVariantToggle("toggleSolo", setupState.solo,
+        "Solo: ON\n(one player runs 3 characters — hands open, no ghost word-limit, no Dusk secrecy)",
+        "Solo: OFF\n(a normal 3-5 player game)")
+end
+
 -- Mode selector (Design §17.2). Difficulty and length are separate dials:
 -- STORY / STANDARD / NIGHTMARE are three difficulties on the same full
 -- 7-day arc, and LONG WEEKEND is a *length* — a 3-day teaching format —
@@ -210,6 +244,14 @@ function onVariantsContinue(player, value, id)
     gameState.turnStyle = setupState.rotationTurns and "rotate" or "full"
     if setupState.rotationTurns then
         broadcastEvent("proc", "Variant on — Rotation turns: each player takes 1 action at a time, going around the table until everyone has used all 3.")
+    end
+    gameState.duskSecret = setupState.duskSecret or false
+    if gameState.duskSecret then
+        broadcastEvent("proc", "Variant on — Secret Dusk: argue all you like, then commit your night privately. Everyone's move lands at once when the light goes.")
+    end
+    gameState.solo = setupState.solo or false
+    if gameState.solo then
+        broadcastEvent("proc", "SOLO MODE: one player, three characters. Play every hand face up, ignore the ghost's one-word limit, and skip Dusk secrecy — those rules exist to stop one player driving everyone, which is the whole point here.")
     end
     gameState.difficulty = setupState.difficulty or "standard"
     if gameState.difficulty ~= "standard" then
@@ -736,6 +778,7 @@ function finalizeGuidedSetup()
     gameState.clueCount = 0
     gameState.cluesSurfaced = 0
     gameState.openingOffered = {}      -- guided opening (§15.9)
+    gameState.duskPending = {}         -- secret Dusk commitments (§11.3)
 
     local counter = getDayCounter()
     if counter then counter.setValue(1) end

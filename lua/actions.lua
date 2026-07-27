@@ -227,6 +227,22 @@ function doDuskMove(color, targetLocation)
     end
 
     gameState.duskMoves[color] = true
+
+    -- Secret Dusk commitment (§11.3 variant, off by default). The table still
+    -- argues; it just can't watch you comply. The move is banked here and
+    -- applied for everyone at once by revealDuskCommitments (turns.lua), so
+    -- nobody can react to anybody else's declaration.
+    if gameState.duskSecret then
+        gameState.duskPending = gameState.duskPending or {}
+        gameState.duskPending[color] = targetLocation
+        printToColor("Committed: you'll slip to " .. targetLocation ..
+                     " when the light goes. Nobody else can see it yet. (-1 Hunger on reveal)",
+                     color, BROADCAST_COLORS.warn)
+        broadcastEvent("proc", char.name .. " has committed their night. Where, they aren't saying.")
+        safecall(function() refreshDuskReadyLabel() end, "DuskReady")
+        return
+    end
+
     char.hunger = math.max(0, char.hunger - 1)
     char.location = targetLocation
     if char.name == "Rayman" then

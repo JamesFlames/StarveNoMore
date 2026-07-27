@@ -197,6 +197,79 @@ end
 -- The host's Resolve Night button remains as a manual override (and
 -- the only path when no eligible player is seated, e.g. hotseat).
 -----------------------------------------------------------------------
+-----------------------------------------------------------------------
+-- Secret Dusk commitment (§11.3 variant) — reveal.
+--
+-- Under the variant, doDuskMove banks each scramble in gameState.duskPending
+-- instead of moving the standee. This applies them ALL AT ONCE, at the moment
+-- Night begins, so no player can react to another player's declaration.
+--
+-- Why the reveal is a separate step rather than "apply on click": the whole
+-- value of the variant is that the alpha player can argue but cannot confirm
+-- compliance (§19.5). If moves landed as they were clicked, the last player to
+-- commit would see everyone else's board and the variant would be theatre.
+--
+-- Staying put is a commitment too, and a silent one — it needs no bookkeeping
+-- here, which is why "I thought you were coming with me" is the outcome the
+-- variant exists to generate.
+-----------------------------------------------------------------------
+function revealDuskCommitments()
+    if not gameState.duskSecret then return end
+    local pending = gameState.duskPending or {}
+    gameState.duskPending = {}
+
+    -- Ordered, so the reveal reads the same for everybody watching.
+    local order = {}
+    for _, color in ipairs({"White", "Red", "Yellow", "Green", "Blue"}) do
+        if pending[color] then table.insert(order, color) end
+    end
+    if #order == 0 then
+        broadcastEvent("phase", "Nobody moved. Everyone sleeps where they stood.")
+        return
+    end
+
+    broadcastEvent("phase", "--- THE LIGHT GOES. Everyone moves at once. ---")
+    for _, color in ipairs(order) do
+        local char = gameState.activeChars[color]
+        local target = pending[color]
+        if char and not char.down and target then
+            char.hunger = math.max(0, char.hunger - 1)
+            char.location = target
+            if char.name == "Rayman" then
+                gameState.raymanMovedToday = true
+                gameState.raymanTilesMovedToday = (gameState.raymanTilesMovedToday or 0) + 1
+            end
+            broadcastEvent("warn", char.name .. " went to " .. target .. ". (-1 Hunger)")
+            safecall(function()
+                local standee = getCharacterStandee(char.name)
+                local tile = getLocationTile(target)
+                if standee and tile then
+                    standee.setPositionSmooth(getCharSlotPosition(tile, char.name))
+                end
+            end, "DuskReveal")
+            safecall(function() checkWrongnessEntry(color) end, "Wrongness")
+            checkDownState(color)
+        end
+    end
+
+    -- Name who ended up alone. Under secret commitment that can happen by
+    -- miscoordination rather than by choice, and it is the beat the variant
+    -- was added for — so it is said out loud rather than discovered at Tick.
+    for color, char in pairs(gameState.activeChars) do
+        if not char.down then
+            local alone = true
+            for c2, ch2 in pairs(gameState.activeChars) do
+                if c2 ~= color and not ch2.down and ch2.location == char.location then
+                    alone = false; break
+                end
+            end
+            if alone then
+                broadcastEvent("warn", char.name .. " is alone at " .. (char.location or "?") .. ".")
+            end
+        end
+    end
+end
+
 function countDuskReady()
     local ready, total = 0, 0
     for color, ch in pairs(gameState.activeChars) do

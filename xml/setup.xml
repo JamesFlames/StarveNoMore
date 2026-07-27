@@ -56,18 +56,18 @@
 <!-- ================================================================== -->
 <Panel id="setupStepVariants"
        rectAlignment="MiddleCenter"
-       width="560" height="410"
+       width="620" height="580"
        color="#F2E8D5F7"
        outline="#7A5C2ECC"
        outlineSize="2"
        active="false">
-  <VerticalLayout spacing="8" padding="16 16 16 16"
+  <VerticalLayout spacing="6" padding="16 16 14 14"
                   childForceExpandHeight="false">
     <Text fontSize="20" fontStyle="Bold" color="#5C3A10"
           text="Optional Variants" preferredHeight="28" />
     <Text fontSize="14" color="#4A4436"
-          text="Defaults = the standard game. First game? Just click Continue."
-          preferredHeight="30" />
+          text="Defaults = a gentle full week. First game? Just click Continue."
+          preferredHeight="26" />
     <Button id="toggleDifficulty"
             onClick="onToggleDifficulty"
             fontSize="14" color="#CFE6C2FF" textColor="#1E5A1E"
@@ -87,10 +87,24 @@
             fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
             preferredHeight="64"
             text="Random Scenario: OFF&#10;(a week-long twist like The Long Winter — recommended after your first game)" />
+    <Button id="toggleDuskSecret"
+            onClick="onToggleDuskSecret"
+            fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
+            preferredHeight="64"
+            tooltip="OFF (standard): at Dusk you declare where you sleep out loud, in turn order. ON: the table argues freely, then everyone commits their night privately and all the moves land at once. The alpha player can still argue — they can no longer confirm that everyone complied. Expect 'I thought you were coming with me'."
+            tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
+            text="Secret Dusk: OFF&#10;(standard — you declare where you sleep out loud, in turn order)" />
+    <Button id="toggleSolo"
+            onClick="onToggleSolo"
+            fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
+            preferredHeight="64"
+            tooltip="One player runs three characters as a personal cast. The anti-alpha rules are suspended, because they are all anti-solo by definition: play every hand face up, ignore the ghost's one-word limit, and skip Dusk secrecy. The win rate is NOT calibrated for solo — treat Standard as a different number here."
+            tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
+            text="Solo: OFF&#10;(a normal 3-5 player game)" />
     <Button id="variantsContinue"
             onClick="onVariantsContinue"
             fontSize="16" fontStyle="Bold" color="#CFE6C2FF" textColor="#1E5A1E"
-            preferredHeight="52"
+            preferredHeight="48"
             text="Continue" />
   </VerticalLayout>
 </Panel>
