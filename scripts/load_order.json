@@ -21,6 +21,7 @@
     "effects/dawn_effects_dispatch.lua",
     "combat.lua",
     "combat_resolve.lua",
+    "clues.lua",
     "crafting.lua",
     "night.lua",
     "tick_victory.lua",

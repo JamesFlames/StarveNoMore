@@ -21,10 +21,30 @@ The final boss is not optional: a team that spends the Final Hours hiding from T
 ### 16.2 Bonus victories
 
 - **Pristine Run** — **Every character in play** is alive at game end, with no revivals: all of them reached the end on their feet. Awarded a "Story Card" to keep. (It reads "every character in play," not "all five," because §6.6 turns the spare characters into Visitor NPCs — a 4-player game only ever has four on the board, so an "all five" bar would have made the recommended player count the one count that could never earn this.)
-- **Truth Run** — The team finds and reads all 3 Clue cards (special items in the Market deck) before Day 7. The ending narrative changes.
+- **Truth Run** — The team finds and reads all 3 Clue cards before Day 7. The ending narrative changes. **The clues are findable by decision, not by draw** — see below.
 - **Hero Run** — Defeat all three phase bosses: the Deerclops, the Eye of Terror, and the Source. (The Treeguard mini-boss doesn't count — §14.2. The Source is already mandatory for any win; the Hero Run is for felling the other two as well.)
 
 These are not separate goals — they are achievements layered on top of survival, encouraging replay.
+
+#### Why the Truth Run is not a lottery
+
+The Clues used to be three specific cards in a 49-card Market deck, seen through a 5-card display over seven days. That is dominated by shuffle luck: **a team could play perfectly and never see one.** It made the Truth Run output randomness applied to a *goal* ([PrinciplesOfGoodBoardGames.md §5](../../Archive/PrinciplesOfGoodBoardGames.md)) — the player did everything right and lost the achievement anyway — and per §12 an alternate goal that is "technically possible but usually unreachable" is not a path at all. It also wasted the strongest replayability hook in the bonus set, since this is the one that changes the ending.
+
+(It was worse than that in the shipped build: nothing in the code ever incremented the clue counter, so the Truth Run could not fire under *any* draw. Both halves are fixed.)
+
+Clues now arrive three ways, all of them decisions:
+
+| How | Guarantee | What it costs |
+|---|---|---|
+| **The Sealed Basement** (§13.5) | One clue, always | Crafting a Pry tool and going to Ellie & Luca's House |
+| **Market checkpoints** | By Day 3 and Day 5, if the team has not been offered a clue, the next Market refill *is* one | Crafting at all — you have to be turning the display over |
+| **James's Pattern Recognition** (§6.1) | A clue he peeks on top of the Market deck is his to **take**, not merely to read | His once-a-day free peek, spent on the Market rather than on the Threat deck |
+
+The Basement is the one that matters most, and it costs nothing new: that object is already placed at setup, already visible from turn one, and already designed as "the map's reliable early destination." Putting a clue behind it converts the Truth Run from a lottery into a plan using machinery that exists — and makes crafting a Crowbar early a genuine strategy with a named payoff instead of a rounding error.
+
+James's pull is the smallest of the three and does the most for character identity: it gives one character a real claim on one of the three bonus victories, which is the personal-asymmetry pillar (§1.4 #4) paying out rather than being asserted. The cost is a real one — he only gets one peek a day, and spending it on the Market means not reading the Threat deck the night before a boss.
+
+*Implementation note.* The proposal was to shuffle one Clue into each third of the deck. TTS has no insert-at-index for a Deck (`takeObject` can pull by index; `putObject` only lands on top), so a literal re-stack means splitting the deck into a staging pile and reassembling it through the physics engine, asynchronously, at setup. The checkpoint rule delivers the same observable property — availability spread across the week rather than clumped — and is deterministic rather than best-effort, which is the point: shuffle luck was the complaint.
 
 ### 16.3 Defeat conditions
 

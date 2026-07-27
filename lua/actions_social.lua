@@ -198,6 +198,24 @@ function doPeek(color, deckKey)
     local text = (top and top.description) or ""
     gameState.jamesPeekUsed = true
     broadcastEvent("proc", "James studies the " .. entry.label .. "... Pattern Recognition (free action, once per day).")
+
+    -- Truth Run (§16.2, §6.1): a Clue on top of the Market deck is James's to
+    -- TAKE, not merely to read. Peek already sees deck tops; letting it pull
+    -- gives one character a genuine claim on one of the three bonus
+    -- victories, which is the personal-asymmetry pillar (§1.4 #4) doing real
+    -- work rather than being asserted. It costs him nothing extra — the peek
+    -- was already spent — so the decision is which deck to look at, knowing
+    -- the Market is the one that can pay out.
+    if deckKey == "Market" and top and name:sub(1, 5) == "Clue:" then
+        showPeekResult(color, "Top of the " .. entry.label,
+            name .. (text ~= "" and ("\n\n" .. text) or "")
+                 .. "\n\nYou recognise it for what it is — and take it.")
+        safecall(function() takeClueFromMarketDeck(color, nil) end, "PeekClue")
+        broadcastEvent("gain", "James saw the pattern: he pulls " .. name ..
+            " straight out of the Market deck.")
+        return true
+    end
+
     showPeekResult(color, "Top of the " .. entry.label,
         name .. (text ~= "" and ("\n\n" .. text) or "")
              .. "\n\nTell the team — or don't.")
@@ -285,9 +303,15 @@ PRY_TOOLS = {
 -- AUTO-GENERATED from the `pry_reward` column of cards_threats.csv), so the
 -- card face and the delivered reward can never drift apart. The Basement is
 -- a placed object, not a card — its entry is authored here.
+-- The Basement also holds a CLUE (§16.2 / §13.5). It is the one guaranteed
+-- clue in the game, and it is what turns the Truth Run from a lottery into a
+-- plan: the basement is placed at setup, visible from turn one, and already
+-- designed as "the map's reliable early destination", so crafting a Pry tool
+-- early becomes a real strategy with a named payoff instead of a rounding
+-- error. Everything else about the Truth Run can still miss; this cannot.
 SEALED_REWARDS.BASEMENT = {
-    market = 1, resources = { Food = 2, Wood = 1, Battery = 1 },
-    line = "The basement cache, hoarded before the week began: a free Market Item plus 2 Food + 1 Wood + 1 Battery.",
+    market = 1, clue = 1, resources = { Food = 2, Wood = 1, Battery = 1 },
+    line = "The basement cache, hoarded before the week began: a free Market Item, one of the three CLUES, plus 2 Food + 1 Wood + 1 Battery.",
 }
 
 local PRY_RADIUS = 7   -- same "at this tile" radius as festering / signatures
@@ -415,6 +439,12 @@ local function _deliverSealedReward(color, reward, locName)
                 })
             end, "PryMarket")
         end
+    end
+    -- A guaranteed Clue (the Sealed Basement, §16.2). Pulled by name out of
+    -- the Market deck rather than dealt off the top, so the reward is the one
+    -- the tooltip promised.
+    if reward.clue then
+        safecall(function() takeClueFromMarketDeck(color, locName) end, "PryClue")
     end
     if reward.line then broadcastEvent("gain", reward.line) end
 end

@@ -100,7 +100,7 @@ Day 7 opens on **The Last Dawn** — a fixed Dawn with no penalty ("the sky is t
 
 Bonus achievements:
 - **Pristine** — every character in play still standing, nobody revived.
-- **Truth** — 3 Clue cards collected.
+- **Truth** — 3 Clue cards collected. One is behind the Sealed Basement; the Market surfaces the others as the week goes on; James can pull one he peeks. Not a lottery — plan for it.
 - **Hero** — defeat all 3 phase bosses (Deerclops, Eye of Terror, The Source).
 
 ## Variants (optional, chosen at setup)

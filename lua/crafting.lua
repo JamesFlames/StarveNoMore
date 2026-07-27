@@ -99,6 +99,12 @@ function doCraft(color, marketSlotIndex)
     end
     broadcastEvent("gain", char.name .. " crafts " .. itemName .. " — dealt to your hand.")
 
+    -- Truth Run (§16.2): claiming a Clue is what "finds and reads" it. This
+    -- is the only place an ordinary craft can advance the achievement, and
+    -- until it existed gameState.clueCount was never incremented by anything,
+    -- so the Truth Run was unreachable in code rather than merely unlikely.
+    safecall(function() recordClueFound(color, card) end, "Clue")
+
     -- Move card to the player's hand zone
     stripMarketHelp(card)
     local handZone = getHandZone(color)
@@ -136,7 +142,17 @@ function refillMarketSlot(slot)
     -- (Doom 15 no longer slows the refill — it adds +1 to craft costs
     -- instead. Scarcity should pressure, not bore: players still see
     -- tempting cards they can't quite afford.)
+
+    -- Truth Run (§16.2, clues.lua): if the week has passed a checkpoint and
+    -- no Clue has been put in front of the team, this refill is a Clue. This
+    -- is the "spread the clues through the deck" guarantee, applied where the
+    -- player actually meets the deck — so finding all three is a plan rather
+    -- than a shuffle.
+    local clueGuid = nil
+    safecall(function() clueGuid = clueDueForRefill() end, "ClueRefill")
+
     marketDeck.takeObject({
+        guid     = clueGuid,   -- nil ⇒ normal top-of-deck draw
         position = slot.getPosition() + Vector(0, 1, 0),
         rotation = {0, 180, 0},  -- face up
         smooth   = true,

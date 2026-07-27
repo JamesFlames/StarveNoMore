@@ -278,6 +278,9 @@ function migrateGameState()
     gs.messageLog           = gs.messageLog or {}            -- Message Log panel (ui_msglog.lua)
     gs.resources            = gs.resources or {}             -- authoritative held resources per colour
     gs.haunted              = gs.haunted or {}               -- who is Haunted today + who witnessed it (§10.1)
+    gs.cluesFound           = gs.cluesFound or {}            -- Truth Run (§16.2): which of the 3 Clues are in hand
+    gs.clueCount            = gs.clueCount or 0
+    gs.cluesSurfaced        = gs.cluesSurfaced or 0          -- how many the refill seam has put on offer
     for _, char in pairs(gs.activeChars) do
         if char.signatureUsed == nil then char.signatureUsed = false end -- batch 2
     end

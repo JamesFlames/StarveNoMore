@@ -129,6 +129,17 @@ local function collectActiveRules()
         end
     end
 
+    -- 2.2) Truth Run progress (§16.2). Stated as a live rule, not left to be
+    -- reconstructed at game end: a bonus victory nobody is tracking is one
+    -- nobody plays toward, which was half of what made it dead content.
+    local clues = gameState.clueCount or 0
+    if clues > 0 and clues < (CLUES_FOR_TRUTH_RUN or 3) then
+        table.insert(lines, "TRUTH RUN: " .. clues .. " of " .. (CLUES_FOR_TRUTH_RUN or 3) ..
+            " Clues found. The Sealed Basement holds one; the rest surface in the Market.")
+    elseif clues >= (CLUES_FOR_TRUTH_RUN or 3) then
+        table.insert(lines, "TRUTH RUN secured — all 3 Clues found. Survive the week and the ending changes.")
+    end
+
     -- 2.5) The Wrongness (design_batch3.md §4): a deferred face-down threat
     if gameState.wrongness then
         table.insert(lines, "SOMETHING IS WRONG at " .. (gameState.wrongness.location or "?") ..

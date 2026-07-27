@@ -96,6 +96,6 @@
 - **Survive Day 7** with **at least one character not Down** and Doom < 30 to win — and if The Source has arrived, it must be destroyed. While it stands at the end of Day 7, there is no victory. (One survivor is enough: winning with most of the team as ghosts is a legitimate, grim win.)
 - **The Last Dawn** — Day 7's Dawn is fixed, not drawn: no penalty, just the finish line.
 - **Pristine Run** — every character in play still standing at the end, and nobody had to be revived. (Not "all five": at 3–4 players the spare characters are Visitor NPCs, so the bar is your own roster.)
-- **Truth Run** — 3 Clue cards collected.
+- **Truth Run** — 3 Clue cards collected. They are findable on purpose, not by luck: **one is behind the Sealed Basement** (bring a Crowbar to Ellie & Luca's House), the Market puts one in the display by Day 3 and another by Day 5 if you haven't seen them, and **James can take a Clue** he peeks on top of the Market deck. Progress shows in the Rules panel.
 - **Hero Run** — all 3 phase bosses defeated (Deerclops, Eye of Terror, The Source; the Treeguard doesn't count).
 - Defeats: Doom hits 30; all alive characters Down at the same instant; The Source still standing at the end of Day 7.

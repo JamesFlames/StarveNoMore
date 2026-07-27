@@ -732,6 +732,9 @@ function finalizeGuidedSetup()
     gameState.loudSignature = {}
     gameState.wrongness = nil
     gameState.basementOpened = nil
+    gameState.cluesFound = {}          -- Truth Run (§16.2)
+    gameState.clueCount = 0
+    gameState.cluesSurfaced = 0
 
     local counter = getDayCounter()
     if counter then counter.setValue(1) end
