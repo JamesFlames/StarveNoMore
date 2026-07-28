@@ -1,104 +1,130 @@
 # Character Briefings
 
-Per-character one-time popup text shown during the Setup walkthrough (Step 3, Design §18.16). Each briefing is visible only to the player who picked that character. It must fit on one screen at default font size.
+**This file is the source of the in-game text.** `scripts/generate_character_briefings.py`
+turns it into `lua/character_briefings.lua` (`CHAR_BRIEFINGS`), which the Setup
+walkthrough shows once to each player after they pick (Step 3, Design §18.16),
+and which also serves as the pick-card hover tooltip. Editing this file and
+rerunning `python scripts/check.py` is the only way to change that text — a
+freshness test fails if the two drift.
+
+**Keep it short.** The briefing panel is 560×480 with a 352px body at font size
+13 (`xml/setup.xml`), and the text must fit on one screen without scrolling.
+This is the elevator pitch, not the manual: the full mechanical detail for each
+character lives in [`../notebook/character_reference.md`](../notebook/character_reference.md),
+which feeds the in-game Notebook and the player rulebook.
+
+## Format
+
+Each character is one `##` section, and the parser is strict about the shape:
+
+- `**You are <Name>, the <Role>.**` — the opening line.
+- A plain paragraph of flavour.
+- `**Strengths**` or `**Constraint**` / `**Constraints**`, each followed by
+  `- Name: text` bullets.
+- `**Starting hand:** ...`
+- `**First move:** ...`
+
+The bold section labels are re-styled in the dialog by `formatBriefingBody`
+(`lua/ui_setup.lua`), so do not add rich-text tags here — they would render
+literally in the tooltip.
 
 ---
 
-## James — The Gamer
+## James
 
 **You are James, the Gamer.**
 
-You know patterns. You see things before they happen. You live at **James's House**, where Energy Drinks and Batteries are plentiful.
+You know patterns. You see things before they happen. Home: James's House, where Energy Drinks and Batteries are plentiful.
 
 **Strengths**
-- **Gaming Reflexes:** Once per turn, reroll one of your own dice (combat or event).
-- **Pattern Recognition:** Once per day, peek at the top card of any deck — know what's coming before anyone else.
+- Gaming Reflexes: once per turn, reroll one die.
+- Pattern Recognition: once per day, peek any deck top.
 
 **Constraint**
-- **Wired:** You need an Energy Drink every day. If you don't consume one by end of day, you lose 2 Sanity that night. Plan your supply.
+- Wired: consume 1 Energy Drink per day or lose 2 Sanity at night.
 
-**Starting hand:** Energy Drink ×2, Pocketknife, Flashlight, Headphones.
+**Starting hand:** Energy Drink x2, Pocketknife, Flashlight, Headphones.
 
-**Your first move:** You start at James's House. Gather from The Stash — you can take 2 Energy Drinks at once, so stock up every other day instead of daily. Then use Pattern Recognition to peek at the Phase deck — tell your team what's coming tomorrow.
+**First move:** Gather at home — The Stash lets you take 2 Energy Drinks at once. Stock up, then use Pattern Recognition to peek at the Phase deck.
 
 ---
 
-## Coco — The Angel
+## Coco
 
 **You are Coco, the Angel.**
 
-You are calm when the world isn't. You don't have a house here — you're visiting — but your presence keeps everyone sane.
+You are calm when the world isn't. You're visiting — no house of your own.
 
 **Strengths**
-- **Calming Presence:** Allies at your location lose 1 less Sanity at the night Tick.
-- **Touch of Hope (once per game):** Heal any character on the map by 4 Health, regardless of distance. Save this for a crisis.
-- **Light in the Dark:** You never trigger Charlie attacks. Darkness can't touch you.
-- **Wanderer's Gift:** Gain +1 Sanity each time you Move to a new location — travel suits you.
+- Calming Presence: allies at your tile lose 1 less Sanity at Tick.
+- Touch of Hope (once per game): heal any character +4 Health.
+- Light in the Dark: never triggers Charlie attacks.
+- Wanderer's Gift: gain +1 Sanity each time you move to a new location.
 
 **Constraint**
-- **No Home:** You don't own a house tile. You must end Night at a location with another player. Ending the night alone in a non-house tile costs you 3 Sanity. Stay near friends.
+- No Home: alone at a non-house tile at night = -3 Sanity.
 
 **Starting hand:** First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery, Friendship Bracelet.
 
-**Your first move:** You start at Ellie & Luca's House. Stick close to allies — your Calming Presence helps everyone nearby. Move with the group and use your items to keep Sanity stable.
+**First move:** Keep moving — your Gift rewards travel. Stick with allies at night.
 
 ---
 
-## Rayman — The Basketball Player
+## Rayman
 
 **You are Rayman, the Basketball Player.**
 
-You're the fastest and the toughest. You hit hard. You also eat a lot and make noise everywhere you go.
+Fastest and toughest. You hit hard. You also eat a lot.
 
 **Strengths**
-- **Speed:** Move 1 extra space per Move action (2 tiles instead of 1).
-- **Court Master:** +1 attack die when fighting at the Basketball Court.
-- **Backboard Block:** Spend an action to Defend — adjacent allies can't be targeted by enemies until your next turn.
+- Speed: Move 2 tiles per Move action.
+- Court Master: +1 attack die at the Basketball Court.
+- Backboard Block: Defend action shields adjacent allies.
 
 **Constraints**
-- **Big Appetite:** You lose 2 Hunger per day Tick (everyone else loses 1). Ellie is your best friend.
-- **Loud:** If you moved at all today, the location where you spend the Night draws +1 extra Threat — the noise follows you home. It doesn't stack; a day spent standing still is a quiet one. Travel wisely.
+- Big Appetite: lose 2 Hunger per Tick (others lose 1).
+- Loud: if you moved at all today, wherever you spend the Night draws +1 Threat. A quiet day keeps the dark away.
 
-**Starting hand:** Basketball (weapon), Sports Drink ×2, Athletic Tape, Whistle.
+**Starting hand:** Basketball, Sports Drink x2, Athletic Tape, Whistle.
 
-**Your first move:** You start at Rayman's House. Head to the Basketball Court to gather Wood — your Court Master perk makes you a powerhouse there. But watch your Hunger.
+**First move:** Head to the Basketball Court for Wood. Watch your Hunger.
 
 ---
 
-## Ellie — The Cook
+## Ellie
 
 **You are Ellie, the Cook.**
 
-The kitchen is your domain. You feed the team, and when you cook, everyone feels better. You live at **Ellie & Luca's House**, where the Crockpot is.
+The kitchen is your domain. You feed the team.
 
 **Strengths**
-- **Crockpot Master:** Recipes you cook require 1 fewer ingredient (minimum 1).
-- **Comfort Food:** When you share cooked food, eaters gain +1 extra Hunger and +1 extra Sanity.
-- **Knows the Pantry:** At your own house, pick the exact resources you want instead of drawing randomly — the picker delivers them to your board.
+- Crockpot Master: recipes need 1 fewer ingredient (min 1).
+- Comfort Food: shared meals give +1 extra Hunger and Sanity.
+- Knows the Pantry: at your house, pick a specific resource.
 
 **Constraint**
-- **Particular Eater:** You cannot eat raw food. Others can eat a Food token raw for partial Hunger; you must cook first. Keep ingredients stocked.
+- Particular Eater: cannot eat raw food. Must cook first.
 
 **Starting hand:** Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.
 
-**Your first move:** You start at Ellie & Luca's House. Gather Food using Knows the Pantry, then cook a Hot Stew for the team. Your kitchen is the safest, warmest place on the map — allies will come to you.
+**First move:** Gather Food with Knows the Pantry, then cook Hot Stew for the team.
 
 ---
 
-## Luca — The Orator
+## Luca
 
 **You are Luca, the Orator.**
 
-You talk people through the darkness. Your words hold Sanity together when everything else falls apart. You live at **Ellie & Luca's House** with Ellie.
+Your words hold Sanity together when everything else falls apart.
 
 **Strengths**
-- **Rally:** Once per turn, give an adjacent ally a free non-movement action. You make everyone around you more productive.
-- **Calm Words:** When a Sanity-loss event hits your location, roll a d6 — on 4+, the entire group here ignores the loss.
-- **Storyteller:** During Night, players at your location regain +1 Sanity. Camp with Luca is safer.
+- Rally: once per turn, give an adjacent ally a free action.
+- Calm Words: on Sanity-loss events at your tile, d6 — 4+ negates it.
+- Storyteller: allies at your tile gain +1 Sanity at Night.
 
 **Constraint**
-- **Needs an Audience:** Your Sanity does not regenerate when you are alone. Stay with at least one other player. Isolation is your enemy.
+- Needs an Audience: Sanity doesn't regen when alone.
 
-**Starting hand:** Notebook, Loud Whistle, Pep Talk (single-use), Reading Lamp, Toolbox.
+**Starting hand:** Notebook, Loud Whistle, Pep Talk, Reading Lamp, Toolbox.
 
-**Your first move:** You start at Ellie & Luca's House with Ellie. Use Rally to give her a free action early — she can cook while you gather. Stick together; your perks all reward having company.
+**First move:** Use Rally to give Ellie a free action. Stay with allies.

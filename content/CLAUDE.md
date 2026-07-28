@@ -13,6 +13,7 @@ matching generator leaves the game out of sync (and fails a freshness test).
 | `cards_recipes.csv` | `generate_recipe_data.py` |
 | `notebook/*.md`, `help/glossary.md` | `generate_notebook.py` + `generate_player_rules.py` |
 | `help/whatnow_hints.md` | `generate_whatnow_hints.py` |
+| `help/character_briefings.md` | `generate_character_briefings.py` |
 | any `cards_*.csv` (art/text) | `generate_card_atlases.py` |
 | `achievements.csv` | `generate_achievement_data.py` + `generate_achievement_icons.py` |
 

@@ -19,6 +19,7 @@ The generator map below is mirrored machine-readably in [`generators.json`](gene
 | `content/cards_threats.csv` | `generate_threat_types.py` | `lua/threat_types.lua` |
 | `content/cards_recipes.csv` | `generate_recipe_data.py` | `lua/recipe_data.lua` |
 | `content/notebook/*.md` + `help/glossary.md` | `generate_notebook.py` | `lua/notebook_data.lua` |
+| `content/help/character_briefings.md` | `generate_character_briefings.py` | `lua/character_briefings.lua` |
 | `content/notebook/*.md` + `help/glossary.md` | `generate_player_rules.py` | `PlayerRules.md` + `.html` |
 | `content/achievements.csv` | `generate_achievement_data.py` | `lua/achievement_data.lua` + `steam/achievements.json` |
 | **any** `lua/*.lua` | `generate_symbol_index.py` | `SYMBOLS.md` + `symbols.json` + `.luacheckrc` |

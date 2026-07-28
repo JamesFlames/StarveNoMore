@@ -38,6 +38,12 @@
       "auto_generated": true
     },
     {
+      "output": "lua/character_briefings.lua",
+      "script": "scripts/generate_character_briefings.py",
+      "sources": ["content/help/character_briefings.md"],
+      "auto_generated": true
+    },
+    {
       "output": "lua/achievement_data.lua",
       "script": "scripts/generate_achievement_data.py",
       "sources": ["content/achievements.csv"],

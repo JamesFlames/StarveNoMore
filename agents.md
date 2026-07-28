@@ -61,7 +61,7 @@ plain-text provenance notes.)
 - [content/notebook/full_rules.md](content/notebook/full_rules.md) — abridged rulebook for the Notebook.
 - [content/notebook/character_reference.md](content/notebook/character_reference.md) — perks/constraints for all 5 characters.
 - [content/help/glossary.md](content/help/glossary.md) — every icon and keyword with one-line definitions; populates the Help-menu Glossary tab.
-- [content/help/character_briefings.md](content/help/character_briefings.md) — per-character one-time popup text for the setup walkthrough.
+- [content/help/character_briefings.md](content/help/character_briefings.md) — per-character one-time popup text for the setup walkthrough; source of truth for `CHAR_BRIEFINGS` (`lua/character_briefings.lua`).
 - [content/help/whatnow_hints.md](content/help/whatnow_hints.md) — context-aware hint strings keyed by sub-phase + character state, used by the "What now?" button.
 
 ## Architecture
@@ -163,7 +163,7 @@ StarveNoMore/
 │   ├── notebook/               # Quickstart + Full rules + Character reference
 │   └── help/
 │       ├── glossary.md         # Icon and keyword glossary (Help-menu tab)
-│       ├── character_briefings.md  # Per-character one-time setup popup text
+│       ├── character_briefings.md  # Source of truth for CHAR_BRIEFINGS (setup popup)
 │       └── whatnow_hints.md    # Source of truth for WHATNOW_HINTS
 ├── art/
 │   ├── board/  tiles/  characters/  bosses/  decks/  icons/  ui/  legend/  tokens/

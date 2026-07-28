@@ -14,6 +14,7 @@
     "threat_types.lua",
     "recipe_data.lua",
     "notebook_data.lua",
+    "character_briefings.lua",
     "setup.lua",
     "day_loop.lua",
     "turns.lua",

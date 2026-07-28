@@ -159,6 +159,12 @@
 | 212 | value | `HELP_QUICKSTART` |
 | 248 | value | `HELP_GLOSSARY` |
 
+## lua/character_briefings.lua (1 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 9 | table | `CHAR_BRIEFINGS` |
+
 ## lua/setup.lua (12 symbols)
 
 | line | kind | symbol |
@@ -655,7 +661,7 @@
 | 153 | function | `showAchievementToast` |
 | 159 | function | `popAchievementToast` |
 
-## lua/ui_setup.lua (23 symbols)
+## lua/ui_setup.lua (22 symbols)
 
 | line | kind | symbol |
 |---|---|---|
@@ -675,13 +681,12 @@
 | 385 | function | `dumpSetupState` |
 | 407 | function | `showCharPickForNextPlayer` |
 | 527 | function | `onPickChar` |
-| 617 | table | `CHAR_BRIEFINGS` |
-| 641 | function | `showCharBriefing` |
-| 653 | function | `onBriefBack` |
-| 674 | function | `onBriefDismiss` |
-| 703 | function | `finalizeGuidedSetup` |
-| 836 | function | `showWelcomeSequence` |
-| 872 | function | `onHostSetupGuided` |
+| 636 | function | `showCharBriefing` |
+| 648 | function | `onBriefBack` |
+| 669 | function | `onBriefDismiss` |
+| 698 | function | `finalizeGuidedSetup` |
+| 831 | function | `showWelcomeSequence` |
+| 867 | function | `onHostSetupGuided` |
 
 ## lua/ui_help.lua (20 symbols)
 
@@ -830,7 +835,7 @@
 | `CHARACTER_COLORS` | lua/global.lua | 78 |
 | `CHARACTER_HOMES` | lua/global.lua | 86 |
 | `CHARACTER_STATS` | lua/global.lua | 64 |
-| `CHAR_BRIEFINGS` | lua/ui_setup.lua | 617 |
+| `CHAR_BRIEFINGS` | lua/character_briefings.lua | 9 |
 | `CHAR_SLOT_INDEX` | lua/helpers.lua | 303 |
 | `CHAR_TRAIT_LINES` | lua/ui_actionbar_display.lua | 226 |
 | `CLEANSE_COST` | lua/global.lua | 128 |
@@ -1045,7 +1050,7 @@
 | `exportAchievementCode` | lua/achievements.lua | 127 |
 | `exportSessionLog` | lua/telemetry.lua | 146 |
 | `fightTargetsAt` | lua/actions_combat.lua | 67 |
-| `finalizeGuidedSetup` | lua/ui_setup.lua | 703 |
+| `finalizeGuidedSetup` | lua/ui_setup.lua | 698 |
 | `findAllByTag` | lua/helpers.lua | 9 |
 | `findOneByTag` | lua/helpers.lua | 19 |
 | `findOneByTags` | lua/helpers.lua | 26 |
@@ -1140,8 +1145,8 @@
 | `onActionTooltipEnter` | lua/ui_actionbar_display.lua | 341 |
 | `onActionTooltipExit` | lua/ui_actionbar_display.lua | 354 |
 | `onBeginDayClick` | lua/setup.lua | 306 |
-| `onBriefBack` | lua/ui_setup.lua | 653 |
-| `onBriefDismiss` | lua/ui_setup.lua | 674 |
+| `onBriefBack` | lua/ui_setup.lua | 648 |
+| `onBriefDismiss` | lua/ui_setup.lua | 669 |
 | `onConfirmNo` | lua/ui_controls.lua | 37 |
 | `onConfirmYes` | lua/ui_controls.lua | 27 |
 | `onCookCancel` | lua/ui_actionbar_handlers.lua | 163 |
@@ -1163,7 +1168,7 @@
 | `onHostEndTurn` | lua/ui_controls.lua | 216 |
 | `onHostResolveNight` | lua/ui_controls.lua | 203 |
 | `onHostRestart` | lua/ui_controls.lua | 226 |
-| `onHostSetupGuided` | lua/ui_setup.lua | 872 |
+| `onHostSetupGuided` | lua/ui_setup.lua | 867 |
 | `onLoad` | lua/global.lua | 359 |
 | `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 323 |
 | `onMsgLogClear` | lua/ui_msglog.lua | 65 |
@@ -1277,7 +1282,7 @@
 | `setNightOmen` | lua/ui_banner.lua | 88 |
 | `setPhaseMood` | lua/ui_mood.lua | 45 |
 | `showAchievementToast` | lua/ui_achievements.lua | 153 |
-| `showCharBriefing` | lua/ui_setup.lua | 641 |
+| `showCharBriefing` | lua/ui_setup.lua | 636 |
 | `showCharPickForNextPlayer` | lua/ui_setup.lua | 407 |
 | `showConfirm` | lua/ui_controls.lua | 14 |
 | `showEndOfDaySummary` | lua/ui_controls.lua | 278 |
@@ -1285,7 +1290,7 @@
 | `showResourcePicker` | lua/ui_controls.lua | 57 |
 | `showSignatureTargetDialog` | lua/signatures.lua | 243 |
 | `showWeekInReview` | lua/ui_week_review.lua | 216 |
-| `showWelcomeSequence` | lua/ui_setup.lua | 836 |
+| `showWelcomeSequence` | lua/ui_setup.lua | 831 |
 | `snapshotForUndo` | lua/actions.lua | 7 |
 | `sourceSplitIntoBeaks` | lua/combat.lua | 176 |
 | `spawnPosterizeTargets` | lua/signatures.lua | 188 |
