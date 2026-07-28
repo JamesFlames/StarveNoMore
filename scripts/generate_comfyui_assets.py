@@ -81,17 +81,33 @@ CARD_QUALIFIER = (
 # dark field, with nothing in the corners (generate_achievement_icons.py
 # vignettes and frames it, which eats the edges). Everything that makes a card
 # illustration good — a scene, a horizon, several figures — makes an icon mud.
+#
+# The glow trap (2026-07): an earlier prefix asked for "a plain dark
+# background, dramatic single warm light source, heavy contrast" and Flux
+# obliged too literally — it made the *subject itself* the light source and
+# shrank it to a fifth of the frame. Don't describe the lighting as a source
+# in the frame; describe it as falling from outside it. The wording below
+# deliberately mirrors the `market` deck prefix ("a single object portrait ...
+# soft warm side-light"), which is proven on this exact model + LoRA. Note
+# also that Flux barely honours negations in a positive prompt — "no horizon,
+# no background scenery" mostly just reinforced the emptiness. Put exclusions
+# in NEGATIVE, not here.
+#
+# Expect high seed variance regardless of wording: one object on a dark field
+# is close to a degenerate region, and a bad seed yields a pure black frame or
+# an off-prompt neon blob. That is a re-roll, not a prompt bug — see
+# docs/comfyui-achievement-icons.md, "Prefix fault vs. seed variance".
 # --------------------------------------------------------------------------
 ACHIEVEMENT_PREFIX = (
-    "a single centred emblem object, one clear silhouette on a plain dark "
-    "background, dramatic single warm light source, heavy contrast, "
-    "no horizon, no background scenery, nothing in the corners"
+    "a single object portrait, one prop centred and filling the frame, "
+    "resting on a moody desaturated backdrop, soft warm side-light falling "
+    "from outside the frame, gentle falloff into shadow towards the edges, "
+    "crisp hand-drawn ink outlines, strong readable silhouette"
 )
 
 ACHIEVEMENT_QUALIFIER = (
     "icon composition, subject centred and filling two thirds of the frame, "
-    "readable as a shape at thumbnail size, no text, no border, no UI, "
-    "no frame, square"
+    "lit well enough to read as a shape at thumbnail size, square"
 )
 
 # Per-deck visual framing. Combined with the row's art_notes column.

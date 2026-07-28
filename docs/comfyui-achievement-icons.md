@@ -34,18 +34,47 @@ cd <repo root>                 # the directory containing scripts/ and content/
 python -c "import PIL; print('Pillow', PIL.__version__)"
 ```
 
-Then confirm ComfyUI is up and has the models this repo's workflow names:
+### Starting ComfyUI
+
+This machine runs **ComfyUI Desktop**, which splits the install in two: the
+data directory (`models/`, `output/`, `custom_nodes/`, `.venv/`) is
+`C:\Users\GGPC\Documents\ComfyUI`, but the *code* is under
+`%LOCALAPPDATA%\Programs\ComfyUI\resources\`. There is no `main.py` beside
+`models/` — don't hunt for one. Launch the venv's Python against the Desktop
+`main.py` and point it back at the data directory:
+
+```powershell
+& "C:\Users\GGPC\Documents\ComfyUI\.venv\Scripts\python.exe" -s "C:\Users\GGPC\AppData\Local\Programs\ComfyUI\resources\ComfyUI\main.py" --base-directory "C:\Users\GGPC\Documents\ComfyUI" --port 8000
+```
+
+Startup takes ~30 s. `To see the GUI go to: http://127.0.0.1:8000` is the ready
+signal. These lines are **normal** and are not failures: `Failed to initialize
+database … unable to open database file`, `Failed to check frontend version`,
+and a DWPose/onnxruntime warning from `comfyui_controlnet_aux`.
+
+### The checks
+
+Confirm ComfyUI is up and that it can load the models this repo's workflow
+names. Ask the *server* what it sees — listing model folders gives wrong
+answers (see the `models/unet/` trap below):
 
 ```bash
 curl -s http://127.0.0.1:8000/system_stats
-curl -s http://127.0.0.1:8000/object_info/UnetLoaderGGUF
+python -c "import json,urllib.request; print(json.load(urllib.request.urlopen('http://127.0.0.1:8000/object_info/UnetLoaderGGUF'))['UnetLoaderGGUF']['input']['required']['unet_name'][0])"
 ```
 
 | Check | Pass condition | If it fails |
 |---|---|---|
-| ComfyUI reachable | `/system_stats` returns JSON | Start ComfyUI. **Port 8000, not ComfyUI's default 8188** — launch with `--port 8000`, or change `COMFYUI_URL` at the top of `scripts/generate_comfyui_assets.py` |
+| ComfyUI reachable | `/system_stats` returns JSON | Start it with the command above. **Port 8000, not ComfyUI's default 8188** — or change `COMFYUI_URL` at the top of `scripts/generate_comfyui_assets.py` |
 | `UnetLoaderGGUF` exists | `/object_info/UnetLoaderGGUF` returns a node, not `{}` | Install the **ComfyUI-GGUF** custom node and restart ComfyUI |
-| Models present | `flux1-dev-Q8_0.gguf` in `models/unet/`, `clip_l.safetensors` + `t5xxl_fp16.safetensors` in `models/clip/`, `ae.safetensors` in `models/vae/`, `flux/c4r1mj34.safetensors` in `models/loras/` | Fetch the missing file. Do **not** substitute a different checkpoint — the whole art set is one look |
+| Models present | The `unet_name` list above contains `flux1-dev-Q8_0.gguf`; likewise `clip_l.safetensors` + `t5xxl_fp16.safetensors` (`DualCLIPLoader`), `ae.safetensors` (`VAELoader`), `flux\c4r1mj34.safetensors` (`LoraLoader`) | Fetch the missing file. Do **not** substitute a different checkpoint — the whole art set is one look |
+
+> **The `models/unet/` trap.** On this rig `models/unet/` is empty and the Flux
+> checkpoint lives in `models/diffusion_models/` — the modern name for the same
+> folder, which `UnetLoaderGGUF` reads. An `ls models/unet/` looks exactly like
+> a missing model when nothing is wrong. Trust `/object_info`, not the folder.
+> Note also that the LoRA is referenced with a **backslash**
+> (`flux\c4r1mj34.safetensors`), matching what ComfyUI reports on Windows.
 | Output path correct | `COMFYUI_OUTPUT_DIR` at the top of `scripts/generate_comfyui_assets.py` and `scripts/sync_comfyui_output.py` matches this machine's ComfyUI `output/` folder | Edit both constants to the real path |
 
 Free disk: 24 × 1024×1024 PNGs is roughly 40 MB. Not a concern, but the
@@ -79,10 +108,14 @@ whole art set is being rebuilt — it queues ~180 prompts including every card.
 curl -s http://127.0.0.1:8000/queue
 ```
 
-Poll until `queue_running` and `queue_pending` are both empty. On a 12 GB
-consumer GPU, Flux Dev Q8 at 1024×1024 / 30 steps runs roughly 20–40 s per
-image, so 24 icons is about 10–15 minutes. Poll every 60 s; do not busy-wait,
-and do not start step 3 early — a half-written PNG syncs as a corrupt file.
+Poll until `queue_running` and `queue_pending` are both empty. Measured on the
+RTX 4070 Ti (12 GB): Flux Dev Q8 at 1024×1024 / 30 steps samples at **~4 s per
+step, so ~2 minutes per image** — about **50 minutes** for all 24, plus a
+one-off minute or two while the first job loads the model. (An earlier draft of
+this run book claimed 20–40 s/image and 10–15 minutes total; that was
+optimistic. Nothing is wrong if you see 2 min/image.) Poll every 60 s; do not
+busy-wait, and do not start step 3 early — a half-written PNG syncs as a
+corrupt file.
 
 ## 3. Sync, process, build, test
 
@@ -154,6 +187,56 @@ Style, negative prompt and the icon framing live in
 `ACHIEVEMENT_PREFIX`, `ACHIEVEMENT_QUALIFIER`). Change those only to change
 *every* icon; per-icon changes belong in the CSV.
 
+### Prefix fault vs. seed variance — tell them apart before you act
+
+Icon prompts are **much** higher-variance than card prompts. They ask for a
+single object on a dark field, which sits close to a degenerate region of the
+model: on a bad seed Flux collapses to a pure black frame, or an oversaturated
+neon blob with no relation to the prompt at all. Observed July 2026 — three
+icons queued back to back with *identical* settings gave one flawless render,
+one entirely black image, and one glowing green sphere for the prompt "a wall
+calendar with the first three days crossed out in red marker".
+
+So a bad icon is usually **the seed**, and the fix is the re-roll in §4. Do not
+rewrite prompts on the strength of one bad render.
+
+**The control test.** Before blaming the prompt *or* the environment, re-render
+a card that already looks right in the repo:
+
+```bash
+python scripts/generate_comfyui_assets.py --cards-only --only M_BAT
+```
+
+If it comes back matching `art/decks/illustrations/M_BAT.png`, the model, LoRA,
+VAE and sampler are all healthy and you are chasing prompt or seed. If it comes
+back as mush, the fault is environmental — stop and fix that instead.
+**Delete the control render from ComfyUI's `output/` afterwards**, or the next
+sync will copy it over the committed card.
+
+Genuinely prompt-level faults look different: they reproduce across *different
+subjects* and *different seeds*. Two that were real, and fixed in the prefix:
+
+- **The glow trap.** The prefix asked for `a plain dark background, dramatic
+  single warm light source, heavy contrast`. Flux made the *subject itself*
+  the light source and shrank it to a fifth of the frame. Describe light as
+  falling **from outside the frame**, never as a source inside it, and prefer
+  `moody desaturated backdrop` over `plain dark background`.
+- **Negations don't work in the positive prompt.** `no horizon, no background
+  scenery, nothing in the corners` mostly just reinforced the emptiness —
+  Flux's T5 encoder barely honours negation. Exclusions belong in `NEGATIVE`.
+
+The reliable reference is the `market` deck prefix (`a single object portrait
+... soft warm side-light`), which produced 200+ good card illustrations on this
+exact model and LoRA. When in doubt, mirror it.
+
+**Known off-spec setting.** `build_workflow` samples Flux Dev at `cfg 4.0` with
+a real negative prompt. Flux Dev is guidance-distilled and normally wants
+`cfg 1.0` plus a `FluxGuidance` node (~3.5); true CFG above 1 is a plausible
+cause of the black/neon blowouts. It has been left alone deliberately — the
+existing 200+ card illustrations were rendered this way and changing it would
+shift the look of the whole art set. Raise it as an art-direction decision
+rather than changing it mid-run.
+
 ## 5. Commit
 
 ```bash
@@ -184,7 +267,10 @@ git commit -m "Achievement icons: real art from ComfyUI"
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `urlopen error [Errno 111] Connection refused` | ComfyUI isn't running, or is on 8188 | Start it with `--port 8000`, or edit `COMFYUI_URL` |
+| `urlopen error [Errno 111] Connection refused` | ComfyUI isn't running, or is on 8188 | Start it with the launch command in §0, or edit `COMFYUI_URL` |
+| No `main.py` anywhere in `Documents\ComfyUI` | ComfyUI Desktop keeps the code in `%LOCALAPPDATA%\Programs\ComfyUI\resources\ComfyUI\` and only the data here | Use the `--base-directory` launch command in §0 |
+| `models/unet/` is empty — looks like the model is missing | The Flux checkpoint is in `models/diffusion_models/`, which is the same folder under its modern name | Nothing to fix; verify with `/object_info/UnetLoaderGGUF` instead |
+| `Failed to initialize database … unable to open database file` at startup | ComfyUI's optional sqlite user-data DB; unrelated to rendering | Ignore — it still serves and renders normally |
 | Queue accepts prompts but nothing renders; ComfyUI log says `UnetLoaderGGUF` unknown | ComfyUI-GGUF custom node missing | Install it, restart ComfyUI, requeue |
 | `ERROR: source directory not found` from the sync script | `COMFYUI_OUTPUT_DIR` points somewhere else on this machine | Edit the constant, or pass `--source <path>` |
 | Sync reports `Skipped (up to date)` for everything | Outputs older than the copies already in the repo | `python scripts/sync_comfyui_output.py --force` |

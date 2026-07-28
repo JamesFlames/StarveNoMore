@@ -279,14 +279,35 @@ single source of truth in sync if the direction is ever revised.
 
 ### Install
 
-- **Path:** `c:\Users\GGPC\Documents\ComfyUI` (Python venv at `.venv/`)
-- **Server URL** the scripts assume: `http://127.0.0.1:8000`
+- **Data path:** `c:\Users\GGPC\Documents\ComfyUI` — models, `output/`,
+  `custom_nodes/`, and the Python venv at `.venv/`.
+- **Code path:** this machine runs **ComfyUI Desktop**, so the source is *not*
+  in the data path — it lives at
+  `%LOCALAPPDATA%\Programs\ComfyUI\resources\ComfyUI\main.py`. Don't go looking
+  for a `main.py` next to `models/`; there isn't one. Launch by pointing the
+  venv's Python at that `main.py` with `--base-directory`:
+  ```powershell
+  & "C:\Users\GGPC\Documents\ComfyUI\.venv\Scripts\python.exe" -s "C:\Users\GGPC\AppData\Local\Programs\ComfyUI\resources\ComfyUI\main.py" --base-directory "C:\Users\GGPC\Documents\ComfyUI" --port 8000
+  ```
+- **Server URL** the scripts assume: `http://127.0.0.1:8000`. ComfyUI's own
+  default is **8188**, so `--port 8000` is mandatory, not decorative.
 - **Models in use:**
   - Diffusion: `models/diffusion_models/flux1-dev-Q8_0.gguf` (loaded via `UnetLoaderGGUF`)
   - VAE: `models/vae/ae.safetensors`
   - CLIP: `models/clip/clip_l.safetensors` + `models/clip/t5xxl_fp16.safetensors`
-  - LoRA: `models/loras/flux/c4r1mj34.safetensors` at strength 0.65 (model + clip)
+  - LoRA: `models/loras/flux/c4r1mj34.safetensors` at strength 0.85 (model + clip)
+
+  `UnetLoaderGGUF` reads `models/diffusion_models/` — that folder is the modern
+  name for what older docs call `models/unet/`, and on this rig `models/unet/`
+  is **empty**. An `ls models/unet/` therefore looks like a missing model when
+  nothing is wrong; ask the running server instead (see below).
 - **Sampler:** `euler`, 30 steps, CFG 4.0, scheduler `normal`, denoise 1.0
+- **Rig:** RTX 4070 Ti, 12 GB VRAM, ComfyUI 0.20.1 — Flux Dev Q8 at 1024²
+  fits in VRAM at roughly 20–40 s/image.
+- **Benign startup noise**, not failures: `Failed to initialize database …
+  unable to open database file`, `Failed to check frontend version`, and the
+  DWPose/onnxruntime warning from `comfyui_controlnet_aux`. The line that
+  matters is `To see the GUI go to: http://127.0.0.1:8000`.
 
 ### File-naming convention
 
@@ -306,8 +327,14 @@ the scripts:
 
 ### End-to-end card-art workflow
 
-1. **Start ComfyUI.** From `c:\Users\GGPC\Documents\ComfyUI`, run the venv's
-   ComfyUI entrypoint and confirm `http://127.0.0.1:8000` is reachable.
+1. **Start ComfyUI** with the Desktop launch command in "Install" above, then
+   confirm `http://127.0.0.1:8000/system_stats` returns JSON. Verify the models
+   by asking the server what it can actually load, rather than listing folders:
+   ```bash
+   python -c "import json,urllib.request; print(json.load(urllib.request.urlopen('http://127.0.0.1:8000/object_info/UnetLoaderGGUF'))['UnetLoaderGGUF']['input']['required']['unet_name'][0])"
+   ```
+   `flux1-dev-Q8_0.gguf` in that list is the real pass condition. An empty `{}`
+   response means the **ComfyUI-GGUF** custom node didn't load.
 2. **Queue prompts:**
    ```bash
    python scripts/generate_comfyui_assets.py
