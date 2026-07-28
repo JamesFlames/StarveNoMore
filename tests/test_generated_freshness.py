@@ -56,6 +56,30 @@ def test_symbol_index_is_fresh():
             f"{os.path.basename(t)} is stale — rerun scripts/generate_symbol_index.py")
 
 
+def test_gamestate_map_is_fresh():
+    """docs/gamestate.md must match what generate_gamestate_map.py produces
+    from the current lua/ tree — otherwise the schema map documents a
+    gameState that no longer exists."""
+    target = os.path.join(ROOT, "docs", "gamestate.md")
+    assert os.path.isfile(target), (
+        "docs/gamestate.md missing — run scripts/generate_gamestate_map.py")
+    with open(target, "rb") as f:
+        committed = f.read()
+    try:
+        proc = subprocess.run(
+            [sys.executable, os.path.join(SCRIPTS, "generate_gamestate_map.py")],
+            capture_output=True, text=True, timeout=120, cwd=ROOT,
+        )
+        assert proc.returncode == 0, f"generator failed:\n{proc.stdout}\n{proc.stderr}"
+        with open(target, "rb") as f:
+            regenerated = f.read()
+    finally:
+        with open(target, "wb") as f:
+            f.write(committed)
+    assert regenerated.replace(b"\r\n", b"\n") == committed.replace(b"\r\n", b"\n"), (
+        "docs/gamestate.md is stale — rerun scripts/generate_gamestate_map.py")
+
+
 def test_player_rules_are_fresh():
     """PlayerRules.md / PlayerRules.html must match what
     generate_player_rules.py produces from the notebook/glossary markdown."""

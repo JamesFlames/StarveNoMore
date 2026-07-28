@@ -21,7 +21,8 @@ The generator map below is mirrored machine-readably in [`generators.json`](gene
 | `content/notebook/*.md` + `help/glossary.md` | `generate_notebook.py` | `lua/notebook_data.lua` |
 | `content/notebook/*.md` + `help/glossary.md` | `generate_player_rules.py` | `PlayerRules.md` + `.html` |
 | `content/achievements.csv` | `generate_achievement_data.py` | `lua/achievement_data.lua` + `steam/achievements.json` |
-| **any** `lua/*.lua` | `generate_symbol_index.py` | `SYMBOLS.md` + `.luacheckrc` |
+| **any** `lua/*.lua` | `generate_symbol_index.py` | `SYMBOLS.md` + `symbols.json` + `.luacheckrc` |
+| **any** `lua/*.lua` | `generate_gamestate_map.py` | `docs/gamestate.md` |
 
 Generators are idempotent and order-independent; `tests/test_generated_freshness.py`
 fails if any output is stale.

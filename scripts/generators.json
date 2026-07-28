@@ -62,6 +62,12 @@
       "auto_generated": true
     },
     {
+      "output": "docs/gamestate.md",
+      "script": "scripts/generate_gamestate_map.py",
+      "sources": ["lua/"],
+      "auto_generated": true
+    },
+    {
       "output": ".luacheckrc",
       "script": "scripts/generate_symbol_index.py",
       "sources": ["lua/"],

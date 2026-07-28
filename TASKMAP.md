@@ -28,6 +28,7 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 | Add/change a sound | `sounds/...` | `generate_audio_manifest.py` |
 | Change setup/character assignment | `lua/setup.lua`, `lua/ui_setup.lua`, `xml/setup.xml` | `generate_symbol_index.py` |
 | Change turn order / action economy / idle nudge | `lua/turns.lua` | `generate_symbol_index.py` |
+| Add/rename/find a `gameState` field | [`docs/gamestate.md`](docs/gamestate.md) (who writes it, who reads it, its default), then `lua/global.lua` (`migrateGameState` — declare the default there, not in a literal) | `generate_gamestate_map.py` |
 | Change what gets packaged in the save | `scripts/build_save.py` | `build_save.py` |
 | Place/move an object on the table (heights, rotations) | `scripts/build_save.py` (`SURFACE_Y`) + read [`docs/tts-runtime.md`](docs/tts-runtime.md) first | `build_save.py` |
 | Change the Message Log / What-now panel | `lua/ui_msglog.lua`, `lua/ui_help.lua`, `xml/msglog.xml` | `generate_symbol_index.py` |
