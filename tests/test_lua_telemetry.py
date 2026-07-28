@@ -166,5 +166,7 @@ class TestOptionUtilization:
         """Locations can be nil mid-setup; a nil key would blow up JSON encode."""
         env.eval("recordUsage")("actions", None)
         env.eval("recordUsage")("actions", "")
-        usage = lua_to_py(env.eval("gameState.chronicle.usage") or {})
+        # An ignored record must not even force the chronicle into existence,
+        # so read it the way production does — guarded.
+        usage = lua_to_py(env.eval("(gameState.chronicle or {}).usage") or {})
         assert not (usage.get("actions") or {})

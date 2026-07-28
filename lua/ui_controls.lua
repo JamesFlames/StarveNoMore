@@ -234,22 +234,23 @@ function onHostRestart(player, value, id)
             -- fresh table rather than clearing the old one.
             local keptAchievements = gameState.achievements
 
-            -- Reset gameState
-            gameState = {
-                day = 1, phase = 1, doom = 0,
-                started = false, welcomed = false,
-                subPhase = "PreGame",
-                activeColor = nil, turnOrder = {}, turnIndex = 0,
-                playerCount = 0, pathVariant = nil,
-                turnStyle = "full", actedThisVisit = false,
-                combatContext = nil,
-                scenario = nil, scenarioFlags = {},
-                dayLog = {}, activeDawn = nil,
-                ongoingDawnEffects = {},
-                activeChars = {},
-                chronicle = nil,   -- lazily rebuilt by ensureChronicle()
-                achievements = keptAchievements,
-            }
+            -- Reset gameState through the SAME door as a restored save:
+            -- migrateGameState() (global.lua) is the one place defaults are
+            -- declared. This used to be a hand-copied literal, and it had
+            -- already drifted — fields migrateGameState guarantees
+            -- (resources, dailyAlerts, messageLog, haunted, threatDamage,
+            -- cluesFound, duskPending, schemaVersion, …) were simply absent
+            -- after a Restart. That survived only because callers are
+            -- defensive; the next field added without an `or {}` at its read
+            -- site would have been a Restart-only crash.
+            -- tests/test_full_campaign.py::test_restart_state_matches_fresh_load
+            -- fails if the two ever diverge again.
+            gameState = { achievements = keptAchievements }
+            migrateGameState()
+            -- Restart-specific, after the call: the chronicle is the PREVIOUS
+            -- game's record, so it must not survive into the new one.
+            -- ensureChronicle() rebuilds it on first use.
+            gameState.chronicle = nil
             safecall(function() cancelGuidedSetup() end, "CancelSetup")
             UI.hide("achievementsPanel")
             achievementsPanelOpen = false

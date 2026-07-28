@@ -49,22 +49,13 @@ gameState = {
     lastInteractionAt    = 0,
     idleNudgedThisTurn   = false,
 
-    -- Week in Review chronicle (design_batch1.md §3). A persistent record
-    -- across all 7 days (NOT wiped with dayLog each Dawn), narrated at game
-    -- end. Reset at setup; auto-persists with gameState.
-    chronicle = {
-        days = {},                              -- [day] = {headline, damageTonight}
-        meals = {},                             -- [charName] = count
-        kills = {},                             -- { {who, threat, day}, ... }
-        peakDoom = { value = 0, day = 0 },
-        maxCharlieStreak = { value = 0, name = "" },
-        downs = 0, revives = 0,
-        -- Session telemetry (design_batch4.md W0, lua/telemetry.lua):
-        setup = {},                             -- player count / roster / variants / difficulty
-        turns = {},                             -- { {day, name, seconds}, ... } per player turn
-        beats = { pressKills = 0, signaturesUsed = {}, sourceSplit = false, daresTaken = 0 },
-        usage = {},                             -- option utilization (§20.2 item 8)
-    },
+    -- chronicle: the Week in Review record (design_batch1.md §3) — a
+    -- persistent history across all 7 days (NOT wiped with dayLog each Dawn),
+    -- narrated at game end. Deliberately NOT declared here: it is built on
+    -- first use by ensureChronicle() (ui_week_review.lua), which is the one
+    -- constructor for its shape. Both setup paths null it for a new game, so
+    -- a literal here would only be a second copy of that shape waiting to
+    -- drift. Every read guards with ensureChronicle() or `or {}`.
 }
 
 -----------------------------------------------------------------------
@@ -302,6 +293,26 @@ end
 -----------------------------------------------------------------------
 function migrateGameState()
     local gs = gameState
+    -- Scalars first. These used to exist only in the literal above, which
+    -- meant the Restart path (ui_controls.lua) had to hand-copy them and an
+    -- old save missing one would read nil. `x = x or default` is safe for
+    -- every field here: none has a meaningful `false`/`nil` value that a
+    -- default would wrongly overwrite (the booleans below use the explicit
+    -- nil test for exactly that reason).
+    gs.day                  = gs.day or 1
+    gs.phase                = gs.phase or 1        -- 1..4 (Dusk of Week … Final Hours)
+    gs.doom                 = gs.doom or 0
+    gs.subPhase             = gs.subPhase or "PreGame"  -- PreGame/Dawn/Day/Dusk/Night/Tick
+    gs.turnIndex            = gs.turnIndex or 0
+    gs.playerCount          = gs.playerCount or 0
+    gs.lastInteractionAt    = gs.lastInteractionAt or 0
+    if gs.started == nil then gs.started = false end
+    if gs.welcomed == nil then gs.welcomed = false end
+    if gs.actedThisVisit == nil then gs.actedThisVisit = false end
+    if gs.idleNudgedThisTurn == nil then gs.idleNudgedThisTurn = false end
+    -- Deliberately absent (nil IS the default, so declaring them would only
+    -- create keys with no meaning): activeColor, pathVariant, combatContext,
+    -- scenario, activeDawn, chronicle.
     gs.ongoingDawnEffects   = gs.ongoingDawnEffects or {}
     gs.activeChars          = gs.activeChars or {}
     gs.dailyAlerts          = gs.dailyAlerts or {}

@@ -412,6 +412,78 @@ def test_restart_then_resetup_is_clean():
     assert_invariants(env, "post-restart re-setup")
 
 
+# gameState was built from scratch in two places that had to agree and were
+# not bound: the literal in global.lua and a hand-copied shorter literal on
+# the Restart path in ui_controls.lua. They had already drifted — Restart
+# omitted resources, dailyAlerts, messageLog, haunted, threatDamage,
+# cluesFound, duskPending and schemaVersion. Both now go through
+# migrateGameState(), and this is the assertion that keeps them there.
+
+# Fields whose default IS nil, so they are absent from a fresh state too and
+# carry no information when present. Keep this list SHORT and justified — it
+# is the escape hatch that would let the drift back in.
+RESTART_OPTIONAL_FIELDS = {
+    # The previous game's Week in Review record. Restart must NOT keep it;
+    # ensureChronicle() (ui_week_review.lua) rebuilds it on first use.
+    "chronicle",
+}
+
+
+def test_restart_state_matches_fresh_load():
+    """Restarting must leave gameState with every field a fresh load has."""
+    fresh = make_env()
+    fresh.globals().onLoad("")
+    flush(fresh)
+    fresh_keys = set(lua_to_py(fresh.eval("gameState")).keys())
+
+    env = make_env()
+    start_game(env)
+    env.globals().BeginDay()
+    flush(env)
+    env.execute('onHostRestart(Player["White"])')
+    env.execute('onConfirmYes(Player["White"])')
+    flush(env)
+    restart_keys = set(lua_to_py(env.eval("gameState")).keys())
+
+    missing = fresh_keys - restart_keys - RESTART_OPTIONAL_FIELDS
+    assert not missing, (
+        "Restart produced a gameState missing field(s) a fresh load has: "
+        f"{sorted(missing)}. Both paths must go through migrateGameState() "
+        "(lua/global.lua) — declare the default there, not in a literal."
+    )
+
+    # The vault is the one thing that outlives a game, and migrateGameState
+    # must not have clobbered it on the way through.
+    assert lua_to_py(env.eval("gameState.achievements")) is not None
+    assert env.eval("gameState.schemaVersion") == env.eval("SCHEMA_VERSION")
+
+
+def test_migrate_fills_every_field_for_an_empty_state():
+    """migrateGameState() alone must produce a playable state from `{}`.
+
+    This is what the Restart path relies on, and what an ancient save hits.
+    """
+    env = make_env()
+    env.globals().onLoad("")
+    flush(env)
+    fresh_keys = set(lua_to_py(env.eval("gameState")).keys())
+
+    env.execute("gameState = {}")
+    env.globals().migrateGameState()
+    migrated_keys = set(lua_to_py(env.eval("gameState")).keys())
+
+    missing = fresh_keys - migrated_keys - RESTART_OPTIONAL_FIELDS
+    assert not missing, (
+        f"migrateGameState() left field(s) undeclared: {sorted(missing)} — "
+        "they exist only in the gameState literal (lua/global.lua), so any "
+        "path that does not start from that literal reads nil."
+    )
+    assert env.eval("gameState.day") == 1
+    assert env.eval("gameState.doom") == 0
+    assert env.eval("gameState.subPhase") == "PreGame"
+    assert env.eval("gameState.started") is False
+
+
 @pytest.mark.parametrize("seed", [11, 23, 47])
 def test_fuzz_campaign_no_hard_errors(seed):
     rng = random.Random(seed)

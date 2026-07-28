@@ -20,6 +20,11 @@ def review_lines(cause, **state):
     add_char(env, "White", "Coco")
     add_char(env, "Green", "Rayman")
     env.execute(f'gameState.gameOverCause = "{cause}"')
+    # The chronicle is built on first use, never declared in the gameState
+    # literal (there would be two copies of its shape otherwise). Production
+    # reaches it through ensureChronicle(); so must a test that pokes fields
+    # into it before showWeekInReview() runs.
+    env.eval("ensureChronicle")()
     for k, v in state.items():
         env.execute(f"{k} = {v}")
     env.eval("showWeekInReview()")

@@ -74,7 +74,7 @@
   "ACTIONS_PER_TURN": [
    {
     "file": "lua/global.lua",
-    "line": 119,
+    "line": 110,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -312,7 +312,7 @@
   "BROADCAST_COLORS": [
    {
     "file": "lua/global.lua",
-    "line": 278,
+    "line": 269,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -352,7 +352,7 @@
   "CHARACTER_COLORS": [
    {
     "file": "lua/global.lua",
-    "line": 87,
+    "line": 78,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -362,7 +362,7 @@
   "CHARACTER_HOMES": [
    {
     "file": "lua/global.lua",
-    "line": 95,
+    "line": 86,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -372,7 +372,7 @@
   "CHARACTER_STATS": [
    {
     "file": "lua/global.lua",
-    "line": 73,
+    "line": 64,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -412,7 +412,7 @@
   "CLEANSE_COST": [
    {
     "file": "lua/global.lua",
-    "line": 137,
+    "line": 128,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -422,7 +422,7 @@
   "CLEANSE_REDUCTION": [
    {
     "file": "lua/global.lua",
-    "line": 138,
+    "line": 129,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -562,7 +562,7 @@
   "DIFFICULTY_PARAMS": [
    {
     "file": "lua/global.lua",
-    "line": 173,
+    "line": 164,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -572,7 +572,7 @@
   "DOOM_RATES": [
    {
     "file": "lua/global.lua",
-    "line": 232,
+    "line": 223,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -602,7 +602,7 @@
   "DOOM_THRESHOLDS": [
    {
     "file": "lua/global.lua",
-    "line": 126,
+    "line": 117,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -762,7 +762,7 @@
   "LOCATION_YIELDS": [
    {
     "file": "lua/global.lua",
-    "line": 111,
+    "line": 102,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1134,7 +1134,7 @@
   "TOOLTIP_DATA": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 351,
+    "line": 352,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1678,7 +1678,7 @@
   "applyTooltips": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 382,
+    "line": 383,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1850,7 +1850,7 @@
   "broadcastEvent": [
    {
     "file": "lua/global.lua",
-    "line": 286,
+    "line": 277,
     "kind": "function",
     "params": [
      "category",
@@ -2283,7 +2283,7 @@
   "describeDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 259,
+    "line": 250,
     "kind": "function",
     "params": [
      "diff"
@@ -2914,7 +2914,7 @@
   "getDifficulty": [
    {
     "file": "lua/global.lua",
-    "line": 191,
+    "line": 182,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2924,7 +2924,7 @@
   "getDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 243,
+    "line": 234,
     "kind": "function",
     "params": [
      "phase"
@@ -2936,7 +2936,7 @@
   "getDoomLimit": [
    {
     "file": "lua/global.lua",
-    "line": 196,
+    "line": 187,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2956,7 +2956,7 @@
   "getDoomRate": [
    {
     "file": "lua/global.lua",
-    "line": 249,
+    "line": 240,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3106,7 +3106,7 @@
   "getPhaseForDay": [
    {
     "file": "lua/global.lua",
-    "line": 214,
+    "line": 205,
     "kind": "function",
     "params": [
      "day"
@@ -3177,7 +3177,7 @@
   "getSourceMaxHP": [
    {
     "file": "lua/global.lua",
-    "line": 201,
+    "line": 192,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3187,7 +3187,7 @@
   "getSourceSplitHP": [
    {
     "file": "lua/global.lua",
-    "line": 209,
+    "line": 200,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3207,7 +3207,7 @@
   "getTotalDays": [
    {
     "file": "lua/global.lua",
-    "line": 195,
+    "line": 186,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3453,7 +3453,7 @@
   "migrateGameState": [
    {
     "file": "lua/global.lua",
-    "line": 303,
+    "line": 294,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4202,7 +4202,7 @@
   "onLoad": [
    {
     "file": "lua/global.lua",
-    "line": 348,
+    "line": 359,
     "kind": "function",
     "params": [
      "savedState"
@@ -4493,7 +4493,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 408,
+    "line": 419,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4503,7 +4503,7 @@
   "onSetupClick": [
    {
     "file": "lua/global.lua",
-    "line": 417,
+    "line": 428,
     "kind": "function",
     "params": [
      "obj",
@@ -4545,7 +4545,7 @@
   "onSummaryClose": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 343,
+    "line": 344,
     "kind": "function",
     "params": [
      "player",
@@ -5137,7 +5137,7 @@
   "refreshDynamicTooltips": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 404,
+    "line": 405,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5618,7 +5618,7 @@
   "showEndOfDaySummary": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 277,
+    "line": 278,
     "kind": "function",
     "params": [],
     "arity": 0,
