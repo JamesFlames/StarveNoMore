@@ -99,15 +99,13 @@ CARD_QUALIFIER = (
 # docs/comfyui-achievement-icons.md, "Prefix fault vs. seed variance".
 # --------------------------------------------------------------------------
 ACHIEVEMENT_PREFIX = (
-    "a single object portrait, one prop centred and filling the frame, "
-    "resting on a moody desaturated backdrop, soft warm side-light falling "
-    "from outside the frame, gentle falloff into shadow towards the edges, "
-    "crisp hand-drawn ink outlines, strong readable silhouette"
+    "a single object portrait on a moody desaturated backdrop, "
+    "soft warm side-light, crisp hand-drawn ink outlines"
 )
 
 ACHIEVEMENT_QUALIFIER = (
     "icon composition, subject centred and filling two thirds of the frame, "
-    "lit well enough to read as a shape at thumbnail size, square"
+    "readable as a shape at thumbnail size, evenly lit, square"
 )
 
 # Per-deck visual framing. Combined with the row's art_notes column.
