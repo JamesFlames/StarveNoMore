@@ -7,7 +7,6 @@ are out of scope and whitelisted explicitly where they exist).
 """
 import re
 
-
 # UI.* methods whose first literal string argument is an element id
 UI_ID_CALL_RE = re.compile(
     r'UI\.(?:show|hide|setAttribute|setAttributes|getAttribute|getValue|setValue|setClass)'

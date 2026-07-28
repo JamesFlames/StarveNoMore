@@ -7,10 +7,14 @@ tests/conftest.py; split out of the former monolithic test_lua_runtime.py.
 import json as _json
 
 import pytest
-
 from conftest import (
-    lua52, make_env, add_char, flush, lua_to_py, py_to_lua,
+    add_char,
+    flush,
+    lua52,
+    lua_to_py,
+    make_env,
     populate_full_world,
+    py_to_lua,
 )
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")

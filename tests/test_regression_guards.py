@@ -68,8 +68,9 @@ _MIN_CLEARANCE = 0.15      # of the larger footprint; 12% shipped overlapping
 
 def _art_aspect(url):
     """width/height of the art behind an ImageURL, or None if not local."""
-    from PIL import Image                      # test-only dependency
     import glob
+
+    from PIL import Image  # test-only dependency
     name = os.path.basename(url.split("?")[0])
     hits = glob.glob(os.path.join(ROOT, "art", "**", name), recursive=True)
     if not hits:
@@ -716,7 +717,8 @@ def test_every_path_variant_has_board_art():
 def test_default_variant_matches_the_shipped_board_image():
     """The save ships main_board.png; it must be the default variant's art,
     or a game that never runs setup shows lines the Move graph disagrees with."""
-    import sys, hashlib
+    import hashlib
+    import sys
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import path_layouts as pl
 
@@ -804,8 +806,9 @@ def test_action_buttons_do_not_hardcode_a_plate_colour():
 def test_player_boards_are_square_to_the_board_and_face_it():
     import sys
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
-    import board_geometry as g
     import math
+
+    import board_geometry as g
 
     save = _load_save()
     half = g.BOARD_WORLD_HALF
@@ -883,15 +886,15 @@ def test_market_column_clears_the_printed_board():
         t = o["Transform"]
         name = o.get("Nickname", "?")
         # The frame itself, and the card that will be dealt onto it.
-        for what, w, l in (("frame", t["scaleX"] * 2 * g.BOARD_MESH_HALF,
-                            t["scaleZ"] * 2 * g.BOARD_MESH_HALF),
-                           ("dealt card", card_w, card_l)):
+        for what, w, length in (("frame", t["scaleX"] * 2 * g.BOARD_MESH_HALF,
+                                 t["scaleZ"] * 2 * g.BOARD_MESH_HALF),
+                                ("dealt card", card_w, card_l)):
             over_x = abs(t["posX"]) - w / 2 < half
-            over_z = abs(t["posZ"]) - l / 2 < half
+            over_z = abs(t["posZ"]) - length / 2 < half
             if over_x and over_z:
                 problems.append(
                     f"{name}: its {what} reaches x={abs(t['posX']) - w / 2:.2f}, "
-                    f"z={abs(t['posZ']) - l / 2:.2f} — inside the +/-{half} board")
+                    f"z={abs(t['posZ']) - length / 2:.2f} — inside the +/-{half} board")
     assert not problems, (
         "the Market column lies across the printed board:\n  " + "\n  ".join(problems)
         + "\n  push MARKET_COLUMN_X further west in build_save.py")

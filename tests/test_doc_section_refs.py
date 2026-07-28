@@ -18,7 +18,6 @@ import os
 import re
 
 import pytest
-
 from conftest import ROOT
 
 # "SomeDoc.md §12" / "SomeDoc.md §12.4" / "SomeDoc.md §1–26" — optionally with

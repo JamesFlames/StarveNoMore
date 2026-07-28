@@ -18,6 +18,7 @@ import csv
 import json
 import math
 import os
+
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

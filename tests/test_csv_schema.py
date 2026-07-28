@@ -7,7 +7,6 @@ import os
 import re
 
 import pytest
-
 from conftest import ROOT, read_csv_rows
 
 # filename -> (required columns, id prefix regex)

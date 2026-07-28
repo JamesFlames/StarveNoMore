@@ -11,19 +11,27 @@ Stages, in order (each gates the next):
    Skips generators whose sources are absent (a clean clone has no ``sounds/``).
 2. ``python -m pytest tests`` — the suite, including the freshness guards that
    catch a generated file nobody regenerated.
-3. ``luacheck lua/`` — only if the binary is on PATH. It is absent from the
+3. ``ruff check scripts tests`` — the Python linter, against the pinned rule
+   set in ``ruff.toml``.
+4. ``luacheck lua/`` — only if the binary is on PATH. It is absent from the
    default container, so this is reported as *skipped*, not failed.
 
-A fourth check runs after the stages and is advisory: ``git status --short``.
+**The lint stages must mirror CI exactly.** They did not, once: check.py ran
+pytest and luacheck but not ruff, so ruff's CI job could sit red for a month
+while this command said "everything green". If you add a job to
+.github/workflows/tests.yml, add it here too.
+
+A final check runs after the stages and is advisory: ``git status --short``.
 A dirty tree after stage 1 means a generator rewrote a tracked file, and those
 changes belong in the same commit as whatever caused them.
 
 Usage:
     python scripts/check.py            # everything
     python scripts/check.py --fast     # skip regenerate/build, just test + lint
-    python scripts/check.py --no-lint  # skip luacheck even when installed
+    python scripts/check.py --no-lint  # skip the linters even when installed
 """
 import argparse
+import importlib.util
 import os
 import shutil
 import subprocess
@@ -49,6 +57,11 @@ def run_stage(name, argv, results, *, cwd=ROOT):
 def skip_stage(name, why, results):
     print(f"\n=== {name} ===\nskipped: {why}", flush=True)
     results.append((name, SKIP, 0.0))
+
+
+def have_module(name):
+    """True if `python -m <name>` will work in this interpreter."""
+    return importlib.util.find_spec(name) is not None
 
 
 def git_status_short():
@@ -85,6 +98,16 @@ def main():
 
     if not run_stage("pytest", [sys.executable, "-m", "pytest", "tests"], results):
         return report(results, started, dirty_before)
+
+    # Both linters mirror a CI job. Keep them in step with
+    # .github/workflows/tests.yml — see the module docstring.
+    if args.no_lint:
+        skip_stage("ruff", "--no-lint", results)
+    elif not have_module("ruff"):
+        skip_stage("ruff", "ruff is not installed (CI runs it; pip install ruff)", results)
+    else:
+        run_stage("ruff", [sys.executable, "-m", "ruff", "check", "scripts", "tests"],
+                  results)
 
     luacheck = shutil.which("luacheck")
     if args.no_lint:

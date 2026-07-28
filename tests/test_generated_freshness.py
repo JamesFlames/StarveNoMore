@@ -10,7 +10,6 @@ import subprocess
 import sys
 
 import pytest
-
 from conftest import LUA_DIR, ROOT, SCRIPTS
 
 GENERATORS = {

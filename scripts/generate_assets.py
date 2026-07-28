@@ -13,12 +13,12 @@ Run: python scripts/generate_assets.py
 Output: art/tokens/, art/icons/, art/legend/, art/characters/, art/board/
 """
 
-import os
 import math
-from PIL import Image, ImageDraw, ImageFont
+import os
 
 import board_geometry  # doom-track pixel geometry shared with build_save.py
-import path_layouts    # the map graph, shared with the Lua adjacency table
+import path_layouts  # the map graph, shared with the Lua adjacency table
+from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

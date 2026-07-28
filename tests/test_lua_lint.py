@@ -12,7 +12,6 @@ import shutil
 import subprocess
 
 import pytest
-
 from conftest import ROOT
 
 LUACHECK = shutil.which("luacheck")

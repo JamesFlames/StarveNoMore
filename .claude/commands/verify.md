@@ -6,7 +6,8 @@ allowed-tools: Bash(python scripts/check.py:*), Bash(git status:*), Bash(git dif
 Run `python scripts/check.py` and report the result.
 
 - **If it passes:** say so in one line, including the wall time and whether
-  `luacheck` ran or was skipped. Do not re-run anything else.
+  either linter (`ruff`, `luacheck`) ran or was skipped. Do not re-run anything
+  else.
 - **If it fails:** do *not* dump the whole output. For each failing stage give
   the smallest useful thing:
   - *Stale generated file* → name the file and the generator that owns it

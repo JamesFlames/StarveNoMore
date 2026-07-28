@@ -13,7 +13,6 @@ import os
 import re
 
 import pytest
-
 from conftest import CONTENT, ROOT, add_char, lua_to_py, make_env, read_text
 
 pytest.importorskip("lupa")

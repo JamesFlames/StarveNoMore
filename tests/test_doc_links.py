@@ -7,7 +7,6 @@ import os
 import re
 
 import pytest
-
 from conftest import ROOT
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")

@@ -25,9 +25,12 @@ import os
 import re
 
 import pytest
-
 from conftest import (
-    lua52, add_char, lua_to_py, py_to_lua, LUA_DIR,
+    LUA_DIR,
+    add_char,
+    lua52,
+    lua_to_py,
+    py_to_lua,
 )
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")

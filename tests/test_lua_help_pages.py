@@ -13,7 +13,6 @@ So two properties matter:
 import math
 
 import pytest
-
 from conftest import add_char, lua_to_py, make_env
 
 pytest.importorskip("lupa")

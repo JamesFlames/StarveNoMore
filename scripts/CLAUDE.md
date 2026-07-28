@@ -37,20 +37,33 @@ in the repo links here rather than repeating it.
 python scripts/check.py          # ← finish every task with this
 ```
 
-`check.py` runs three stages, each gating the next, and prints a one-line verdict:
+`check.py` runs four stages, each gating the next, and prints a one-line verdict:
 
 1. **`regenerate_all.py`** — every generator in `generators.json` order, then
    `build_save.py`. Reads the manifest so it can't drift; generators whose
    sources are absent (e.g. `sounds/` on a clean clone) are skipped rather than
    erroring. `--no-build` / `--list` are available on `regenerate_all.py` itself.
 2. **`python -m pytest tests`** — the suite, including the freshness guards.
-3. **`luacheck lua/`** — only if the binary is on PATH; reported as *skipped*,
-   not failed, when it is absent (it is absent from the default container).
+3. **`ruff check scripts tests`** — the Python linter, against the pinned rule
+   set in [`../ruff.toml`](../ruff.toml).
+4. **`luacheck lua/`** — against the generated `.luacheckrc`. Both linters are
+   reported as *skipped*, not failed, when the tool is absent.
 
 Afterwards it reports any tracked file a generator rewrote, so those changes go
 into the same commit.
 
-Flags: `--fast` (skip stage 1), `--no-lint` (skip stage 3).
+Flags: `--fast` (skip stage 1), `--no-lint` (skip stages 3–4).
+
+**Stages 2–4 mirror the CI jobs one-for-one, and must stay that way.** They
+did not once: `check.py` ran pytest and luacheck but not ruff, so ruff's job sat
+red for a month while this command reported everything green. Add a job to
+[`../.github/workflows/tests.yml`](../.github/workflows/tests.yml) and you add a
+stage here.
+
+Both linters are version-sensitive, so both are pinned: the ruff **rule set** in
+`ruff.toml` and the ruff **version** in the workflow. An unpinned linter changes
+its own defaults underneath you, which is exactly how the job went red without a
+line of this repo changing.
 
 Run a stage on its own only when you are debugging *that stage*.
 

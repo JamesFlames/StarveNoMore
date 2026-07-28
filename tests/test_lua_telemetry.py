@@ -7,9 +7,13 @@ tests/conftest.py; split out of the former monolithic test_lua_runtime.py.
 import json as _json
 
 import pytest
-
 from conftest import (
-    lua52, make_env, add_char, broadcasts, lua_to_py, py_to_lua,
+    add_char,
+    broadcasts,
+    lua52,
+    lua_to_py,
+    make_env,
+    py_to_lua,
     script_dice,
 )
 

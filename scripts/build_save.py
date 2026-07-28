@@ -12,14 +12,12 @@ URL so the rewritten links resolve.
 """
 
 import argparse
-import json
-import math
 import csv
-import os
 import glob
+import json
+import os
 
-from generate_notebook import md_to_text   # shared md→text for the Quick Start notecard
-import board_geometry                       # shared board image↔world geometry
+import board_geometry  # shared board image↔world geometry
 
 _ap = argparse.ArgumentParser(description="Assemble the TTS save JSON.")
 _ap.add_argument("--publish", metavar="BASE_URL", default=None,
@@ -464,6 +462,7 @@ board_snaps = []
 # From path_layouts: the same table the board art draws its rings from, so a
 # tile and its printed ring can never drift apart.
 import path_layouts
+
 loc_positions = {
     k: {"x": v[0], "y": 0.1, "z": v[1]}
     for k, v in path_layouts.LOCATION_WORLD.items()

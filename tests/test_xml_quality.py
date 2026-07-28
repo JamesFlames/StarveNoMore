@@ -15,8 +15,15 @@ import re
 import xml.etree.ElementTree as ET
 
 import pytest
-
-from conftest import ART_DIR, LUA_DIR, ROOT, XML_DIR, all_lua_files, all_xml_files, read_text
+from conftest import (
+    ART_DIR,
+    LUA_DIR,
+    ROOT,
+    XML_DIR,
+    all_lua_files,
+    all_xml_files,
+    read_text,
+)
 
 XML_FILES = all_xml_files()
 

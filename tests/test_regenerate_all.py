@@ -9,7 +9,6 @@ import json
 import os
 
 import regenerate_all  # scripts/ is on sys.path via conftest
-
 from conftest import ROOT
 
 

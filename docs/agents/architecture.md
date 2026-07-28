@@ -17,7 +17,7 @@ How the mod is assembled: the build pipeline, the single Lua namespace, and the 
   - `lua/market_data.lua`     — built by `scripts/generate_market_data.py` from `content/cards_market.csv` + `cards_starting.csv` (`MARKET_COSTS` for affordability + `WEAPON_DICE` parsed from "+N Attack die" effect text)
   - `lua/threat_types.lua`    — built by `scripts/generate_threat_types.py` from `content/cards_threats.csv` (`THREAT_TYPE_BY_NAME` for the Night Sounds peek + `SEALED_REWARDS` from the `pry_reward` column)
   - `lua/recipe_data.lua`     — built by `scripts/generate_recipe_data.py` from `content/cards_recipes.csv` (`RECIPE_DATA` from the structured `script` column)
-  - `lua/notebook_data.lua`   — built by `scripts/generate_notebook.py` from `content/notebook/*.md` + `content/help/glossary.md` (the in-game Notebook tabs and Help-panel text; build_save.py reuses its `md_to_text` for the Quick Start notecard)
+  - `lua/notebook_data.lua`   — built by `scripts/generate_notebook.py` from `content/notebook/*.md` + `content/help/glossary.md` (the in-game Notebook tabs and Help-panel text)
 - Two repo-root files are also generated: `SYMBOLS.md` + `.luacheckrc` — built by `scripts/generate_symbol_index.py` from `lua/` (rerun after any Lua change).
 - Run those generators after editing the corresponding source, then `python scripts/build_save.py`. All generators are idempotent and order-independent; `tests/test_generated_freshness.py` fails if any output is stale.
 

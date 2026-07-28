@@ -11,7 +11,6 @@ import subprocess
 import sys
 
 import pytest
-
 from conftest import ROOT, SAVES, SCRIPTS, parse_lua_load_order
 
 SAVE_FILES = ["StarveNoMore.json", "StarveNoMore.pretty.json"]

@@ -35,7 +35,13 @@ jobs:
         with:
           python-version: "3.13"
       - name: Install ruff
-        run: pip install ruff
+        # PINNED on purpose. This job was installing ruff unpinned, so it
+        # inherited whatever the newest release considered default — the
+        # defaults widened, the job went red without a line of this repo
+        # changing, and it stayed red long enough to stop meaning anything.
+        # The rule set is pinned in ruff.toml; the version is pinned here.
+        # Bump both deliberately, and fix whatever the bump reports.
+        run: pip install 'ruff==0.16.0'
       - name: Lint scripts and tests
         run: python -m ruff check scripts tests
 

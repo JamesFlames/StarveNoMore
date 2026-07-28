@@ -11,7 +11,6 @@ move landed as it was clicked, the last player to commit would see everyone
 else's board and the variant would be theatre. That is what these tests pin.
 """
 import pytest
-
 from conftest import add_char, broadcasts, lua_to_py, make_env
 
 pytest.importorskip("lupa")

@@ -17,9 +17,14 @@ try:
 except ImportError:  # pragma: no cover
     lua52 = None
 
-from conftest import ROOT
-from conftest import make_env, populate_full_world, flush
-from test_full_campaign import SEATS, play_day, simple_bot_turn, subphase, assert_invariants
+from conftest import ROOT, flush, make_env, populate_full_world
+from test_full_campaign import (
+    SEATS,
+    assert_invariants,
+    play_day,
+    simple_bot_turn,
+    subphase,
+)
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
 

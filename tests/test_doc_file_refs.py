@@ -16,7 +16,6 @@ import os
 import re
 
 import pytest
-
 from conftest import ROOT
 
 # .lua tokens like `foo_bar.lua`; the leading char rules out `..4.lua` shorthand.

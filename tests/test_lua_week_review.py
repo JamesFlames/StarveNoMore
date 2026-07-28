@@ -8,7 +8,6 @@ specific diagnosis was available, is a silent regression — the panel still
 looks complete.
 """
 import pytest
-
 from conftest import add_char, lua_to_py, make_env
 
 pytest.importorskip("lupa")
@@ -33,7 +32,7 @@ def review_lines(cause, **state):
 
 
 def _one(lines, prefix):
-    hits = [l for l in lines if l.startswith(prefix)]
+    hits = [line for line in lines if line.startswith(prefix)]
     assert hits, f"no {prefix!r} line in:\n" + "\n".join(lines)
     return hits[0]
 
@@ -63,13 +62,13 @@ def test_the_source_margin_names_the_hp_that_was_left():
 
 def test_a_near_miss_win_says_so():
     lines = review_lines("victory", **{"gameState.doom": "28", "gameState.day": "7"})
-    assert any("close as it gets" in l for l in lines), (
+    assert any("close as it gets" in line for line in lines), (
         "a 2-Doom win is the near-miss the ritual exists for")
 
 
 def test_a_comfortable_win_does_not_claim_a_near_miss():
     lines = review_lines("victory", **{"gameState.doom": "8", "gameState.day": "7"})
-    assert not any("close as it gets" in l for l in lines)
+    assert not any("close as it gets" in line for line in lines)
     assert "22 Doom from the end" in _one(lines, "THE MARGIN")
 
 

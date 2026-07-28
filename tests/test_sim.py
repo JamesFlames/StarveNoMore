@@ -8,13 +8,10 @@ Two jobs:
     silently wrong balance table.
 """
 import os
-
-import pytest
-
-import simulate_balance as sim  # scripts/ is on sys.path via conftest
-
 import re as _re
 
+import pytest
+import simulate_balance as sim  # scripts/ is on sys.path via conftest
 from conftest import LUA_DIR, SCRIPTS, TESTS, read_text
 
 try:

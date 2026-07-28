@@ -244,7 +244,24 @@ warnings are fixed rather than whitelisted (one was a genuine fragility: a
 file-local helper called from another file, working only because the bundle is
 one concatenated chunk).
 
-Suite: 683 → **812 tests**, still ~20 s.
+**And the CI job nobody could see was broken.** `ruff` had been failing on
+every run for weeks — not from anything in this repo, but because the job
+installed ruff unpinned and inherited each release's widening defaults, until
+166 findings accumulated and a permanently-red job stopped meaning anything.
+The rule set is now pinned in `ruff.toml` (ruff's own documented default plus
+import sorting — real defects only; the 88 refactor-opinion findings are listed
+there as deliberately unselected, with counts) and the version is pinned in the
+workflow. All four CI jobs are green.
+
+The root cause was closer to home: **`scripts/check.py` ran pytest and luacheck
+but not ruff**, so the one command that says "everything green" could not see
+it. Its stages now mirror the CI jobs one-for-one, and both files say so.
+Fixing it turned up two genuinely dead imports in `build_save.py` — one of
+which, `md_to_text`, README and `architecture.md` still described as the shared
+source for the physical Quick Start notecard. It has not been for some time;
+that notecard is hand-written text, and both docs now say so.
+
+Suite: 683 → **812 tests**, still ~20 s (~26 s including both linters).
 
 ## Repo structure follow-ups (2026-07)
 

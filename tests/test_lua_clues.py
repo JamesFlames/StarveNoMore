@@ -14,7 +14,6 @@ Two things are guarded here, and the first is the more important:
    are what the rest of these tests pin.
 """
 import pytest
-
 from conftest import add_char, broadcasts, lua_to_py, make_env
 
 pytest.importorskip("lupa")

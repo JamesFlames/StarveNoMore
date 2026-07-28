@@ -6,9 +6,12 @@ tests/conftest.py; split out of the former monolithic test_lua_runtime.py.
 """
 
 import pytest
-
 from conftest import (
-    lua52, add_char, broadcasts, lua_to_py, py_to_lua,
+    add_char,
+    broadcasts,
+    lua52,
+    lua_to_py,
+    py_to_lua,
     script_dice,
 )
 

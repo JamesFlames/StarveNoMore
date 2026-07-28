@@ -12,7 +12,6 @@ range of the centre — which is why the Witness fixture leaves him out of the
 game entirely rather than parking him somewhere "far away".
 """
 import pytest
-
 from conftest import add_char, broadcasts, lua_to_py, make_env
 
 pytest.importorskip("lupa")

@@ -97,8 +97,9 @@ def initials(name):
 
 
 def centered(draw, cx, cy, text, font, fill):
-    l, t, r, b = draw.textbbox((0, 0), text, font=font)
-    draw.text((cx - (r - l) / 2 - l, cy - (b - t) / 2 - t), text, fill=fill, font=font)
+    left, top, right, bottom = draw.textbbox((0, 0), text, font=font)
+    draw.text((cx - (right - left) / 2 - left, cy - (bottom - top) / 2 - top),
+              text, fill=fill, font=font)
 
 
 def frame(img, accent):
