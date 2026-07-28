@@ -402,7 +402,7 @@
   "CHAR_BRIEFINGS": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 595,
+    "line": 617,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -562,7 +562,7 @@
   "DIFFICULTY_BLURBS": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 223,
+    "line": 251,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -572,7 +572,7 @@
   "DIFFICULTY_CYCLE": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 222,
+    "line": 250,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1990,7 +1990,7 @@
   "cancelGuidedSetup": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 58,
+    "line": 81,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2668,7 +2668,7 @@
   "dumpSetupState": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 355,
+    "line": 385,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2754,7 +2754,7 @@
   "finalizeGuidedSetup": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 679,
+    "line": 703,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3888,7 +3888,7 @@
   "onBriefBack": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 631,
+    "line": 653,
     "kind": "function",
     "params": [
      "player",
@@ -3902,7 +3902,7 @@
   "onBriefDismiss": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 651,
+    "line": 674,
     "kind": "function",
     "params": [
      "player",
@@ -4208,7 +4208,7 @@
   "onHostSetupGuided": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 848,
+    "line": 872,
     "kind": "function",
     "params": [
      "player",
@@ -4345,7 +4345,7 @@
   "onPickChar": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 497,
+    "line": 527,
     "kind": "function",
     "params": [
      "player",
@@ -4359,7 +4359,7 @@
   "onPickPath": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 128,
+    "line": 151,
     "kind": "function",
     "params": [
      "player",
@@ -4593,7 +4593,7 @@
   "onToggleDifficulty": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 230,
+    "line": 258,
     "kind": "function",
     "params": [
      "player",
@@ -4607,7 +4607,7 @@
   "onToggleDuskSecret": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 178,
+    "line": 204,
     "kind": "function",
     "params": [
      "player",
@@ -4621,7 +4621,7 @@
   "onToggleRotation": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 159,
+    "line": 183,
     "kind": "function",
     "params": [
      "player",
@@ -4635,7 +4635,7 @@
   "onToggleScenario": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 166,
+    "line": 191,
     "kind": "function",
     "params": [
      "player",
@@ -4649,7 +4649,7 @@
   "onToggleSolo": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 189,
+    "line": 216,
     "kind": "function",
     "params": [
      "player",
@@ -4691,7 +4691,7 @@
   "onVariantsContinue": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 242,
+    "line": 271,
     "kind": "function",
     "params": [
      "player",
@@ -5273,7 +5273,7 @@
   "reshowSetupStep": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 48,
+    "line": 71,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5600,7 +5600,7 @@
   "showCharBriefing": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 619,
+    "line": 641,
     "kind": "function",
     "params": [
      "color",
@@ -5613,7 +5613,7 @@
   "showCharPickForNextPlayer": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 377,
+    "line": 407,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5698,7 +5698,7 @@
   "showWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 812,
+    "line": 836,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5769,7 +5769,7 @@
   "startGuidedSetup": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 67,
+    "line": 90,
     "kind": "function",
     "params": [
      "hostColor"

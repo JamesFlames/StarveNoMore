@@ -43,6 +43,29 @@ local function syncSetupPanels()
     set("charBriefing", s == 3)
 end
 
+-- A walkthrough click that arrives when setupState is NOT on that step came
+-- off a ghost panel: a client that missed a hide (see syncSetupPanels), or a
+-- window left open after the game moved on. Obeying it silently mutates
+-- setupState/gameState from a dead UI — clicking Continue on a leftover
+-- variants panel after the game ended really did re-apply a difficulty, and
+-- with it a different Doom limit.
+--
+-- Step 2 learned this the hard way and grew the guard inline; every other
+-- step is reachable the same way, so the guard lives here once and all of
+-- them call it. tests/test_ui_handlers_smoke.py clicks every handler in every
+-- phase, which is what surfaced the gap.
+local function isGhostSetupClick(expectedStep, player)
+    if setupState.step == expectedStep then return false end
+    safecall(syncSetupPanels, "SetupSync")
+    if gameState.started and player and player.color then
+        broadcastToColor(
+            "Setup already finished — closing that leftover setup window. " ..
+            "Click 'Begin Day' to start Day 1.",
+            player.color, BROADCAST_COLORS.warn)
+    end
+    return true
+end
+
 -- Re-open whatever step the walkthrough is on (used when someone clicks
 -- Setup again mid-walkthrough — usually because they lost the window).
 function reshowSetupStep()
@@ -126,6 +149,7 @@ end
 -- Step 1: Path graph pick
 -----------------------------------------------------------------------
 function onPickPath(player, value, id)
+    if isGhostSetupClick(1, player) then return end
     local variant
     if id == "pickCompact" then variant = "Compact"
     elseif id == "pickSprawl" then variant = "Sprawl"
@@ -157,6 +181,7 @@ local function refreshVariantToggle(id, on, labelOn, labelOff)
 end
 
 function onToggleRotation(player, value, id)
+    if isGhostSetupClick(1.5, player) then return end
     setupState.rotationTurns = not setupState.rotationTurns
     refreshVariantToggle("toggleRotation", setupState.rotationTurns,
         "Rotation turns: ON\n(take 1 action, then the next player goes — around the table 3 times)",
@@ -164,6 +189,7 @@ function onToggleRotation(player, value, id)
 end
 
 function onToggleScenario(player, value, id)
+    if isGhostSetupClick(1.5, player) then return end
     setupState.randomScenario = not setupState.randomScenario
     refreshVariantToggle("toggleScenario", setupState.randomScenario,
         "Random Scenario: ON\n(a week-long twist like The Long Winter — revealed at setup)",
@@ -176,6 +202,7 @@ end
 -- argues geometry"), so it must earn the default with table data, not with an
 -- argument. §20.1 records what to watch.
 function onToggleDuskSecret(player, value, id)
+    if isGhostSetupClick(1.5, player) then return end
     setupState.duskSecret = not setupState.duskSecret
     refreshVariantToggle("toggleDuskSecret", setupState.duskSecret,
         "Secret Dusk: ON\n(argue freely, then commit your night in secret — all revealed at once)",
@@ -187,6 +214,7 @@ end
 -- word-limit and Secret Dusk are all meaningless or merely annoying with one
 -- brain — so the mode's actual content is suspending them.
 function onToggleSolo(player, value, id)
+    if isGhostSetupClick(1.5, player) then return end
     setupState.solo = not setupState.solo
     if setupState.solo then
         -- Secrecy against yourself is pure friction. Turning it off with the
@@ -228,6 +256,7 @@ DIFFICULTY_BLURBS = {
 }
 
 function onToggleDifficulty(player, value, id)
+    if isGhostSetupClick(1.5, player) then return end
     local current = setupState.difficulty or "story"
     local idx = 1
     for i, d in ipairs(DIFFICULTY_CYCLE) do
@@ -240,6 +269,7 @@ function onToggleDifficulty(player, value, id)
 end
 
 function onVariantsContinue(player, value, id)
+    if isGhostSetupClick(1.5, player) then return end
     UI.hide("setupStepVariants")
     gameState.turnStyle = setupState.rotationTurns and "rotate" or "full"
     if setupState.rotationTurns then
@@ -497,18 +527,10 @@ end
 function onPickChar(player, value, id)
     local charName = CHAR_BUTTON_MAP[id]
     if not charName then return end
-    if setupState.step ~= 2 then
-        -- A click off a ghost panel: this client missed a hide (see
-        -- syncSetupPanels). Swallowing it silently is what made the bug
-        -- unescapable — the player clicked every card on a dead window
-        -- while the game had already started. Close it and say why.
-        safecall(syncSetupPanels, "SetupSync")
-        if gameState.started then
-            broadcastToColor("Setup already finished — closing that leftover pick window. Click 'Begin Day' to start Day 1.",
-                player.color, BROADCAST_COLORS.warn)
-        end
-        return
-    end
+    -- Swallowing a ghost-panel click silently is what made the original bug
+    -- unescapable — the player clicked every card on a dead window while the
+    -- game had already started. isGhostSetupClick closes it and says why.
+    if isGhostSetupClick(2, player) then return end
 
     -- Verify this character isn't taken
     for _, name in pairs(setupState.charPicks) do
@@ -629,6 +651,7 @@ end
 -- Go Back: return the just-picked character to the pool and reopen the
 -- Step 2 pick for the same player.
 function onBriefBack(player, value, id)
+    if isGhostSetupClick(3, player) then return end
     UI.hide("charBriefing")
     if not setupState.inProgress then
         -- Ghost briefing on a client that missed a hide: returning a
@@ -649,6 +672,7 @@ function onBriefBack(player, value, id)
 end
 
 function onBriefDismiss(player, value, id)
+    if isGhostSetupClick(3, player) then return end
     UI.hide("charBriefing")
     if not setupState.inProgress then
         -- Same ghost-click guard as onBriefBack, and the costlier one: this
