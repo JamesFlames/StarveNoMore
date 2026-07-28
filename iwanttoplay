@@ -1,0 +1,13 @@
+#!/bin/sh
+# iwanttoplay — rebuild, test, install and launch Starve No More.
+# POSIX twin of iwanttoplay.bat, so the headline command in CLAUDE.md also
+# works in a Linux container (which is where every agent session runs).
+#
+# Steps 1-3 (regenerate → build → test) are cross-platform. Steps 4-7
+# (copy into the TTS saves folder, purge the TTS asset cache, start the asset
+# server, launch TTS via Steam) are Windows-only and the script reports them
+# as skipped elsewhere. For verification only, prefer: python scripts/check.py
+#
+# Usage: ./iwanttoplay [--skip-tests] [--no-launch]
+set -eu
+exec python "$(dirname "$0")/scripts/iwanttoplay.py" "$@"

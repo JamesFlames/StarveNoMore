@@ -8,14 +8,17 @@ A cooperative survival board game for 3–5 players, built as a [Tabletop Simula
 
 ```bash
 pip install pytest lupa Pillow      # lupa runs the real Lua bundle headlessly
-python -m pytest tests              # ~680 tests; green = safe to build
-python scripts/build_save.py        # assemble saves/StarveNoMore.json
+python scripts/check.py             # regenerate → build → test → lint (~22 s)
 ```
+
+`check.py` is the whole verification loop in one command; the individual stages
+and their flags are documented once in
+[`scripts/CLAUDE.md`](scripts/CLAUDE.md#the-canonical-pipeline).
 
 **Just want to play?** From the repo root:
 
-```bat
-iwanttoplay
+```bash
+./iwanttoplay          # or: iwanttoplay.bat on Windows
 ```
 
 One command: regenerates every derived artifact → builds the save → runs the
@@ -23,6 +26,10 @@ full test suite → copies the save into your TTS saves folder → starts the
 asset server → launches Tabletop Simulator. A red test stops the pipeline
 before anything ships. Flags: `--skip-tests` (faster, unverified),
 `--no-launch` (everything except starting TTS).
+
+The regenerate/build/test half is cross-platform; the install, cache-purge and
+launch half is Windows-only and is reported as skipped elsewhere. On Linux or
+macOS use `python scripts/check.py` to verify a change.
 
 Everything else — pipelines, conventions, the file map — is in [`agents.md`](agents.md). Rule-change history: [`CHANGELOG.md`](CHANGELOG.md). Lua symbol lookup: [`SYMBOLS.md`](SYMBOLS.md).
 

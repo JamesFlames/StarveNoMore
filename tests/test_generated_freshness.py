@@ -25,9 +25,11 @@ GENERATORS = {
 
 
 def test_symbol_index_is_fresh():
-    """SYMBOLS.md and .luacheckrc must match what generate_symbol_index.py
-    produces from the current lua/ tree (E in frameworkimprovements.md)."""
-    targets = [os.path.join(ROOT, "SYMBOLS.md"), os.path.join(ROOT, ".luacheckrc")]
+    """SYMBOLS.md, symbols.json and .luacheckrc must match what
+    generate_symbol_index.py produces from the current lua/ tree."""
+    targets = [os.path.join(ROOT, "SYMBOLS.md"),
+               os.path.join(ROOT, "symbols.json"),
+               os.path.join(ROOT, ".luacheckrc")]
     committed = {}
     for t in targets:
         assert os.path.isfile(t), f"{os.path.basename(t)} missing — run scripts/generate_symbol_index.py"

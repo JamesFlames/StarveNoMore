@@ -34,7 +34,11 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 | Debug a live session / decode a `<Global:N>` error | [`docs/debugging.md`](docs/debugging.md) + `scripts/inspect_save.py` | — |
 | Deploy to TTS for play | `iwanttoplay` (regen+build+test+install+cache purge+launch) | — |
 
-**Always finish with:** `python scripts/build_save.py` then `python -m pytest tests`.
-A stale generated file (or a Lua move without a fresh `SYMBOLS.md`) fails the suite.
-Unsure which generator to run? `python scripts/regenerate_all.py` runs them all
-(in dependency order) and rebuilds the save in one command.
+**Always finish with:** `python scripts/check.py`. It runs every generator in the
+**Regenerate after** column for you, rebuilds the save, runs the suite and lints
+the Lua — so you never have to match your edit to the right generator by hand.
+
+Run a single stage only when you are debugging that stage:
+`python scripts/regenerate_all.py`, `python scripts/build_save.py`,
+`python -m pytest tests`. A stale generated file (or a Lua move without a fresh
+`SYMBOLS.md`) fails the suite either way.

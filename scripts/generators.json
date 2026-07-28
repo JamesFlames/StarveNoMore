@@ -56,6 +56,12 @@
       "auto_generated": true
     },
     {
+      "output": "symbols.json",
+      "script": "scripts/generate_symbol_index.py",
+      "sources": ["lua/"],
+      "auto_generated": true
+    },
+    {
       "output": ".luacheckrc",
       "script": "scripts/generate_symbol_index.py",
       "sources": ["lua/"],

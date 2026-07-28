@@ -1,8 +1,13 @@
 # tests/ — pytest suite (no TTS required)
 
 ```bash
-python -m pytest tests          # needs: pip install pytest lupa
+python scripts/check.py         # regenerate → build → test → lint (finish with this)
+python -m pytest tests          # the suite alone, when iterating on one test
 ```
+
+Dependencies install automatically via the committed `SessionStart` hook
+([`.claude/README.md`](../.claude/README.md)); otherwise
+`pip install pytest lupa Pillow`.
 
 Runs the real concatenated Lua bundle headlessly under Lua 5.2 (`lupa`) with
 `tts_stub.lua` faking the TTS API, plus CSV/XML/color/lint quality gates and

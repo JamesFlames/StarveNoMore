@@ -16,7 +16,10 @@ matching generator leaves the game out of sync (and fails a freshness test).
 | any `cards_*.csv` (art/text) | `generate_card_atlases.py` |
 | `achievements.csv` | `generate_achievement_data.py` + `generate_achievement_icons.py` |
 
-Then `python scripts/build_save.py`. Generator map: [`../scripts/CLAUDE.md`](../scripts/CLAUDE.md).
+**Or just run `python scripts/check.py`** — it runs every generator above, in
+dependency order, then rebuilds and tests. The table is what to run when you are
+debugging one generator; `check.py` is what to run when you are finishing a task.
+Generator map: [`../scripts/CLAUDE.md`](../scripts/CLAUDE.md).
 
 ## Conventions
 

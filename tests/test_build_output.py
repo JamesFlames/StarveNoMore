@@ -118,7 +118,26 @@ def test_committed_save_is_fresh(built_save):
 
     fresh = normalize(built_save["fresh"])
     committed = normalize(built_save["committed"])
-    assert fresh == committed, (
-        "saves/StarveNoMore.json is stale: rebuilding from the current lua/xml/content "
-        "produces different output. Rerun: python scripts/build_save.py"
+    if fresh == committed:
+        return
+
+    # Deliberately NOT `assert fresh == committed`. The save is ~1.2 MB, and
+    # pytest's assertion rewriting builds a character-level diff of the two
+    # strings on failure — which takes minutes and reads as a hung suite rather
+    # than a stale file. pytest.fail() skips the rewriter entirely, so the
+    # real failure mode reports in milliseconds. Locate the first divergence
+    # ourselves and quote a short window around it.
+    i = next((n for n, (a, b) in enumerate(zip(fresh, committed)) if a != b),
+             min(len(fresh), len(committed)))
+    window = 90
+    lo, hi = max(0, i - window // 2), i + window
+    pytest.fail(
+        "saves/StarveNoMore.json is stale: rebuilding from the current "
+        "lua/xml/content produces different output. "
+        "Rerun: python scripts/build_save.py\n"
+        f"  first difference at byte {i} of {len(committed)} "
+        f"(rebuilt is {len(fresh)} bytes)\n"
+        f"  committed: …{committed[lo:hi]!r}…\n"
+        f"  rebuilt:   …{fresh[lo:hi]!r}…",
+        pytrace=False,
     )

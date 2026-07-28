@@ -24,13 +24,33 @@ The generator map below is mirrored machine-readably in [`generators.json`](gene
 | **any** `lua/*.lua` | `generate_symbol_index.py` | `SYMBOLS.md` + `.luacheckrc` |
 
 Generators are idempotent and order-independent; `tests/test_generated_freshness.py`
-fails if any output is stale. After regenerating, run `python scripts/build_save.py`.
+fails if any output is stale.
 
-**Or just run everything:** `python scripts/regenerate_all.py` runs every
-generator (in manifest order) then `build_save.py` — one command instead of
-remembering which generator matches your edit. It reads `generators.json`, so it
-can't drift; generators whose sources are absent (e.g. `sounds/` on a clean
-clone) are skipped rather than erroring. `--no-build` / `--list` are available.
+## The canonical pipeline
+
+This is the one place the build sequence is written out in full. Everything else
+in the repo links here rather than repeating it.
+
+```bash
+python scripts/check.py          # ← finish every task with this
+```
+
+`check.py` runs three stages, each gating the next, and prints a one-line verdict:
+
+1. **`regenerate_all.py`** — every generator in `generators.json` order, then
+   `build_save.py`. Reads the manifest so it can't drift; generators whose
+   sources are absent (e.g. `sounds/` on a clean clone) are skipped rather than
+   erroring. `--no-build` / `--list` are available on `regenerate_all.py` itself.
+2. **`python -m pytest tests`** — the suite, including the freshness guards.
+3. **`luacheck lua/`** — only if the binary is on PATH; reported as *skipped*,
+   not failed, when it is absent (it is absent from the default container).
+
+Afterwards it reports any tracked file a generator rewrote, so those changes go
+into the same commit.
+
+Flags: `--fast` (skip stage 1), `--no-lint` (skip stage 3).
+
+Run a stage on its own only when you are debugging *that stage*.
 
 ## Derived art (not in generators.json — binary output, run when art changes)
 

@@ -166,6 +166,19 @@ def main():
     else:
         run_step("test suite", [sys.executable, "-m", "pytest", "tests", "-q"])
 
+    # Steps 4-7 install into and launch Tabletop Simulator, which only exists
+    # on Windows here (the paths are %USERPROFILE% expansions, the asset server
+    # is a .bat, and os.startfile is Windows-only). Every agent session runs in
+    # a Linux container, so report them as skipped rather than dying at step 4
+    # after a perfectly good regenerate/build/test.
+    if os.name != "nt":
+        say(f"regenerate + build + test complete in {time.time() - total_start:.0f}s.")
+        say("SKIPPING install/cache-purge/serve/launch — those steps need Windows "
+            "+ Tabletop Simulator. The built save is at saves/StarveNoMore.json; "
+            "copy it into your TTS Saves folder by hand, or run this on Windows.")
+        say("For verification only, python scripts/check.py is faster (it also lints).")
+        return
+
     # 4. Copy into the TTS saves folder.
     dest_dir = find_tts_saves_dir()
     if not dest_dir:

@@ -7,9 +7,12 @@ explicit `LUA_LOAD_ORDER`. **There is one shared global namespace and no
 
 ## Rules
 
-- **After any Lua change:** `python scripts/generate_symbol_index.py` (refreshes
-  `SYMBOLS.md` + `.luacheckrc`), then `python scripts/build_save.py`, then
-  `python -m pytest tests`. A freshness test fails if `SYMBOLS.md` is stale.
+- **After any Lua change:** `python scripts/check.py` — it refreshes
+  `SYMBOLS.md` + `.luacheckrc`, rebuilds the save, runs the suite and lints.
+  (A committed `PostToolUse` hook already reruns `generate_symbol_index.py` on
+  every `lua/` edit; the freshness test is the backstop if the hook is off.)
+  Debugging the index generator itself?
+  `python scripts/generate_symbol_index.py` runs it alone.
 - **When you split or add a file:** add it to `LUA_LOAD_ORDER` in
   `build_save.py`, in the correct position (definitions must load before
   consumers). Files not in the list are appended last — order not guaranteed.

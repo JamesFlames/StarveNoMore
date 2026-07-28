@@ -1,0 +1,77 @@
+{
+  "$comment": "Committed project-level agent config. Personal overrides go in .claude/settings.local.json (gitignored). See .claude/README.md.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/refresh-symbol-index.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(python scripts/check.py)",
+      "Bash(python scripts/check.py:*)",
+      "Bash(python -m pytest tests)",
+      "Bash(python -m pytest tests:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python -m ruff check:*)",
+      "Bash(python scripts/regenerate_all.py)",
+      "Bash(python scripts/regenerate_all.py:*)",
+      "Bash(python scripts/build_save.py)",
+      "Bash(python scripts/generate_symbol_index.py)",
+      "Bash(python scripts/generate_achievement_data.py)",
+      "Bash(python scripts/generate_audio_manifest.py)",
+      "Bash(python scripts/generate_gamestate_map.py)",
+      "Bash(python scripts/generate_market_data.py)",
+      "Bash(python scripts/generate_notebook.py)",
+      "Bash(python scripts/generate_player_rules.py)",
+      "Bash(python scripts/generate_recipe_data.py)",
+      "Bash(python scripts/generate_threat_types.py)",
+      "Bash(python scripts/generate_whatnow_hints.py)",
+      "Bash(python scripts/generate_character_briefings.py)",
+      "Bash(python scripts/sym.py:*)",
+      "Bash(python scripts/inspect_save.py:*)",
+      "Bash(python scripts/simulate_balance.py:*)",
+      "Bash(luacheck lua/)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(wc:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Read(//home/**)",
+      "Glob",
+      "Grep"
+    ],
+    "deny": [
+      "Read(./.claude/settings.local.json)"
+    ]
+  }
+}

@@ -1,5 +1,5 @@
 """
-Scan lua/*.lua + xml/*.xml → SYMBOLS.md + .luacheckrc
+Scan lua/*.lua + xml/*.xml → SYMBOLS.md + symbols.json + .luacheckrc
 
 The Lua bundle is 25+ files of globals concatenated by build_save.py.
 This generator produces:
@@ -10,12 +10,19 @@ This generator produces:
    an id like "duskReadyBtn". One lookup instead of N greps, for humans
    and AI agents alike.
 
-2. .luacheckrc — a luacheck config whose `globals` list is exactly the
+2. symbols.json — the same index, machine-readable and with more per symbol
+   (signature, arity, the comment above the definition). SYMBOLS.md is ~17k
+   tokens, so reading it to answer "where is beginNight?" is enormously
+   wasteful and grepping it returns a bare table row with no signature.
+   `python scripts/sym.py beginNight` reads this file instead and answers in
+   one call, with call sites. SYMBOLS.md stays: it is the human-browsable view.
+
+3. .luacheckrc — a luacheck config whose `globals` list is exactly the
    bundle's own symbols plus the TTS API, so `luacheck lua/` flags reads
    or writes of anything undefined (i.e. typos like `gamestate`).
 
 Run: python scripts/generate_symbol_index.py
-Output: SYMBOLS.md, .luacheckrc (repo root)
+Output: SYMBOLS.md, symbols.json, .luacheckrc (repo root)
 """
 
 import json
@@ -26,6 +33,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 LUA_DIR = os.path.join(REPO_ROOT, "lua")
 XML_DIR = os.path.join(REPO_ROOT, "xml")
 MD_PATH = os.path.join(REPO_ROOT, "SYMBOLS.md")
+JSON_PATH = os.path.join(REPO_ROOT, "symbols.json")
 LUACHECKRC_PATH = os.path.join(REPO_ROOT, ".luacheckrc")
 
 FUNC_RE = re.compile(r"^function\s+([A-Za-z_][\w.]*)\s*\(", re.M)
@@ -61,19 +69,59 @@ def load_order():
     return files, manifest.get("xml", [])
 
 
+# A run of `--` lines directly above a definition is its docstring. Banner
+# comments (`-- ===== section =====`) are decoration, not documentation.
+COMMENT_RE = re.compile(r"^\s*--+\s?(.*?)\s*$")
+BANNER_RE = re.compile(r"^[=\-~*_ ]*$")
+DOC_MAX = 160
+
+
+def doc_above(lines, idx):
+    """The comment block immediately above lines[idx], as one short string."""
+    block = []
+    i = idx - 1
+    while i >= 0:
+        m = COMMENT_RE.match(lines[i])
+        if not m:
+            break
+        text = m.group(1)
+        if not BANNER_RE.match(text):
+            block.append(text)
+        i -= 1
+    if not block:
+        return ""
+    doc = " ".join(reversed(block)).strip()
+    return doc[: DOC_MAX - 1] + "…" if len(doc) > DOC_MAX else doc
+
+
 def scan(rel_path):
-    """Return [(line, kind, name)] of global definitions in one lua file."""
+    """Return [{line, kind, name, params, doc}] of globals in one lua file.
+
+    `params` is the parameter list for a function whose signature closes on
+    its own line, else None — detection of the *definition* deliberately uses
+    the same open-paren-only regex as before, so a multi-line signature is
+    still indexed (just without a recorded arity).
+    """
     path = os.path.join(LUA_DIR, rel_path.replace("/", os.sep))
-    out = []
     with open(path, encoding="utf-8") as f:
-        for lineno, line in enumerate(f, 1):
-            m = re.match(r"^function\s+([A-Za-z_][\w.]*)\s*\(", line)
-            if m:
-                out.append((lineno, "function", m.group(1)))
-                continue
-            m = re.match(r"^([A-Za-z_]\w*)\s*=", line)
-            if m and m.group(1) not in ("local",):
-                out.append((lineno, "table" if "{" in line else "value", m.group(1)))
+        lines = f.read().splitlines()
+    out = []
+    for idx, line in enumerate(lines):
+        lineno = idx + 1
+        m = re.match(r"^function\s+([A-Za-z_][\w.]*)\s*\(", line)
+        if m:
+            closed = re.match(r"^function\s+[A-Za-z_][\w.]*\s*\(([^)]*)\)", line)
+            params = ([p.strip() for p in closed.group(1).split(",") if p.strip()]
+                      if closed else None)
+            out.append({"line": lineno, "kind": "function", "name": m.group(1),
+                        "params": params, "doc": doc_above(lines, idx)})
+            continue
+        m = re.match(r"^([A-Za-z_]\w*)\s*=", line)
+        if m and m.group(1) not in ("local",):
+            out.append({"line": lineno,
+                        "kind": "table" if "{" in line else "value",
+                        "name": m.group(1), "params": None,
+                        "doc": doc_above(lines, idx)})
     return out
 
 
@@ -118,16 +166,16 @@ def main():
         else:
             L.append("| line | kind | symbol |")
             L.append("|---|---|---|")
-            for lineno, kind, name in syms:
-                L.append(f"| {lineno} | {kind} | `{name}` |")
+            for s in syms:
+                L.append(f"| {s['line']} | {s['kind']} | `{s['name']}` |")
         L.append("")
     L.append("## Alphabetical")
     L.append("")
     L.append("| symbol | file | line |")
     L.append("|---|---|---|")
-    flat = sorted((name, f, lineno)
+    flat = sorted((s["name"], f, s["line"])
                   for f, syms in per_file.items()
-                  for lineno, _kind, name in syms)
+                  for s in syms)
     for name, f, lineno in flat:
         L.append(f"| `{name}` | lua/{f} | {lineno} |")
     L.append("")
@@ -154,12 +202,43 @@ def main():
     with open(MD_PATH, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(L))
 
+    # ---- symbols.json (the queryable view; see scripts/sym.py) ----
+    # A name maps to a LIST of definitions: tests/test_lua_statics.py forbids
+    # a duplicate global, but the index must be able to *show* one if the
+    # guard is ever relaxed or bypassed, rather than silently keeping one.
+    symbols = {}
+    for f in files:
+        for s in per_file[f]:
+            symbols.setdefault(s["name"], []).append({
+                "file": f"lua/{f}",
+                "line": s["line"],
+                "kind": s["kind"],
+                "params": s["params"],
+                "arity": None if s["params"] is None else len(s["params"]),
+                "doc": s["doc"],
+            })
+    payload = {
+        "_comment": (
+            "AUTO-GENERATED by scripts/generate_symbol_index.py — do not edit by hand. "
+            "Machine-readable twin of SYMBOLS.md. Query it with: python scripts/sym.py NAME"
+        ),
+        "symbols": dict(sorted(symbols.items())),
+        "xml_ids": {
+            elem_id: {"file": f"xml/{xf}", "line": lineno,
+                      "element": element, "onClick": onclick}
+            for elem_id, xf, lineno, element, onclick in sorted(xml_ids)
+        },
+    }
+    with open(JSON_PATH, "w", encoding="utf-8", newline="\n") as fh:
+        json.dump(payload, fh, indent=1, sort_keys=False, ensure_ascii=False)
+        fh.write("\n")
+
     # ---- .luacheckrc ----
     # luacheck lints *every* file under lua/, so the globals list must cover
     # them all — including files not in the build load order (e.g. assets.lua,
     # appended separately by build_save.py). Scan those extras too, or their
     # top-level globals (ASSETS) read as "non-standard global" warnings.
-    all_globals = {name for syms in per_file.values() for _l, _k, name in syms}
+    all_globals = {s["name"] for syms in per_file.values() for s in syms}
     for root, _dirs, names in os.walk(LUA_DIR):
         for n in sorted(names):
             if not n.endswith(".lua"):
@@ -167,7 +246,7 @@ def main():
             rel = os.path.relpath(os.path.join(root, n), LUA_DIR).replace(os.sep, "/")
             if rel in per_file:
                 continue
-            all_globals |= {name for _l, _k, name in scan(rel)}
+            all_globals |= {s["name"] for s in scan(rel)}
     bundle_globals = sorted({name.split(".")[0] for name in all_globals})
     C = []
     C.append("-- .luacheckrc — AUTO-GENERATED by scripts/generate_symbol_index.py.")
@@ -194,6 +273,7 @@ def main():
 
     print(f"wrote {os.path.relpath(MD_PATH, REPO_ROOT)} ({total} symbols, {len(files)} files, "
           f"{len(xml_ids)} xml ids)")
+    print(f"wrote {os.path.relpath(JSON_PATH, REPO_ROOT)} ({len(symbols)} unique names)")
     print(f"wrote {os.path.relpath(LUACHECKRC_PATH, REPO_ROOT)} ({len(bundle_globals)} bundle globals)")
 
 

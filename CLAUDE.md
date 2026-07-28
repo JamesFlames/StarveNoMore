@@ -1,8 +1,9 @@
 # CLAUDE.md — start here
 
-**For any task:** (1) find the file via [`TASKMAP.md`](TASKMAP.md) or [`SYMBOLS.md`](SYMBOLS.md)
-(SYMBOLS also indexes every XML UI id → file:line + handler),
-(2) open only that file, (3) regenerate + `python -m pytest tests` before you finish.
+**For any task:** (1) find the file via [`TASKMAP.md`](TASKMAP.md) or
+`python scripts/sym.py NAME` (symbol → `file:line` + signature + call sites),
+(2) open only that file, (3) run **`python scripts/check.py`** before you finish
+— it regenerates, rebuilds, tests and lints in one command (~22 s).
 
 **Touching anything that talks to Tabletop Simulator?** Read the two TTS
 docs FIRST — they are lists of engine behaviours that already burned us:
@@ -34,8 +35,12 @@ there are no `require`s; load order is the explicit `LUA_LOAD_ORDER` in
 ## Finding the right file
 
 - **"Where do I change X?"** → [`TASKMAP.md`](TASKMAP.md) (job → files to open).
-- **"Where is function/constant X?"** → grep [`SYMBOLS.md`](SYMBOLS.md)
-  (function → `file:line`) *before* opening source. One lookup instead of N greps.
+- **"Where is function/constant X?"** → `python scripts/sym.py NAME` — prints
+  `file:line`, the signature, the comment above it, and every call site. One
+  call instead of a grep plus an open. `--ui ID` for an XML element id,
+  `--file night.lua` for everything one file defines.
+  [`SYMBOLS.md`](SYMBOLS.md) is the same index as a browsable table; at ~17k
+  tokens, read it only if `sym.py` cannot answer.
 - **Deep reference** (architecture, conventions, pipelines) → [`agents.md`](agents.md).
 - **Rules/design questions** → [`docs/design/`](docs/design/README.md) (split by
   topic), indexed from [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md).
@@ -43,12 +48,26 @@ there are no `require`s; load order is the explicit `LUA_LOAD_ORDER` in
 ## Build & test
 
 ```bash
-pip install pytest lupa Pillow      # lupa runs the real Lua bundle headlessly
-python -m pytest tests              # ~680 tests; green = safe to build
-python scripts/build_save.py        # assemble saves/StarveNoMore.json
-iwanttoplay                         # regen → build → test → install save +
-                                    # purge stale TTS cache → launch TTS
+python scripts/check.py             # regenerate → build → test → lint. THE command.
+./iwanttoplay                       # the above + install save + purge stale
+                                    # TTS cache + launch TTS (Windows only for
+                                    # the install/launch half)
 ```
+
+Dependencies (`pytest lupa Pillow`) install automatically via the committed
+`SessionStart` hook — see [`.claude/README.md`](.claude/README.md). Otherwise:
+`pip install pytest lupa Pillow`.
+
+<details><summary>Running a stage on its own (debugging a generator or the build)</summary>
+
+- `python scripts/regenerate_all.py` — every generator, then the build.
+- `python scripts/build_save.py` — assemble `saves/StarveNoMore.json`.
+- `python -m pytest tests` — ~700 tests, ~21 s.
+- `python scripts/check.py --fast` — skip regenerate/build, test + lint only.
+
+The canonical description of the pipeline lives in
+[`scripts/CLAUDE.md`](scripts/CLAUDE.md); everything else links to it.
+</details>
 
 Per-directory `CLAUDE.md` files (`lua/`, `scripts/`, `tests/`, `content/`) carry
 local conventions + the "regenerate after edit" rule for that directory.
@@ -60,8 +79,9 @@ Each carries an `AUTO-GENERATED` banner; regenerate its source instead:
 - `lua/audio_manifest.lua`, `lua/whatnow_hints.lua`, `lua/market_data.lua`,
   `lua/threat_types.lua`, `lua/recipe_data.lua`, `lua/notebook_data.lua`,
   `lua/achievement_data.lua` (+ `steam/achievements.json`)
-- `SYMBOLS.md` + `.luacheckrc` — `python scripts/generate_symbol_index.py`
-  (rerun after **any** `lua/` change; a freshness test enforces it).
+- `SYMBOLS.md` + `symbols.json` + `.luacheckrc` —
+  `python scripts/generate_symbol_index.py` (rerun after **any** `lua/` change;
+  a committed `PostToolUse` hook does it for you and a freshness test enforces it).
 
 Which generator rebuilds what → [`scripts/generators.json`](scripts/generators.json)
 (or the table in [`scripts/CLAUDE.md`](scripts/CLAUDE.md)). Build load order →

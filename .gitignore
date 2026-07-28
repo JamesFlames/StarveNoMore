@@ -1,5 +1,6 @@
-# Claude Code local config
-.claude/
+# Claude Code config: .claude/settings.json, hooks/ and commands/ are COMMITTED
+# (shared project setup — see .claude/README.md). Only personal overrides are local.
+.claude/settings.local.json
 
 # OS
 Thumbs.db
