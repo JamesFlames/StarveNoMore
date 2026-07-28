@@ -66,7 +66,7 @@ Run a stage on its own only when you are debugging *that stage*.
 appears in the game. TTS reshapes both families before the player sees them (a
 tile is cropped to a circle; a standee's whole image is multiplied by its
 `ColorDiffuse` tint) — full rationale in
-[`agents.md`](../agents.md#derived-art-tilepng-and-standeepng).
+[`docs/agents/comfyui.md`](../docs/agents/comfyui.md#derived-art-tilepng-and-standeepng).
 
 ## Debug / deploy tools (not generators)
 
@@ -81,4 +81,6 @@ tile is cropped to a circle; a standee's whole image is multiplied by its
 
 - **File-size budget:** if a file passes ~500 lines, split it before adding more.
 - Never hand-edit a generated `lua/*.lua`; edit its source and rerun the generator.
-- Full pipeline + asset/ComfyUI details: [`agents.md`](../agents.md).
+- Asset/ComfyUI details: [`../docs/agents/comfyui.md`](../docs/agents/comfyui.md).
+- Architecture and the file map: [`../docs/agents/architecture.md`](../docs/agents/architecture.md)
+  and [`../docs/agents/file-structure.md`](../docs/agents/file-structure.md).

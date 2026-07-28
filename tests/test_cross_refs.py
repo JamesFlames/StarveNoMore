@@ -89,7 +89,7 @@ EFFECT_FLAG_WHITELIST = {
 
 
 def test_every_ongoing_effect_flag_has_a_rules_panel_label():
-    """agents.md: 'add a label [to EFFECT_RULES] whenever dawn_effects.lua gains a
+    """docs/agents/ux-affordances.md: 'add a label [to EFFECT_RULES] whenever dawn_effects.lua gains a
     new ongoing flag'. Enforce that convention mechanically, across all lua files."""
     flags = set()
     for dirpath, _dirs, files in os.walk(LUA_DIR):

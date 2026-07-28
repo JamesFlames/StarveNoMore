@@ -31,4 +31,6 @@ explicit `LUA_LOAD_ORDER`. **There is one shared global namespace and no
   and [`../docs/tts-runtime.md`](../docs/tts-runtime.md) (spawn heights,
   mesh sizes, rotations).
 
-Symbol lookup: [`../SYMBOLS.md`](../SYMBOLS.md). Deep reference: [`../agents.md`](../agents.md).
+Symbol lookup: `python scripts/sym.py NAME`. Architecture and the load-order
+rationale: [`../docs/agents/architecture.md`](../docs/agents/architecture.md).
+Combat/action rules: [`../docs/agents/combat-and-actions.md`](../docs/agents/combat-and-actions.md).

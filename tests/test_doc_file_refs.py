@@ -32,6 +32,13 @@ NAV_DOCS = [
     os.path.join("scripts", "CLAUDE.md"),
     os.path.join("tests", "CLAUDE.md"),
     os.path.join("content", "CLAUDE.md"),
+] + [
+    # agents.md's deep reference, split one topic per file (see
+    # docs/agents/README.md). Each carries the same per-file detail the
+    # monolith did, so each needs the same dangling-filename guard.
+    os.path.join("docs", "agents", f)
+    for f in sorted(os.listdir(os.path.join(ROOT, "docs", "agents")))
+    if f.endswith(".md")
 ]
 
 

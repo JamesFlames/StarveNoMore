@@ -2,7 +2,8 @@
 
 The routing table for "which file do I touch?". Find your job, open **only** the
 listed files. For "where is function X?" use [`SYMBOLS.md`](SYMBOLS.md) instead
-(function → `file:line`). Deep reference: [`agents.md`](agents.md).
+(function → `file:line`). Deep reference: [`docs/agents/`](docs/agents/README.md)
+(one topic per file), indexed from [`agents.md`](agents.md).
 
 Anything under `content/` that feeds a generated `lua/*.lua` needs a regenerate
 step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.md).

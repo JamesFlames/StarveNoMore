@@ -41,7 +41,9 @@ there are no `require`s; load order is the explicit `LUA_LOAD_ORDER` in
   `--file night.lua` for everything one file defines.
   [`SYMBOLS.md`](SYMBOLS.md) is the same index as a browsable table; at ~17k
   tokens, read it only if `sym.py` cannot answer.
-- **Deep reference** (architecture, conventions, pipelines) → [`agents.md`](agents.md).
+- **Deep reference** → [`docs/agents/`](docs/agents/README.md), one topic per
+  file (architecture, test suite, combat rules, balance sim, audio, ComfyUI).
+  [`agents.md`](agents.md) is the index + the documentation map.
 - **Rules/design questions** → [`docs/design/`](docs/design/README.md) (split by
   topic), indexed from [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md).
 

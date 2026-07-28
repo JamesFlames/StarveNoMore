@@ -31,14 +31,14 @@ The regenerate/build/test half is cross-platform; the install, cache-purge and
 launch half is Windows-only and is reported as skipped elsewhere. On Linux or
 macOS use `python scripts/check.py` to verify a change.
 
-Everything else — pipelines, conventions, the file map — is in [`agents.md`](agents.md). Rule-change history: [`CHANGELOG.md`](CHANGELOG.md). Lua symbol lookup: [`SYMBOLS.md`](SYMBOLS.md).
+Everything else — pipelines, conventions, the file map — is in [`docs/agents/`](docs/agents/README.md), indexed from [`agents.md`](agents.md). Rule-change history: [`CHANGELOG.md`](CHANGELOG.md). Lua symbol lookup: [`SYMBOLS.md`](SYMBOLS.md).
 
 ## Where to start reading
 
 | If you want… | Open |
 |---|---|
 | The 5-minute pitch | [`content/notebook/quickstart.md`](content/notebook/quickstart.md) |
-| A high-level orientation to the repo (file map, pipelines, conventions) | [`agents.md`](agents.md) |
+| A high-level orientation to the repo (file map, pipelines, conventions) | [`agents.md`](agents.md) → [`docs/agents/`](docs/agents/README.md) |
 | The canonical rules and design intent | [`docs/design/`](docs/design/README.md) (split by topic; indexed from [`StarveNoMoreDesignConcept.md`](StarveNoMoreDesignConcept.md)) |
 | What changed, per design batch | [`CHANGELOG.md`](CHANGELOG.md) |
 | The blind-playtest protocol | [`playtest/facilitator_script.md`](playtest/facilitator_script.md) |
@@ -68,7 +68,7 @@ StarveNoMore/
 └── Archive/     Superseded design / reference docs (frozen, no live links).
 ```
 
-See [`agents.md`](agents.md) for the file-by-file breakdown.
+See [`docs/agents/file-structure.md`](docs/agents/file-structure.md) for the file-by-file breakdown.
 
 ## What's implemented
 
@@ -76,7 +76,7 @@ See [`agents.md`](agents.md) for the file-by-file breakdown.
 - **The climax & character identity (batch 2)** — **Nothing Left to Lose** (Doom 25 flips from pure penalty to a last-stand buff: +1 attack die for all, Rest heals anywhere), a once-per-game **Signature Move** for every character (All-Nighter / Touch of Hope / Posterize / The Feast / The Speech, each with its own button and confirm), the **Source's phase beat** (script-tracked boss HP; at 5 HP two Terror Beaks split off), and the fixed **Last Dawn** on the final day.
 - **Mid-week texture & dread (batch 3)** — **Night Sounds** (a low growl at Dusk when the top Threat card is Hard — deliberately unexplained), **Dawn Dares** (optional temptations on early-week cards, offered never imposed), the coded **Pry** verb with sealed threats and the always-present **Sealed Basement** destination, and the **Wrongness token** (a face-down unresolved threat the table argues about visiting).
 - **Validation & instrumentation (batch 4)** — session telemetry (setup, per-turn seconds, which designed beats actually fired) with a one-click **Copy Session Log** JSON export, aggregated by `scripts/analyze_sessions.py`; 3-player relief knobs for Rayman pending a table A/B; the blind-playtest facilitator script and feedback form under `playtest/`.
-- **Picture-dominant card faces** — every card is `408×585 px` with a top art region (~65%) and a text panel below. Illustrations are produced by ComfyUI (Flux Dev + a Tim-Burton/Edward-Gorey LoRA), composited by `scripts/generate_card_atlases.py`. See [`agents.md`](agents.md) "ComfyUI Workflow" for the full pipeline.
+- **Picture-dominant card faces** — every card is `408×585 px` with a top art region (~65%) and a text panel below. Illustrations are produced by ComfyUI (Flux Dev + a Tim-Burton/Edward-Gorey LoRA), composited by `scripts/generate_card_atlases.py`. See [`docs/agents/comfyui.md`](docs/agents/comfyui.md) for the full pipeline.
 - **Audio** — random suburban-ambient track at Day start chains into varied tracks until Night; per-boss roar loops while a boss is alive; soft chime at Tick; per-character SFX on walk / meet / trade / death. Single-channel via TTS `MusicPlayer`. Sounds under `sounds/`; manifest auto-generated from the filesystem.
 - **"Always obvious next step" UX** — Phase Banner with dynamic next-action text and a pulsing-outline highlight on whichever XML control should be clicked next; a **day-cycle strip** (Dawn ▸ Day ▸ Dusk ▸ Night ▸ Tick, current step lit); a persistent **"Rules in effect" panel** mirroring every rule currently modifying play (Doom thresholds crossed, ongoing Dawn-card effects, loose bosses, per-character statuses like Haunted / Wired / Loud); an always-visible **character roster** showing every party member's live Health / Hunger / Sanity in their character color (plus live standee tooltips on hover); per-deck What-now hints (sub-phase × character × stats × strategic × location) auto-loaded from `content/help/whatnow_hints.md`; auto-broadcasts on critical events (character down, James-no-Energy-Drink, Dusk-alone-at-court, etc.); per-action target highlights with **click-to-complete buttons** (Move → MOVE HERE on adjacent tiles, Craft → CRAFT on Market cards, Cook → COOK on recipes, plus a Trade partner picker and one-step Undo); Market-card affordability glow (Green = you can craft this, Yellow = you can't yet); automated night light checks (Flashlight/Lantern/Fire Kit in hand or by your board, Campfire covers the whole tile); 45-second idle nudge on Day phase.
 - **Anti-alpha-player guardrails** — private hand zones, soft turn-time signals, ghost-word-limit, reciprocal trades, and an optional **Secret Dusk** commitment (§11.3) that removes the alpha's ability to confirm compliance. Graded honestly in §19.5: two and a half of the original five fronts hold up.

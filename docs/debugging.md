@@ -57,7 +57,7 @@ save + cover → **purge this mod's stale cache** → ensure asset server →
 launch TTS. Flags: `--skip-tests`, `--no-launch`.
 
 Release gate before sharing: the checklist in
-[agents.md](../agents.md#release-checklist-before-sharing-a-new-save),
+[docs/agents/test-suite.md](agents/test-suite.md#release-checklist-before-sharing-a-new-save),
 including `runSelfTest()` from the TTS console.
 
 ## Measuring the live table (probes)

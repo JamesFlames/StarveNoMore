@@ -88,7 +88,7 @@ ROSTERS = {3: ["Coco", "Ellie", "Luca"],   # strongest 3-char team per --sweep3;
 # for whatever roster is in play (Rayman hits hardest; Coco is the frail
 # healer, drafted last). On the standard 4p/5p rosters this resolves to
 # Rayman + James — identical to the original hand-tuned policies, so the
-# 4-player baselines in agents.md are unaffected.
+# 4-player baselines in docs/agents/balance-simulation.md are unaffected.
 FIGHTER_PRIORITY = ["Rayman", "James", "Luca", "Ellie", "Coco"]
 
 

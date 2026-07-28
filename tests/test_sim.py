@@ -1,7 +1,7 @@
 """simulate_balance.py as a regression harness.
 
 Two jobs:
- 1. Enforce the agents.md maintenance rule mechanically: the sim mirrors
+ 1. Enforce the docs/agents/balance-simulation.md maintenance rule mechanically: the sim mirrors
     rule constants from lua/global.lua by hand, so verify the mirror.
  2. Run seeded batches and assert invariants + broad win-rate bands, so an
     accidental rule/constant change shows up as a red test instead of a
@@ -221,7 +221,7 @@ def test_roster_override_sweep_smoke(policy):
 # ---------------------------------------------------------------------------
 # Win-rate regression bands
 #
-# Baselines (agents.md, 2026-07 batch 4 calibration — batches 1-3 plus the
+# Baselines (docs/agents/balance-simulation.md, 2026-07 batch 4 calibration — batches 1-3 plus the
 # Source retuned HP 10 -> 8 (the W3 knob that landed the 40-50% target)
 # and the 3-player reliefs; new rules, 4 players, 3000 sims): turtle 42%,
 # spread 42%, balanced 15%, court_camper 14%, with ~100% of losses on
@@ -244,7 +244,7 @@ def test_win_rate_within_band(policy):
     assert lo <= r["win"] <= hi, (
         f"{policy} win rate {r['win']:.1%} outside [{lo:.0%}, {hi:.0%}] — a rule or "
         "constant changed the balance (or the sim drifted). If intentional, rerun the "
-        "full 3000-sim baseline, update agents.md, and adjust these bands.")
+        "full 3000-sim baseline, update docs/agents/balance-simulation.md, and adjust these bands.")
 
 
 def test_old_ruleset_still_frozen():
