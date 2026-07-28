@@ -87,7 +87,32 @@ Two ❌ marks are acceptable at v1 (this document is the brief, not a finished g
 - **Crowded floor (2 beds per house)** — check the 5-player geometry (forced 2/2/1 split); if the floor rule reads as pure punishment, let a Bedroll item add a third bed.
 - **Moonlit Salvage (2 resources)** — the court-sleep gamble should be tempting roughly once per game per team, not a camping strategy; if court-camping dominates, drop to 1 resource + 1 Echoes roll.
 - **Loud (moved today = +1 Threat at Rayman's night tile)** — watch whether Rayman players simply never move; if so, the constraint is over-tuned — soften to "moved 3+ tiles today."
-- **3-player composition inequality (simulation flag, 2026-07; reliefs implemented batch 4 W2)** — the `--sweep3` composition sweep found 3-character teams ranging from ~86% to ~0.5% win rate under their best scripted policy: every viable trio includes Coco or Luca, and all six Rayman trios collapsed (his Big Appetite + Loud overheads don't shrink with the team). **Both cheap knobs from the candidate menu are now implemented, behind a `playerCount == 3` guard:** Big Appetite costs 2 Hunger only on days Rayman fought or moved 2+ tiles, and Loud requires 3+ tiles moved. Sweep after: the floor gate passes (worst trio 31% under its best policy, nothing near 0) — but the sim *over-corrects*, putting Rayman trios at the top (97–99%), because Loud was the only Rayman cost it models against his fully-modeled combat value. The Big Appetite knob alone moved almost nothing (the collapse was Loud→Charlie→Sanity-6, not Hunger). **Verdict: the sim brackets the answer; the real tuning decision belongs to the W2 table A/B** — a Rayman trio must be confirmed fun at a real 3-player table before this is closed. Do not fix it with roster restrictions (§6.6).
+- **3-player composition inequality — and why the simulator cannot settle it (re-measured 2026-07)**
+
+  **The original finding.** The `--sweep3` composition sweep found 3-character teams ranging from ~86% to ~0.5% win rate: every viable trio included Coco or Luca, and all six Rayman trios collapsed, because his Big Appetite and Loud overheads are fixed costs that three players absorb far worse than five. **Two cheap knobs were implemented behind a `playerCount == 3` guard:** Big Appetite costs 2 Hunger only on days Rayman fought or moved 2+ tiles, and Loud requires 3+ tiles moved.
+
+  **What the re-measurement found: the two headline numbers disagree with each other, and the disagreement is the finding.** The same build, the same ten trios, 600 games per cell, Standard, 4-player-baseline rules:
+
+  | Statistic | Rayman trios | Coco/Luca trios | Reads as |
+  |---|---|---|---|
+  | **Best of all four policies** (what "under their best scripted policy" means) | **98.7 – 100%** | 77.7 – 99.5% | the reliefs *over-corrected* — Rayman trios are now the strongest |
+  | **One fixed policy** (`--sweep3`, which runs `balanced` only) | **0.0 – 15.8%** | 12.8 – 81.0% | the reliefs *didn't work* — Rayman trios still collapse, 89–98% of losses to everyone going Down |
+
+  Both are honestly computed from the same code. They invert because **max-over-policies saturates at 3 players and stops discriminating.** The `turtle` line — everyone stays in the centre house all week — wins 52.8–100% on *every* trio at 3p, so taking the best policy per trio mostly measures whether turtle applies, not whether the roster is viable.
+
+  **Why turtle runs away at 3 players specifically**, measured: it wins **99.5%** at 3p versus **51%** at both 4p and 5p, ending on an average Doom of **20.9** against the 30 track (4p ends at 26.9). Three separate slacks compound, and the sim models all three correctly — this is not a probe artifact:
+
+  - The **fixed clock is 7 Doom for the whole week at 3p** (§15.6's `[1,1,1,1]` row) against a 30-step track, versus 9 at 4p — leaving 23 steps of slack for festering.
+  - The **crowded floor** (§11.4) puts *one* character on the floor when three stack in a house, versus two at 4p — so stacking costs a 3p team much less.
+  - **Three bodies draw fewer night threats and produce fewer Downs** than four, and each Down is another +1 Doom.
+
+  **What this means for the open question.** The sim brackets nothing here: it can be made to say the reliefs over-corrected *or* that they failed, depending on which statistic you quote, and the floor-gate "pass" (worst trio 31%, nothing near 0) was the saturating statistic. So the honest status is **unresolved, and not resolvable by simulation**:
+
+  1. **The table A/B is required, not merely preferable** (§20.2). The question a real 3-player table has to answer is narrow: *is a Rayman trio fun to play, and does it feel survivable?* Play one Rayman trio and one Coco/Luca trio, same group.
+  2. **Do not read either column as a difficulty reading for 3 players.** §17.2's mode ladder is calibrated at 4 players for this reason.
+  3. **The prior suspect has moved.** If the turtle line really is near-unlosable at 3 players, the 3p problem is the *Doom economy's slack*, not the roster — and the knob would be the §15.6 3-player row (or a 3p-specific Doom limit), not Rayman's constraints. Measure the turtle line at a real 3-player table before touching either.
+  4. **Still do not fix this with roster restrictions** (§6.6) — that solves a balance problem by deleting content.
+
 - **Flee (1 tile, 1 Sanity, threat festers)** — watch for flee-chaining as a free evasion loop; the Sanity bleed plus fester Doom should make three flights in a week feel expensive. If not, raise to 2 Sanity.
 - **The Stash (2 Energy Drinks per gather at James's)** — if James stops visiting home entirely after one mega-stock, cap held Energy Drinks at 4.
 - **Haunted (personal Threat at Dawn)** — the isolation is now buyable-into: an ally at your tile may pay 1 Sanity to see what you see and fight it with you (§10.1). Watch two things: whether the buy-in is *always* taken (in which case the isolation horror is gone and the price should rise to 2 Sanity), and whether it is *never* taken (in which case 1 Sanity is not the barrier — the barrier is being at the wrong tile, and the rule is dead weight). The lethality knob is still in reserve: cap Haunted threats at 2 HP.

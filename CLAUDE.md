@@ -44,7 +44,7 @@ there are no `require`s; load order is the explicit `LUA_LOAD_ORDER` in
 
 ```bash
 pip install pytest lupa Pillow      # lupa runs the real Lua bundle headlessly
-python -m pytest tests              # ~310 tests; green = safe to build
+python -m pytest tests              # ~680 tests; green = safe to build
 python scripts/build_save.py        # assemble saves/StarveNoMore.json
 iwanttoplay                         # regen → build → test → install save +
                                     # purge stale TTS cache → launch TTS
