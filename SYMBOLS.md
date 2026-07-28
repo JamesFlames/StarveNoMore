@@ -529,7 +529,7 @@
 | 183 | function | `_cardIdFromTags` |
 | 191 | function | `canAfford` |
 
-## lua/ui_actionbar_targets.lua (14 symbols)
+## lua/ui_actionbar_targets.lua (15 symbols)
 
 | line | kind | symbol |
 |---|---|---|
@@ -539,14 +539,15 @@
 | 143 | function | `onObjectDrop` |
 | 153 | function | `_handleStandeeDrop` |
 | 234 | function | `_spawnCraftButtons` |
-| 292 | function | `_spawnFightButtons` |
-| 323 | function | `onMoveTargetClick` |
-| 358 | function | `onCraftTargetClick` |
-| 392 | function | `onFightTargetClick` |
-| 396 | function | `onFightTogetherClick` |
-| 400 | function | `_highlightCraftTargets` |
-| 435 | function | `_highlightCookTargets` |
-| 440 | function | `_highlightCleanseTargets` |
+| 272 | function | `formatIngredientCost` |
+| 299 | function | `_spawnFightButtons` |
+| 330 | function | `onMoveTargetClick` |
+| 365 | function | `onCraftTargetClick` |
+| 399 | function | `onFightTargetClick` |
+| 403 | function | `onFightTogetherClick` |
+| 407 | function | `_highlightCraftTargets` |
+| 442 | function | `_highlightCookTargets` |
+| 447 | function | `_highlightCleanseTargets` |
 
 ## lua/ui_actionbar_handlers.lua (31 symbols)
 
@@ -925,14 +926,14 @@
 | `_dawnCardRevealed` | lua/day_loop.lua | 423 |
 | `_findCardAtDawnRevealSpot` | lua/day_loop.lua | 412 |
 | `_handleStandeeDrop` | lua/ui_actionbar_targets.lua | 153 |
-| `_highlightCleanseTargets` | lua/ui_actionbar_targets.lua | 440 |
-| `_highlightCookTargets` | lua/ui_actionbar_targets.lua | 435 |
-| `_highlightCraftTargets` | lua/ui_actionbar_targets.lua | 400 |
+| `_highlightCleanseTargets` | lua/ui_actionbar_targets.lua | 447 |
+| `_highlightCookTargets` | lua/ui_actionbar_targets.lua | 442 |
+| `_highlightCraftTargets` | lua/ui_actionbar_targets.lua | 407 |
 | `_pickScarcityResource` | lua/crafting.lua | 125 |
 | `_resLabel` | lua/ui_actionbar_core.lua | 150 |
 | `_showCookDialog` | lua/ui_actionbar_handlers.lua | 114 |
 | `_spawnCraftButtons` | lua/ui_actionbar_targets.lua | 234 |
-| `_spawnFightButtons` | lua/ui_actionbar_targets.lua | 292 |
+| `_spawnFightButtons` | lua/ui_actionbar_targets.lua | 299 |
 | `_spawnMoveButtons` | lua/ui_actionbar_targets.lua | 88 |
 | `achBeats` | lua/achievement_rules.lua | 84 |
 | `achBossDown` | lua/achievement_rules.lua | 61 |
@@ -1057,6 +1058,7 @@
 | `finishCombat` | lua/combat_resolve.lua | 381 |
 | `flashSplitLighting` | lua/combat.lua | 163 |
 | `flashVictoryLighting` | lua/combat.lua | 71 |
+| `formatIngredientCost` | lua/ui_actionbar_targets.lua | 272 |
 | `gameRoll` | lua/helpers.lua | 500 |
 | `gameState` | lua/global.lua | 10 |
 | `gatherRandomResources` | lua/actions.lua | 324 |
@@ -1152,12 +1154,12 @@
 | `onCookCancel` | lua/ui_actionbar_handlers.lua | 163 |
 | `onCookOptionClick` | lua/ui_actionbar_handlers.lua | 154 |
 | `onCopySessionLog` | lua/telemetry.lua | 152 |
-| `onCraftTargetClick` | lua/ui_actionbar_targets.lua | 358 |
+| `onCraftTargetClick` | lua/ui_actionbar_targets.lua | 365 |
 | `onDawnStepClick` | lua/ui_rules.lua | 330 |
 | `onDuskMoveClick` | lua/ui_actionbar_handlers.lua | 473 |
 | `onDuskReadyClick` | lua/ui_actionbar_handlers.lua | 468 |
-| `onFightTargetClick` | lua/ui_actionbar_targets.lua | 392 |
-| `onFightTogetherClick` | lua/ui_actionbar_targets.lua | 396 |
+| `onFightTargetClick` | lua/ui_actionbar_targets.lua | 399 |
+| `onFightTogetherClick` | lua/ui_actionbar_targets.lua | 403 |
 | `onFinishCombat` | lua/ui_actionbar_handlers.lua | 314 |
 | `onHelpClick` | lua/ui_help.lua | 125 |
 | `onHelpClose` | lua/ui_help.lua | 135 |
@@ -1170,7 +1172,7 @@
 | `onHostRestart` | lua/ui_controls.lua | 226 |
 | `onHostSetupGuided` | lua/ui_setup.lua | 867 |
 | `onLoad` | lua/global.lua | 359 |
-| `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 323 |
+| `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 330 |
 | `onMsgLogClear` | lua/ui_msglog.lua | 65 |
 | `onMsgLogHide` | lua/ui_msglog.lua | 70 |
 | `onMsgLogToggle` | lua/ui_msglog.lua | 55 |

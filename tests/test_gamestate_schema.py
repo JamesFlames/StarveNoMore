@@ -17,7 +17,6 @@ import os
 import re
 
 import generate_gamestate_map as gsmap  # scripts/ is on sys.path via conftest
-
 from conftest import ROOT
 
 

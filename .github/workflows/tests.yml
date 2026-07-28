@@ -44,8 +44,11 @@ jobs:
     # scripts/CLAUDE.md and tests/CLAUDE.md): warn — never fail — when a
     # tracked source file passes it, so context-bloat regressions are visible
     # in the PR without blocking. Generated indexes (SYMBOLS.md) and data are
-    # exempt. The other budgets reported here are staging areas for future
-    # hard gates; see the "keep it good" guards in CHANGELOG.md.
+    # exempt. Warnings here are the staging area for future hard gates — two
+    # graduated already and are NOT duplicated as warnings: an unlisted Lua/XML
+    # file now fails build_save.py (tests/test_lua_statics.py), and a gameState
+    # field absent from migrateGameState() now fails
+    # tests/test_gamestate_schema.py.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -66,12 +69,56 @@ jobs:
           done
           echo "$over file(s) over the ${budget}-line budget."
 
+      - name: Warn on oversized docs (context budget)
+        run: |
+          # ~4 chars per token. An agent is told to read these; a doc that
+          # grows past ~2.5k tokens is one a task pays for and mostly cannot
+          # use. docs/agents/*.md is HARD-gated by
+          # tests/test_doc_agents_split.py — this is the early warning for
+          # everything else.
+          budget=2500
+          over=0
+          for f in $(git ls-files '*.md' | grep -v '^Archive/'); do
+            case "$f" in SYMBOLS.md|PlayerRules.md|CHANGELOG.md|docs/gamestate.md) continue;; esac
+            tok=$(( $(wc -c < "$f") / 4 ))
+            if [ "$tok" -gt "$budget" ]; then
+              echo "::warning file=$f::$f is ~$tok tokens (> $budget) — split it by topic, as agents.md was"
+              over=$((over+1))
+            fi
+          done
+          echo "$over doc(s) over the ${budget}-token budget."
+          echo "(Exempt: SYMBOLS.md, PlayerRules.md, CHANGELOG.md and"
+          echo " docs/gamestate.md are generated indexes — query them, don't read them.)"
+
+      - name: Report tracked media weight
+        run: |
+          # tests/test_media_budget.py hard-fails a single binary over 4 MB.
+          # This reports the trend, which no per-file cap can see.
+          total=$(git ls-files -z '*.png' '*.jpg' '*.jpeg' '*.ogg' '*.wav' '*.mp3' \
+                  | xargs -0 -r du -ch 2>/dev/null | tail -1 | cut -f1)
+          echo "tracked media: ${total:-unknown}"
+          echo "Largest 10:"
+          git ls-files -z '*.png' '*.jpg' '*.jpeg' '*.ogg' '*.wav' '*.mp3' \
+            | xargs -0 -r du -h 2>/dev/null | sort -rh | head -10
+
   luacheck:
     # Static analysis of the Lua bundle against the generated .luacheckrc
-    # (globals list from scripts/generate_symbol_index.py). Soft-fail until
-    # the first CI run has been reviewed — then flip continue-on-error off.
+    # (globals list from scripts/generate_symbol_index.py).
+    #
+    # Hard-fails as of 2026-07: the soft-fail was there "until the first run has
+    # been reviewed", and that review found five warnings, all now fixed —
+    # four Turns.enable writes (Turns joined Lighting in TTS_MUTABLE, since the
+    # mod runs its own turn order) and one real fragility: _fmtCost was a
+    # file-local called from another file, working only because the bundle is
+    # one chunk and its definer happened to load first. It is now the global
+    # formatIngredientCost. A lint that cannot fail is a lint an agent learns
+    # to ignore.
+    #
+    # NOTE luacheck lints each FILE, but the code only ever runs CONCATENATED,
+    # so a cross-file local reads as "accessing undefined variable". That is
+    # not a false positive to silence — it is the load-order-as-scope hazard,
+    # and the fix is to make the helper a global.
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Install luacheck

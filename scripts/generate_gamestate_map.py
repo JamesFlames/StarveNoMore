@@ -39,27 +39,35 @@ OUT_PATH = os.path.join(REPO_ROOT, "docs", "gamestate.md")
 # --------------------------------------------------------------------------
 TRANSIENT_FIELDS = {
     "nil is the default": (
-        "Absent means 'none right now'. migrateGameState() lists these "
-        "explicitly as deliberately undeclared.",
+        (
+            "Absent means 'none right now'. migrateGameState() lists these "
+            "explicitly as deliberately undeclared."
+        ),
         ["activeColor", "activeDawn", "combatContext", "scenario", "pathVariant"],
     ),
     "per-turn": (
-        "Created when a turn needs them, dropped when it ends. A stale value "
-        "surviving into the next turn would be the bug.",
+        (
+            "Created when a turn needs them, dropped when it ends. A stale value "
+            "surviving into the next turn would be the bug."
+        ),
         ["pendingAction", "undoSnapshot", "tradesThisTurn", "turnStartedAt",
          "lastActiveColor", "duskReady", "duskMoves"],
     ),
     "per-day": (
-        "Reset at Dawn (BeginDay) — once-per-day flags and the day's opening "
-        "snapshot. Lazily re-created at their read sites.",
+        (
+            "Reset at Dawn (BeginDay) — once-per-day flags and the day's opening "
+            "snapshot. Lazily re-created at their read sites."
+        ),
         ["raymanMovedToday", "raymanFoughtToday", "raymanBonusMove",
          "raymanDefending", "jamesEnergyDrinkUsed", "jamesPeekUsed",
          "jamesRerollUsed", "lucaRallyUsed", "dayStartStats", "dawnChecklist",
          "nightOmen", "usedRecipes"],
     ),
     "world state": (
-        "Set when the thing exists on the table and cleared when it does not "
-        "(a boss, a barricade, an opened basement).",
+        (
+            "Set when the thing exists on the table and cleared when it does not "
+            "(a boss, a barricade, an opened basement)."
+        ),
         ["barricades", "basementOpened", "bossesDefeated", "eyeLocation",
          "heartCount", "treeguard", "sourceSplit", "wrongness"],
     ),
@@ -68,14 +76,18 @@ TRANSIENT_FIELDS = {
         ["gameOverCause", "gameCounted"],
     ),
     "ui-local": (
-        "Panel visibility that rides gameState only because onSave/onLoad is "
-        "the only store a TTS mod has.",
+        (
+            "Panel visibility that rides gameState only because onSave/onLoad is "
+            "the only store a TTS mod has."
+        ),
         ["msgLogHidden"],
     ),
     "lazily built": (
-        "Has exactly one constructor elsewhere, so declaring a default here "
-        "would be a second copy of that shape waiting to drift. Reached "
-        "through its accessor, never assumed to exist.",
+        (
+            "Has exactly one constructor elsewhere, so declaring a default here "
+            "would be a second copy of that shape waiting to drift. Reached "
+            "through its accessor, never assumed to exist."
+        ),
         ["chronicle"],   # ensureChronicle(), lua/ui_week_review.lua
     ),
 }

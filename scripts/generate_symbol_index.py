@@ -41,7 +41,7 @@ CONST_RE = re.compile(r"^([A-Za-z_]\w*)\s*=", re.M)
 
 # Globals provided by the TTS engine / the test stub, not the bundle.
 TTS_API = [
-    "Vector", "Wait", "UI", "Player", "JSON", "Global", "Turns", "Notes",
+    "Vector", "Wait", "UI", "Player", "JSON", "Global", "Notes",
     "MusicPlayer", "Physics", "Time", "Color",
     "broadcastToAll", "broadcastToColor", "printToAll", "printToColor", "log",
     "getAllObjects", "getObjectsWithTag", "getObjectFromGUID",
@@ -53,9 +53,12 @@ TTS_API = [
 ]
 
 # TTS engine globals whose *fields* the bundle legitimately writes (e.g.
-# ui_mood.lua sets Lighting.light_intensity). These must be writable globals,
-# not read_globals, or luacheck flags "setting read-only field".
-TTS_MUTABLE = ["Lighting"]
+# ui_mood.lua sets Lighting.light_intensity; onLoad/BeginDay/startGuidedSetup
+# set Turns.enable = false, because this mod runs its own turn order and TTS's
+# built-in tracker would re-announce every colour change). These must be
+# writable globals, not read_globals, or luacheck flags "setting read-only
+# field" — four times, which is enough noise to make the whole lint ignorable.
+TTS_MUTABLE = ["Lighting", "Turns"]
 
 
 def load_order():

@@ -28,5 +28,18 @@ python -m pip install --quiet --disable-pip-version-check \
   || python -m pip install --quiet --disable-pip-version-check \
     pytest lupa Pillow ruff
 
-echo "Starve No More: test dependencies ready (pytest, lupa, Pillow, ruff)."
+# luacheck is a hard gate in CI (.github/workflows/tests.yml), so it should be
+# runnable here too — scripts/check.py runs it when present and reports it as
+# skipped when not. Best-effort: apt may be unavailable or offline, and a
+# missing linter must never block a session.
+if ! command -v luacheck >/dev/null 2>&1; then
+  apt-get install -y -qq lua-check >/dev/null 2>&1 || true
+fi
+
+if command -v luacheck >/dev/null 2>&1; then
+  echo "Starve No More: dependencies ready (pytest, lupa, Pillow, ruff, luacheck)."
+else
+  echo "Starve No More: dependencies ready (pytest, lupa, Pillow, ruff)."
+  echo "  luacheck unavailable — scripts/check.py will report the lint stage as skipped."
+fi
 echo "Verify a change with: python scripts/check.py"

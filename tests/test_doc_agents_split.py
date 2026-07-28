@@ -12,7 +12,6 @@ import os
 import re
 
 import pytest
-
 from conftest import ROOT
 
 AGENTS_DIR = os.path.join(ROOT, "docs", "agents")

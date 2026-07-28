@@ -129,7 +129,7 @@ function _showCookDialog(color)
                 shown = shown + 1
                 _cookDialogIds[shown] = id
                 setButtonLabel("cookOpt" .. shown,
-                    (recipe.name or id) .. "   (" .. _fmtCost(cost) .. ")")
+                    (recipe.name or id) .. "   (" .. formatIngredientCost(cost) .. ")")
                 UI.setAttribute("cookOpt" .. shown, "active", "true")
             else
                 hidden = hidden + 1

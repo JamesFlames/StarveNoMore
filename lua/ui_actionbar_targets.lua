@@ -262,7 +262,14 @@ function _spawnCraftButtons()
 end
 
 -- "2 Food + 1 Wood" from a { Food = 2, Wood = 1 } cost table (for tooltips).
-local function _fmtCost(cost)
+--
+-- Global, not local, because ui_actionbar_handlers.lua uses it too. It worked
+-- as a file-local only because the bundle is one concatenated chunk and this
+-- file happens to load first — i.e. it was relying on load order for *scope*,
+-- which is invisible to luacheck (it lints per file) and would break silently
+-- if the manifest order ever changed. Cross-file sharing here goes through
+-- globals; there is no require().
+function formatIngredientCost(cost)
     local parts = {}
     for _, r in ipairs({"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}) do
         if (cost[r] or 0) > 0 then

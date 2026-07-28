@@ -1317,7 +1317,7 @@
   "_highlightCleanseTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 440,
+    "line": 447,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1327,7 +1327,7 @@
   "_highlightCookTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 435,
+    "line": 442,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1337,7 +1337,7 @@
   "_highlightCraftTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 400,
+    "line": 407,
     "kind": "function",
     "params": [
      "color"
@@ -1396,7 +1396,7 @@
   "_spawnFightButtons": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 292,
+    "line": 299,
     "kind": "function",
     "params": [
      "color"
@@ -2827,6 +2827,18 @@
     "doc": "Brief victory flash so a boss kill reads as an event, not a line of chat."
    }
   ],
+  "formatIngredientCost": [
+   {
+    "file": "lua/ui_actionbar_targets.lua",
+    "line": 272,
+    "kind": "function",
+    "params": [
+     "cost"
+    ],
+    "arity": 1,
+    "doc": "\"2 Food + 1 Wood\" from a { Food = 2, Wood = 1 } cost table (for tooltips). Global, not local, because ui_actionbar_handlers.lua uses it too. It worked as a fil…"
+   }
+  ],
   "gameRoll": [
    {
     "file": "lua/helpers.lua",
@@ -3984,7 +3996,7 @@
   "onCraftTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 358,
+    "line": 365,
     "kind": "function",
     "params": [
      "obj",
@@ -4040,7 +4052,7 @@
   "onFightTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 392,
+    "line": 399,
     "kind": "function",
     "params": [
      "obj",
@@ -4054,7 +4066,7 @@
   "onFightTogetherClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 396,
+    "line": 403,
     "kind": "function",
     "params": [
      "obj",
@@ -4234,7 +4246,7 @@
   "onMoveTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 323,
+    "line": 330,
     "kind": "function",
     "params": [
      "obj",

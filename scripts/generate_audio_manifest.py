@@ -46,6 +46,49 @@ def wav_duration(path):
         return frames / float(rate) if rate else 0.0
 
 
+def ogg_duration(path):
+    """Exact duration read out of the Ogg stream itself. None if unparseable.
+
+    The last Ogg page's granule position IS the stream's total sample count,
+    and the Vorbis identification header carries the sample rate — so the
+    exact answer is two seeks away, with no external tool and no dependency.
+
+    Worth doing rather than falling back to size/OGG_AVG_BPS: that estimate
+    assumes a fixed ~112 kbps, and a quieter track encodes far below it. On
+    'battlegrounds fall night_ds_amb.ogg' (81 kbps) the estimate said 71.6 s
+    for a 99.1 s track — a 28 % error, and AUDIO durations are what schedule
+    the next ambient track, so the error is audible as a clip cut short.
+    """
+    try:
+        with open(path, "rb") as f:
+            head = f.read(8192)
+            if not head.startswith(b"OggS"):
+                return None
+            # Vorbis identification header: 0x01 "vorbis", version(4),
+            # channels(1), sample_rate(4).
+            i = head.find(b"\x01vorbis")
+            if i < 0:
+                return None
+            rate = int.from_bytes(head[i + 12:i + 16], "little")
+            if not rate:
+                return None
+            size = f.seek(0, os.SEEK_END)
+            # The final page is near the end; 64 KiB covers a large page.
+            tail_len = min(size, 65536)
+            f.seek(size - tail_len)
+            tail = f.read(tail_len)
+            j = tail.rfind(b"OggS")
+            if j < 0 or j + 14 > len(tail):
+                return None
+            # Page header: "OggS"(4) version(1) type(1) granule_position(8).
+            granule = int.from_bytes(tail[j + 6:j + 14], "little")
+            if granule in (0, 0xFFFFFFFFFFFFFFFF):
+                return None
+            return granule / float(rate)
+    except OSError:
+        return None
+
+
 def probe_duration(path):
     """Precise duration via ffprobe, or None if unavailable/unreadable."""
     if not _FFPROBE:
@@ -67,6 +110,13 @@ def duration_for(path):
             return wav_duration(path)
         except wave.Error:
             return os.path.getsize(path) / 88200.0  # fallback: 16-bit 44.1k mono
+    if p.endswith(".ogg"):
+        # Exact, and available everywhere — prefer it over ffprobe so the
+        # manifest is byte-identical whether or not ffmpeg is installed
+        # (a freshness test compares the committed file against a fresh run).
+        d = ogg_duration(path)
+        if d:
+            return d
     if p.endswith((".mp3", ".ogg")):
         d = probe_duration(path)
         if d:

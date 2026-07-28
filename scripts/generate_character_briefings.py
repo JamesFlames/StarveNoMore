@@ -45,7 +45,8 @@ def parse(text):
         section = None
         bullets = []
 
-        def flush_section():
+        def flush_section(section, bullets, parts=parts):
+            """Emit "Strengths:\\n- a\\n- b" for the section just finished."""
             if section and bullets:
                 parts.append(f"{section}:\n" + "\n".join(f"- {b}" for b in bullets))
 
@@ -59,12 +60,12 @@ def parse(text):
                 continue
             m = SECTION_RE.match(line)
             if m:
-                flush_section()
+                flush_section(section, bullets)
                 section, bullets = m.group(1), []
                 continue
             m = FIELD_RE.match(line)
             if m:
-                flush_section()
+                flush_section(section, bullets)
                 section, bullets = None, []
                 parts.append(f"{m.group(1)}: {m.group(2).strip()}")
                 continue
@@ -74,7 +75,7 @@ def parse(text):
                 continue
             if opener and not section and not parts:
                 flavour.append(line)
-        flush_section()
+        flush_section(section, bullets)
 
         if not opener:
             continue  # a prose section (e.g. "## Format"), not a character
