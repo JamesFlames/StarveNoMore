@@ -80,8 +80,9 @@ never blocked waiting on a render.
 
 ## Design review pass — all 17 findings (2026-07)
 
-The batch that shipped [`possible-design-improvements-to-snm.md`](possible-design-improvements-to-snm.md),
-a review against `Archive/PrinciplesOfGoodBoardGames.md` §1–26 (especially its
+The batch that shipped `possible-design-improvements-to-snm.md` (retired to git
+history once all 17 landed), a review against
+`Archive/PrinciplesOfGoodBoardGames.md` §1–26 (especially its
 Part IV co-op / attrition / onboarding / accessibility / measurement chapters).
 That document is now the *rationale record*, not a proposal list.
 
