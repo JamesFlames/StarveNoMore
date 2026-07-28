@@ -8,7 +8,7 @@ A cooperative survival board game for 3–5 players, built as a [Tabletop Simula
 
 ```bash
 pip install pytest lupa Pillow      # lupa runs the real Lua bundle headlessly
-python -m pytest tests              # ~285 tests; green = safe to build
+python -m pytest tests              # ~680 tests; green = safe to build
 python scripts/build_save.py        # assemble saves/StarveNoMore.json
 ```
 
@@ -41,8 +41,9 @@ Everything else — pipelines, conventions, the file map — is in [`agents.md`]
 ```
 StarveNoMore/
 ├── lua/         TTS Lua scripts (concatenated by build_save.py into the save JSON).
-│                Six are auto-generated from content/ + sounds/: audio_manifest,
-│                whatnow_hints, market_data, threat_types, recipe_data, notebook_data.
+│                Seven are auto-generated from content/ + sounds/: audio_manifest,
+│                whatnow_hints, market_data, threat_types, recipe_data, notebook_data,
+│                achievement_data.
 ├── xml/         TTS UI XML — Phase Banner, Action Bar, Help panel, modal dialogs.
 ├── content/     Card CSVs (cards_*.csv), in-game text (notebook/, help/),
 │                iconography, asset manifest. The CSV + Markdown files here are
@@ -55,7 +56,7 @@ StarveNoMore/
 ├── scripts/     Build + asset/data generation + balance sim + telemetry analyzer.
 ├── playtest/    Blind-playtest kit: facilitator script, feedback form, sessions/ logs.
 ├── saves/       Built TTS save (+ fixtures/ frozen mid-game save for compat tests).
-├── tests/       pytest suite (~285 tests) — runs the real Lua bundle headlessly,
+├── tests/       pytest suite (~680 tests) — runs the real Lua bundle headlessly,
 │                plus XML/color/lint quality gates and publish-build checks.
 └── Archive/     Superseded design / reference docs (frozen, no live links).
 ```
@@ -64,14 +65,14 @@ See [`agents.md`](agents.md) for the file-by-file breakdown.
 
 ## What's implemented
 
-- **Gameplay loop** — Setup walkthrough (with optional variants: Rotation turns, random Scenario, and a **difficulty selector**: Long Weekend / Standard / Nightmare), Day/Dusk/Night/Tick state machine, combat resolution with **Press the Attack** (pay Sanity to keep rolling), **boss rewards** (Doom rebates, loot showers, build-around Trophies), crafting/cooking, doom track + threshold effects, victory/defeat conditions (The Source is mandatory), Down/ghost state, an end-of-game **Week in Review** chronicle, save/load persistence with schema migration.
+- **Gameplay loop** — Setup walkthrough (with optional variants: Rotation turns, random Scenario, and a **mode selector** — three difficulties on the full 7-day arc, Story / Standard / Nightmare, plus Long Weekend as a 3-day *length*; also **Secret Dusk** and **Solo**), Day/Dusk/Night/Tick state machine, combat resolution with **Press the Attack** (pay Sanity to keep rolling), **boss rewards** (Doom rebates, loot showers, build-around Trophies), crafting/cooking, doom track + threshold effects, victory/defeat conditions (The Source is mandatory), Down/ghost state, an end-of-game **Week in Review** chronicle, save/load persistence with schema migration.
 - **The climax & character identity (batch 2)** — **Nothing Left to Lose** (Doom 25 flips from pure penalty to a last-stand buff: +1 attack die for all, Rest heals anywhere), a once-per-game **Signature Move** for every character (All-Nighter / Touch of Hope / Posterize / The Feast / The Speech, each with its own button and confirm), the **Source's phase beat** (script-tracked boss HP; at 5 HP two Terror Beaks split off), and the fixed **Last Dawn** on the final day.
 - **Mid-week texture & dread (batch 3)** — **Night Sounds** (a low growl at Dusk when the top Threat card is Hard — deliberately unexplained), **Dawn Dares** (optional temptations on early-week cards, offered never imposed), the coded **Pry** verb with sealed threats and the always-present **Sealed Basement** destination, and the **Wrongness token** (a face-down unresolved threat the table argues about visiting).
 - **Validation & instrumentation (batch 4)** — session telemetry (setup, per-turn seconds, which designed beats actually fired) with a one-click **Copy Session Log** JSON export, aggregated by `scripts/analyze_sessions.py`; 3-player relief knobs for Rayman pending a table A/B; the blind-playtest facilitator script and feedback form under `playtest/`.
 - **Picture-dominant card faces** — every card is `408×585 px` with a top art region (~65%) and a text panel below. Illustrations are produced by ComfyUI (Flux Dev + a Tim-Burton/Edward-Gorey LoRA), composited by `scripts/generate_card_atlases.py`. See [`agents.md`](agents.md) "ComfyUI Workflow" for the full pipeline.
 - **Audio** — random suburban-ambient track at Day start chains into varied tracks until Night; per-boss roar loops while a boss is alive; soft chime at Tick; per-character SFX on walk / meet / trade / death. Single-channel via TTS `MusicPlayer`. Sounds under `sounds/`; manifest auto-generated from the filesystem.
 - **"Always obvious next step" UX** — Phase Banner with dynamic next-action text and a pulsing-outline highlight on whichever XML control should be clicked next; a **day-cycle strip** (Dawn ▸ Day ▸ Dusk ▸ Night ▸ Tick, current step lit); a persistent **"Rules in effect" panel** mirroring every rule currently modifying play (Doom thresholds crossed, ongoing Dawn-card effects, loose bosses, per-character statuses like Haunted / Wired / Loud); an always-visible **character roster** showing every party member's live Health / Hunger / Sanity in their character color (plus live standee tooltips on hover); per-deck What-now hints (sub-phase × character × stats × strategic × location) auto-loaded from `content/help/whatnow_hints.md`; auto-broadcasts on critical events (character down, James-no-Energy-Drink, Dusk-alone-at-court, etc.); per-action target highlights with **click-to-complete buttons** (Move → MOVE HERE on adjacent tiles, Craft → CRAFT on Market cards, Cook → COOK on recipes, plus a Trade partner picker and one-step Undo); Market-card affordability glow (Green = you can craft this, Yellow = you can't yet); automated night light checks (Flashlight/Lantern/Fire Kit in hand or by your board, Campfire covers the whole tile); 45-second idle nudge on Day phase.
-- **Anti-alpha-player guardrails** — private hand zones, soft turn-time signals, ghost-word-limit, reciprocal trades.
+- **Anti-alpha-player guardrails** — private hand zones, soft turn-time signals, ghost-word-limit, reciprocal trades, and an optional **Secret Dusk** commitment (§11.3) that removes the alpha's ability to confirm compliance. Graded honestly in §19.5: two and a half of the original five fronts hold up.
 
 ## Building
 
