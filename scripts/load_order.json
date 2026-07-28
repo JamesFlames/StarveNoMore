@@ -1,6 +1,10 @@
 {
-  "_comment": "Build manifest for scripts/build_save.py. lua[] and xml[] are concatenated in THIS ORDER into the TTS save. Order matters: a file that DEFINES something used at load time must precede its consumers. Files under lua/ (except assets.lua) must all appear here (tests/test_lua_statics enforces it).",
+  "_comment": "Build manifest for scripts/build_save.py. lua[] and xml[] are concatenated in THIS ORDER into the TTS save. Order matters: with one shared global namespace and no require(), load order IS the dependency graph — a file that DEFINES something used at load time must precede its consumers. EVERY file under lua/ and xml/ must appear in its list (or in lua_extra/xml_extra); build_save.py hard-fails on an unlisted file and tests/test_lua_statics.py enforces the same rule statically.",
+  "lua_extra": [],
+  "xml_extra": [],
+  "_extra_comment": "Deliberate exclusions: files that exist but must NOT be concatenated into the bundle. Appended last, order not guaranteed — so anything here must be self-contained AND have no load-time consumers. Prefer adding to lua[]/xml[] at the right position; use this only with a reason stated in the pull request.",
   "lua": [
+    "assets.lua",
     "helpers.lua",
     "global.lua",
     "audio_manifest.lua",

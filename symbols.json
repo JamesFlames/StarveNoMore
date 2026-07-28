@@ -101,6 +101,16 @@
     "doc": "Action-button tooltips — shown in the actionTooltip panel just above the action bar (opaque, unlike the native transparent tooltip that rendered on top of the …"
    }
   ],
+  "ASSETS": [
+   {
+    "file": "lua/assets.lua",
+    "line": 15,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
   "AUDIO": [
    {
     "file": "lua/audio_manifest.lua",
@@ -277,6 +287,16 @@
     "params": null,
     "arity": null,
     "doc": "Characters that aren't in the current game wait on the under-table library shelf (out of sight, like every inactive component) instead of cluttering the map. A…"
+   }
+  ],
+  "BOARD_ART_URLS": [
+   {
+    "file": "lua/assets.lua",
+    "line": 125,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "Board art per path variant. The printed lines ARE the map, so this table and PATH_LAYOUTS (ui_actionbar_core.lua) must offer the same variant names — tests/tes…"
    }
   ],
   "BOARD_WORLD_SIZE": [

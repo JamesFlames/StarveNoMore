@@ -13,9 +13,11 @@ explicit `LUA_LOAD_ORDER`. **There is one shared global namespace and no
   every `lua/` edit; the freshness test is the backstop if the hook is off.)
   Debugging the index generator itself?
   `python scripts/generate_symbol_index.py` runs it alone.
-- **When you split or add a file:** add it to `LUA_LOAD_ORDER` in
-  `build_save.py`, in the correct position (definitions must load before
-  consumers). Files not in the list are appended last — order not guaranteed.
+- **When you split or add a file:** add it to the `lua` list in
+  [`../scripts/load_order.json`](../scripts/load_order.json), in the correct
+  position — definitions must load before consumers, because with one shared
+  namespace and no `require` **load order is the dependency graph**. The build
+  hard-fails on a file in neither `lua` nor `lua_extra`, naming it.
 - **File-size budget:** if a file passes ~500 lines, split it before adding more.
 - Seven files are AUTO-GENERATED (`audio_manifest`, `whatnow_hints`, `market_data`,
   `threat_types`, `recipe_data`, `notebook_data`, `achievement_data`) — never

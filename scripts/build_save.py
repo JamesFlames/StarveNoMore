@@ -1493,6 +1493,35 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "load_order.j
     _MANIFEST = json.load(_f)
 
 LUA_LOAD_ORDER = _MANIFEST["lua"]
+# Deliberate exclusions — appended last, order not guaranteed. Empty today.
+LUA_EXTRA = _MANIFEST.get("lua_extra", [])
+
+
+def assert_manifest_covers(disk_files, ordered, extra, kind, manifest_key):
+    """Hard-fail if a source file is in neither the load order nor the allowlist.
+
+    Load order IS the dependency graph here (one global namespace, no
+    require()). An unlisted file used to be appended last with a printed NOTE
+    that nothing failed on — so a new file whose globals another module reads
+    at load time would silently read nil, at runtime, in TTS. Naming the file
+    in the manifest is the whole cost of preventing that.
+    """
+    unlisted = sorted(set(disk_files) - set(ordered) - set(extra))
+    if unlisted:
+        raise SystemExit(
+            f"ERROR: {len(unlisted)} {kind} file(s) are in neither "
+            f"'{manifest_key}' nor '{manifest_key}_extra' in "
+            "scripts/load_order.json:\n"
+            + "".join(f"  {f}\n" for f in unlisted)
+            + f"Add each to '{manifest_key}' at the position its dependencies "
+            f"require (definitions before consumers), or to '{manifest_key}_extra' "
+            "if it must be excluded from the bundle on purpose."
+        )
+
+
+lua_on_disk = [os.path.relpath(p, LUA_DIR).replace("\\", "/")
+               for p in sorted(glob.glob(os.path.join(LUA_DIR, "**", "*.lua"), recursive=True))]
+assert_manifest_covers(lua_on_disk, LUA_LOAD_ORDER, LUA_EXTRA, "Lua", "lua")
 
 lua_parts = []
 for lua_file in LUA_LOAD_ORDER:
@@ -1504,23 +1533,32 @@ for lua_file in LUA_LOAD_ORDER:
     else:
         print(f"WARNING: Lua file not found: {lua_file}")
 
-# Also pick up any extra .lua files not in the explicit order
-for lua_path in sorted(glob.glob(os.path.join(LUA_DIR, "**", "*.lua"), recursive=True)):
-    rel = os.path.relpath(lua_path, LUA_DIR).replace("\\", "/")
-    if rel not in LUA_LOAD_ORDER:
-        with open(lua_path, "r", encoding="utf-8") as f:
-            lua_parts.append(f"-- ========== {rel} ==========")
-            lua_parts.append(f.read())
-        print(f"NOTE: Extra Lua file included: {rel}")
+for rel in LUA_EXTRA:
+    lua_path = os.path.join(LUA_DIR, rel)
+    if not os.path.isfile(lua_path):
+        print(f"WARNING: Lua file not found: {rel}")
+        continue
+    with open(lua_path, "r", encoding="utf-8") as f:
+        lua_parts.append(f"-- ========== {rel} ==========")
+        lua_parts.append(f.read())
+    print(f"NOTE: Extra Lua file included (lua_extra): {rel}")
 
 save["LuaScript"] = "\n\n".join(lua_parts)
-print(f"Lua script assembled: {len(LUA_LOAD_ORDER)} files, {len(save['LuaScript'])} chars")
+print(f"Lua script assembled: {len(LUA_LOAD_ORDER) + len(LUA_EXTRA)} files, "
+      f"{len(save['LuaScript'])} chars")
 
 # ---------------------------------------------------------------------------
 # Load XML UI from xml/ directory
 # ---------------------------------------------------------------------------
 
 XML_LOAD_ORDER = _MANIFEST["xml"]  # from scripts/load_order.json (see above)
+XML_EXTRA = _MANIFEST.get("xml_extra", [])
+
+# Same rule as Lua: XML is concatenated too, so a later file can shadow an
+# earlier file's element ids. An unlisted panel must not slip in unnoticed.
+xml_on_disk = [os.path.relpath(p, XML_DIR).replace("\\", "/")
+               for p in sorted(glob.glob(os.path.join(XML_DIR, "*.xml")))]
+assert_manifest_covers(xml_on_disk, XML_LOAD_ORDER, XML_EXTRA, "XML", "xml")
 
 xml_parts = []
 for xml_file in XML_LOAD_ORDER:
@@ -1531,16 +1569,18 @@ for xml_file in XML_LOAD_ORDER:
     else:
         print(f"WARNING: XML file not found: {xml_file}")
 
-# Also pick up any extra .xml files not in the explicit order
-for xml_path in sorted(glob.glob(os.path.join(XML_DIR, "*.xml"))):
-    rel = os.path.relpath(xml_path, XML_DIR).replace("\\", "/")
-    if rel not in XML_LOAD_ORDER:
-        with open(xml_path, "r", encoding="utf-8") as f:
-            xml_parts.append(f.read())
-        print(f"NOTE: Extra XML file included: {rel}")
+for rel in XML_EXTRA:
+    xml_path = os.path.join(XML_DIR, rel)
+    if not os.path.isfile(xml_path):
+        print(f"WARNING: XML file not found: {rel}")
+        continue
+    with open(xml_path, "r", encoding="utf-8") as f:
+        xml_parts.append(f.read())
+    print(f"NOTE: Extra XML file included (xml_extra): {rel}")
 
 save["XmlUI"] = "\n".join(xml_parts)
-print(f"XML UI assembled: {len(XML_LOAD_ORDER)} files, {len(save['XmlUI'])} chars")
+print(f"XML UI assembled: {len(XML_LOAD_ORDER) + len(XML_EXTRA)} files, "
+      f"{len(save['XmlUI'])} chars")
 
 # Custom UI assets: images the global XML references by name (the setup
 # walkthrough's Step 2 character portrait cards).
