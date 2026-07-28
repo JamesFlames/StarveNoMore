@@ -29,8 +29,9 @@ Simulator (TTS) mod: 5 teenagers survive 7 days against escalating cosmic horror
 (3-stat economy, Doom track, day/night cycle, Dawn card events). The mod is a
 single TTS save JSON assembled from Lua (`lua/`) + XML UI (`xml/`) + card data
 (`content/`) by `scripts/build_save.py`. Lua files share one global namespace —
-there are no `require`s; load order is the explicit `LUA_LOAD_ORDER` in
-`build_save.py`.
+there are no `require`s, so **load order is the dependency graph**. It is the
+explicit `lua` list in [`scripts/load_order.json`](scripts/load_order.json),
+and the build fails on any file missing from it.
 
 ## Finding the right file
 
@@ -64,7 +65,7 @@ Dependencies (`pytest lupa Pillow`) install automatically via the committed
 
 - `python scripts/regenerate_all.py` — every generator, then the build.
 - `python scripts/build_save.py` — assemble `saves/StarveNoMore.json`.
-- `python -m pytest tests` — ~700 tests, ~21 s.
+- `python -m pytest tests` — ~810 tests, ~20 s.
 - `python scripts/check.py --fast` — skip regenerate/build, test + lint only.
 
 The canonical description of the pipeline lives in

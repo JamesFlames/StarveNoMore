@@ -153,6 +153,99 @@ rules. Last Nerve, the Haunted buy-in, Secret Dusk and the difficulty axis all
 push the same way, and §17's regression list forbids evaluating them together.
 The knobs are named in §20.1 in the order to spend them.
 
+## Cheaper, safer AI workflow (2026-07)
+
+Tooling/tests only — no rule changes, with one exception noted below. The third
+and last pass at making this repo cheap to work in (after the compartmentalise
+and structural programs, both already retired here). Those two built the
+*navigation* layer; this one attacked the three costs navigation could not
+touch: session bootstrap, the untested interactive surface, and the size of the
+two files an agent is told to consult. `GoodForAiPlan.md` is retired with it.
+
+**Bootstrap — paid once per session, before any useful work.**
+- `.claude/` is committed now (only `settings.local.json` is ignored), so what
+  an agent learns about *how to work here* survives the container. A
+  `SessionStart` hook installs `pytest lupa Pillow ruff` + `luacheck`; a
+  `PostToolUse` hook reruns `generate_symbol_index.py` after any `lua/` edit; a
+  permission allowlist covers the routine loop. `/verify` and `/newtask` are
+  committed slash commands.
+- **`python scripts/check.py` is the one command to finish a task** —
+  regenerate → build → test → lint, one verdict line, ~22 s. The three-step
+  ritual is demoted to a "debugging that stage" note in all six `CLAUDE.md`
+  files, and the pipeline is written out in exactly one place
+  (`scripts/CLAUDE.md`) instead of five.
+- `./iwanttoplay` works on Linux (it used to die at step 4 after a good
+  regenerate/build/test, because `os.startfile` is Windows-only).
+
+**The interactive surface, which nothing tested.** 58 of 73 XML click handlers
+were never named in a test — every action button in the game. That is where the
+playtest bug reports came from, because nothing else could find them.
+- `tests/test_ui_handlers_smoke.py` clicks **every** handler across six game
+  states (PreGame, Day as the active seat, Day as a *wrong* seat, Dusk, Night,
+  GameOver), asserting no Lua error escapes — *including one swallowed by
+  `safecall`*, which is the "button silently does nothing" failure TTS is worst
+  at — that invariants hold, and that out-of-turn clicks are refused rather
+  than merely survived. Handlers, element ids and arguments are all parsed from
+  `xml/`, so a new button is covered the moment it is added and nothing can be
+  skipped. **0/73 uncovered**, in ~1 s.
+- It immediately found a real one: the ghost-panel guard added to `onPickChar`
+  after a human hit it in a playtest was never applied to the other setup
+  steps, so clicking Continue on a leftover variants panel re-applied a
+  difficulty — and a different Doom limit — after the game had ended. Now a
+  shared `isGhostSetupClick()` on all nine step handlers. *(The one rule-facing
+  change in this batch.)*
+- `tests/test_lua_setup_walkthrough.py` walks guided setup for 1–5 players plus
+  the paths real tables take: duplicate picks, a player leaving mid-pick, a
+  seat change between steps, the hotseat path, and every stale click a
+  disconnected client could still send.
+
+**`gameState` had no schema.** 71 fields across 41 of 46 Lua files, and a
+misspelling read as `nil`, silently, at runtime, in TTS.
+- One initialiser instead of two: the Restart path was a hand-copied literal
+  that had **already drifted** — a Restart produced a `gameState` missing
+  `resources`, `dailyAlerts`, `lastInteractionAt`, `idleNudgedThisTurn` and
+  `schemaVersion`. Both paths go through `migrateGameState()` now, which also
+  hardens old-save migration.
+- `docs/gamestate.md` (generated) maps every field to its default, its writers
+  and its readers; `tests/test_gamestate_schema.py` fails if any
+  `gameState.<name>` is neither declared nor on the reviewed transient list.
+  36 declared, 36 transient, **0 unaccounted**.
+
+**Drift pairs closed.** `CHAR_BRIEFINGS` is generated from
+`content/help/character_briefings.md` (they had diverged — the markdown told
+James about his house, the game never did). An unlisted `lua/`/`xml/` file now
+**fails the build** instead of printing a note nothing checked; `assets.lua`
+joined the manifest. `content/CLAUDE.md` carries a per-CSV column dictionary
+bound to the schema test.
+
+**Context bill.** `agents.md` 18.6k → **3.0k tokens**, split into ten topic
+files under `docs/agents/`, each under a 2.5k budget a test enforces.
+`symbols.json` + `python scripts/sym.py NAME` answers "where is X?" with
+location, signature and call sites in one call, instead of grepping a 17k-token
+index and opening the file anyway.
+
+**Two real bugs found while building the above**, neither of them the thing
+being worked on:
+- A stale `saves/StarveNoMore.json` made the suite *hang for over four minutes*
+  — `test_committed_save_is_fresh` asserted equality of two 1.2 MB strings, so
+  pytest tried to build a character-level diff. It reports in 0.47 s now,
+  naming the byte offset.
+- Ambient track durations in the audio manifest were estimated from file size
+  and wrong by up to **65%** (25.2 s recorded for a 72.0 s track). Those
+  durations schedule the next track, so every one was a clip cut short.
+  `generate_audio_manifest.py` now reads the exact duration out of the Ogg
+  stream itself.
+
+**Also:** the 17 MB WAV that escaped the earlier audio compression pass is OGG
+q4 (1.0 MB); tracked media 286.7 → 270.2 MB, with a test capping any new
+binary at 4 MB. `luacheck` **hard-fails in CI** now — the soft-fail was there
+"until the first run has been reviewed", the review happened, and all five
+warnings are fixed rather than whitelisted (one was a genuine fragility: a
+file-local helper called from another file, working only because the bundle is
+one concatenated chunk).
+
+Suite: 683 → **812 tests**, still ~20 s.
+
 ## Repo structure follow-ups (2026-07)
 
 Tooling/docs only — no rule changes. The next layer after the completed

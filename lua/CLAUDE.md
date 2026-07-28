@@ -19,9 +19,10 @@ explicit `LUA_LOAD_ORDER`. **There is one shared global namespace and no
   namespace and no `require` **load order is the dependency graph**. The build
   hard-fails on a file in neither `lua` nor `lua_extra`, naming it.
 - **File-size budget:** if a file passes ~500 lines, split it before adding more.
-- Seven files are AUTO-GENERATED (`audio_manifest`, `whatnow_hints`, `market_data`,
-  `threat_types`, `recipe_data`, `notebook_data`, `achievement_data`) — never
-  hand-edit; see [`../scripts/CLAUDE.md`](../scripts/CLAUDE.md).
+- Eight files are AUTO-GENERATED (`audio_manifest`, `whatnow_hints`, `market_data`,
+  `threat_types`, `recipe_data`, `notebook_data`, `character_briefings`,
+  `achievement_data`) — never hand-edit; see
+  [`../scripts/CLAUDE.md`](../scripts/CLAUDE.md).
 - All object lookups use `getObjectsWithTag(tag)` (never GUIDs); wrap
   non-critical calls in `safecall(fn, label)`; all gameplay randomness goes
   through `gameRoll(a, b)` (never `math.random`).

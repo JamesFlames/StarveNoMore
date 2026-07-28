@@ -48,9 +48,9 @@ Everything else — pipelines, conventions, the file map — is in [`docs/agents
 ```
 StarveNoMore/
 ├── lua/         TTS Lua scripts (concatenated by build_save.py into the save JSON).
-│                Seven are auto-generated from content/ + sounds/: audio_manifest,
+│                Eight are auto-generated from content/ + sounds/: audio_manifest,
 │                whatnow_hints, market_data, threat_types, recipe_data, notebook_data,
-│                achievement_data.
+│                character_briefings, achievement_data.
 ├── xml/         TTS UI XML — Phase Banner, Action Bar, Help panel, modal dialogs.
 ├── content/     Card CSVs (cards_*.csv), in-game text (notebook/, help/),
 │                iconography, asset manifest. The CSV + Markdown files here are
@@ -63,7 +63,7 @@ StarveNoMore/
 ├── scripts/     Build + asset/data generation + balance sim + telemetry analyzer.
 ├── playtest/    Blind-playtest kit: facilitator script, feedback form, sessions/ logs.
 ├── saves/       Built TTS save (+ fixtures/ frozen mid-game save for compat tests).
-├── tests/       pytest suite (~680 tests) — runs the real Lua bundle headlessly,
+├── tests/       pytest suite (~810 tests) — runs the real Lua bundle headlessly,
 │                plus XML/color/lint quality gates and publish-build checks.
 └── Archive/     Superseded design / reference docs (frozen, no live links).
 ```
@@ -89,7 +89,7 @@ Requires Python 3 with `Pillow`. Card illustrations and board scenes need a loca
 
 | Script | Reads | Writes | Purpose |
 |---|---|---|---|
-| `scripts/build_save.py` | every file listed in `LUA_LOAD_ORDER`, the `XML_LOAD_ORDER` files under `xml/` (hud / setup / dialogs), `art/decks/atlas_manifest.json` | `saves/StarveNoMore.json` + `saves/StarveNoMore.pretty.json` (dev) or `saves/StarveNoMore.publish.json` (`--publish BASE_URL`) | The final assembly step. Concatenates the Lua bundle (29 files today) and the XML into one TTS save JSON, spawns the table objects (board, decks, tokens, player boards, character standees with per-character holder colors, the Sealed Basement, the Player Rules tablet, etc.), reading deck grid dimensions from the atlas manifest (hard-stops if atlases are stale), and pretty-prints a copy for diffing. `--publish` rewrites every `file:///`/`localhost` asset URL to a hosted base and writes a separate shareable save. Run this last after any change to Lua, XML, or auto-generated data tables. |
+| `scripts/build_save.py` | every file listed in `LUA_LOAD_ORDER`, the `XML_LOAD_ORDER` files under `xml/` (hud / setup / dialogs), `art/decks/atlas_manifest.json` | `saves/StarveNoMore.json` + `saves/StarveNoMore.pretty.json` (dev) or `saves/StarveNoMore.publish.json` (`--publish BASE_URL`) | The final assembly step. Concatenates the Lua bundle (53 files today) and the XML into one TTS save JSON, spawns the table objects (board, decks, tokens, player boards, character standees with per-character holder colors, the Sealed Basement, the Player Rules tablet, etc.), reading deck grid dimensions from the atlas manifest (hard-stops if atlases are stale), and pretty-prints a copy for diffing. `--publish` rewrites every `file:///`/`localhost` asset URL to a hosted base and writes a separate shareable save. Run this last after any change to Lua, XML, or auto-generated data tables. |
 | `scripts/generate_threat_types.py` | `content/cards_threats.csv` | `lua/threat_types.lua` | Emits `THREAT_TYPE_BY_NAME` (nickname → Hard/Soft/Persistent, used by the Night Sounds dusk peek — a face-down deck only exposes nicknames) and `SEALED_REWARDS` (from the structured `pry_reward` column, consumed by `doPry`). Re-run after editing the threats CSV. |
 | `scripts/generate_recipe_data.py` | `content/cards_recipes.csv` | `lua/recipe_data.lua` | Emits `RECIPE_DATA` from the structured `script` column (`allAtTile=hunger:4+sanity:2\|cookPenalty=health:2\|...`), so the card face text and what `doCook` actually does can never drift apart. Re-run after editing recipes. |
 | `scripts/generate_notebook.py` | `content/notebook/*.md`, `content/help/glossary.md` | `lua/notebook_data.lua` | Converts the player-doc markdown to plain text and emits the in-game Notebook tabs (Quick Start / Full Rules / Characters) and Help-panel Quick Start + Glossary constants. `build_save.py` imports its `md_to_text` for the physical Quick Start notecard — one source, every surface. |
