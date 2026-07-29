@@ -128,6 +128,13 @@ DOOM_THRESHOLDS = {
 CLEANSE_COST = { Wood = 1, Cloth = 1, Battery = 1, EnergyDrink = 1 }
 CLEANSE_REDUCTION = 2
 
+-- Revival (Design §16.4): the reviver pays this much Health on top of the
+-- Telltale Heart. Read by reviveCharacter (tick_victory.lua) and by the
+-- Revive button's precondition + tooltip (ui_actionbar_situational.lua) —
+-- the number is quoted to the player before they commit, so it lives here
+-- rather than inline in the one that happens to charge it.
+REVIVE_HEALTH_COST = 2
+
 -----------------------------------------------------------------------
 -- Difficulty and length are SEPARATE DIALS (Design §17.2).
 --
@@ -334,6 +341,7 @@ function migrateGameState()
     gs.cluesSurfaced        = gs.cluesSurfaced or 0          -- how many the refill seam has put on offer
     gs.openingOffered       = gs.openingOffered or {}        -- Day-1 opening suggestion, once per player (§15.9)
     gs.duskPending          = gs.duskPending or {}           -- banked secret Dusk moves (§11.3 variant)
+    gs.driftedThisRound     = gs.driftedThisRound or {}      -- ghost drift, once per round (§16.4)
     if gs.duskSecret == nil then gs.duskSecret = false end   -- §11.3 A/B variant
     if gs.solo == nil then gs.solo = false end               -- §20.3 solo mode
     -- The achievement vault (achievements.lua). It spans games rather than

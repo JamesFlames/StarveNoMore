@@ -1,0 +1,326 @@
+-- ui_actionbar_situational.lua — the situational action verbs.
+--
+-- Eight rules were fully implemented and unreachable: the code existed, the
+-- *consumers* of its state existed, and no button, dialog or handler ever
+-- called it. The UI meanwhile told players to do these things — "use a
+-- Telltale Heart at this tile to revive", "Wired: drink 1 Energy Drink/day",
+-- "Perks: ... Defend" — so each read as a broken rule rather than a missing
+-- one. What they had in common was being *conditional*, with no home on a bar
+-- whose fourteen buttons are all unconditional.
+--
+--   Revive        reviveCharacter (tick_victory)    §16.4  hearts were cooked, never spent
+--   Stabilize     doStabilize (actions_social)      §12.3  the Bandage revive
+--   Defend        doDefend (actions_social)         Rayman; combat_resolve reads raymanDefending
+--   Energy Drink  doEnergyDrink (actions_social)    James; four files read jamesEnergyDrinkUsed
+--   Eat Raw       doEatRaw (actions_social)         §8.4; Ellie's Particular Eater lived here
+--   Barricade     doBarricade (actions_social)      day_loop reads gameState.barricades
+--   Appease       doAppeaseTreeguard (treeguard)    the non-violent Treeguard resolution
+--   Ghost Drift   ghostDrift (tick_victory)         §16.4; a Down player's only decision
+--
+-- The first seven follow the Peek/Rally pattern: hidden by default, shown by
+-- refreshSituationalButtons only while their precondition holds. Each `canX`
+-- returns (ok, reason), and the reason doubles as the refusal broadcast and
+-- the why-disabled tooltip, exactly like canFight/canPeek/canRally.
+--
+-- Ghost Drift is the exception and rides the Reactions panel instead: it
+-- belongs to a player who is by definition NOT the active one, and
+-- refreshActionBar hides the whole bar for them.
+
+-----------------------------------------------------------------------
+-- Preconditions
+-----------------------------------------------------------------------
+
+local function held(color, resType)
+    return (getPlayerResources(color) or {})[resType] or 0
+end
+
+-- Down allies sharing this character's tile — the target set for both
+-- Revive (§16.4, costs a Telltale Heart) and Stabilize (§12.3, a Bandage).
+function downedAlliesHere(color)
+    local char = gameState.activeChars[color]
+    local out = {}
+    if not char then return out end
+    for c, ch in pairs(gameState.activeChars) do
+        if c ~= color and ch.down and ch.location == char.location then
+            table.insert(out, c)
+        end
+    end
+    table.sort(out)   -- pairs() order is arbitrary; the dialog must be stable
+    return out
+end
+
+function canRevive(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.down then return false, "You are Down." end
+    if (gameState.heartCount or 0) < 1 then
+        return false, "No Telltale Heart. Cook one at the Crockpot (1 Cloth + 1 Battery + 1 Food + 2 Health)."
+    end
+    if char.health <= REVIVE_HEALTH_COST then
+        return false, "Reviving costs " .. REVIVE_HEALTH_COST .. " Health and you have " ..
+            char.health .. " — it would put you Down too."
+    end
+    if #downedAlliesHere(color) == 0 then
+        return false, "Nobody is Down at " .. (char.location or "your tile") .. "."
+    end
+    return true
+end
+
+function canStabilize(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.down then return false, "You are Down." end
+    if char.actionsLeft <= 0 then return false, "No actions remaining." end
+    if #downedAlliesHere(color) == 0 then
+        return false, "Nobody is Down at " .. (char.location or "your tile") .. "."
+    end
+    return true
+end
+
+function canDefend(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.name ~= "Rayman" then return false, "Only Rayman can Defend." end
+    if char.down then return false, "You are Down." end
+    if char.actionsLeft <= 0 then return false, "No actions remaining." end
+    if gameState.raymanDefending then return false, "Backboard Block is already up." end
+    return true
+end
+
+function canEnergyDrink(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.down then return false, "You are Down." end
+    if held(color, "EnergyDrink") < 1 then
+        return false, "No Energy Drink token. Gather at James's House."
+    end
+    -- James may always drink: for him it is not the Sanity, it is Wired.
+    if char.name ~= "James" and char.sanity >= char.maxSanity then
+        return false, "Sanity is already full."
+    end
+    return true
+end
+
+function canEatRaw(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.down then return false, "You are Down." end
+    -- Particular Eater (§6.4). Checked here as well as inside doEatRaw so the
+    -- button never appears for Ellie in the first place.
+    if char.name == "Ellie" then
+        return false, "Ellie can't eat raw food (Particular Eater). Cook it first."
+    end
+    if held(color, "Food") < 1 then return false, "No Food token to eat." end
+    if char.hunger >= char.maxHunger then return false, "Hunger is already full." end
+    return true
+end
+
+function canBarricade(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.down then return false, "You are Down." end
+    if char.actionsLeft <= 0 then return false, "No actions remaining." end
+    if held(color, "Wood") < 1 then return false, "Barricading costs 1 Wood." end
+    local loc = char.location or ""
+    if ((gameState.barricades or {})[loc] or 0) > 0 then
+        return false, loc .. " is already barricaded tonight."
+    end
+    return true
+end
+
+function canAppeaseTreeguard(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.down then return false, "You are Down." end
+    local tg = gameState.treeguard
+    if not (tg and tg.active) then return false, "No Treeguard is awake." end
+    if char.location ~= tg.location then
+        return false, "The Treeguard is at " .. tostring(tg.location) .. "."
+    end
+    if char.actionsLeft <= 0 then return false, "No actions remaining." end
+    if held(color, "Wood") < 2 then return false, "Appeasing costs 2 Wood." end
+    return true
+end
+
+-- Ghost drift (§16.4): a Down character moves one tile per round, free. It is
+-- the only decision a ghost still has — design §05 calls a Down player with no
+-- decisions left the co-op form of player elimination — so it is deliberately
+-- gated on neither the turn order nor the action budget.
+function canDrift(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if not char.down then return false, "Only a Down character drifts." end
+    if gameState.subPhase ~= "Day" then return false, "Ghosts drift during the Day." end
+    if (gameState.driftedThisRound or {})[color] then
+        return false, "Already drifted this round — one tile per round."
+    end
+    return true
+end
+
+-----------------------------------------------------------------------
+-- Revive / Stabilize: one shared target dialog
+--
+-- Both pick a Down ally at the same tile, and both are rare. A second
+-- five-button panel would be XML for no gain, so pendingAction.type says
+-- which verb the click resolves to.
+-----------------------------------------------------------------------
+local DOWNED_SEATS = {"White", "Red", "Yellow", "Green", "Blue"}
+
+local function showDownedTargets(color, kind, title, note)
+    local eligible = {}
+    for _, c in ipairs(downedAlliesHere(color)) do eligible[c] = true end
+    for _, c in ipairs(DOWNED_SEATS) do
+        local btn = "downedBtn_" .. c
+        local ch = gameState.activeChars[c]
+        if eligible[c] and ch then
+            UI.setAttribute(btn, "active", "true")
+            setButtonLabel(btn, ch.name .. "  (Down at " .. (ch.location or "?") .. ")")
+        else
+            UI.setAttribute(btn, "active", "false")
+        end
+    end
+    UI.setAttribute("downedTitle", "text", title)
+    UI.setAttribute("downedNote", "text", note)
+    gameState.pendingAction = { type = kind, color = color }
+    UI.show("downedDialog")
+end
+
+function onActRevive(player, value, id)
+    local color = player.color
+    if not validateActivePlayer(color) then return end
+    local ok, why = canRevive(color)
+    if not ok then
+        broadcastToColor(why or "Can't revive right now.", color, BROADCAST_COLORS.damage)
+        return
+    end
+    showDownedTargets(color, "revive", "Revive — spend a Telltale Heart on whom?",
+        "You pay " .. REVIVE_HEALTH_COST .. " Health; they return at half their maximums. " ..
+        (gameState.heartCount or 0) .. " Heart(s) in the supply.")
+end
+
+function onActStabilize(player, value, id)
+    local color = player.color
+    if not validateActivePlayer(color) then return end
+    local ok, why = canStabilize(color)
+    if not ok then
+        broadcastToColor(why or "Can't stabilize right now.", color, BROADCAST_COLORS.damage)
+        return
+    end
+    showDownedTargets(color, "stabilize", "Stabilize — patch up whom?",
+        "1 action + a Bandage. They come back at 1 Health — not a full revival.")
+end
+
+function onDownedTargetClick(player, value, id)
+    UI.hide("downedDialog")
+    local pa = gameState.pendingAction
+    if not (pa and pa.color == player.color) then return end
+    if pa.type ~= "revive" and pa.type ~= "stabilize" then return end
+    gameState.pendingAction = nil
+
+    local color = pa.color
+    if pa.type == "stabilize" then
+        safecall(function() doStabilize(color, value) end, "Stabilize")
+    else
+        -- Spending the LAST Heart is a decision, not a click: with none left,
+        -- the next character to go Down stays Down (ui_mood.lua, I.6).
+        local reviver = gameState.activeChars[color]
+        local target = gameState.activeChars[value]
+        confirmLastHeart(reviver and reviver.name or "?", target and target.name or "?",
+            function() safecall(function() reviveCharacter(color, value) end, "Revive") end)
+    end
+    refreshPhaseBanner()
+    updateActivePlayerIndicator()
+end
+
+function onDownedCancel(player, value, id)
+    UI.hide("downedDialog")
+    local pa = gameState.pendingAction
+    if pa and (pa.type == "revive" or pa.type == "stabilize") then
+        gameState.pendingAction = nil
+    end
+end
+
+-----------------------------------------------------------------------
+-- The one-click verbs
+-----------------------------------------------------------------------
+
+-- Every one of these is the same five steps, and writing them out five times
+-- is how one of them ends up missing its precondition check.
+local function runSituational(player, canFn, doFn, label, cost)
+    local color = player.color
+    if not validateActivePlayer(color) then return end
+    local ok, why = canFn(color)
+    if not ok then
+        broadcastToColor(why or ("Can't " .. label .. " right now."), color,
+                         BROADCAST_COLORS.damage)
+        return
+    end
+    -- Pay first: a failed payment must not hand out the effect.
+    if cost and not verifyAndPayResources(color, cost, "the " .. label) then return end
+    safecall(function() doFn(color) end, label)
+    refreshPhaseBanner()
+    updateActivePlayerIndicator()
+end
+
+function onActDefend(player, value, id)
+    runSituational(player, canDefend, doDefend, "Defend")
+end
+
+function onActEnergyDrink(player, value, id)
+    runSituational(player, canEnergyDrink, doEnergyDrink, "Energy Drink",
+                   { EnergyDrink = 1 })
+end
+
+function onActEatRaw(player, value, id)
+    runSituational(player, canEatRaw, doEatRaw, "raw Food", { Food = 1 })
+end
+
+-- Barricade and Appease pay their own resources inside the action (and refund
+-- the spent action if unaffordable), so no cost table here.
+function onActBarricade(player, value, id)
+    runSituational(player, canBarricade, doBarricade, "Barricade")
+end
+
+function onActAppease(player, value, id)
+    runSituational(player, canAppeaseTreeguard, doAppeaseTreeguard, "Appease")
+end
+
+-----------------------------------------------------------------------
+-- Bar refresh. Driven from refreshActionButtonStates (display), so these
+-- appear and vanish in the same pass as Peek/Rally/Pry.
+--
+-- Functions are referenced directly rather than looked up by name in _G:
+-- this codebase has no dynamic dispatch anywhere, which is precisely what
+-- makes "is this function reachable?" answerable by reading it.
+-----------------------------------------------------------------------
+SITUATIONAL_ACTIONS = {
+    { id = "actRevive", can = canRevive,
+      tip = "Revive a Down ally at your tile with a Telltale Heart. You pay " ..
+            REVIVE_HEALTH_COST .. " Health; they return at half their maximums." },
+    { id = "actStabilize", can = canStabilize,
+      tip = "Stabilize a Down ally at your tile with a Bandage — 1 action. " ..
+            "They return at 1 Health. Not a full revival." },
+    { id = "actDefend", can = canDefend,
+      tip = "Backboard Block — 1 action. Counter-attack damage is redirected " ..
+            "to Rayman until his next turn." },
+    { id = "actEnergy", can = canEnergyDrink,
+      tip = "Drink an Energy Drink — free. +2 Sanity, and for James it " ..
+            "satisfies Wired for today (no -2 Sanity at Tick)." },
+    { id = "actEatRaw", can = canEatRaw,
+      tip = "Eat a Food token raw — free. +1 Hunger, -1 Sanity." },
+    { id = "actBarricade", can = canBarricade,
+      tip = "Barricade this tile — 1 action + 1 Wood. It draws one fewer " ..
+            "Threat tonight, then the barricade is gone." },
+    { id = "actAppease", can = canAppeaseTreeguard,
+      tip = "Plant saplings and send the Treeguard back to sleep — 1 action " ..
+            "+ 2 Wood. No fight, and no salvage." },
+}
+
+function refreshSituationalButtons(color)
+    for _, entry in ipairs(SITUATIONAL_ACTIONS) do
+        local ok, why = entry.can(color)
+        setActionEnabled(entry.id, ok and true or false)
+        setActionTooltip(entry.id,
+            ok and entry.tip or (entry.tip .. "  Unavailable: " .. (why or "")))
+    end
+end

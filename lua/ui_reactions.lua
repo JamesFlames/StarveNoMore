@@ -63,6 +63,24 @@ local function collectReactionRows()
 
     for _, color in ipairs(REACTION_SEAT_ORDER) do
         local char = gameState.activeChars[color]
+
+        -- GHOST DRIFT (§16.4): the one decision a Down character still has.
+        -- It belongs here and nowhere else — a ghost is never the active
+        -- player, so refreshActionBar hides the Action Bar for them entirely,
+        -- and design §05 is explicit that a Down player with no decisions
+        -- left is the co-op form of player elimination.
+        if char and char.down and canDrift and canDrift(color) then
+            rows[#rows + 1] = {
+                color = color,
+                label = char.name .. "'s ghost: drift to another tile  (free, once per round)",
+                run = function()
+                    gameState.pendingAction = { type = "drift", color = color }
+                    _spawnMoveButtons(color, "drift")
+                    _armTargetTimeout()
+                end,
+            }
+        end
+
         if char and not char.down then
             -- WITNESS: one row per Haunted ally at this character's tile.
             if canWitness and (canWitness(color)) then

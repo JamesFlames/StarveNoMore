@@ -43,9 +43,18 @@ single source of truth in sync if the direction is ever revised.
   name for what older docs call `models/unet/`, and on this rig `models/unet/`
   is **empty**. An `ls models/unet/` therefore looks like a missing model when
   nothing is wrong; ask the running server instead (see below).
-- **Sampler:** `euler`, 30 steps, CFG 4.0, scheduler `normal`, denoise 1.0
-- **Rig:** RTX 4070 Ti, 12 GB VRAM, ComfyUI 0.20.1 — Flux Dev Q8 at 1024²
-  fits in VRAM at roughly 20–40 s/image.
+- **Sampler (cards):** `euler`, 30 steps, CFG 4.0, scheduler `normal`,
+  denoise 1.0.
+- **Sampler (achievement icons):** the same, except a `FluxGuidance` node at
+  `ICON_FLUX_GUIDANCE = 3.5` feeds the sampler and **cfg drops to 1.0**. This
+  is the configuration Flux Dev is actually distilled for; the cards' true
+  `cfg 4.0` is off-spec and, on single-object icon prompts, blows highlights
+  into a glowing orb, produces pure black frames, and drifts off-prompt
+  entirely. Cards stay on the 4.0 path because 200+ were rendered with it —
+  changing that is an art-direction call, not a bug fix. Full write-up:
+  [`../comfyui-achievement-icons.md`](../comfyui-achievement-icons.md).
+- **Rig:** RTX 4070 Ti, 12 GB VRAM, ComfyUI 0.20.1 — Flux Dev Q8 at 1024² /
+  30 steps runs at ~4 s/step, i.e. **~2 min per image** (~50 min for 24).
 - **Benign startup noise**, not failures: `Failed to initialize database …
   unable to open database file`, `Failed to check frontend version`, and the
   DWPose/onnxruntime warning from `comfyui_controlnet_aux`. The line that

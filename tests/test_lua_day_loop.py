@@ -108,6 +108,7 @@ class TestRevive:
     def test_revive_costs_and_half_stats(self, env):
         add_char(env, "White", "James", location="RaymanHouse")
         add_char(env, "Yellow", "Rayman", down=True, health=0, location="RaymanHouse")
+        env.execute("gameState.heartCount = 1")
         ok = env.globals().reviveCharacter("White", "Yellow")
         assert ok is True
         assert env.eval("gameState.activeChars.White.health") == 6         # paid 2
@@ -115,12 +116,25 @@ class TestRevive:
         assert env.eval("gameState.activeChars.Yellow.health") == 6        # ceil(12/2)
         assert env.eval("gameState.activeChars.Yellow.hunger") == 5        # ceil(10/2)
         assert env.eval("gameState.activeChars.Yellow.sanity") == 3        # ceil(6/2)
+        assert env.eval("gameState.heartCount") == 0, "the Heart is consumed"
 
     def test_revive_requires_same_location(self, env):
         add_char(env, "White", "James", location="JamesHouse")
         add_char(env, "Yellow", "Rayman", down=True, location="RaymanHouse")
+        env.execute("gameState.heartCount = 1")
         assert env.globals().reviveCharacter("White", "Yellow") is False
         assert env.eval("gameState.activeChars.Yellow.down") is True
+        assert env.eval("gameState.heartCount") == 1, "a refused revive keeps the Heart"
+
+    def test_revive_without_a_heart_is_refused(self, env):
+        """heartCount clamps at 0, so before this check an empty supply
+        revived for free and the counter simply stayed at zero."""
+        add_char(env, "White", "James", location="RaymanHouse")
+        add_char(env, "Yellow", "Rayman", down=True, health=0, location="RaymanHouse")
+        env.execute("gameState.heartCount = 0")
+        assert env.globals().reviveCharacter("White", "Yellow") is False
+        assert env.eval("gameState.activeChars.Yellow.down") is True
+        assert env.eval("gameState.activeChars.White.health") == 8, "and costs nothing"
 
 
 # ---------------------------------------------------------------------------

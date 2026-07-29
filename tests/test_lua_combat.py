@@ -49,7 +49,7 @@ class TestCombat:
         add_char(env, "White", "James", health=8)
         add_char(env, "Yellow", "Rayman", health=12)  # healthiest takes the fumble
         script_dice(env, [1, 1, 1])  # James 1 die + Rayman 2 dice, all fumbles
-        env.globals().resolveGroupCombat(
+        env.globals().beginCombat(
             py_to_lua(env, ["White", "Yellow"]),
             py_to_lua(env, {"name": "T", "hp": 5, "attack": 0}))
         assert env.eval("gameState.activeChars.Yellow.health") == 11  # exactly 1

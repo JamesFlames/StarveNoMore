@@ -180,6 +180,10 @@ function refreshActionButtonStates(color)
                   or (sig.desc .. " Unavailable: " .. (sigWhy or "")))
     end
 
+    -- The situational verbs (Revive, Stabilize, Defend, Energy Drink, Eat
+    -- Raw, Barricade, Appease) — each hidden until its precondition holds.
+    safecall(function() refreshSituationalButtons(color) end, "SituationalActions")
+
     -- Undo: only when a snapshot of your own last action exists
     local snap = gameState.undoSnapshot
     setActionEnabled("actUndo", snap ~= nil and snap.color == color)

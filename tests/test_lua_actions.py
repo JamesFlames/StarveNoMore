@@ -297,7 +297,7 @@ class TestPerks:
         add_char(env, "Yellow", "Rayman", health=12)
         env.execute("gameState.raymanDefending = true")
         script_dice(env, [3, 3, 3, 5, 5])  # whiff (no 1s); counter lands twice
-        env.globals().resolveGroupCombat(
+        env.globals().beginCombat(
             py_to_lua(env, ["White", "Yellow"]),
             py_to_lua(env, {"name": "T", "hp": 9, "attack": 2}))
         assert env.eval("gameState.activeChars.Yellow.health") == 10  # took both

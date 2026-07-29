@@ -93,8 +93,9 @@ function onActCook(player, value, id)
             color, BROADCAST_COLORS.damage)
         return
     end
-    local tile = getLocationTile("EllieLucaHouse")
-    if tile then safecall(function() tile.highlightOn("Orange", HIGHLIGHT_DURATION) end, "CookHighlight") end
+    -- Same shape as Craft and Cleanse: the highlight lives beside theirs in
+    -- ui_actionbar_targets.lua, not inlined here where it drifts from them.
+    safecall(function() _highlightCookTargets() end, "CookHighlight")
 end
 
 -- Fill the cook dialog with the recipes this player can actually make.
@@ -477,6 +478,13 @@ function onDuskMoveClick(player, value, id)
         return
     end
     if noteInteraction then noteInteraction() end
-    safecall(function() doDuskMove(color, value) end, "DuskMove")
-    refreshPhaseBanner()
+    -- Safety net (I.6): a sport court with nobody else on it is the worst
+    -- place to spend a night — extra Threat, no sleep regen, and Charlie has
+    -- no shelter to keep her out. Passes straight through anywhere else.
+    safecall(function()
+        confirmSleepAloneAtCourt(color, value, function()
+            safecall(function() doDuskMove(color, value) end, "DuskMove")
+            refreshPhaseBanner()
+        end)
+    end, "DuskMoveConfirm")
 end

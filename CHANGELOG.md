@@ -2,6 +2,40 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Eight rules that were never wired up (2026-07)
+
+A reachability audit of the Lua bundle found nine global functions that nothing
+called. Eight of them were *rules*, fully implemented, with their state
+consumers already in place — and no button, dialog or phase step anywhere that
+would run them. Nothing errored; the rules were simply absent while the UI went
+on describing them.
+
+**Revive was the worst.** `cookTelltaleHeart` worked, so `gameState.heartCount`
+went up and never down: Hearts could be cooked and never spent, while four
+places in the UI told players to "use a Telltale Heart at this tile to revive".
+The only revive path in the game had no caller.
+
+Also restored: **Stabilize** (§12.3, the Bandage revive), **Defend** (Rayman's
+Backboard Block — `combat_resolve` had always redirected counters on
+`raymanDefending`; nothing set it), **Energy Drink** (James's Wired constraint
+was a pure penalty: four files read `jamesEnergyDrinkUsed`, one reset it
+nightly, nothing ever made it true, so the -2 Sanity was unavoidable for the
+whole week), **Eat Raw** (§8.4, and with it Ellie's Particular Eater, which
+could never be bumped into), **Barricade** (day_loop already subtracted it from
+the night threat rate), **Appease Treeguard**, and **Ghost Drift** — §16.4's
+one-tile-per-round move, which is the only decision a Down player has, and
+whose absence is the co-op player-elimination failure §05 spends a page on.
+
+The seven Day-phase verbs are situational, so they follow the Peek/Rally
+pattern rather than taking permanent bar space: hidden until their `canX`
+precondition holds. Ghost Drift rides the Reactions panel, since a ghost is
+never the active player.
+
+**The guard:** `tests/test_lua_reachability.py` now fails on any global
+function nothing calls, allowlisting only TTS engine callbacks and console
+tools, plus a companion check that bans `_G[name]` — dynamic dispatch would
+make an orphan indistinguishable from a live handler.
+
 ## Nightmare is winnable now (2026-07)
 
 Follow-up to the design pass, which had made Nightmare's problem visible for the

@@ -309,15 +309,20 @@ function beginCombat(colors, threatData)
     return { defeated = false, remainingHP = threatHP }
 end
 
--- Backwards-compatible entry points.
+-- Single-fighter shorthand for beginCombat, which takes a colour LIST.
+--
+-- Game code does not call this and should not: the real fight path
+-- (doFight, actions_combat.lua) checks canFight, resolves the threat's
+-- statline, applies carried chip damage and assembles the participant list
+-- before it calls beginCombat. Reaching the resolver directly skips every
+-- one of those rules. It exists for the combat tests, which want to drive
+-- the resolver without the targeting UI in the way.
+--
+-- There is deliberately no resolveGroupCombat: for several fighters the
+-- signature is already beginCombat(colors, threatData), so a wrapper would
+-- be an alias that only makes the two look like different mechanisms.
 function resolveCombat(color, threatData)
     return beginCombat({ color }, threatData)
-end
-
-function resolveGroupCombat(colors, threatData)
-    local list = {}
-    for _, c in ipairs(colors) do table.insert(list, c) end
-    return beginCombat(list, threatData)
 end
 
 -----------------------------------------------------------------------

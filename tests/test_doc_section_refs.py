@@ -18,7 +18,7 @@ import os
 import re
 
 import pytest
-from conftest import ROOT
+from conftest import ROOT, repo_files, walk_repo
 
 # "SomeDoc.md §12" / "SomeDoc.md §12.4" / "SomeDoc.md §1–26" — optionally with
 # markdown link syntax and arbitrary path in between, e.g.
@@ -34,29 +34,21 @@ EXEMPT_TARGETS = frozenset()
 
 
 def live_markdown_files():
-    out = []
-    for dirpath, dirs, files in os.walk(ROOT):
-        rel = os.path.relpath(dirpath, ROOT).replace("\\", "/")
-        parts = rel.split("/")
-        if parts[0] in ("Archive", ".git", ".claude", "__pycache__", "node_modules"):
-            dirs[:] = []
-            continue
-        for fn in files:
-            if fn.endswith(".md"):
-                out.append(os.path.join(dirpath, fn))
-    return sorted(out)
+    return repo_files(".md", skip=("Archive",))
+
+
+def _target_candidates(basename):
+    """Every copy of a cited .md in the repo, Archive included — the citations
+    point *into* Archive. Uses the shared walker, so `.claude/worktrees/`
+    (a whole second checkout of this repo) is pruned rather than searched."""
+    return [os.path.join(dirpath, basename)
+            for dirpath, files in walk_repo() if basename in files]
 
 
 def _find_target(basename):
-    """Locate a cited .md by basename anywhere in the repo (Archive included —
-    the citations point *into* Archive)."""
-    for dirpath, dirs, files in os.walk(ROOT):
-        if os.path.basename(dirpath) in (".git", "__pycache__", "node_modules"):
-            dirs[:] = []
-            continue
-        if basename in files:
-            return os.path.join(dirpath, basename)
-    return None
+    """The one copy of a cited .md, or None if it is not in the repo."""
+    hits = _target_candidates(basename)
+    return hits[0] if hits else None
 
 
 def _section_numbers(path):
@@ -158,3 +150,33 @@ def test_the_guard_can_actually_fail():
     sections = _section_numbers(target)
     assert {9, 20}.issubset(sections)
     assert 99 not in sections
+
+
+def test_cited_documents_resolve_unambiguously():
+    """Every cited basename must name exactly one file in the repo.
+
+    Resolution is by basename, so a second copy anywhere makes the answer a
+    coin flip — and the *stale* copy is the one that fails. That is how this
+    module went red for a whole afternoon: a git worktree under
+    `.claude/worktrees/` carried an older PrinciplesOfGoodBoardGames.md with
+    13 sections instead of 26, so every citation above §13 "did not exist".
+    Failing here says which file is duplicated; failing above blames the docs.
+    """
+    cited = set()
+    for md_path in live_markdown_files():
+        self_name = os.path.basename(md_path)
+        with open(md_path, "r", encoding="utf-8") as f:
+            cited.update(b for b, _n in CITE_RE.findall(f.read()) if b != self_name)
+
+    duplicated = {}
+    for basename in sorted(cited):
+        hits = _target_candidates(basename)
+        if len(hits) > 1:
+            duplicated[basename] = [
+                os.path.relpath(p, ROOT).replace("\\", "/") for p in hits]
+
+    assert not duplicated, (
+        f"cited documents exist in more than one place: {duplicated} — a "
+        "basename lookup cannot tell them apart, so the citation checks above "
+        "silently validate against whichever copy the walk reached first. "
+        "Delete the duplicate, or prune its directory in conftest.SKIP_DIRS.")

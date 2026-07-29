@@ -25,7 +25,10 @@ local TARGET_TIMEOUT = 30       -- seconds before stale target buttons vanish
 local function _clearTargetButtons()
     if _targetClearHandle then Wait.stop(_targetClearHandle); _targetClearHandle = nil end
     for _, obj in ipairs(_targetButtonObjs) do
-        if obj and not obj.isDestroyed() then
+        -- These are tiles and cards a player may have moved, merged or
+        -- deleted since the buttons went on. isDestroyed() throws on the
+        -- dead handle it is asked about; isLiveObject asks safely.
+        if isLiveObject(obj) then
             pcall(function() obj.clearButtons() end)
         end
     end
@@ -85,10 +88,21 @@ end
 
 -- Move targets are always 1-step neighbours; Rayman's 2-tile Speed is
 -- delivered as a chained free second hop, so his buttons are 1-step too.
+-- mode: "move" | "bonusmove" (Rayman's Speed) | "drift" (a ghost, §16.4).
+-- Drift reuses this because a ghost picks a destination exactly the way the
+-- living do — one adjacent tile — and duplicating the tile-button machinery
+-- for the one case is how the two drift apart.
+local MOVE_BUTTON_LABEL = { bonusmove = "FREE MOVE", drift = "DRIFT HERE" }
+local MOVE_BUTTON_NOTE = {
+    bonusmove = " (free second step)",
+    drift     = " (ghost drift — free, once per round)",
+    move      = " (1 action, 1 Hunger)",
+}
+
 function _spawnMoveButtons(color, mode)
     local char = gameState.activeChars[color]
     if not char or not char.location then return 0 end
-    local label = (mode == "bonusmove") and "FREE MOVE" or "MOVE HERE"
+    local label = MOVE_BUTTON_LABEL[mode] or "MOVE HERE"
     local n = 0
     local names = {}
     for _, locName in ipairs(_adjacentLocations(char.location)) do
@@ -100,7 +114,7 @@ function _spawnMoveButtons(color, mode)
             -- there disappears into the clutter.
             _spawnTargetButton(tile, label, "onMoveTargetClick",
                 "Move " .. char.name .. " to " .. locName ..
-                ((mode == "bonusmove") and " (free second step)" or " (1 action, 1 Hunger)"),
+                (MOVE_BUTTON_NOTE[mode] or MOVE_BUTTON_NOTE.move),
                 true, {0, 0.7, -0.85})
             n = n + 1
             names[#names + 1] = locName
@@ -329,7 +343,9 @@ end
 -----------------------------------------------------------------------
 function onMoveTargetClick(obj, clickerColor, altClick)
     local pa = gameState.pendingAction
-    if not (pa and (pa.type == "move" or pa.type == "bonusmove")) then return end
+    if not (pa and (pa.type == "move" or pa.type == "bonusmove" or pa.type == "drift")) then
+        return
+    end
     if clickerColor ~= pa.color then
         broadcastToColor("Only the moving player may choose the destination.", clickerColor, BROADCAST_COLORS.damage)
         return
@@ -345,16 +361,37 @@ function onMoveTargetClick(obj, clickerColor, altClick)
     gameState.pendingAction = nil
     _clearTargetButtons()
 
-    if mode == "move" then
-        safecall(function() doMove(color, loc) end, "Move")
-        -- Rayman's Speed: doMove grants a free second 1-tile step.
-        if gameState.raymanBonusMove then
-            gameState.pendingAction = { type = "bonusmove", color = color }
-            _spawnMoveButtons(color, "bonusmove")
-            _armTargetTimeout()
-            broadcastToColor("Speed: click FREE MOVE on a green tile for your second step — or take another action to skip it.",
-                color, BROADCAST_COLORS.gain)
-        end
+    if mode == "drift" then
+        -- One tile per round, free, and it never touches the action budget:
+        -- the ghost is not the active player and never will be.
+        gameState.driftedThisRound = gameState.driftedThisRound or {}
+        gameState.driftedThisRound[color] = true
+        safecall(function() ghostDrift(color, loc) end, "GhostDrift")
+        safecall(function() refreshReactionsPanel() end, "Reactions")
+    elseif mode == "move" then
+        -- Safety net (I.6): walking a character below 3 Health onto a tile
+        -- that draws Threat cards at night is how a Down happens by accident.
+        -- Passes straight through when the character is healthy or the
+        -- destination is a house.
+        --
+        -- Everything downstream of doMove lives inside the callback: the move
+        -- may not happen until the player answers, and Rayman's Speed reads
+        -- gameState.raymanBonusMove, which doMove is what sets.
+        safecall(function()
+            confirmMoveInjuredToThreat(color, loc, function()
+                safecall(function() doMove(color, loc) end, "Move")
+                -- Rayman's Speed: doMove grants a free second 1-tile step.
+                if gameState.raymanBonusMove then
+                    gameState.pendingAction = { type = "bonusmove", color = color }
+                    _spawnMoveButtons(color, "bonusmove")
+                    _armTargetTimeout()
+                    broadcastToColor("Speed: click FREE MOVE on a green tile for your second step — or take another action to skip it.",
+                        color, BROADCAST_COLORS.gain)
+                end
+                refreshPhaseBanner()
+                updateActivePlayerIndicator()
+            end)
+        end, "MoveConfirm")
     else
         safecall(function() doRaymanBonusMove(color, loc) end, "BonusMove")
     end

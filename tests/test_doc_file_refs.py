@@ -16,7 +16,7 @@ import os
 import re
 
 import pytest
-from conftest import ROOT
+from conftest import ROOT, repo_files
 
 # .lua tokens like `foo_bar.lua`; the leading char rules out `..4.lua` shorthand.
 LUA_TOKEN_RE = re.compile(r"\b([a-z_][a-z0-9_]*\.lua)\b")
@@ -43,16 +43,7 @@ NAV_DOCS = [
 
 def _real_lua_basenames():
     """Every real *.lua filename in the tree (basename → resolves somewhere)."""
-    names = set()
-    for dirpath, dirs, files in os.walk(ROOT):
-        parts = os.path.relpath(dirpath, ROOT).replace("\\", "/").split("/")
-        if parts[0] in (".git", "Archive", ".claude", "__pycache__", "node_modules"):
-            dirs[:] = []
-            continue
-        for fn in files:
-            if fn.endswith(".lua"):
-                names.add(fn)
-    return names
+    return {os.path.basename(p) for p in repo_files(".lua", skip=("Archive",))}
 
 
 @pytest.mark.parametrize("doc", NAV_DOCS)

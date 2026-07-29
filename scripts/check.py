@@ -38,6 +38,8 @@ import subprocess
 import sys
 import time
 
+from utf8_console import child_env, use_utf8
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 PASS, FAIL, SKIP = "PASS", "FAIL", "SKIP"
@@ -47,7 +49,10 @@ def run_stage(name, argv, results, *, cwd=ROOT):
     """Run one stage, stream its output, and record (name, verdict, seconds)."""
     print(f"\n=== {name} ===", flush=True)
     started = time.monotonic()
-    proc = subprocess.run(argv, cwd=cwd)
+    # A stage inherits this process's stdout. If that is a pipe or a file, a
+    # child Python would encode to the legacy codepage and die on the first
+    # non-ANSI character it printed — so hand every stage a UTF-8 environment.
+    proc = subprocess.run(argv, cwd=cwd, env=child_env())
     elapsed = time.monotonic() - started
     verdict = PASS if proc.returncode == 0 else FAIL
     results.append((name, verdict, elapsed))
@@ -68,7 +73,8 @@ def git_status_short():
     """Tracked-file changes as a list of lines, or None if git is unavailable."""
     try:
         proc = subprocess.run(["git", "status", "--short"], cwd=ROOT,
-                              capture_output=True, text=True)
+                              capture_output=True, text=True,
+                              encoding="utf-8", errors="replace")
     except OSError:
         return None
     if proc.returncode != 0:
@@ -77,6 +83,11 @@ def git_status_short():
 
 
 def main():
+    # First, before argparse: --help prints this module's docstring, which has
+    # a → in it, and a redirected stdout defaults to the legacy codepage.
+    # Called here rather than at import so importing this module (the tests do)
+    # has no side effect on the caller's streams.
+    use_utf8()
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--fast", action="store_true",

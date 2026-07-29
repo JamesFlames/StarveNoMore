@@ -340,6 +340,52 @@
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
               fontSize="14" color="#DCCB9EFF" textColor="#12180F"
               text="Pry" />
+      <!-- Situational verbs (ui_actionbar_situational.lua): each is hidden
+           until its precondition holds, the same way Peek and Rally are.
+           They are the rules that had no button — Revive was the worst of
+           them, since Telltale Hearts could be cooked but never spent. -->
+      <Button id="actRevive"
+              onClick="onActRevive"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#C9A0DCFF" textColor="#12180F"
+              active="false"
+              text="Revive" />
+      <Button id="actStabilize"
+              onClick="onActStabilize"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#C9B4A0FF" textColor="#12180F"
+              active="false"
+              text="Stabilize" />
+      <Button id="actDefend"
+              onClick="onActDefend"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#A8C4DCFF" textColor="#12180F"
+              active="false"
+              text="Defend" />
+      <Button id="actEnergy"
+              onClick="onActEnergyDrink"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#E8D66AFF" textColor="#12180F"
+              active="false"
+              text="Energy Drink" />
+      <Button id="actEatRaw"
+              onClick="onActEatRaw"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#D2B48CFF" textColor="#12180F"
+              active="false"
+              text="Eat Raw" />
+      <Button id="actBarricade"
+              onClick="onActBarricade"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#B0A48CFF" textColor="#12180F"
+              active="false"
+              text="Barricade" />
+      <Button id="actAppease"
+              onClick="onActAppease"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#9CC49CFF" textColor="#12180F"
+              active="false"
+              text="Appease" />
       <Button id="actUndo"
               onClick="onActUndo"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"

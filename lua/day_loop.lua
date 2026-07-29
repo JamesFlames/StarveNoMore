@@ -15,6 +15,7 @@ function BeginDay()
     gameState.raymanDefending = false   -- Backboard Block never outlives the night
     gameState.jamesPeekUsed = false     -- Pattern Recognition: once per day (§6.1)
     gameState.lucaRallyUsed = false     -- Rally: once per ROUND, any turn (§6.5)
+    gameState.driftedThisRound = {}     -- Ghost drift: one tile per round (§16.4)
     gameState.loudSignature = {}        -- Posterize echo lasts one night only
     safecall(function() setNightOmen(false) end, "NightOmen")  -- last night's moon sets
     safecall(function() setPhaseMood("Dawn") end, "Mood")
@@ -444,6 +445,11 @@ function _dawnCardRevealed(card, preflight)
         description = data.desc,
         cardGuid = data.guid,
     }
+
+    -- Point every camera at the card before its effect fires (I.11): the
+    -- Dawn reveal is the day's headline, and a table looking at five
+    -- different corners misses it. No-ops on a dead handle.
+    safecall(function() nudgeCameraToDawnCard(live) end, "CameraNudge")
 
     -- Dispatch dawn effect. `live` may be nil if the card merged away — the
     -- effect is resolved from the snapshot, and handlers are safecall-wrapped.

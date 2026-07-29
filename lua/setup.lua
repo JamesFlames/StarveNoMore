@@ -300,20 +300,6 @@ function moveDoomMarker(targetStep)
     end, 1.0)
 end
 
--- The 3D board "Begin Day" button is gone — Host Controls > Begin Day
--- (btnBeginDay, shown between days) drives it, and the banner pulses that
--- button as the next step. onBeginDayClick remains as its handler / for tests.
-function onBeginDayClick(obj, playerColor, altClick)
-    -- Begin Day is only valid between days — mid-day it would re-run the
-    -- whole Dawn (double Doom, second Dawn card).
-    if gameState.subPhase ~= "PreDawn" then
-        broadcastToColor("Begin Day is only available between days (currently: " ..
-            tostring(gameState.subPhase) .. ").", playerColor, BROADCAST_COLORS.damage)
-        return
-    end
-    safecall(function() BeginDay() end, "BeginDay")
-end
-
 -----------------------------------------------------------------------
 -- SCENARIO SYSTEM — drawn at setup, modifies the entire game
 -----------------------------------------------------------------------

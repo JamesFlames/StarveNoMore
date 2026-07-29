@@ -69,6 +69,25 @@ NEGATIVE = (
     "3d render, anime, cartoon, chibi, neon colors, oversaturated"
 )
 
+# STYLE minus the scene-prop enumeration, for single-object icons.
+#
+# STYLE names concrete props ("suburban houses and streetlights", "gaming PCs",
+# "basketball hoops") because a card illustration is a *scene* and those props
+# furnish it. An achievement icon has no scene to furnish, so Flux attaches the
+# props to the only thing in frame and renders the prop AS the subject: a first
+# pass at the 24 icons came back with a glowing streetlight or amber orb
+# dominating ~20 of them, whatever the row's art_notes actually asked for.
+# Keep the aesthetic, drop the furniture. See docs/comfyui-achievement-icons.md.
+ICON_STYLE = (
+    "Don't Starve Together aesthetic, Tim Burton meets Edward Gorey, "
+    "hand-drawn ink-line gothic cartoon, scratchy crosshatch shading, "
+    "muted desaturated palette with one saturated red for danger, "
+    "silhouette-distinct shapes, slightly exaggerated proportions, "
+    "a modern North American suburban object rendered in the same hand-drawn "
+    "DST style (no photoreal, no 3D), board game illustration, high detail, "
+    "no text, no watermark, no UI"
+)
+
 # Card-specific qualifier appended after the per-deck prefix and art_notes.
 CARD_QUALIFIER = (
     "full-bleed square card illustration, no text, no border, no UI, "
@@ -100,13 +119,25 @@ CARD_QUALIFIER = (
 # --------------------------------------------------------------------------
 ACHIEVEMENT_PREFIX = (
     "a single object portrait on a moody desaturated backdrop, "
-    "soft warm side-light, crisp hand-drawn ink outlines"
+    "even diffuse lighting, crisp hand-drawn ink outlines"
 )
 
 ACHIEVEMENT_QUALIFIER = (
     "icon composition, subject centred and filling two thirds of the frame, "
     "readable as a shape at thumbnail size, evenly lit, square"
 )
+
+# Same as the cards. This was briefly dropped to 0.35 while chasing the glowing
+# orb, but the orb was the cfg 4.0 problem below, not the LoRA — and c4r1mj34
+# is what supplies the DST ink line, so a weak one just makes icons that don't
+# match the deck.
+ICON_LORA_STRENGTH = 0.85
+
+# Flux Dev is guidance-distilled: it wants a FluxGuidance node plus cfg 1.0,
+# not true CFG. The cards' cfg 4.0 is off-spec and is the best explanation for
+# the blown-out "glowing orb", the pure-black frames and the prompt drift the
+# icon batch kept producing. Icons opt in; cards stay as they were.
+ICON_FLUX_GUIDANCE = 3.5
 
 # Per-deck visual framing. Combined with the row's art_notes column.
 # Each prefix carries the scene + lighting context for that deck. The shared
@@ -309,7 +340,7 @@ def load_achievement_assets(only_id=None):
             if not aid or (only_id and aid != only_id):
                 continue
             subject = (row.get("art_notes") or "").strip() or row.get("name", aid)
-            prompt = ", ".join([ACHIEVEMENT_PREFIX, subject, ACHIEVEMENT_QUALIFIER, STYLE])
+            prompt = ", ".join([ACHIEVEMENT_PREFIX, subject, ACHIEVEMENT_QUALIFIER, ICON_STYLE])
             out.append((f"snm_ach_{aid[2:].lower()}", 1024, 1024, prompt))
     return out
 
@@ -320,9 +351,33 @@ def output_already_exists(filename_prefix):
     return bool(glob.glob(pattern))
 
 
-def build_workflow(positive_prompt, negative_prompt, width, height, filename_prefix):
-    """Build a single-pass Flux Dev workflow (no ControlNet, no upscale)."""
+def build_workflow(positive_prompt, negative_prompt, width, height, filename_prefix,
+                   lora_strength=0.85, flux_guidance=None):
+    """Build a single-pass Flux Dev workflow (no ControlNet, no upscale).
+
+    `flux_guidance` switches the sampler to the configuration Flux Dev is
+    actually distilled for: a FluxGuidance node carrying the guidance scale,
+    and KSampler at cfg 1.0 (true CFG > 1 on a distilled model blows out
+    highlights and drifts off-prompt). Cards deliberately stay on the original
+    cfg 4.0 path — 200+ of them were rendered that way. See
+    docs/comfyui-achievement-icons.md.
+    """
     seed = random.randint(1, 2**53)
+    positive_link = ["4", 0]
+    cfg = 4.0
+    guidance_node = {}
+    if flux_guidance is not None:
+        guidance_node = {
+            "11": {
+                "class_type": "FluxGuidance",
+                "inputs": {
+                    "conditioning": ["4", 0],
+                    "guidance": flux_guidance
+                }
+            }
+        }
+        positive_link = ["11", 0]
+        cfg = 1.0
 
     return {
         # UnetLoaderGGUF
@@ -349,8 +404,8 @@ def build_workflow(positive_prompt, negative_prompt, width, height, filename_pre
                 "model": ["1", 0],
                 "clip": ["2", 0],
                 "lora_name": "flux\\c4r1mj34.safetensors",
-                "strength_model": 0.85,
-                "strength_clip": 0.85
+                "strength_model": lora_strength,
+                "strength_clip": lora_strength
             }
         },
         # CLIPTextEncode (positive)
@@ -383,12 +438,12 @@ def build_workflow(positive_prompt, negative_prompt, width, height, filename_pre
             "class_type": "KSampler",
             "inputs": {
                 "model": ["3", 0],
-                "positive": ["4", 0],
+                "positive": positive_link,
                 "negative": ["5", 0],
                 "latent_image": ["6", 0],
                 "seed": seed,
                 "steps": 30,
-                "cfg": 4.0,
+                "cfg": cfg,
                 "sampler_name": "euler",
                 "scheduler": "normal",
                 "denoise": 1.0
@@ -417,6 +472,7 @@ def build_workflow(positive_prompt, negative_prompt, width, height, filename_pre
                 "filename_prefix": filename_prefix
             }
         },
+        **guidance_node,
     }
 
 
@@ -500,7 +556,16 @@ def main():
 
     success = 0
     for i, (prefix, w, h, prompt) in enumerate(assets, 1):
-        workflow = build_workflow(prompt, NEGATIVE, w, h, prefix)
+        # Icons take the LoRA at reduced strength: at 0.85 it dominates a
+        # single-object composition and keeps painting a glowing lamp/orb as
+        # the subject. Cards keep the full 0.85 the deck art was built with.
+        is_icon = prefix.startswith("snm_ach_")
+        lora = ICON_LORA_STRENGTH if is_icon else 0.85
+        workflow = build_workflow(
+            prompt, NEGATIVE, w, h, prefix,
+            lora_strength=lora,
+            flux_guidance=ICON_FLUX_GUIDANCE if is_icon else None,
+        )
         try:
             result = queue_prompt(workflow)
             pid = result.get("prompt_id", "?")

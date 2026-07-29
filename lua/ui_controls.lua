@@ -214,13 +214,20 @@ function onHostResolveNight(player, value, id)
 end
 
 function onHostEndTurn(player, value, id)
-    if gameState.activeColor then
-        safecall(function()
-            endPlayerTurn(gameState.activeColor)
-            refreshPhaseBanner()
-            updateActivePlayerIndicator()
-        end, "EndTurn")
-    end
+    local color = gameState.activeColor
+    if not color then return end
+    -- Safety net (I.6): this button forfeits whatever the active player has
+    -- not spent, and it is one click away from every host at all times.
+    -- confirmEndDayEarly passes straight through when nothing is at stake.
+    safecall(function()
+        confirmEndDayEarly(color, function()
+            safecall(function()
+                endPlayerTurn(color)
+                refreshPhaseBanner()
+                updateActivePlayerIndicator()
+            end, "EndTurn")
+        end)
+    end, "EndTurnConfirm")
 end
 
 function onHostRestart(player, value, id)

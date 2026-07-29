@@ -26,6 +26,8 @@ import os
 import subprocess
 import sys
 
+from utf8_console import child_env, use_utf8
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GENERATORS_JSON = os.path.join(ROOT, "scripts", "generators.json")
 BUILD_SCRIPT = os.path.join(ROOT, "scripts", "build_save.py")
@@ -63,7 +65,8 @@ def sources_present(sources):
 def run(script):
     print(f"  → {script}")
     proc = subprocess.run([sys.executable, os.path.join(ROOT, script)],
-                          cwd=ROOT, capture_output=True, text=True)
+                          cwd=ROOT, capture_output=True, text=True,
+                          encoding="utf-8", errors="replace", env=child_env())
     if proc.returncode != 0:
         sys.stderr.write(proc.stdout)
         sys.stderr.write(proc.stderr)
@@ -72,6 +75,10 @@ def run(script):
 
 
 def main():
+    # Before argparse: --help prints this module's docstring, and the progress
+    # lines below use →. Neither survives the legacy codepage a redirected
+    # stdout falls back to. Not at import, so importing this module is inert.
+    use_utf8()
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--no-build", action="store_true",
@@ -103,7 +110,8 @@ def main():
         print("Building save:")
         print("  → scripts/build_save.py")
         proc = subprocess.run([sys.executable, BUILD_SCRIPT], cwd=ROOT,
-                              capture_output=True, text=True)
+                              capture_output=True, text=True,
+                              encoding="utf-8", errors="replace", env=child_env())
         sys.stdout.write(proc.stdout)
         if proc.returncode != 0:
             sys.stderr.write(proc.stderr)

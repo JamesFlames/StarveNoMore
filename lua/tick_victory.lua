@@ -258,12 +258,17 @@ function reviveCharacter(reviverColor, targetColor)
         return false
     end
 
-    -- Requires a Telltale Heart token at the location (manual check in Phase G)
-    -- For now, assume the player has confirmed they have one
+    -- The Heart is the cost, so it is checked HERE and not only in the
+    -- button's precondition: without this, a caller with an empty supply
+    -- revives for free (heartCount clamps at 0 and nothing complains).
+    if (gameState.heartCount or 0) < 1 then
+        broadcastEvent("damage", "No Telltale Heart in the supply — cook one at the Crockpot first.")
+        return false
+    end
 
-    -- Reviver pays 2 Health
-    reviver.health = math.max(0, reviver.health - 2)
-    broadcastEvent("damage", reviver.name .. " pays 2 Health to revive " .. target.name .. ".")
+    reviver.health = math.max(0, reviver.health - REVIVE_HEALTH_COST)
+    broadcastEvent("damage", reviver.name .. " pays " .. REVIVE_HEALTH_COST ..
+        " Health to revive " .. target.name .. ".")
 
     -- Revived character returns at half starting maximums
     local stats = CHARACTER_STATS[target.name]
@@ -333,14 +338,23 @@ end
 -----------------------------------------------------------------------
 -- F.10 — Victory and Defeat detection
 -----------------------------------------------------------------------
+
+-- The four endings all do the same three things. Stopping the ambience is
+-- part of it: the day/night drone is a loop, so without this it plays on
+-- underneath the Week in Review as if the game were still going.
+local function endGame(cause)
+    gameState.gameOverCause = cause
+    gameState.subPhase = "GameOver"
+    safecall(function() Audio.stopAmbience() end, "Audio")
+    safecall(function() showWeekInReview() end, "WeekReview")
+end
+
 function checkDefeat()
     -- Condition 1: Doom at the track limit (30; 15 on Long Weekend)
     if gameState.doom >= getDoomLimit() then
         broadcastEvent("damage", "DOOM REACHES " .. getDoomLimit() .. " — THE WORLD IS CONSUMED.")
         broadcastEvent("phase", "=== DEFEAT ===")
-        gameState.gameOverCause = "defeat_doom"
-        gameState.subPhase = "GameOver"
-        safecall(function() showWeekInReview() end, "WeekReview")
+        endGame("defeat_doom")
         return true
     end
 
@@ -358,9 +372,7 @@ function checkDefeat()
     if anyActive and allDown then
         broadcastEvent("damage", "ALL CHARACTERS ARE DOWN — HOPE IS LOST.")
         broadcastEvent("phase", "=== DEFEAT ===")
-        gameState.gameOverCause = "defeat_all_down"
-        gameState.subPhase = "GameOver"
-        safecall(function() showWeekInReview() end, "WeekReview")
+        endGame("defeat_all_down")
         return true
     end
 
@@ -378,9 +390,7 @@ function checkVictory()
             broadcastEvent("damage", "DAY 7 ENDS — AND THE SOURCE STILL STANDS.")
             broadcastEvent("damage", "Surviving was never going to be enough. The neighborhood is lost.")
             broadcastEvent("phase", "=== DEFEAT ===")
-            gameState.gameOverCause = "defeat_source"
-            gameState.subPhase = "GameOver"
-            safecall(function() showWeekInReview() end, "WeekReview")
+            endGame("defeat_source")
             return true
         end
 
@@ -391,9 +401,7 @@ function checkVictory()
             -- Check bonus victories
             checkBonusVictories()
 
-            gameState.gameOverCause = "victory"
-            gameState.subPhase = "GameOver"
-            safecall(function() showWeekInReview() end, "WeekReview")
+            endGame("victory")
             return true
         end
     end

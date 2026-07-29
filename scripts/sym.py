@@ -20,6 +20,8 @@ import os
 import re
 import sys
 
+from utf8_console import use_utf8
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JSON_PATH = os.path.join(ROOT, "symbols.json")
 LUA_DIR = os.path.join(ROOT, "lua")
@@ -94,6 +96,9 @@ def show_symbol(name, defs, index, quiet):
 
 
 def main():
+    # Before argparse: prints → and whatever Unicode the Lua comments carry,
+    # and --help prints this docstring. `sym.py X | head` is the common case.
+    use_utf8()
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("name", nargs="?", help="symbol, XML id (--ui), or file (--file)")

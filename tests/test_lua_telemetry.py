@@ -46,6 +46,7 @@ class TestChronicle:
         env.globals().checkDownState("White")
         assert env.eval("gameState.chronicle.downs") == 1
         env.execute("gameState.activeChars.Green.location = gameState.activeChars.White.location")
+        env.execute("gameState.heartCount = 1")
         env.globals().reviveCharacter("Green", "White")
         assert env.eval("gameState.chronicle.revives") == 1
 

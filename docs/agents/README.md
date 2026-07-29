@@ -10,7 +10,8 @@ split at its natural seams. Open the topic, not this index.
 | [file-structure.md](file-structure.md) | 1.7k | find what lives where, or what a directory is for |
 | [design-reference.md](design-reference.md) | 0.9k | check characters, locations, phases, the Doom track, the win condition |
 | [combat-and-actions.md](combat-and-actions.md) | 2.2k | change combat maths or any player action |
-| [test-suite.md](test-suite.md) | 2.4k | know which module covers what, or run the release checklist |
+| [test-suite.md](test-suite.md) | 1.5k | know which module runs what gameplay, or run the release checklist |
+| [test-guards.md](test-guards.md) | 1.8k | find the static guard that just failed, or add one |
 | [balance-simulation.md](balance-simulation.md) | 1.7k | re-run the Monte Carlo after a rules change |
 | [ux-affordances.md](ux-affordances.md) | 2.1k | keep "the next legal action is always visible" true |
 | [audio.md](audio.md) | 1.2k | add or change a sound |

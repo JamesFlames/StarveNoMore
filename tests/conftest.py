@@ -36,6 +36,55 @@ def read_text(path):
         return f.read()
 
 
+# --------------------------------------------------------------------------
+# Walking the repository
+#
+# Several modules scan the whole tree for docs/lua files. They must all skip
+# the same non-content directories, because `.claude/worktrees/` holds *entire
+# second checkouts of this repository* — a walk that descends into one finds a
+# stale copy of the very file it is validating.
+#
+# That is not hypothetical: test_doc_section_refs.py had four hand-rolled
+# copies of this walk between it and its neighbours, and the one that resolved
+# citation *targets* was the copy that omitted `.claude`. It resolved
+# "PrinciplesOfGoodBoardGames.md" to a worktree's older, 13-section copy and
+# reported 11 failures against citations that were correct. One list and one
+# walker here, so a new tool directory is excluded everywhere at once;
+# test_repo_walk.py stops the copies coming back.
+# --------------------------------------------------------------------------
+
+# Pruned by *name* at any depth — a nested checkout can appear anywhere, and
+# `.claude/worktrees/<branch>/` is two levels down.
+SKIP_DIRS = frozenset({
+    ".git", ".claude", "__pycache__", "node_modules",
+    ".pytest_cache", ".mypy_cache", ".ruff_cache", ".venv", "venv",
+})
+
+
+def walk_repo(skip=()):
+    """os.walk over ROOT with SKIP_DIRS (plus `skip`) pruned, yielding
+    (dirpath, filenames).
+
+    Traversal order is fixed — shallowest first, alphabetical within a level —
+    so a "first match wins" basename lookup resolves to the same file on every
+    machine, and prefers the copy nearest the root. An unordered walk makes
+    that lookup a coin flip that passes locally and fails in CI.
+    """
+    extra = frozenset(skip)
+    for dirpath, dirs, files in os.walk(ROOT):
+        dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS and d not in extra)
+        yield dirpath, sorted(files)
+
+
+def repo_files(suffix, skip=()):
+    """Every file under ROOT ending in `suffix`, sorted by full path, with
+    tool and VCS directories pruned. `skip` adds directory names to prune —
+    ("Archive",) for the live-docs scans, which treat Archive as historical."""
+    return sorted(os.path.join(dirpath, fn)
+                  for dirpath, files in walk_repo(skip)
+                  for fn in files if fn.endswith(suffix))
+
+
 def read_csv_rows(filename):
     with open(os.path.join(CONTENT, filename), "r", encoding="utf-8") as f:
         return list(csv.DictReader(f))

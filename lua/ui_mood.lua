@@ -67,24 +67,37 @@ end
 -- I.6 — Safety-net confirmations on risky actions
 -----------------------------------------------------------------------
 
--- Check if any players have unspent actions before ending Day
-function confirmEndDayEarly(player, onConfirm)
-    local unspent = {}
+-- Guard on the host's End Turn button (ui_controls.lua): it pushes the game
+-- past whoever is up, and their unspent actions are gone. The list names
+-- everyone still holding actions, because the useful question is not just
+-- "are you sure" but "is the table actually finished?".
+--
+-- pairs() order is arbitrary, so the names are sorted — a confirm dialog
+-- that reshuffles its list between openings reads as a different warning.
+function confirmEndDayEarly(activeColor, onConfirm)
+    local unspent, active = {}, nil
     for color, char in pairs(gameState.activeChars) do
-        if not char.down and char.actionsLeft > 0 then
-            table.insert(unspent, char.name .. " (" .. char.actionsLeft .. ")")
+        if not char.down and (char.actionsLeft or 0) > 0 then
+            local entry = char.name .. " (" .. char.actionsLeft .. ")"
+            table.insert(unspent, entry)
+            if color == activeColor then active = char end
         end
     end
+    table.sort(unspent)
 
-    if #unspent > 0 then
-        showConfirm(
-            "End Day phase early?",
-            "These players still have actions:\n" .. table.concat(unspent, ", ") .. "\n\nUnused actions will be forfeited.",
-            onConfirm
-        )
-    else
+    if not active then
+        -- Whoever is up has nothing left to spend; nothing is being lost.
         onConfirm()
+        return
     end
+
+    showConfirm(
+        "End " .. active.name .. "'s turn early?",
+        active.name .. " still has " .. active.actionsLeft ..
+        " action(s), and ending the turn forfeits them.\n\n" ..
+        "Still holding actions: " .. table.concat(unspent, ", "),
+        onConfirm
+    )
 end
 
 -- Warn when sleeping alone at a sport court
@@ -193,9 +206,12 @@ function nudgeCameraToBoss(bossName, location)
     end
 end
 
--- Focus on a high-severity Dawn card reveal
+-- Focus on the Dawn card as it is revealed (day_loop._dawnCardRevealed).
+-- The handle routinely arrives dead here — the card is mid-flight from the
+-- deck and may already have merged — so this asks isLiveObject rather than
+-- isDestroyed(), which would throw on exactly the handles it is screening.
 function nudgeCameraToDawnCard(card)
-    if card and not card.isDestroyed() then
+    if isLiveObject(card) then
         nudgeCameraAll(card.getPosition(), 15, 2.0)
     end
 end

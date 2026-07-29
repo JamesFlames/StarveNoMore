@@ -374,7 +374,11 @@ function startStandeeBob(charName)
     local bobUp = true
 
     bobTimerId = Wait.time(function()
-        if not standee or standee.isDestroyed() then
+        -- isLiveObject, not isDestroyed(): a handle whose object was merged
+        -- into a deck or picked up is not "destroyed", and isDestroyed()
+        -- throws on the dead handle it is being asked about — the exact crash
+        -- this check exists to avoid. (helpers.lua, docs/tts-interface.md.)
+        if not isLiveObject(standee) then
             stopStandeeBob()
             return
         end
@@ -396,7 +400,7 @@ function stopStandeeBob()
     -- Reset all standees to neutral rotation
     for _, char in pairs(gameState.activeChars) do
         local standee = getCharacterStandee(char.name)
-        if standee and not standee.isDestroyed() then
+        if isLiveObject(standee) then
             local r = standee.getRotation()
             standee.setRotationSmooth({r.x, r.y, 0}, false, false)
         end

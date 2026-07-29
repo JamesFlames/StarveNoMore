@@ -16,7 +16,7 @@ achievementsPage = 1
 achievementsPanelOpen = false
 
 function achievementsPageCount()
-    local total = #ACHIEVEMENT_ORDER
+    local total = totalAchievementCount()
     return math.max(1, math.ceil(total / ACH_ROWS_PER_PAGE))
 end
 
@@ -43,7 +43,7 @@ end
 function refreshAchievementPanel()
     if not UI then return end
 
-    local total = #ACHIEVEMENT_ORDER
+    local total = totalAchievementCount()
     local pages = achievementsPageCount()
     if achievementsPage > pages then achievementsPage = pages end
     if achievementsPage < 1 then achievementsPage = 1 end

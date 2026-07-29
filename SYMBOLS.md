@@ -10,60 +10,57 @@
 | 15 | table | `ASSETS` |
 | 125 | table | `BOARD_ART_URLS` |
 
-## lua/helpers.lua (48 symbols)
+## lua/helpers.lua (45 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 9 | function | `findAllByTag` |
 | 19 | function | `findOneByTag` |
-| 26 | function | `findOneByTags` |
-| 47 | function | `isLiveObject` |
-| 52 | function | `safeNickname` |
-| 59 | function | `safeHasTag` |
-| 80 | value | `BTN_DARK_PLATE` |
-| 81 | value | `BTN_ON_DARK` |
-| 83 | function | `setButtonLabel` |
-| 93 | function | `getMainBoard` |
-| 94 | function | `getDoomMarker` |
-| 95 | function | `getDayCounter` |
-| 96 | function | `getMarketDeck` |
-| 97 | function | `getThreatDeck` |
-| 98 | function | `getVisitorDeck` |
-| 99 | function | `getBossPool` |
-| 100 | function | `getHeartSupply` |
-| 101 | function | `getSeverityLegend` |
-| 103 | function | `getPhaseDeck` |
-| 108 | function | `getLocationTile` |
-| 112 | function | `getCharacterStandee` |
-| 116 | function | `getPlayerBoard` |
-| 120 | function | `getHandZone` |
-| 124 | function | `getMarketSlots` |
-| 133 | function | `getPathVariantBag` |
-| 137 | function | `getResourceBag` |
-| 151 | table | `RESOURCE_TYPES_LIST` |
-| 154 | function | `ensurePlayerResources` |
-| 182 | table | `RESOURCE_ROW_INDEX` |
-| 244 | function | `removeVisualTokens` |
-| 248 | function | `giveResource` |
-| 258 | function | `spawnResourceAtTile` |
-| 285 | function | `takeResourceFromPlayer` |
-| 303 | table | `CHAR_SLOT_INDEX` |
-| 305 | function | `getCharSlotPosition` |
-| 313 | function | `placeCharacterAtTile` |
-| 331 | table | `BENCH_POSITION` |
-| 333 | function | `benchUnusedCharacters` |
-| 359 | function | `benchUnusedBoards` |
-| 384 | function | `getPlayerCarriedObjects` |
-| 443 | value | `LAST_NERVE_THRESHOLD` |
-| 445 | function | `hasLastNerve` |
-| 452 | function | `charHasCompany` |
-| 464 | function | `getActivePlayerColors` |
-| 477 | function | `colorToCharacter` |
-| 486 | function | `characterToColor` |
-| 500 | function | `gameRoll` |
-| 506 | function | `safecall` |
+| 36 | function | `isLiveObject` |
+| 41 | function | `safeNickname` |
+| 48 | function | `safeHasTag` |
+| 69 | value | `BTN_DARK_PLATE` |
+| 70 | value | `BTN_ON_DARK` |
+| 72 | function | `setButtonLabel` |
+| 82 | function | `getMainBoard` |
+| 83 | function | `getDoomMarker` |
+| 84 | function | `getDayCounter` |
+| 85 | function | `getMarketDeck` |
+| 86 | function | `getThreatDeck` |
+| 87 | function | `getVisitorDeck` |
+| 88 | function | `getBossPool` |
+| 89 | function | `getHeartSupply` |
+| 90 | function | `getSeverityLegend` |
+| 92 | function | `getPhaseDeck` |
+| 97 | function | `getLocationTile` |
+| 101 | function | `getCharacterStandee` |
+| 105 | function | `getPlayerBoard` |
+| 109 | function | `getHandZone` |
+| 113 | function | `getMarketSlots` |
+| 122 | function | `getResourceBag` |
+| 136 | table | `RESOURCE_TYPES_LIST` |
+| 139 | function | `ensurePlayerResources` |
+| 167 | table | `RESOURCE_ROW_INDEX` |
+| 229 | function | `removeVisualTokens` |
+| 233 | function | `giveResource` |
+| 243 | function | `spawnResourceAtTile` |
+| 270 | function | `takeResourceFromPlayer` |
+| 288 | table | `CHAR_SLOT_INDEX` |
+| 290 | function | `getCharSlotPosition` |
+| 298 | function | `placeCharacterAtTile` |
+| 316 | table | `BENCH_POSITION` |
+| 318 | function | `benchUnusedCharacters` |
+| 344 | function | `benchUnusedBoards` |
+| 369 | function | `getPlayerCarriedObjects` |
+| 428 | value | `LAST_NERVE_THRESHOLD` |
+| 430 | function | `hasLastNerve` |
+| 437 | function | `charHasCompany` |
+| 449 | function | `getActivePlayerColors` |
+| 462 | function | `colorToCharacter` |
+| 478 | function | `gameRoll` |
+| 484 | function | `safecall` |
 
-## lua/global.lua (27 symbols)
+## lua/global.lua (28 symbols)
 
 | line | kind | symbol |
 |---|---|---|
@@ -77,23 +74,24 @@
 | 117 | table | `DOOM_THRESHOLDS` |
 | 128 | table | `CLEANSE_COST` |
 | 129 | value | `CLEANSE_REDUCTION` |
-| 164 | table | `DIFFICULTY_PARAMS` |
-| 182 | function | `getDifficulty` |
-| 186 | function | `getTotalDays` |
-| 187 | function | `getDoomLimit` |
-| 192 | function | `getSourceMaxHP` |
-| 200 | function | `getSourceSplitHP` |
-| 205 | function | `getPhaseForDay` |
-| 223 | table | `DOOM_RATES` |
-| 234 | function | `getDoomDelta` |
-| 240 | function | `getDoomRate` |
-| 250 | function | `describeDoomDelta` |
-| 269 | table | `BROADCAST_COLORS` |
-| 277 | function | `broadcastEvent` |
-| 294 | function | `migrateGameState` |
-| 359 | function | `onLoad` |
-| 419 | function | `onSave` |
-| 428 | function | `onSetupClick` |
+| 136 | value | `REVIVE_HEALTH_COST` |
+| 171 | table | `DIFFICULTY_PARAMS` |
+| 189 | function | `getDifficulty` |
+| 193 | function | `getTotalDays` |
+| 194 | function | `getDoomLimit` |
+| 199 | function | `getSourceMaxHP` |
+| 207 | function | `getSourceSplitHP` |
+| 212 | function | `getPhaseForDay` |
+| 230 | table | `DOOM_RATES` |
+| 241 | function | `getDoomDelta` |
+| 247 | function | `getDoomRate` |
+| 257 | function | `describeDoomDelta` |
+| 276 | table | `BROADCAST_COLORS` |
+| 284 | function | `broadcastEvent` |
+| 301 | function | `migrateGameState` |
+| 367 | function | `onLoad` |
+| 427 | function | `onSave` |
+| 436 | function | `onSetupClick` |
 
 ## lua/audio_manifest.lua (1 symbols)
 
@@ -165,7 +163,7 @@
 |---|---|---|
 | 9 | table | `CHAR_BRIEFINGS` |
 
-## lua/setup.lua (12 symbols)
+## lua/setup.lua (11 symbols)
 
 | line | kind | symbol |
 |---|---|---|
@@ -177,27 +175,26 @@
 | 247 | value | `DOOM_TRACK_Z` |
 | 256 | function | `doomStepWorld` |
 | 271 | function | `moveDoomMarker` |
-| 306 | function | `onBeginDayClick` |
-| 320 | table | `SCENARIOS` |
-| 401 | function | `applyRandomScenario` |
-| 411 | function | `applyScenario` |
+| 306 | table | `SCENARIOS` |
+| 387 | function | `applyRandomScenario` |
+| 397 | function | `applyScenario` |
 
 ## lua/day_loop.lua (12 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 5 | function | `BeginDay` |
-| 189 | function | `isBossOnMap` |
-| 196 | function | `countFesteringThreats` |
-| 226 | function | `checkDoomThresholds` |
-| 281 | function | `revealLastDawn` |
-| 325 | function | `revealFirstDawn` |
-| 338 | function | `revealDawnCard` |
-| 396 | function | `_cardSnapshot` |
-| 412 | function | `_findCardAtDawnRevealSpot` |
-| 423 | function | `_dawnCardRevealed` |
-| 457 | function | `beginDusk` |
-| 598 | function | `beginNight` |
+| 190 | function | `isBossOnMap` |
+| 197 | function | `countFesteringThreats` |
+| 227 | function | `checkDoomThresholds` |
+| 282 | function | `revealLastDawn` |
+| 326 | function | `revealFirstDawn` |
+| 339 | function | `revealDawnCard` |
+| 397 | function | `_cardSnapshot` |
+| 413 | function | `_findCardAtDawnRevealSpot` |
+| 424 | function | `_dawnCardRevealed` |
+| 463 | function | `beginDusk` |
+| 604 | function | `beginNight` |
 
 ## lua/turns.lua (12 symbols)
 
@@ -274,7 +271,7 @@
 | 231 | function | `markBossDefeated` |
 | 295 | function | `revealTrophy` |
 
-## lua/combat_resolve.lua (10 symbols)
+## lua/combat_resolve.lua (9 symbols)
 
 | line | kind | symbol |
 |---|---|---|
@@ -283,11 +280,10 @@
 | 138 | function | `applyCounterAttack` |
 | 187 | function | `maybeJamesReroll` |
 | 217 | function | `beginCombat` |
-| 313 | function | `resolveCombat` |
-| 317 | function | `resolveGroupCombat` |
-| 329 | function | `pressAttack` |
-| 381 | function | `finishCombat` |
-| 395 | function | `resolveCharlieAttack` |
+| 324 | function | `resolveCombat` |
+| 334 | function | `pressAttack` |
+| 386 | function | `finishCombat` |
+| 400 | function | `resolveCharlieAttack` |
 
 ## lua/clues.lua (8 symbols)
 
@@ -340,11 +336,11 @@
 | 162 | table | `DEATH_NARRATIONS` |
 | 185 | function | `checkDownState` |
 | 236 | function | `reviveCharacter` |
-| 296 | function | `ghostDrift` |
-| 315 | function | `doCleanse` |
-| 336 | function | `checkDefeat` |
-| 370 | function | `checkVictory` |
-| 404 | function | `checkBonusVictories` |
+| 301 | function | `ghostDrift` |
+| 320 | function | `doCleanse` |
+| 352 | function | `checkDefeat` |
+| 382 | function | `checkVictory` |
+| 412 | function | `checkBonusVictories` |
 
 ## lua/actions.lua (10 symbols)
 
@@ -503,11 +499,11 @@
 | 316 | function | `updateActivePlayerIndicator` |
 | 355 | function | `stringToColorTint` |
 | 369 | function | `startStandeeBob` |
-| 391 | function | `stopStandeeBob` |
-| 417 | function | `clearHighlight` |
-| 431 | function | `highlightCTA` |
-| 462 | function | `getNextCTA` |
-| 499 | function | `pulseHandZone` |
+| 395 | function | `stopStandeeBob` |
+| 421 | function | `clearHighlight` |
+| 435 | function | `highlightCTA` |
+| 466 | function | `getNextCTA` |
+| 503 | function | `pulseHandZone` |
 
 ## lua/ui_actionbar_core.lua (15 symbols)
 
@@ -533,21 +529,21 @@
 
 | line | kind | symbol |
 |---|---|---|
-| 39 | function | `clearActionTargets` |
-| 59 | function | `_armTargetTimeout` |
-| 88 | function | `_spawnMoveButtons` |
-| 143 | function | `onObjectDrop` |
-| 153 | function | `_handleStandeeDrop` |
-| 234 | function | `_spawnCraftButtons` |
-| 272 | function | `formatIngredientCost` |
-| 299 | function | `_spawnFightButtons` |
-| 330 | function | `onMoveTargetClick` |
-| 365 | function | `onCraftTargetClick` |
-| 399 | function | `onFightTargetClick` |
-| 403 | function | `onFightTogetherClick` |
-| 407 | function | `_highlightCraftTargets` |
-| 442 | function | `_highlightCookTargets` |
-| 447 | function | `_highlightCleanseTargets` |
+| 42 | function | `clearActionTargets` |
+| 62 | function | `_armTargetTimeout` |
+| 102 | function | `_spawnMoveButtons` |
+| 157 | function | `onObjectDrop` |
+| 167 | function | `_handleStandeeDrop` |
+| 248 | function | `_spawnCraftButtons` |
+| 286 | function | `formatIngredientCost` |
+| 313 | function | `_spawnFightButtons` |
+| 344 | function | `onMoveTargetClick` |
+| 402 | function | `onCraftTargetClick` |
+| 436 | function | `onFightTargetClick` |
+| 440 | function | `onFightTogetherClick` |
+| 444 | function | `_highlightCraftTargets` |
+| 479 | function | `_highlightCookTargets` |
+| 484 | function | `_highlightCleanseTargets` |
 
 ## lua/ui_actionbar_handlers.lua (31 symbols)
 
@@ -557,33 +553,58 @@
 | 30 | function | `onActGather` |
 | 38 | function | `onActCraft` |
 | 61 | function | `onActCook` |
-| 101 | value | `COOK_DIALOG_SLOTS` |
-| 102 | table | `_cookDialogIds` |
-| 114 | function | `_showCookDialog` |
-| 154 | function | `onCookOptionClick` |
-| 163 | function | `onCookCancel` |
-| 169 | function | `onActFight` |
-| 197 | function | `onActRest` |
-| 205 | function | `onRestHunger` |
-| 216 | function | `onRestSanity` |
-| 227 | function | `onActPry` |
-| 235 | function | `onActCleanse` |
-| 251 | function | `onActPass` |
-| 279 | function | `refreshCombatPanel` |
-| 293 | function | `onPressAttack` |
-| 314 | function | `onFinishCombat` |
-| 325 | function | `onActTrade` |
-| 363 | function | `onTradeTargetClick` |
-| 373 | function | `onTradeCancel` |
-| 383 | function | `onActPeek` |
-| 394 | function | `onPeekDeckClick` |
-| 400 | function | `onPeekCancel` |
-| 410 | function | `onActRally` |
-| 435 | function | `onRallyTargetClick` |
-| 445 | function | `onRallyCancel` |
-| 455 | function | `onActUndo` |
-| 468 | function | `onDuskReadyClick` |
-| 473 | function | `onDuskMoveClick` |
+| 102 | value | `COOK_DIALOG_SLOTS` |
+| 103 | table | `_cookDialogIds` |
+| 115 | function | `_showCookDialog` |
+| 155 | function | `onCookOptionClick` |
+| 164 | function | `onCookCancel` |
+| 170 | function | `onActFight` |
+| 198 | function | `onActRest` |
+| 206 | function | `onRestHunger` |
+| 217 | function | `onRestSanity` |
+| 228 | function | `onActPry` |
+| 236 | function | `onActCleanse` |
+| 252 | function | `onActPass` |
+| 280 | function | `refreshCombatPanel` |
+| 294 | function | `onPressAttack` |
+| 315 | function | `onFinishCombat` |
+| 326 | function | `onActTrade` |
+| 364 | function | `onTradeTargetClick` |
+| 374 | function | `onTradeCancel` |
+| 384 | function | `onActPeek` |
+| 395 | function | `onPeekDeckClick` |
+| 401 | function | `onPeekCancel` |
+| 411 | function | `onActRally` |
+| 436 | function | `onRallyTargetClick` |
+| 446 | function | `onRallyCancel` |
+| 456 | function | `onActUndo` |
+| 469 | function | `onDuskReadyClick` |
+| 474 | function | `onDuskMoveClick` |
+
+## lua/ui_actionbar_situational.lua (20 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 39 | function | `downedAlliesHere` |
+| 52 | function | `canRevive` |
+| 69 | function | `canStabilize` |
+| 80 | function | `canDefend` |
+| 90 | function | `canEnergyDrink` |
+| 104 | function | `canEatRaw` |
+| 118 | function | `canBarricade` |
+| 131 | function | `canAppeaseTreeguard` |
+| 149 | function | `canDrift` |
+| 188 | function | `onActRevive` |
+| 201 | function | `onActStabilize` |
+| 213 | function | `onDownedTargetClick` |
+| 235 | function | `onDownedCancel` |
+| 265 | function | `onActDefend` |
+| 269 | function | `onActEnergyDrink` |
+| 274 | function | `onActEatRaw` |
+| 280 | function | `onActBarricade` |
+| 284 | function | `onActAppease` |
+| 296 | table | `SITUATIONAL_ACTIONS` |
+| 319 | function | `refreshSituationalButtons` |
 
 ## lua/ui_actionbar_display.lua (12 symbols)
 
@@ -593,14 +614,14 @@
 | 54 | function | `refreshActionBar` |
 | 84 | function | `setActionCubes` |
 | 98 | function | `refreshActionButtonStates` |
-| 200 | table | `ENABLED_ACTIONS` |
-| 202 | function | `setActionEnabled` |
-| 226 | table | `CHAR_TRAIT_LINES` |
-| 234 | function | `refreshStatDisplay` |
-| 320 | value | `ACTION_TOOLTIP_DELAY` |
-| 322 | table | `ACTION_TOOLTIPS` |
-| 341 | function | `onActionTooltipEnter` |
-| 354 | function | `onActionTooltipExit` |
+| 204 | table | `ENABLED_ACTIONS` |
+| 206 | function | `setActionEnabled` |
+| 230 | table | `CHAR_TRAIT_LINES` |
+| 238 | function | `refreshStatDisplay` |
+| 324 | value | `ACTION_TOOLTIP_DELAY` |
+| 326 | table | `ACTION_TOOLTIPS` |
+| 345 | function | `onActionTooltipEnter` |
+| 358 | function | `onActionTooltipExit` |
 
 ## lua/ui_controls.lua (19 symbols)
 
@@ -619,12 +640,12 @@
 | 186 | function | `onHostBeginDay` |
 | 203 | function | `onHostResolveNight` |
 | 216 | function | `onHostEndTurn` |
-| 226 | function | `onHostRestart` |
-| 278 | function | `showEndOfDaySummary` |
-| 344 | function | `onSummaryClose` |
-| 352 | table | `TOOLTIP_DATA` |
-| 383 | function | `applyTooltips` |
-| 405 | function | `refreshDynamicTooltips` |
+| 233 | function | `onHostRestart` |
+| 285 | function | `showEndOfDaySummary` |
+| 351 | function | `onSummaryClose` |
+| 359 | table | `TOOLTIP_DATA` |
+| 390 | function | `applyTooltips` |
+| 412 | function | `refreshDynamicTooltips` |
 
 ## lua/ui_week_review.lua (9 symbols)
 
@@ -754,8 +775,8 @@
 | line | kind | symbol |
 |---|---|---|
 | 33 | value | `REACTION_SLOTS` |
-| 123 | function | `refreshReactionsPanel` |
-| 153 | function | `onReactionClick` |
+| 141 | function | `refreshReactionsPanel` |
+| 171 | function | `onReactionClick` |
 
 ## lua/ui_mood.lua (10 symbols)
 
@@ -763,14 +784,14 @@
 |---|---|---|
 | 13 | table | `LIGHTING_PRESETS` |
 | 45 | function | `setPhaseMood` |
-| 71 | function | `confirmEndDayEarly` |
-| 91 | function | `confirmSleepAloneAtCourt` |
-| 126 | function | `confirmLastHeart` |
-| 142 | function | `confirmMoveInjuredToThreat` |
-| 170 | function | `nudgeCameraAll` |
-| 188 | function | `nudgeCameraToBoss` |
-| 197 | function | `nudgeCameraToDawnCard` |
-| 204 | function | `nudgeCameraToDoom` |
+| 77 | function | `confirmEndDayEarly` |
+| 104 | function | `confirmSleepAloneAtCourt` |
+| 139 | function | `confirmLastHeart` |
+| 155 | function | `confirmMoveInjuredToThreat` |
+| 183 | function | `nudgeCameraAll` |
+| 201 | function | `nudgeCameraToBoss` |
+| 213 | function | `nudgeCameraToDawnCard` |
+| 220 | function | `nudgeCameraToDoom` |
 
 ## lua/audit.lua (9 symbols)
 
@@ -805,8 +826,8 @@
 | `ACH_ROWS_PER_PAGE` | lua/ui_achievements.lua | 11 |
 | `ACH_TOAST_SECONDS` | lua/ui_achievements.lua | 151 |
 | `ACTIONS_PER_TURN` | lua/global.lua | 110 |
-| `ACTION_TOOLTIPS` | lua/ui_actionbar_display.lua | 322 |
-| `ACTION_TOOLTIP_DELAY` | lua/ui_actionbar_display.lua | 320 |
+| `ACTION_TOOLTIPS` | lua/ui_actionbar_display.lua | 326 |
+| `ACTION_TOOLTIP_DELAY` | lua/ui_actionbar_display.lua | 324 |
 | `ASSETS` | lua/assets.lua | 15 |
 | `AUDIO` | lua/audio_manifest.lua | 6 |
 | `Audio` | lua/audio.lua | 24 |
@@ -824,28 +845,28 @@
 | `Audio.stopAmbience` | lua/audio.lua | 182 |
 | `Audio.stopBossLoop` | lua/audio.lua | 217 |
 | `Audio.threatNameToBossKey` | lua/audio.lua | 194 |
-| `BENCH_POSITION` | lua/helpers.lua | 331 |
+| `BENCH_POSITION` | lua/helpers.lua | 316 |
 | `BOARD_ART_URLS` | lua/assets.lua | 125 |
 | `BOARD_WORLD_SIZE` | lua/audit.lua | 76 |
 | `BOSS_BASE_STATS` | lua/actions_combat.lua | 24 |
 | `BOSS_KILL_NARRATIONS` | lua/combat.lua | 36 |
-| `BROADCAST_COLORS` | lua/global.lua | 269 |
-| `BTN_DARK_PLATE` | lua/helpers.lua | 80 |
-| `BTN_ON_DARK` | lua/helpers.lua | 81 |
+| `BROADCAST_COLORS` | lua/global.lua | 276 |
+| `BTN_DARK_PLATE` | lua/helpers.lua | 69 |
+| `BTN_ON_DARK` | lua/helpers.lua | 70 |
 | `BeginDay` | lua/day_loop.lua | 5 |
 | `CHARACTER_COLORS` | lua/global.lua | 78 |
 | `CHARACTER_HOMES` | lua/global.lua | 86 |
 | `CHARACTER_STATS` | lua/global.lua | 64 |
 | `CHAR_BRIEFINGS` | lua/character_briefings.lua | 9 |
-| `CHAR_SLOT_INDEX` | lua/helpers.lua | 303 |
-| `CHAR_TRAIT_LINES` | lua/ui_actionbar_display.lua | 226 |
+| `CHAR_SLOT_INDEX` | lua/helpers.lua | 288 |
+| `CHAR_TRAIT_LINES` | lua/ui_actionbar_display.lua | 230 |
 | `CLEANSE_COST` | lua/global.lua | 128 |
 | `CLEANSE_REDUCTION` | lua/global.lua | 129 |
 | `CLUES_FOR_TRUTH_RUN` | lua/clues.lua | 35 |
 | `CLUE_IDS` | lua/clues.lua | 34 |
 | `CLUE_SURFACE_DAYS` | lua/clues.lua | 106 |
 | `COMBAT_SPECIALS` | lua/actions_combat.lua | 32 |
-| `COOK_DIALOG_SLOTS` | lua/ui_actionbar_handlers.lua | 101 |
+| `COOK_DIALOG_SLOTS` | lua/ui_actionbar_handlers.lua | 102 |
 | `CUSTOM_UI_PANELS` | lua/ui_controls.lua | 108 |
 | `DAWN_EFFECTS` | lua/effects/dawn_effects.lua | 5 |
 | `DAWN_MANUAL_STEPS` | lua/effects/dawn_effects_dispatch.lua | 63 |
@@ -854,8 +875,8 @@
 | `DEFAULT_PATH_VARIANT` | lua/ui_actionbar_core.lua | 36 |
 | `DIFFICULTY_BLURBS` | lua/ui_setup.lua | 251 |
 | `DIFFICULTY_CYCLE` | lua/ui_setup.lua | 250 |
-| `DIFFICULTY_PARAMS` | lua/global.lua | 164 |
-| `DOOM_RATES` | lua/global.lua | 223 |
+| `DIFFICULTY_PARAMS` | lua/global.lua | 171 |
+| `DOOM_RATES` | lua/global.lua | 230 |
 | `DOOM_STEP0_X` | lua/setup.lua | 245 |
 | `DOOM_STEP30_X` | lua/setup.lua | 246 |
 | `DOOM_THRESHOLDS` | lua/global.lua | 117 |
@@ -863,13 +884,13 @@
 | `DOOM_TRACK_Z` | lua/setup.lua | 247 |
 | `EFFECT_RULES` | lua/ui_rules.lua | 37 |
 | `EFFECT_RULE_ORDER` | lua/ui_rules.lua | 68 |
-| `ENABLED_ACTIONS` | lua/ui_actionbar_display.lua | 200 |
+| `ENABLED_ACTIONS` | lua/ui_actionbar_display.lua | 204 |
 | `HELP_GLOSSARY` | lua/notebook_data.lua | 248 |
 | `HELP_PAGE_LINES` | lua/ui_help_pages.lua | 29 |
 | `HELP_PAGE_LINE_CHARS` | lua/ui_help_pages.lua | 30 |
 | `HELP_QUICKSTART` | lua/notebook_data.lua | 212 |
 | `HIGHLIGHT_DURATION` | lua/ui_actionbar_core.lua | 119 |
-| `LAST_NERVE_THRESHOLD` | lua/helpers.lua | 443 |
+| `LAST_NERVE_THRESHOLD` | lua/helpers.lua | 428 |
 | `LIGHTING_PRESETS` | lua/ui_mood.lua | 13 |
 | `LIGHT_SOURCES` | lua/night.lua | 278 |
 | `LOCATION_ADJACENCY` | lua/ui_actionbar_core.lua | 54 |
@@ -895,15 +916,17 @@
 | `REACTION_SLOTS` | lua/ui_reactions.lua | 33 |
 | `RECIPE_DATA` | lua/recipe_data.lua | 10 |
 | `RESOURCE_LABELS` | lua/ui_actionbar_core.lua | 148 |
-| `RESOURCE_ROW_INDEX` | lua/helpers.lua | 182 |
-| `RESOURCE_TYPES_LIST` | lua/helpers.lua | 151 |
+| `RESOURCE_ROW_INDEX` | lua/helpers.lua | 167 |
+| `RESOURCE_TYPES_LIST` | lua/helpers.lua | 136 |
+| `REVIVE_HEALTH_COST` | lua/global.lua | 136 |
 | `ResolveNight` | lua/night.lua | 36 |
-| `SCENARIOS` | lua/setup.lua | 320 |
+| `SCENARIOS` | lua/setup.lua | 306 |
 | `SCHEMA_VERSION` | lua/global.lua | 8 |
 | `SEALED_REWARDS` | lua/threat_types.lua | 126 |
 | `SELFTEST` | lua/selftest.lua | 19 |
 | `SIGNATURES` | lua/signatures.lua | 7 |
 | `SIGNATURE_NARRATIONS` | lua/signatures.lua | 25 |
+| `SITUATIONAL_ACTIONS` | lua/ui_actionbar_situational.lua | 296 |
 | `SOURCE_MAX_HP` | lua/combat.lua | 98 |
 | `SOURCE_SPLIT_HP` | lua/combat.lua | 99 |
 | `SUBPHASE_RULES` | lua/ui_rules.lua | 11 |
@@ -911,30 +934,30 @@
 | `THREAT_STATS` | lua/threat_types.lua | 65 |
 | `THREAT_STATS_BY_NAME` | lua/threat_types.lua | 120 |
 | `THREAT_TYPE_BY_NAME` | lua/threat_types.lua | 9 |
-| `TOOLTIP_DATA` | lua/ui_controls.lua | 352 |
+| `TOOLTIP_DATA` | lua/ui_controls.lua | 359 |
 | `TREEGUARD_STATS` | lua/treeguard.lua | 9 |
 | `TROPHY_BY_BOSS` | lua/combat.lua | 46 |
 | `WEAPON_DICE` | lua/market_data.lua | 114 |
 | `WHATNOW_HINTS` | lua/whatnow_hints.lua | 5 |
 | `WITNESS_SANITY_COST` | lua/actions_haunted.lua | 24 |
 | `_adjacentLocations` | lua/ui_actionbar_core.lua | 100 |
-| `_armTargetTimeout` | lua/ui_actionbar_targets.lua | 59 |
+| `_armTargetTimeout` | lua/ui_actionbar_targets.lua | 62 |
 | `_cardIdFromTags` | lua/ui_actionbar_core.lua | 183 |
-| `_cardSnapshot` | lua/day_loop.lua | 396 |
+| `_cardSnapshot` | lua/day_loop.lua | 397 |
 | `_checkIdle` | lua/turns.lua | 18 |
-| `_cookDialogIds` | lua/ui_actionbar_handlers.lua | 102 |
-| `_dawnCardRevealed` | lua/day_loop.lua | 423 |
-| `_findCardAtDawnRevealSpot` | lua/day_loop.lua | 412 |
-| `_handleStandeeDrop` | lua/ui_actionbar_targets.lua | 153 |
-| `_highlightCleanseTargets` | lua/ui_actionbar_targets.lua | 447 |
-| `_highlightCookTargets` | lua/ui_actionbar_targets.lua | 442 |
-| `_highlightCraftTargets` | lua/ui_actionbar_targets.lua | 407 |
+| `_cookDialogIds` | lua/ui_actionbar_handlers.lua | 103 |
+| `_dawnCardRevealed` | lua/day_loop.lua | 424 |
+| `_findCardAtDawnRevealSpot` | lua/day_loop.lua | 413 |
+| `_handleStandeeDrop` | lua/ui_actionbar_targets.lua | 167 |
+| `_highlightCleanseTargets` | lua/ui_actionbar_targets.lua | 484 |
+| `_highlightCookTargets` | lua/ui_actionbar_targets.lua | 479 |
+| `_highlightCraftTargets` | lua/ui_actionbar_targets.lua | 444 |
 | `_pickScarcityResource` | lua/crafting.lua | 125 |
 | `_resLabel` | lua/ui_actionbar_core.lua | 150 |
-| `_showCookDialog` | lua/ui_actionbar_handlers.lua | 114 |
-| `_spawnCraftButtons` | lua/ui_actionbar_targets.lua | 234 |
-| `_spawnFightButtons` | lua/ui_actionbar_targets.lua | 299 |
-| `_spawnMoveButtons` | lua/ui_actionbar_targets.lua | 88 |
+| `_showCookDialog` | lua/ui_actionbar_handlers.lua | 115 |
+| `_spawnCraftButtons` | lua/ui_actionbar_targets.lua | 248 |
+| `_spawnFightButtons` | lua/ui_actionbar_targets.lua | 313 |
+| `_spawnMoveButtons` | lua/ui_actionbar_targets.lua | 102 |
 | `achBeats` | lua/achievement_rules.lua | 84 |
 | `achBossDown` | lua/achievement_rules.lua | 61 |
 | `achChronicle` | lua/achievement_rules.lua | 20 |
@@ -957,10 +980,10 @@
 | `announceInventory` | lua/actions.lua | 298 |
 | `applyCounterAttack` | lua/combat_resolve.lua | 138 |
 | `applyPathVariant` | lua/ui_actionbar_core.lua | 68 |
-| `applyRandomScenario` | lua/setup.lua | 401 |
-| `applyScenario` | lua/setup.lua | 411 |
+| `applyRandomScenario` | lua/setup.lua | 387 |
+| `applyScenario` | lua/setup.lua | 397 |
 | `applyThreatDefeat` | lua/combat_resolve.lua | 98 |
-| `applyTooltips` | lua/ui_controls.lua | 383 |
+| `applyTooltips` | lua/ui_controls.lua | 390 |
 | `auditBoardGeometry` | lua/audit.lua | 84 |
 | `auditFirstLoad` | lua/audit.lua | 251 |
 | `auditHintCoverage` | lua/audit.lua | 179 |
@@ -969,56 +992,63 @@
 | `auditTooltips` | lua/audit.lua | 137 |
 | `beginCombat` | lua/combat_resolve.lua | 217 |
 | `beginDayPhase` | lua/turns.lua | 40 |
-| `beginDusk` | lua/day_loop.lua | 457 |
-| `beginNight` | lua/day_loop.lua | 598 |
-| `benchUnusedBoards` | lua/helpers.lua | 359 |
-| `benchUnusedCharacters` | lua/helpers.lua | 333 |
+| `beginDusk` | lua/day_loop.lua | 463 |
+| `beginNight` | lua/day_loop.lua | 604 |
+| `benchUnusedBoards` | lua/helpers.lua | 344 |
+| `benchUnusedCharacters` | lua/helpers.lua | 318 |
 | `boardArtUrl` | lua/ui_actionbar_core.lua | 62 |
 | `bossKeyForName` | lua/combat.lua | 108 |
 | `bossStatsFor` | lua/actions_combat.lua | 52 |
-| `broadcastEvent` | lua/global.lua | 277 |
+| `broadcastEvent` | lua/global.lua | 284 |
 | `buildAdjacency` | lua/ui_actionbar_core.lua | 41 |
 | `buildSessionLog` | lua/telemetry.lua | 110 |
 | `canAfford` | lua/ui_actionbar_core.lua | 191 |
+| `canAppeaseTreeguard` | lua/ui_actionbar_situational.lua | 131 |
+| `canBarricade` | lua/ui_actionbar_situational.lua | 118 |
+| `canDefend` | lua/ui_actionbar_situational.lua | 80 |
+| `canDrift` | lua/ui_actionbar_situational.lua | 149 |
+| `canEatRaw` | lua/ui_actionbar_situational.lua | 104 |
+| `canEnergyDrink` | lua/ui_actionbar_situational.lua | 90 |
 | `canFight` | lua/actions_combat.lua | 95 |
 | `canPeek` | lua/actions_social.lua | 148 |
 | `canPry` | lua/actions_social.lua | 389 |
 | `canRally` | lua/actions_social.lua | 237 |
+| `canRevive` | lua/ui_actionbar_situational.lua | 52 |
+| `canStabilize` | lua/ui_actionbar_situational.lua | 69 |
 | `canUseSignature` | lua/signatures.lua | 67 |
 | `canWitness` | lua/actions_haunted.lua | 42 |
 | `cancelGuidedSetup` | lua/ui_setup.lua | 81 |
-| `charHasCompany` | lua/helpers.lua | 452 |
-| `characterToColor` | lua/helpers.lua | 486 |
+| `charHasCompany` | lua/helpers.lua | 437 |
 | `checkAchievements` | lua/achievements.lua | 88 |
-| `checkBonusVictories` | lua/tick_victory.lua | 404 |
-| `checkDefeat` | lua/tick_victory.lua | 336 |
-| `checkDoomThresholds` | lua/day_loop.lua | 226 |
+| `checkBonusVictories` | lua/tick_victory.lua | 412 |
+| `checkDefeat` | lua/tick_victory.lua | 352 |
+| `checkDoomThresholds` | lua/day_loop.lua | 227 |
 | `checkDownState` | lua/tick_victory.lua | 185 |
 | `checkPlayerHasLight` | lua/night.lua | 296 |
 | `checkSourcePhase` | lua/combat.lua | 152 |
-| `checkVictory` | lua/tick_victory.lua | 370 |
+| `checkVictory` | lua/tick_victory.lua | 382 |
 | `checkWrongnessEntry` | lua/effects/dawn_effects_phase2.lua | 115 |
-| `clearActionTargets` | lua/ui_actionbar_targets.lua | 39 |
-| `clearHighlight` | lua/ui_banner.lua | 417 |
+| `clearActionTargets` | lua/ui_actionbar_targets.lua | 42 |
+| `clearHighlight` | lua/ui_banner.lua | 421 |
 | `clearSignatureTargets` | lua/signatures.lua | 179 |
 | `clueDueForRefill` | lua/clues.lua | 124 |
 | `clueIsOnOffer` | lua/clues.lua | 111 |
-| `colorToCharacter` | lua/helpers.lua | 477 |
-| `confirmEndDayEarly` | lua/ui_mood.lua | 71 |
-| `confirmLastHeart` | lua/ui_mood.lua | 126 |
-| `confirmMoveInjuredToThreat` | lua/ui_mood.lua | 142 |
-| `confirmSleepAloneAtCourt` | lua/ui_mood.lua | 91 |
+| `colorToCharacter` | lua/helpers.lua | 462 |
+| `confirmEndDayEarly` | lua/ui_mood.lua | 77 |
+| `confirmLastHeart` | lua/ui_mood.lua | 139 |
+| `confirmMoveInjuredToThreat` | lua/ui_mood.lua | 155 |
+| `confirmSleepAloneAtCourt` | lua/ui_mood.lua | 104 |
 | `cookTelltaleHeart` | lua/crafting.lua | 324 |
 | `countDuskReady` | lua/turns.lua | 276 |
-| `countFesteringThreats` | lua/day_loop.lua | 196 |
+| `countFesteringThreats` | lua/day_loop.lua | 197 |
 | `customUIHidden` | lua/ui_controls.lua | 106 |
 | `dealMarketDisplay` | lua/setup.lua | 204 |
 | `dealStartingHands` | lua/setup.lua | 147 |
-| `describeDoomDelta` | lua/global.lua | 250 |
+| `describeDoomDelta` | lua/global.lua | 257 |
 | `dispatchDawnEffect` | lua/effects/dawn_effects_dispatch.lua | 85 |
 | `doAppeaseTreeguard` | lua/treeguard.lua | 77 |
 | `doBarricade` | lua/actions_social.lua | 98 |
-| `doCleanse` | lua/tick_victory.lua | 315 |
+| `doCleanse` | lua/tick_victory.lua | 320 |
 | `doCook` | lua/crafting.lua | 203 |
 | `doCraft` | lua/crafting.lua | 48 |
 | `doDefend` | lua/actions_social.lua | 123 |
@@ -1041,88 +1071,87 @@
 | `doUndo` | lua/actions.lua | 23 |
 | `doWitness` | lua/actions_haunted.lua | 59 |
 | `doomStepWorld` | lua/setup.lua | 256 |
+| `downedAlliesHere` | lua/ui_actionbar_situational.lua | 39 |
 | `drawThreatsAt` | lua/night.lua | 85 |
 | `dropBossLoot` | lua/combat.lua | 54 |
 | `dumpSetupState` | lua/ui_setup.lua | 385 |
 | `endPlayerTurn` | lua/turns.lua | 135 |
 | `ensureAchievementVault` | lua/achievements.lua | 29 |
 | `ensureChronicle` | lua/ui_week_review.lua | 21 |
-| `ensurePlayerResources` | lua/helpers.lua | 154 |
+| `ensurePlayerResources` | lua/helpers.lua | 139 |
 | `exportAchievementCode` | lua/achievements.lua | 127 |
 | `exportSessionLog` | lua/telemetry.lua | 146 |
 | `fightTargetsAt` | lua/actions_combat.lua | 67 |
 | `finalizeGuidedSetup` | lua/ui_setup.lua | 698 |
 | `findAllByTag` | lua/helpers.lua | 9 |
 | `findOneByTag` | lua/helpers.lua | 19 |
-| `findOneByTags` | lua/helpers.lua | 26 |
-| `finishCombat` | lua/combat_resolve.lua | 381 |
+| `finishCombat` | lua/combat_resolve.lua | 386 |
 | `flashSplitLighting` | lua/combat.lua | 163 |
 | `flashVictoryLighting` | lua/combat.lua | 71 |
-| `formatIngredientCost` | lua/ui_actionbar_targets.lua | 272 |
-| `gameRoll` | lua/helpers.lua | 500 |
+| `formatIngredientCost` | lua/ui_actionbar_targets.lua | 286 |
+| `gameRoll` | lua/helpers.lua | 478 |
 | `gameState` | lua/global.lua | 10 |
 | `gatherRandomResources` | lua/actions.lua | 324 |
-| `getActivePlayerColors` | lua/helpers.lua | 464 |
+| `getActivePlayerColors` | lua/helpers.lua | 449 |
 | `getAttackDice` | lua/combat_resolve.lua | 26 |
-| `getBossPool` | lua/helpers.lua | 99 |
-| `getCharSlotPosition` | lua/helpers.lua | 305 |
-| `getCharacterStandee` | lua/helpers.lua | 112 |
-| `getDayCounter` | lua/helpers.lua | 95 |
-| `getDifficulty` | lua/global.lua | 182 |
-| `getDoomDelta` | lua/global.lua | 234 |
-| `getDoomLimit` | lua/global.lua | 187 |
-| `getDoomMarker` | lua/helpers.lua | 94 |
-| `getDoomRate` | lua/global.lua | 240 |
-| `getHandZone` | lua/helpers.lua | 120 |
-| `getHeartSupply` | lua/helpers.lua | 100 |
+| `getBossPool` | lua/helpers.lua | 88 |
+| `getCharSlotPosition` | lua/helpers.lua | 290 |
+| `getCharacterStandee` | lua/helpers.lua | 101 |
+| `getDayCounter` | lua/helpers.lua | 84 |
+| `getDifficulty` | lua/global.lua | 189 |
+| `getDoomDelta` | lua/global.lua | 241 |
+| `getDoomLimit` | lua/global.lua | 194 |
+| `getDoomMarker` | lua/helpers.lua | 83 |
+| `getDoomRate` | lua/global.lua | 247 |
+| `getHandZone` | lua/helpers.lua | 109 |
+| `getHeartSupply` | lua/helpers.lua | 89 |
 | `getHelpCharContent` | lua/ui_help.lua | 14 |
 | `getHelpDawnContent` | lua/ui_help.lua | 54 |
 | `getHelpDoomContent` | lua/ui_help.lua | 77 |
-| `getLocationTile` | lua/helpers.lua | 108 |
-| `getMainBoard` | lua/helpers.lua | 93 |
-| `getMarketDeck` | lua/helpers.lua | 96 |
-| `getMarketSlots` | lua/helpers.lua | 124 |
-| `getNextCTA` | lua/ui_banner.lua | 462 |
+| `getLocationTile` | lua/helpers.lua | 97 |
+| `getMainBoard` | lua/helpers.lua | 82 |
+| `getMarketDeck` | lua/helpers.lua | 85 |
+| `getMarketSlots` | lua/helpers.lua | 113 |
+| `getNextCTA` | lua/ui_banner.lua | 466 |
 | `getNextDoomThreshold` | lua/ui_banner.lua | 267 |
-| `getPathVariantBag` | lua/helpers.lua | 133 |
-| `getPhaseDeck` | lua/helpers.lua | 103 |
-| `getPhaseForDay` | lua/global.lua | 205 |
-| `getPlayerBoard` | lua/helpers.lua | 116 |
-| `getPlayerCarriedObjects` | lua/helpers.lua | 384 |
+| `getPhaseDeck` | lua/helpers.lua | 92 |
+| `getPhaseForDay` | lua/global.lua | 212 |
+| `getPlayerBoard` | lua/helpers.lua | 105 |
+| `getPlayerCarriedObjects` | lua/helpers.lua | 369 |
 | `getPlayerResources` | lua/ui_actionbar_core.lua | 132 |
-| `getResourceBag` | lua/helpers.lua | 137 |
-| `getSeverityLegend` | lua/helpers.lua | 101 |
-| `getSourceMaxHP` | lua/global.lua | 192 |
-| `getSourceSplitHP` | lua/global.lua | 200 |
-| `getThreatDeck` | lua/helpers.lua | 97 |
-| `getTotalDays` | lua/global.lua | 186 |
+| `getResourceBag` | lua/helpers.lua | 122 |
+| `getSeverityLegend` | lua/helpers.lua | 90 |
+| `getSourceMaxHP` | lua/global.lua | 199 |
+| `getSourceSplitHP` | lua/global.lua | 207 |
+| `getThreatDeck` | lua/helpers.lua | 86 |
+| `getTotalDays` | lua/global.lua | 193 |
 | `getTreeguardStandee` | lua/treeguard.lua | 11 |
-| `getVisitorDeck` | lua/helpers.lua | 98 |
-| `ghostDrift` | lua/tick_victory.lua | 296 |
-| `giveResource` | lua/helpers.lua | 248 |
-| `hasLastNerve` | lua/helpers.lua | 445 |
+| `getVisitorDeck` | lua/helpers.lua | 87 |
+| `ghostDrift` | lua/tick_victory.lua | 301 |
+| `giveResource` | lua/helpers.lua | 233 |
+| `hasLastNerve` | lua/helpers.lua | 430 |
 | `helpTabContent` | lua/ui_help.lua | 153 |
-| `highlightCTA` | lua/ui_banner.lua | 431 |
+| `highlightCTA` | lua/ui_banner.lua | 435 |
 | `identifyThreatType` | lua/night.lua | 349 |
 | `importAchievementCode` | lua/achievements.lua | 136 |
 | `isAchievementUnlocked` | lua/achievements.lua | 37 |
-| `isBossOnMap` | lua/day_loop.lua | 189 |
+| `isBossOnMap` | lua/day_loop.lua | 190 |
 | `isClueCard` | lua/clues.lua | 40 |
 | `isGuidedSetupRunning` | lua/ui_setup.lua | 19 |
-| `isLiveObject` | lua/helpers.lua | 47 |
+| `isLiveObject` | lua/helpers.lua | 36 |
 | `lockdownCriticalObjects` | lua/audit.lua | 25 |
 | `logMessage` | lua/ui_msglog.lua | 24 |
 | `lowestStatPlayer` | lua/effects/dawn_effects.lua | 53 |
 | `markBossDefeated` | lua/combat.lua | 231 |
 | `markTurnStart` | lua/telemetry.lua | 89 |
 | `maybeJamesReroll` | lua/combat_resolve.lua | 187 |
-| `migrateGameState` | lua/global.lua | 294 |
+| `migrateGameState` | lua/global.lua | 301 |
 | `moveDoomMarker` | lua/setup.lua | 271 |
 | `noteInteraction` | lua/turns.lua | 14 |
-| `nudgeCameraAll` | lua/ui_mood.lua | 170 |
-| `nudgeCameraToBoss` | lua/ui_mood.lua | 188 |
-| `nudgeCameraToDawnCard` | lua/ui_mood.lua | 197 |
-| `nudgeCameraToDoom` | lua/ui_mood.lua | 204 |
+| `nudgeCameraAll` | lua/ui_mood.lua | 183 |
+| `nudgeCameraToBoss` | lua/ui_mood.lua | 201 |
+| `nudgeCameraToDawnCard` | lua/ui_mood.lua | 213 |
+| `nudgeCameraToDoom` | lua/ui_mood.lua | 220 |
 | `offerOpeningSuggestion` | lua/ui_banner.lua | 56 |
 | `onAchievementsClick` | lua/ui_achievements.lua | 81 |
 | `onAchievementsClose` | lua/ui_achievements.lua | 94 |
@@ -1130,37 +1159,45 @@
 | `onAchievementsImportCode` | lua/ui_achievements.lua | 128 |
 | `onAchievementsNext` | lua/ui_achievements.lua | 104 |
 | `onAchievementsPrev` | lua/ui_achievements.lua | 99 |
-| `onActCleanse` | lua/ui_actionbar_handlers.lua | 235 |
+| `onActAppease` | lua/ui_actionbar_situational.lua | 284 |
+| `onActBarricade` | lua/ui_actionbar_situational.lua | 280 |
+| `onActCleanse` | lua/ui_actionbar_handlers.lua | 236 |
 | `onActCook` | lua/ui_actionbar_handlers.lua | 61 |
 | `onActCraft` | lua/ui_actionbar_handlers.lua | 38 |
-| `onActFight` | lua/ui_actionbar_handlers.lua | 169 |
+| `onActDefend` | lua/ui_actionbar_situational.lua | 265 |
+| `onActEatRaw` | lua/ui_actionbar_situational.lua | 274 |
+| `onActEnergyDrink` | lua/ui_actionbar_situational.lua | 269 |
+| `onActFight` | lua/ui_actionbar_handlers.lua | 170 |
 | `onActGather` | lua/ui_actionbar_handlers.lua | 30 |
 | `onActMove` | lua/ui_actionbar_handlers.lua | 8 |
-| `onActPass` | lua/ui_actionbar_handlers.lua | 251 |
-| `onActPeek` | lua/ui_actionbar_handlers.lua | 383 |
-| `onActPry` | lua/ui_actionbar_handlers.lua | 227 |
-| `onActRally` | lua/ui_actionbar_handlers.lua | 410 |
-| `onActRest` | lua/ui_actionbar_handlers.lua | 197 |
+| `onActPass` | lua/ui_actionbar_handlers.lua | 252 |
+| `onActPeek` | lua/ui_actionbar_handlers.lua | 384 |
+| `onActPry` | lua/ui_actionbar_handlers.lua | 228 |
+| `onActRally` | lua/ui_actionbar_handlers.lua | 411 |
+| `onActRest` | lua/ui_actionbar_handlers.lua | 198 |
+| `onActRevive` | lua/ui_actionbar_situational.lua | 188 |
 | `onActSignature` | lua/signatures.lua | 288 |
-| `onActTrade` | lua/ui_actionbar_handlers.lua | 325 |
-| `onActUndo` | lua/ui_actionbar_handlers.lua | 455 |
-| `onActionTooltipEnter` | lua/ui_actionbar_display.lua | 341 |
-| `onActionTooltipExit` | lua/ui_actionbar_display.lua | 354 |
-| `onBeginDayClick` | lua/setup.lua | 306 |
+| `onActStabilize` | lua/ui_actionbar_situational.lua | 201 |
+| `onActTrade` | lua/ui_actionbar_handlers.lua | 326 |
+| `onActUndo` | lua/ui_actionbar_handlers.lua | 456 |
+| `onActionTooltipEnter` | lua/ui_actionbar_display.lua | 345 |
+| `onActionTooltipExit` | lua/ui_actionbar_display.lua | 358 |
 | `onBriefBack` | lua/ui_setup.lua | 648 |
 | `onBriefDismiss` | lua/ui_setup.lua | 669 |
 | `onConfirmNo` | lua/ui_controls.lua | 37 |
 | `onConfirmYes` | lua/ui_controls.lua | 27 |
-| `onCookCancel` | lua/ui_actionbar_handlers.lua | 163 |
-| `onCookOptionClick` | lua/ui_actionbar_handlers.lua | 154 |
+| `onCookCancel` | lua/ui_actionbar_handlers.lua | 164 |
+| `onCookOptionClick` | lua/ui_actionbar_handlers.lua | 155 |
 | `onCopySessionLog` | lua/telemetry.lua | 152 |
-| `onCraftTargetClick` | lua/ui_actionbar_targets.lua | 365 |
+| `onCraftTargetClick` | lua/ui_actionbar_targets.lua | 402 |
 | `onDawnStepClick` | lua/ui_rules.lua | 330 |
-| `onDuskMoveClick` | lua/ui_actionbar_handlers.lua | 473 |
-| `onDuskReadyClick` | lua/ui_actionbar_handlers.lua | 468 |
-| `onFightTargetClick` | lua/ui_actionbar_targets.lua | 399 |
-| `onFightTogetherClick` | lua/ui_actionbar_targets.lua | 403 |
-| `onFinishCombat` | lua/ui_actionbar_handlers.lua | 314 |
+| `onDownedCancel` | lua/ui_actionbar_situational.lua | 235 |
+| `onDownedTargetClick` | lua/ui_actionbar_situational.lua | 213 |
+| `onDuskMoveClick` | lua/ui_actionbar_handlers.lua | 474 |
+| `onDuskReadyClick` | lua/ui_actionbar_handlers.lua | 469 |
+| `onFightTargetClick` | lua/ui_actionbar_targets.lua | 436 |
+| `onFightTogetherClick` | lua/ui_actionbar_targets.lua | 440 |
+| `onFinishCombat` | lua/ui_actionbar_handlers.lua | 315 |
 | `onHelpClick` | lua/ui_help.lua | 125 |
 | `onHelpClose` | lua/ui_help.lua | 135 |
 | `onHelpPageNext` | lua/ui_help.lua | 177 |
@@ -1169,56 +1206,56 @@
 | `onHostBeginDay` | lua/ui_controls.lua | 186 |
 | `onHostEndTurn` | lua/ui_controls.lua | 216 |
 | `onHostResolveNight` | lua/ui_controls.lua | 203 |
-| `onHostRestart` | lua/ui_controls.lua | 226 |
+| `onHostRestart` | lua/ui_controls.lua | 233 |
 | `onHostSetupGuided` | lua/ui_setup.lua | 867 |
-| `onLoad` | lua/global.lua | 359 |
-| `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 330 |
+| `onLoad` | lua/global.lua | 367 |
+| `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 344 |
 | `onMsgLogClear` | lua/ui_msglog.lua | 65 |
 | `onMsgLogHide` | lua/ui_msglog.lua | 70 |
 | `onMsgLogToggle` | lua/ui_msglog.lua | 55 |
-| `onObjectDrop` | lua/ui_actionbar_targets.lua | 143 |
-| `onPeekCancel` | lua/ui_actionbar_handlers.lua | 400 |
-| `onPeekDeckClick` | lua/ui_actionbar_handlers.lua | 394 |
+| `onObjectDrop` | lua/ui_actionbar_targets.lua | 157 |
+| `onPeekCancel` | lua/ui_actionbar_handlers.lua | 401 |
+| `onPeekDeckClick` | lua/ui_actionbar_handlers.lua | 395 |
 | `onPeekResultClose` | lua/actions_social.lua | 173 |
 | `onPickChar` | lua/ui_setup.lua | 527 |
 | `onPickPath` | lua/ui_setup.lua | 151 |
 | `onPosterizeTargetClick` | lua/signatures.lua | 220 |
-| `onPressAttack` | lua/ui_actionbar_handlers.lua | 293 |
-| `onRallyCancel` | lua/ui_actionbar_handlers.lua | 445 |
-| `onRallyTargetClick` | lua/ui_actionbar_handlers.lua | 435 |
-| `onReactionClick` | lua/ui_reactions.lua | 153 |
+| `onPressAttack` | lua/ui_actionbar_handlers.lua | 294 |
+| `onRallyCancel` | lua/ui_actionbar_handlers.lua | 446 |
+| `onRallyTargetClick` | lua/ui_actionbar_handlers.lua | 436 |
+| `onReactionClick` | lua/ui_reactions.lua | 171 |
 | `onResourcePickCancel` | lua/ui_controls.lua | 88 |
 | `onResourcePickClick` | lua/ui_controls.lua | 73 |
-| `onRestHunger` | lua/ui_actionbar_handlers.lua | 205 |
-| `onRestSanity` | lua/ui_actionbar_handlers.lua | 216 |
+| `onRestHunger` | lua/ui_actionbar_handlers.lua | 206 |
+| `onRestSanity` | lua/ui_actionbar_handlers.lua | 217 |
 | `onRulesToggle` | lua/ui_rules.lua | 283 |
-| `onSave` | lua/global.lua | 419 |
-| `onSetupClick` | lua/global.lua | 428 |
+| `onSave` | lua/global.lua | 427 |
+| `onSetupClick` | lua/global.lua | 436 |
 | `onSignatureCancel` | lua/signatures.lua | 279 |
 | `onSignatureTargetClick` | lua/signatures.lua | 264 |
-| `onSummaryClose` | lua/ui_controls.lua | 344 |
+| `onSummaryClose` | lua/ui_controls.lua | 351 |
 | `onToggleCustomUI` | lua/ui_controls.lua | 115 |
 | `onToggleDifficulty` | lua/ui_setup.lua | 258 |
 | `onToggleDuskSecret` | lua/ui_setup.lua | 204 |
 | `onToggleRotation` | lua/ui_setup.lua | 183 |
 | `onToggleScenario` | lua/ui_setup.lua | 191 |
 | `onToggleSolo` | lua/ui_setup.lua | 216 |
-| `onTradeCancel` | lua/ui_actionbar_handlers.lua | 373 |
-| `onTradeTargetClick` | lua/ui_actionbar_handlers.lua | 363 |
+| `onTradeCancel` | lua/ui_actionbar_handlers.lua | 374 |
+| `onTradeTargetClick` | lua/ui_actionbar_handlers.lua | 364 |
 | `onVariantsContinue` | lua/ui_setup.lua | 271 |
 | `onWeekReviewClose` | lua/ui_week_review.lua | 301 |
 | `onWhatNowClick` | lua/ui_help.lua | 243 |
 | `onWhatNowClose` | lua/ui_help.lua | 380 |
 | `paginateHelpText` | lua/ui_help_pages.lua | 52 |
 | `placeBossStandee` | lua/effects/dawn_effects.lua | 70 |
-| `placeCharacterAtTile` | lua/helpers.lua | 313 |
+| `placeCharacterAtTile` | lua/helpers.lua | 298 |
 | `playerHasBackpack` | lua/actions.lua | 312 |
 | `playerPryTool` | lua/actions_social.lua | 321 |
 | `poolBossStandee` | lua/effects/dawn_effects.lua | 104 |
 | `popAchievementToast` | lua/ui_achievements.lua | 159 |
 | `populateNotebook` | lua/ui_help.lua | 520 |
-| `pressAttack` | lua/combat_resolve.lua | 329 |
-| `pulseHandZone` | lua/ui_banner.lua | 499 |
+| `pressAttack` | lua/combat_resolve.lua | 334 |
+| `pulseHandZone` | lua/ui_banner.lua | 503 |
 | `quickStartCardText` | lua/ui_help.lua | 498 |
 | `quickStartTextForVariant` | lua/ui_help.lua | 473 |
 | `rallyTargets` | lua/actions_social.lua | 252 |
@@ -1241,53 +1278,53 @@
 | `refreshActionButtonReasons` | lua/ui_help.lua | 401 |
 | `refreshActionButtonStates` | lua/ui_actionbar_display.lua | 98 |
 | `refreshCharRoster` | lua/ui_banner.lua | 193 |
-| `refreshCombatPanel` | lua/ui_actionbar_handlers.lua | 279 |
+| `refreshCombatPanel` | lua/ui_actionbar_handlers.lua | 280 |
 | `refreshCycleStrip` | lua/ui_rules.lua | 352 |
 | `refreshDawnChecklist` | lua/ui_rules.lua | 296 |
 | `refreshDuskReadyLabel` | lua/turns.lua | 294 |
-| `refreshDynamicTooltips` | lua/ui_controls.lua | 405 |
+| `refreshDynamicTooltips` | lua/ui_controls.lua | 412 |
 | `refreshHelpPanel` | lua/ui_help.lua | 182 |
 | `refreshHostControls` | lua/ui_controls.lua | 157 |
 | `refreshMsgLog` | lua/ui_msglog.lua | 38 |
 | `refreshPhaseBanner` | lua/ui_banner.lua | 98 |
 | `refreshQuickStartCard` | lua/ui_help.lua | 514 |
-| `refreshReactionsPanel` | lua/ui_reactions.lua | 123 |
+| `refreshReactionsPanel` | lua/ui_reactions.lua | 141 |
 | `refreshRulesPanel` | lua/ui_rules.lua | 233 |
+| `refreshSituationalButtons` | lua/ui_actionbar_situational.lua | 319 |
 | `refreshStandeeTooltips` | lua/ui_banner.lua | 247 |
-| `refreshStatDisplay` | lua/ui_actionbar_display.lua | 234 |
-| `removeVisualTokens` | lua/helpers.lua | 244 |
+| `refreshStatDisplay` | lua/ui_actionbar_display.lua | 238 |
+| `removeVisualTokens` | lua/helpers.lua | 229 |
 | `reshowSetupStep` | lua/ui_setup.lua | 71 |
-| `resolveCharlieAttack` | lua/combat_resolve.lua | 395 |
-| `resolveCombat` | lua/combat_resolve.lua | 313 |
-| `resolveGroupCombat` | lua/combat_resolve.lua | 317 |
+| `resolveCharlieAttack` | lua/combat_resolve.lua | 400 |
+| `resolveCombat` | lua/combat_resolve.lua | 324 |
 | `resolveNightAtLocation` | lua/night.lua | 130 |
 | `resolveSleep` | lua/night.lua | 391 |
 | `resolveStorytelling` | lua/night.lua | 364 |
 | `resolveTick` | lua/tick_victory.lua | 8 |
 | `resolveWrongness` | lua/effects/dawn_effects_phase2.lua | 86 |
-| `revealDawnCard` | lua/day_loop.lua | 338 |
+| `revealDawnCard` | lua/day_loop.lua | 339 |
 | `revealDuskCommitments` | lua/turns.lua | 219 |
-| `revealFirstDawn` | lua/day_loop.lua | 325 |
-| `revealLastDawn` | lua/day_loop.lua | 281 |
+| `revealFirstDawn` | lua/day_loop.lua | 326 |
+| `revealLastDawn` | lua/day_loop.lua | 282 |
 | `revealTrophy` | lua/combat.lua | 295 |
 | `reviveCharacter` | lua/tick_victory.lua | 236 |
 | `rollAttackDice` | lua/combat.lua | 10 |
 | `rulebookText` | lua/ui_help_pages.lua | 101 |
 | `runSelfTest` | lua/selftest.lua | 139 |
-| `safeHasTag` | lua/helpers.lua | 59 |
-| `safeNickname` | lua/helpers.lua | 52 |
-| `safecall` | lua/helpers.lua | 506 |
+| `safeHasTag` | lua/helpers.lua | 48 |
+| `safeNickname` | lua/helpers.lua | 41 |
+| `safecall` | lua/helpers.lua | 484 |
 | `setActionCubes` | lua/ui_actionbar_display.lua | 84 |
-| `setActionEnabled` | lua/ui_actionbar_display.lua | 202 |
+| `setActionEnabled` | lua/ui_actionbar_display.lua | 206 |
 | `setActionTooltip` | lua/ui_help.lua | 449 |
-| `setButtonLabel` | lua/helpers.lua | 83 |
+| `setButtonLabel` | lua/helpers.lua | 72 |
 | `setNightOmen` | lua/ui_banner.lua | 88 |
 | `setPhaseMood` | lua/ui_mood.lua | 45 |
 | `showAchievementToast` | lua/ui_achievements.lua | 153 |
 | `showCharBriefing` | lua/ui_setup.lua | 636 |
 | `showCharPickForNextPlayer` | lua/ui_setup.lua | 407 |
 | `showConfirm` | lua/ui_controls.lua | 14 |
-| `showEndOfDaySummary` | lua/ui_controls.lua | 278 |
+| `showEndOfDaySummary` | lua/ui_controls.lua | 285 |
 | `showPeekResult` | lua/actions_social.lua | 163 |
 | `showResourcePicker` | lua/ui_controls.lua | 57 |
 | `showSignatureTargetDialog` | lua/signatures.lua | 243 |
@@ -1296,13 +1333,13 @@
 | `snapshotForUndo` | lua/actions.lua | 7 |
 | `sourceSplitIntoBeaks` | lua/combat.lua | 176 |
 | `spawnPosterizeTargets` | lua/signatures.lua | 188 |
-| `spawnResourceAtTile` | lua/helpers.lua | 258 |
+| `spawnResourceAtTile` | lua/helpers.lua | 243 |
 | `spendAction` | lua/turns.lua | 162 |
 | `startGuidedSetup` | lua/ui_setup.lua | 90 |
 | `startIdleWatcher` | lua/turns.lua | 32 |
 | `startStandeeBob` | lua/ui_banner.lua | 369 |
 | `stopIdleWatcher` | lua/turns.lua | 37 |
-| `stopStandeeBob` | lua/ui_banner.lua | 391 |
+| `stopStandeeBob` | lua/ui_banner.lua | 395 |
 | `stringToColorTint` | lua/ui_banner.lua | 355 |
 | `stripMarketHelp` | lua/crafting.lua | 39 |
 | `substitutePlaceholders` | lua/ui_help.lua | 384 |
@@ -1311,7 +1348,7 @@
 | `syncSourceHP` | lua/combat.lua | 118 |
 | `syncThreatHP` | lua/combat.lua | 144 |
 | `takeClueFromMarketDeck` | lua/clues.lua | 156 |
-| `takeResourceFromPlayer` | lua/helpers.lua | 285 |
+| `takeResourceFromPlayer` | lua/helpers.lua | 270 |
 | `threatStatsForCard` | lua/actions_combat.lua | 36 |
 | `toggleDuskReady` | lua/turns.lua | 307 |
 | `totalAchievementCount` | lua/achievements.lua | 47 |
@@ -1326,7 +1363,7 @@
 | `weekReviewHook` | lua/ui_week_review.lua | 172 |
 | `witnessTargets` | lua/actions_haunted.lua | 27 |
 
-## XML UI ids (297 ids)
+## XML UI ids (313 ids)
 
 *Element ids across xml/ (alphabetical). Lua targets these via `UI.show/hide/setAttribute`; onClick names the Lua handler.*
 
@@ -1386,23 +1423,30 @@
 | `achievementsPanel` | xml/achievements.xml | 33 | Panel |  |
 | `achievementsProgress` | xml/achievements.xml | 45 | Text |  |
 | `achievementsTitle` | xml/achievements.xml | 43 | Text |  |
+| `actAppease` | xml/hud.xml | 383 | Button | `onActAppease` |
+| `actBarricade` | xml/hud.xml | 377 | Button | `onActBarricade` |
 | `actCleanse` | xml/hud.xml | 309 | Button | `onActCleanse` |
 | `actCook` | xml/hud.xml | 294 | Button | `onActCook` |
 | `actCraft` | xml/hud.xml | 289 | Button | `onActCraft` |
+| `actDefend` | xml/hud.xml | 359 | Button | `onActDefend` |
+| `actEatRaw` | xml/hud.xml | 371 | Button | `onActEatRaw` |
+| `actEnergy` | xml/hud.xml | 365 | Button | `onActEnergyDrink` |
 | `actFight` | xml/hud.xml | 299 | Button | `onActFight` |
 | `actGather` | xml/hud.xml | 284 | Button | `onActGather` |
 | `actMove` | xml/hud.xml | 279 | Button | `onActMove` |
-| `actPass` | xml/hud.xml | 348 | Button | `onActPass` |
+| `actPass` | xml/hud.xml | 394 | Button | `onActPass` |
 | `actPeek` | xml/hud.xml | 326 | Button | `onActPeek` |
 | `actPry` | xml/hud.xml | 338 | Button | `onActPry` |
 | `actRally` | xml/hud.xml | 332 | Button | `onActRally` |
 | `actRest` | xml/hud.xml | 304 | Button | `onActRest` |
+| `actRevive` | xml/hud.xml | 347 | Button | `onActRevive` |
 | `actSignature` | xml/hud.xml | 319 | Button | `onActSignature` |
+| `actStabilize` | xml/hud.xml | 353 | Button | `onActStabilize` |
 | `actTrade` | xml/hud.xml | 314 | Button | `onActTrade` |
-| `actUndo` | xml/hud.xml | 343 | Button | `onActUndo` |
+| `actUndo` | xml/hud.xml | 389 | Button | `onActUndo` |
 | `actionBar` | xml/hud.xml | 264 | Panel |  |
-| `actionTooltip` | xml/hud.xml | 415 | Panel |  |
-| `actionTooltipText` | xml/hud.xml | 423 | Text |  |
+| `actionTooltip` | xml/hud.xml | 461 | Panel |  |
+| `actionTooltipText` | xml/hud.xml | 469 | Text |  |
 | `bannerActive` | xml/hud.xml | 50 | Text |  |
 | `bannerDay` | xml/hud.xml | 32 | Text |  |
 | `bannerDoom` | xml/hud.xml | 44 | Text |  |
@@ -1430,9 +1474,9 @@
 | `charName_James` | xml/setup.xml | 139 | Text |  |
 | `charName_Luca` | xml/setup.xml | 219 | Text |  |
 | `charName_Rayman` | xml/setup.xml | 179 | Text |  |
-| `charRoster` | xml/hud.xml | 507 | Panel |  |
-| `combatPanel` | xml/dialogs.xml | 498 | Panel |  |
-| `combatStatus` | xml/dialogs.xml | 506 | Text |  |
+| `charRoster` | xml/hud.xml | 553 | Panel |  |
+| `combatPanel` | xml/dialogs.xml | 539 | Panel |  |
+| `combatStatus` | xml/dialogs.xml | 547 | Text |  |
 | `confirmBody` | xml/dialogs.xml | 20 | Text |  |
 | `confirmDialog` | xml/dialogs.xml | 9 | Panel |  |
 | `confirmNo` | xml/dialogs.xml | 30 | Button | `onConfirmNo` |
@@ -1451,10 +1495,10 @@
 | `cookOpt7` | xml/dialogs.xml | 228 | Button | `onCookOptionClick` |
 | `cookOpt8` | xml/dialogs.xml | 231 | Button | `onCookOptionClick` |
 | `cookOpt9` | xml/dialogs.xml | 234 | Button | `onCookOptionClick` |
-| `cube1` | xml/hud.xml | 359 | Text |  |
-| `cube2` | xml/hud.xml | 360 | Text |  |
-| `cube3` | xml/hud.xml | 361 | Text |  |
-| `cubeLabel` | xml/hud.xml | 362 | Text |  |
+| `cube1` | xml/hud.xml | 405 | Text |  |
+| `cube2` | xml/hud.xml | 406 | Text |  |
+| `cube3` | xml/hud.xml | 407 | Text |  |
+| `cubeLabel` | xml/hud.xml | 408 | Text |  |
 | `cycleStrip` | xml/hud.xml | 123 | Panel |  |
 | `cycleText` | xml/hud.xml | 130 | Text |  |
 | `dawnChecklist` | xml/hud.xml | 141 | Panel |  |
@@ -1462,14 +1506,23 @@
 | `dawnStep_2` | xml/hud.xml | 157 | Button | `onDawnStepClick` |
 | `dawnStep_3` | xml/hud.xml | 160 | Button | `onDawnStepClick` |
 | `dawnStep_4` | xml/hud.xml | 163 | Button | `onDawnStepClick` |
-| `duskBadmintonCourt` | xml/dialogs.xml | 558 | Button | `onDuskMoveClick` |
-| `duskBasketballCourt` | xml/dialogs.xml | 553 | Button | `onDuskMoveClick` |
-| `duskEllieLucaHouse` | xml/dialogs.xml | 543 | Button | `onDuskMoveClick` |
-| `duskJamesHouse` | xml/dialogs.xml | 538 | Button | `onDuskMoveClick` |
-| `duskPanel` | xml/dialogs.xml | 525 | Panel |  |
-| `duskRaymanHouse` | xml/dialogs.xml | 548 | Button | `onDuskMoveClick` |
-| `duskReadyBtn` | xml/dialogs.xml | 565 | Button | `onDuskReadyClick` |
-| `finishCombatBtn` | xml/dialogs.xml | 513 | Button | `onFinishCombat` |
+| `downedBtn_Blue` | xml/dialogs.xml | 458 | Button | `onDownedTargetClick` |
+| `downedBtn_Green` | xml/dialogs.xml | 455 | Button | `onDownedTargetClick` |
+| `downedBtn_Red` | xml/dialogs.xml | 449 | Button | `onDownedTargetClick` |
+| `downedBtn_White` | xml/dialogs.xml | 446 | Button | `onDownedTargetClick` |
+| `downedBtn_Yellow` | xml/dialogs.xml | 452 | Button | `onDownedTargetClick` |
+| `downedCancel` | xml/dialogs.xml | 461 | Button | `onDownedCancel` |
+| `downedDialog` | xml/dialogs.xml | 433 | Panel |  |
+| `downedNote` | xml/dialogs.xml | 444 | Text |  |
+| `downedTitle` | xml/dialogs.xml | 442 | Text |  |
+| `duskBadmintonCourt` | xml/dialogs.xml | 599 | Button | `onDuskMoveClick` |
+| `duskBasketballCourt` | xml/dialogs.xml | 594 | Button | `onDuskMoveClick` |
+| `duskEllieLucaHouse` | xml/dialogs.xml | 584 | Button | `onDuskMoveClick` |
+| `duskJamesHouse` | xml/dialogs.xml | 579 | Button | `onDuskMoveClick` |
+| `duskPanel` | xml/dialogs.xml | 566 | Panel |  |
+| `duskRaymanHouse` | xml/dialogs.xml | 589 | Button | `onDuskMoveClick` |
+| `duskReadyBtn` | xml/dialogs.xml | 606 | Button | `onDuskReadyClick` |
+| `finishCombatBtn` | xml/dialogs.xml | 554 | Button | `onFinishCombat` |
 | `helpBody` | xml/dialogs.xml | 158 | Text |  |
 | `helpBtn` | xml/hud.xml | 76 | Button | `onHelpClick` |
 | `helpClose` | xml/dialogs.xml | 182 | Button | `onHelpClose` |
@@ -1513,7 +1566,7 @@
 | `pickRing` | xml/setup.xml | 42 | Button | `onPickPath` |
 | `pickSprawl` | xml/setup.xml | 31 | Button | `onPickPath` |
 | `pickStar` | xml/setup.xml | 46 | Button | `onPickPath` |
-| `pressAttackBtn` | xml/dialogs.xml | 509 | Button | `onPressAttack` |
+| `pressAttackBtn` | xml/dialogs.xml | 550 | Button | `onPressAttack` |
 | `rallyBtn_Blue` | xml/dialogs.xml | 417 | Button | `onRallyTargetClick` |
 | `rallyBtn_Green` | xml/dialogs.xml | 414 | Button | `onRallyTargetClick` |
 | `rallyBtn_Red` | xml/dialogs.xml | 408 | Button | `onRallyTargetClick` |
@@ -1521,63 +1574,63 @@
 | `rallyBtn_Yellow` | xml/dialogs.xml | 411 | Button | `onRallyTargetClick` |
 | `rallyCancel` | xml/dialogs.xml | 420 | Button | `onRallyCancel` |
 | `rallyDialog` | xml/dialogs.xml | 392 | Panel |  |
-| `reactBtn_1` | xml/hud.xml | 398 | Button | `onReactionClick` |
-| `reactBtn_2` | xml/hud.xml | 401 | Button | `onReactionClick` |
-| `reactBtn_3` | xml/hud.xml | 404 | Button | `onReactionClick` |
-| `reactionsPanel` | xml/hud.xml | 385 | Panel |  |
-| `resPickBattery` | xml/dialogs.xml | 484 | Button | `onResourcePickClick` |
-| `resPickCancel` | xml/dialogs.xml | 487 | Button | `onResourcePickCancel` |
-| `resPickCloth` | xml/dialogs.xml | 476 | Button | `onResourcePickClick` |
-| `resPickEnergy` | xml/dialogs.xml | 482 | Button | `onResourcePickClick` |
-| `resPickFood` | xml/dialogs.xml | 480 | Button | `onResourcePickClick` |
-| `resPickMetal` | xml/dialogs.xml | 474 | Button | `onResourcePickClick` |
-| `resPickWood` | xml/dialogs.xml | 472 | Button | `onResourcePickClick` |
-| `resourcePickBody` | xml/dialogs.xml | 469 | Text |  |
-| `resourcePickTitle` | xml/dialogs.xml | 467 | Text |  |
-| `resourcePickerDialog` | xml/dialogs.xml | 458 | Panel |  |
-| `restChoiceDialog` | xml/dialogs.xml | 429 | Panel |  |
-| `restHunger` | xml/dialogs.xml | 442 | Button | `onRestHunger` |
-| `restSanity` | xml/dialogs.xml | 446 | Button | `onRestSanity` |
-| `rosterHealthVal_Coco` | xml/hud.xml | 571 | Text |  |
-| `rosterHealthVal_Ellie` | xml/hud.xml | 647 | Text |  |
-| `rosterHealthVal_James` | xml/hud.xml | 533 | Text |  |
-| `rosterHealthVal_Luca` | xml/hud.xml | 685 | Text |  |
-| `rosterHealthVal_Rayman` | xml/hud.xml | 609 | Text |  |
-| `rosterHealth_Coco` | xml/hud.xml | 568 | ProgressBar |  |
-| `rosterHealth_Ellie` | xml/hud.xml | 644 | ProgressBar |  |
-| `rosterHealth_James` | xml/hud.xml | 530 | ProgressBar |  |
-| `rosterHealth_Luca` | xml/hud.xml | 682 | ProgressBar |  |
-| `rosterHealth_Rayman` | xml/hud.xml | 606 | ProgressBar |  |
-| `rosterHungerVal_Coco` | xml/hud.xml | 581 | Text |  |
-| `rosterHungerVal_Ellie` | xml/hud.xml | 657 | Text |  |
-| `rosterHungerVal_James` | xml/hud.xml | 543 | Text |  |
-| `rosterHungerVal_Luca` | xml/hud.xml | 695 | Text |  |
-| `rosterHungerVal_Rayman` | xml/hud.xml | 619 | Text |  |
-| `rosterHunger_Coco` | xml/hud.xml | 578 | ProgressBar |  |
-| `rosterHunger_Ellie` | xml/hud.xml | 654 | ProgressBar |  |
-| `rosterHunger_James` | xml/hud.xml | 540 | ProgressBar |  |
-| `rosterHunger_Luca` | xml/hud.xml | 692 | ProgressBar |  |
-| `rosterHunger_Rayman` | xml/hud.xml | 616 | ProgressBar |  |
-| `rosterName_Coco` | xml/hud.xml | 562 | Text |  |
-| `rosterName_Ellie` | xml/hud.xml | 638 | Text |  |
-| `rosterName_James` | xml/hud.xml | 524 | Text |  |
-| `rosterName_Luca` | xml/hud.xml | 676 | Text |  |
-| `rosterName_Rayman` | xml/hud.xml | 600 | Text |  |
-| `rosterRow_Coco` | xml/hud.xml | 560 | Panel |  |
-| `rosterRow_Ellie` | xml/hud.xml | 636 | Panel |  |
-| `rosterRow_James` | xml/hud.xml | 522 | Panel |  |
-| `rosterRow_Luca` | xml/hud.xml | 674 | Panel |  |
-| `rosterRow_Rayman` | xml/hud.xml | 598 | Panel |  |
-| `rosterSanityVal_Coco` | xml/hud.xml | 591 | Text |  |
-| `rosterSanityVal_Ellie` | xml/hud.xml | 667 | Text |  |
-| `rosterSanityVal_James` | xml/hud.xml | 553 | Text |  |
-| `rosterSanityVal_Luca` | xml/hud.xml | 705 | Text |  |
-| `rosterSanityVal_Rayman` | xml/hud.xml | 629 | Text |  |
-| `rosterSanity_Coco` | xml/hud.xml | 588 | ProgressBar |  |
-| `rosterSanity_Ellie` | xml/hud.xml | 664 | ProgressBar |  |
-| `rosterSanity_James` | xml/hud.xml | 550 | ProgressBar |  |
-| `rosterSanity_Luca` | xml/hud.xml | 702 | ProgressBar |  |
-| `rosterSanity_Rayman` | xml/hud.xml | 626 | ProgressBar |  |
+| `reactBtn_1` | xml/hud.xml | 444 | Button | `onReactionClick` |
+| `reactBtn_2` | xml/hud.xml | 447 | Button | `onReactionClick` |
+| `reactBtn_3` | xml/hud.xml | 450 | Button | `onReactionClick` |
+| `reactionsPanel` | xml/hud.xml | 431 | Panel |  |
+| `resPickBattery` | xml/dialogs.xml | 525 | Button | `onResourcePickClick` |
+| `resPickCancel` | xml/dialogs.xml | 528 | Button | `onResourcePickCancel` |
+| `resPickCloth` | xml/dialogs.xml | 517 | Button | `onResourcePickClick` |
+| `resPickEnergy` | xml/dialogs.xml | 523 | Button | `onResourcePickClick` |
+| `resPickFood` | xml/dialogs.xml | 521 | Button | `onResourcePickClick` |
+| `resPickMetal` | xml/dialogs.xml | 515 | Button | `onResourcePickClick` |
+| `resPickWood` | xml/dialogs.xml | 513 | Button | `onResourcePickClick` |
+| `resourcePickBody` | xml/dialogs.xml | 510 | Text |  |
+| `resourcePickTitle` | xml/dialogs.xml | 508 | Text |  |
+| `resourcePickerDialog` | xml/dialogs.xml | 499 | Panel |  |
+| `restChoiceDialog` | xml/dialogs.xml | 470 | Panel |  |
+| `restHunger` | xml/dialogs.xml | 483 | Button | `onRestHunger` |
+| `restSanity` | xml/dialogs.xml | 487 | Button | `onRestSanity` |
+| `rosterHealthVal_Coco` | xml/hud.xml | 617 | Text |  |
+| `rosterHealthVal_Ellie` | xml/hud.xml | 693 | Text |  |
+| `rosterHealthVal_James` | xml/hud.xml | 579 | Text |  |
+| `rosterHealthVal_Luca` | xml/hud.xml | 731 | Text |  |
+| `rosterHealthVal_Rayman` | xml/hud.xml | 655 | Text |  |
+| `rosterHealth_Coco` | xml/hud.xml | 614 | ProgressBar |  |
+| `rosterHealth_Ellie` | xml/hud.xml | 690 | ProgressBar |  |
+| `rosterHealth_James` | xml/hud.xml | 576 | ProgressBar |  |
+| `rosterHealth_Luca` | xml/hud.xml | 728 | ProgressBar |  |
+| `rosterHealth_Rayman` | xml/hud.xml | 652 | ProgressBar |  |
+| `rosterHungerVal_Coco` | xml/hud.xml | 627 | Text |  |
+| `rosterHungerVal_Ellie` | xml/hud.xml | 703 | Text |  |
+| `rosterHungerVal_James` | xml/hud.xml | 589 | Text |  |
+| `rosterHungerVal_Luca` | xml/hud.xml | 741 | Text |  |
+| `rosterHungerVal_Rayman` | xml/hud.xml | 665 | Text |  |
+| `rosterHunger_Coco` | xml/hud.xml | 624 | ProgressBar |  |
+| `rosterHunger_Ellie` | xml/hud.xml | 700 | ProgressBar |  |
+| `rosterHunger_James` | xml/hud.xml | 586 | ProgressBar |  |
+| `rosterHunger_Luca` | xml/hud.xml | 738 | ProgressBar |  |
+| `rosterHunger_Rayman` | xml/hud.xml | 662 | ProgressBar |  |
+| `rosterName_Coco` | xml/hud.xml | 608 | Text |  |
+| `rosterName_Ellie` | xml/hud.xml | 684 | Text |  |
+| `rosterName_James` | xml/hud.xml | 570 | Text |  |
+| `rosterName_Luca` | xml/hud.xml | 722 | Text |  |
+| `rosterName_Rayman` | xml/hud.xml | 646 | Text |  |
+| `rosterRow_Coco` | xml/hud.xml | 606 | Panel |  |
+| `rosterRow_Ellie` | xml/hud.xml | 682 | Panel |  |
+| `rosterRow_James` | xml/hud.xml | 568 | Panel |  |
+| `rosterRow_Luca` | xml/hud.xml | 720 | Panel |  |
+| `rosterRow_Rayman` | xml/hud.xml | 644 | Panel |  |
+| `rosterSanityVal_Coco` | xml/hud.xml | 637 | Text |  |
+| `rosterSanityVal_Ellie` | xml/hud.xml | 713 | Text |  |
+| `rosterSanityVal_James` | xml/hud.xml | 599 | Text |  |
+| `rosterSanityVal_Luca` | xml/hud.xml | 751 | Text |  |
+| `rosterSanityVal_Rayman` | xml/hud.xml | 675 | Text |  |
+| `rosterSanity_Coco` | xml/hud.xml | 634 | ProgressBar |  |
+| `rosterSanity_Ellie` | xml/hud.xml | 710 | ProgressBar |  |
+| `rosterSanity_James` | xml/hud.xml | 596 | ProgressBar |  |
+| `rosterSanity_Luca` | xml/hud.xml | 748 | ProgressBar |  |
+| `rosterSanity_Rayman` | xml/hud.xml | 672 | ProgressBar |  |
 | `rulesBody` | xml/hud.xml | 253 | Text |  |
 | `rulesPanel` | xml/hud.xml | 233 | Panel |  |
 | `rulesToggle` | xml/hud.xml | 246 | Button | `onRulesToggle` |
@@ -1591,17 +1644,17 @@
 | `sigTargetBtn_Yellow` | xml/dialogs.xml | 307 | Button | `onSignatureTargetClick` |
 | `sigTargetCancel` | xml/dialogs.xml | 316 | Button | `onSignatureCancel` |
 | `signatureTargetDialog` | xml/dialogs.xml | 288 | Panel |  |
-| `statCharName` | xml/hud.xml | 443 | Text |  |
-| `statDisplay` | xml/hud.xml | 433 | Panel |  |
-| `statHealthBar` | xml/hud.xml | 451 | ProgressBar |  |
-| `statHealthVal` | xml/hud.xml | 454 | Text |  |
-| `statHungerBar` | xml/hud.xml | 463 | ProgressBar |  |
-| `statHungerVal` | xml/hud.xml | 466 | Text |  |
-| `statLocation` | xml/hud.xml | 483 | Text |  |
-| `statPerks` | xml/hud.xml | 496 | Text |  |
-| `statResources` | xml/hud.xml | 487 | Text |  |
-| `statSanityBar` | xml/hud.xml | 475 | ProgressBar |  |
-| `statSanityVal` | xml/hud.xml | 478 | Text |  |
+| `statCharName` | xml/hud.xml | 489 | Text |  |
+| `statDisplay` | xml/hud.xml | 479 | Panel |  |
+| `statHealthBar` | xml/hud.xml | 497 | ProgressBar |  |
+| `statHealthVal` | xml/hud.xml | 500 | Text |  |
+| `statHungerBar` | xml/hud.xml | 509 | ProgressBar |  |
+| `statHungerVal` | xml/hud.xml | 512 | Text |  |
+| `statLocation` | xml/hud.xml | 529 | Text |  |
+| `statPerks` | xml/hud.xml | 542 | Text |  |
+| `statResources` | xml/hud.xml | 533 | Text |  |
+| `statSanityBar` | xml/hud.xml | 521 | ProgressBar |  |
+| `statSanityVal` | xml/hud.xml | 524 | Text |  |
 | `step2Subtitle` | xml/setup.xml | 130 | Text |  |
 | `step2Title` | xml/setup.xml | 128 | Text |  |
 | `summaryBody` | xml/dialogs.xml | 54 | Text |  |

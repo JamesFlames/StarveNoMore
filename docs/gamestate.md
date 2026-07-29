@@ -4,7 +4,7 @@
 
 Every field of `gameState`, where its default comes from, and which files touch it. `gameState` is the game's single source of truth and is persisted whole by `onSave`, so "who clears this?" and "what is this when a save is restored?" are the two questions that come up constantly.
 
-**71 fields** across **41 files**. 35 have a declared default in `migrateGameState()` (`lua/global.lua`); 36 are deliberately transient (see the table's *lifetime* column).
+**72 fields** across **42 files**. 36 have a declared default in `migrateGameState()` (`lua/global.lua`); 36 are deliberately transient (see the table's *lifetime* column).
 
 ## Persistence
 
@@ -20,10 +20,10 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 |---|---|---|---|---|
 | `achievements` | `{}` | declared | `achievements.lua` | `achievements.lua`, `ui_controls.lua` |
 | `actedThisVisit` | `false` | declared | `actions.lua`, `turns.lua` | `turns.lua` |
-| `activeChars` | `{}` | declared | `selftest.lua`, `setup.lua`, `ui_setup.lua` | `achievement_rules.lua`, `actions.lua`, `actions_combat.lua`, `actions_haunted.lua`, `actions_social.lua`, `clues.lua`, `combat_resolve.lua`, `crafting.lua`, `day_loop.lua`, `effects/dawn_effects.lua`, `effects/dawn_effects_dispatch.lua`, `effects/dawn_effects_phase1.lua`, `effects/dawn_effects_phase2.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `helpers.lua`, `night.lua`, `selftest.lua`, `setup.lua`, `signatures.lua`, `telemetry.lua`, `tick_victory.lua`, `treeguard.lua`, `turns.lua`, `ui_actionbar_core.lua`, `ui_actionbar_display.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_targets.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_mood.lua`, `ui_reactions.lua`, `ui_rules.lua`, `ui_setup.lua`, `ui_week_review.lua` |
+| `activeChars` | `{}` | declared | `selftest.lua`, `setup.lua`, `ui_setup.lua` | `achievement_rules.lua`, `actions.lua`, `actions_combat.lua`, `actions_haunted.lua`, `actions_social.lua`, `clues.lua`, `combat_resolve.lua`, `crafting.lua`, `day_loop.lua`, `effects/dawn_effects.lua`, `effects/dawn_effects_dispatch.lua`, `effects/dawn_effects_phase1.lua`, `effects/dawn_effects_phase2.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `helpers.lua`, `night.lua`, `selftest.lua`, `setup.lua`, `signatures.lua`, `telemetry.lua`, `tick_victory.lua`, `treeguard.lua`, `turns.lua`, `ui_actionbar_core.lua`, `ui_actionbar_display.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_situational.lua`, `ui_actionbar_targets.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_mood.lua`, `ui_reactions.lua`, `ui_rules.lua`, `ui_setup.lua`, `ui_week_review.lua` |
 | `activeColor` | — | nil is the default | `selftest.lua`, `turns.lua` | `combat_resolve.lua`, `selftest.lua`, `turns.lua`, `ui_actionbar_display.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_targets.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_reactions.lua` |
 | `activeDawn` | — | nil is the default | `day_loop.lua`, `selftest.lua` | `day_loop.lua`, `effects/dawn_effects_dispatch.lua`, `ui_help.lua` |
-| `barricades` | — | world state | `actions_social.lua`, `night.lua` | `actions_social.lua`, `day_loop.lua`, `night.lua` |
+| `barricades` | — | world state | `actions_social.lua`, `night.lua` | `actions_social.lua`, `day_loop.lua`, `night.lua`, `ui_actionbar_situational.lua` |
 | `basementOpened` | — | world state | `actions_social.lua`, `setup.lua`, `ui_setup.lua` | `actions_social.lua` |
 | `bossHP` | `{}` | declared | `combat.lua`, `effects/dawn_effects_phase2.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `setup.lua`, `ui_setup.lua` | `combat.lua`, `combat_resolve.lua`, `effects/dawn_effects_phase2.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `ui_rules.lua`, `ui_week_review.lua` |
 | `bossesDefeated` | — | world state | `combat.lua` | `achievement_rules.lua`, `combat.lua`, `tick_victory.lua` |
@@ -39,6 +39,7 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 | `dayStartStats` | — | per-day | `day_loop.lua` | `day_loop.lua`, `ui_controls.lua` |
 | `difficulty` | `"standard"` | declared | `setup.lua`, `ui_setup.lua` | `achievement_rules.lua`, `global.lua`, `setup.lua`, `telemetry.lua`, `ui_setup.lua` |
 | `doom` | `0` | declared | `actions.lua`, `combat.lua`, `day_loop.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `selftest.lua`, `setup.lua`, `tick_victory.lua`, `ui_setup.lua` | `achievement_rules.lua`, `actions.lua`, `combat.lua`, `day_loop.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `global.lua`, `selftest.lua`, `telemetry.lua`, `tick_victory.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_week_review.lua` |
+| `driftedThisRound` | `{}` | declared | `day_loop.lua`, `ui_actionbar_targets.lua` | `ui_actionbar_situational.lua`, `ui_actionbar_targets.lua` |
 | `duskMoves` | — | per-turn | `actions.lua`, `day_loop.lua` | `actions.lua` |
 | `duskPending` | `{}` | declared | `actions.lua`, `day_loop.lua`, `setup.lua`, `turns.lua`, `ui_setup.lua` | `actions.lua`, `turns.lua` |
 | `duskReady` | — | per-turn | `day_loop.lua`, `turns.lua` | `turns.lua` |
@@ -47,7 +48,7 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 | `gameCounted` | — | end of game | `achievements.lua` | `achievements.lua` |
 | `gameOverCause` | — | end of game | `setup.lua`, `tick_victory.lua`, `ui_setup.lua` | `achievement_rules.lua`, `telemetry.lua`, `ui_help.lua`, `ui_week_review.lua` |
 | `haunted` | `{}` | declared | `day_loop.lua` | `actions_haunted.lua`, `day_loop.lua`, `ui_rules.lua` |
-| `heartCount` | — | world state | `crafting.lua`, `tick_victory.lua` | `crafting.lua`, `tick_victory.lua`, `ui_mood.lua` |
+| `heartCount` | — | world state | `crafting.lua`, `tick_victory.lua` | `crafting.lua`, `tick_victory.lua`, `ui_actionbar_situational.lua`, `ui_mood.lua` |
 | `idleNudgedThisTurn` | `false` | declared | `turns.lua` | `turns.lua` |
 | `jamesEnergyDrinkUsed` | — | per-day | `actions_social.lua`, `selftest.lua`, `tick_victory.lua` | `day_loop.lua`, `tick_victory.lua`, `ui_help.lua`, `ui_rules.lua` |
 | `jamesPeekUsed` | — | per-day | `actions_social.lua`, `day_loop.lua` | `actions_social.lua`, `ui_help.lua` |
@@ -62,12 +63,12 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 | `ongoingDawnEffects` | `{}` | declared | `selftest.lua` | `achievement_rules.lua`, `actions.lua`, `combat.lua`, `combat_resolve.lua`, `crafting.lua`, `day_loop.lua`, `effects/dawn_effects_dispatch.lua`, `effects/dawn_effects_phase1.lua`, `effects/dawn_effects_phase2.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `night.lua`, `setup.lua`, `tick_victory.lua`, `ui_actionbar_core.lua`, `ui_help.lua`, `ui_rules.lua` |
 | `openingOffered` | `{}` | declared | `setup.lua`, `ui_banner.lua`, `ui_setup.lua` | `ui_banner.lua` |
 | `pathVariant` | — | nil is the default | `ui_actionbar_core.lua` | `telemetry.lua`, `ui_setup.lua` |
-| `pendingAction` | — | per-turn | `signatures.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_targets.lua` | `signatures.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_targets.lua` |
+| `pendingAction` | — | per-turn | `signatures.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_situational.lua`, `ui_actionbar_targets.lua`, `ui_reactions.lua` | `signatures.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_situational.lua`, `ui_actionbar_targets.lua` |
 | `pendingSanityPenalty` | `{}` | declared | `setup.lua`, `signatures.lua`, `tick_victory.lua`, `ui_setup.lua` | `signatures.lua`, `tick_victory.lua`, `ui_rules.lua` |
 | `phase` | `1` | declared | `day_loop.lua`, `selftest.lua`, `setup.lua`, `ui_setup.lua` | `actions_social.lua`, `day_loop.lua`, `effects/dawn_effects_phase1.lua`, `global.lua`, `ui_banner.lua` |
 | `playerCount` | `0` | declared | `setup.lua`, `ui_setup.lua` | `global.lua`, `night.lua`, `selftest.lua`, `telemetry.lua`, `tick_victory.lua` |
 | `raymanBonusMove` | — | per-day | `actions.lua` | `actions.lua`, `ui_actionbar_targets.lua` |
-| `raymanDefending` | — | per-day | `actions_social.lua`, `day_loop.lua`, `turns.lua` | `combat_resolve.lua`, `turns.lua` |
+| `raymanDefending` | — | per-day | `actions_social.lua`, `day_loop.lua`, `turns.lua` | `combat_resolve.lua`, `turns.lua`, `ui_actionbar_situational.lua` |
 | `raymanFoughtToday` | — | per-day | `combat_resolve.lua`, `day_loop.lua` | `tick_victory.lua` |
 | `raymanMovedToday` | — | per-day | `actions.lua`, `day_loop.lua`, `turns.lua` | `actions.lua`, `night.lua` |
 | `raymanTilesMovedToday` | `0` | declared | `actions.lua`, `day_loop.lua`, `turns.lua` | `actions.lua`, `night.lua`, `tick_victory.lua`, `turns.lua` |
@@ -77,10 +78,10 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 | `solo` | `false` | declared | `ui_setup.lua` | `achievement_rules.lua`, `telemetry.lua`, `ui_rules.lua`, `ui_setup.lua` |
 | `sourceSplit` | — | world state | `combat.lua`, `effects/dawn_effects_phase4.lua`, `setup.lua`, `ui_setup.lua` | `combat.lua`, `ui_rules.lua` |
 | `started` | `false` | declared | `selftest.lua`, `setup.lua`, `ui_setup.lua` | `global.lua`, `selftest.lua`, `setup.lua`, `ui_actionbar_display.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_reactions.lua`, `ui_rules.lua`, `ui_setup.lua` |
-| `subPhase` | `"PreGame"` | declared | `day_loop.lua`, `selftest.lua`, `setup.lua`, `tick_victory.lua`, `turns.lua`, `ui_setup.lua` | `actions.lua`, `audio.lua`, `selftest.lua`, `setup.lua`, `tick_victory.lua`, `turns.lua`, `ui_actionbar_display.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_targets.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_reactions.lua`, `ui_rules.lua` |
+| `subPhase` | `"PreGame"` | declared | `day_loop.lua`, `selftest.lua`, `setup.lua`, `tick_victory.lua`, `turns.lua`, `ui_setup.lua` | `actions.lua`, `audio.lua`, `selftest.lua`, `tick_victory.lua`, `turns.lua`, `ui_actionbar_display.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_situational.lua`, `ui_actionbar_targets.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_reactions.lua`, `ui_rules.lua` |
 | `threatDamage` | `{}` | declared | `combat.lua`, `setup.lua`, `ui_setup.lua` | `actions_combat.lua`, `combat.lua`, `combat_resolve.lua`, `ui_actionbar_targets.lua` |
 | `tradesThisTurn` | — | per-turn | `actions_social.lua`, `turns.lua` | `actions_social.lua`, `ui_actionbar_handlers.lua` |
-| `treeguard` | — | world state | `selftest.lua`, `treeguard.lua` | `actions.lua`, `combat.lua`, `combat_resolve.lua`, `day_loop.lua`, `treeguard.lua`, `ui_rules.lua` |
+| `treeguard` | — | world state | `selftest.lua`, `treeguard.lua` | `actions.lua`, `combat.lua`, `combat_resolve.lua`, `day_loop.lua`, `treeguard.lua`, `ui_actionbar_situational.lua`, `ui_rules.lua` |
 | `turnIndex` | `0` | declared | `selftest.lua`, `setup.lua`, `turns.lua`, `ui_setup.lua` | `turns.lua` |
 | `turnOrder` | `{}` | declared | `selftest.lua`, `setup.lua`, `ui_setup.lua` | `effects/dawn_effects_phase3.lua`, `telemetry.lua`, `turns.lua` |
 | `turnStartedAt` | — | per-turn | `telemetry.lua` | `telemetry.lua` |

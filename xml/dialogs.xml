@@ -424,6 +424,47 @@
 </Panel>
 
 <!-- ================================================================== -->
+<!-- DOWNED-ALLY DIALOG — shared by Revive (§16.4, a Telltale Heart)    -->
+<!-- and Stabilize (§12.3, a Bandage). Both pick a Down ally at the     -->
+<!-- same tile, so one panel serves both; the title and note are set    -->
+<!-- by whichever verb opened it, and gameState.pendingAction.type      -->
+<!-- decides what the click resolves to (ui_actionbar_situational.lua). -->
+<!-- ================================================================== -->
+<Panel id="downedDialog"
+       rectAlignment="MiddleCenter"
+       width="420" height="310"
+       color="#0A0A0AEB"
+       outline="#C9A0DC66"
+       outlineSize="2"
+       active="false">
+  <VerticalLayout spacing="6" padding="14 14 14 14"
+                  childForceExpandHeight="false">
+    <Text id="downedTitle" fontSize="18" fontStyle="Bold" color="#E6CCFF"
+          text="Revive whom?" preferredHeight="26" />
+    <Text id="downedNote" fontSize="12" color="#9988AA" preferredHeight="18"
+          text="" />
+    <Button id="downedBtn_White" onClick="onDownedTargetClick(White)" active="false"
+            fontSize="14" color="#232328E6" textColor="#FFFFFF"
+            preferredHeight="34" text="—" />
+    <Button id="downedBtn_Red" onClick="onDownedTargetClick(Red)" active="false"
+            fontSize="14" color="#2D1E1EE6" textColor="#FFBBBB"
+            preferredHeight="34" text="—" />
+    <Button id="downedBtn_Yellow" onClick="onDownedTargetClick(Yellow)" active="false"
+            fontSize="14" color="#2D2D19E6" textColor="#FFFFBB"
+            preferredHeight="34" text="—" />
+    <Button id="downedBtn_Green" onClick="onDownedTargetClick(Green)" active="false"
+            fontSize="14" color="#1E2D1EE6" textColor="#BBFFBB"
+            preferredHeight="34" text="—" />
+    <Button id="downedBtn_Blue" onClick="onDownedTargetClick(Blue)" active="false"
+            fontSize="14" color="#1E1E32E6" textColor="#BBCCFF"
+            preferredHeight="34" text="—" />
+    <Button id="downedCancel" onClick="onDownedCancel"
+            fontSize="14" color="#321E1EE6" textColor="#FFAAAA"
+            preferredHeight="30" text="Cancel" />
+  </VerticalLayout>
+</Panel>
+
+<!-- ================================================================== -->
 <!-- H.5  REST CHOICE DIALOG — pick Hunger or Sanity for Rest action    -->
 <!-- ================================================================== -->
 <Panel id="restChoiceDialog"

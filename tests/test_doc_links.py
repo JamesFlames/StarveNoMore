@@ -7,23 +7,13 @@ import os
 import re
 
 import pytest
-from conftest import ROOT
+from conftest import ROOT, repo_files
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 
 
 def live_markdown_files():
-    out = []
-    for dirpath, dirs, files in os.walk(ROOT):
-        rel = os.path.relpath(dirpath, ROOT)
-        parts = rel.replace("\\", "/").split("/")
-        if parts[0] in ("Archive", ".git", ".claude", "__pycache__", "node_modules"):
-            dirs[:] = []
-            continue
-        for fn in files:
-            if fn.endswith(".md"):
-                out.append(os.path.join(dirpath, fn))
-    return out
+    return repo_files(".md", skip=("Archive",))
 
 
 def test_every_root_doc_is_in_the_agents_map():

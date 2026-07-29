@@ -187,18 +187,36 @@ Style, negative prompt and the icon framing live in
 `ACHIEVEMENT_PREFIX`, `ACHIEVEMENT_QUALIFIER`). Change those only to change
 *every* icon; per-icon changes belong in the CSV.
 
-### Prefix fault vs. seed variance — tell them apart before you act
+### The cfg trap — read this before touching a prompt
 
-Icon prompts are **much** higher-variance than card prompts. They ask for a
-single object on a dark field, which sits close to a degenerate region of the
-model: on a bad seed Flux collapses to a pure black frame, or an oversaturated
-neon blob with no relation to the prompt at all. Observed July 2026 — three
-icons queued back to back with *identical* settings gave one flawless render,
-one entirely black image, and one glowing green sphere for the prompt "a wall
-calendar with the first three days crossed out in red marker".
+**If icons come back as glowing orbs, pure black frames, or images with no
+relation to their prompt, it is the sampler configuration, not the prompt.**
+This cost a full day in July 2026; the whole diagnosis is below so it doesn't
+have to be repeated.
 
-So a bad icon is usually **the seed**, and the fix is the re-roll in §4. Do not
-rewrite prompts on the strength of one bad render.
+Flux Dev is *guidance-distilled*: it expects a `FluxGuidance` node carrying the
+guidance scale and `KSampler` at **cfg 1.0**. `build_workflow` originally ran
+true `cfg 4.0` with a real negative prompt, which is off-spec. On the card
+prompts it mostly got away with it. On single-object icon prompts it did not —
+it produced, from identical settings:
+
+- an amber orb or glowing streetlight painted as the subject in ~20 of 24 icons;
+- pure black frames (7 of 24 in one batch);
+- straightforwardly off-prompt images — "a wall calendar with the first three
+  days crossed out" rendering as a glowing green sphere held by a hand.
+
+Because the failures varied seed to seed, they *look* like seed variance, and
+because they varied with wording they *look* like prompt faults. They were
+neither. Four rounds of prompt rewriting and a LoRA-strength reduction all
+failed to shift the orb; adding `FluxGuidance` fixed every symptom at once.
+
+Icons therefore opt into the correct configuration
+(`ICON_FLUX_GUIDANCE = 3.5`, cfg 1.0) while **cards stay on the original
+cfg 4.0 path** — 200+ card illustrations were rendered that way and re-rendering
+them is an art-direction decision, not a bug fix.
+
+Only after the sampler is right is it worth blaming a prompt. Genuine
+prompt-level faults reproduce across *different subjects* and *different seeds*.
 
 **The control test.** Before blaming the prompt *or* the environment, re-render
 a card that already looks right in the repo:
@@ -213,14 +231,19 @@ back as mush, the fault is environmental — stop and fix that instead.
 **Delete the control render from ComfyUI's `output/` afterwards**, or the next
 sync will copy it over the committed card.
 
-Genuinely prompt-level faults look different: they reproduce across *different
-subjects* and *different seeds*. Two that were real, and fixed in the prefix:
+Three prompt-level faults that were real, and are fixed in the script:
 
-- **The glow trap.** The prefix asked for `a plain dark background, dramatic
-  single warm light source, heavy contrast`. Flux made the *subject itself*
-  the light source and shrank it to a fifth of the frame. Describe light as
-  falling **from outside the frame**, never as a source inside it, and prefer
-  `moody desaturated backdrop` over `plain dark background`.
+- **`STYLE` furnishes a scene the icon doesn't have.** `STYLE` enumerates props
+  — "suburban houses and streetlights", "gaming PCs", "basketball hoops" —
+  because a *card* is a scene that needs furnishing. An icon has no scene, so
+  Flux attaches the prop to the only thing in frame and paints a **streetlight
+  as the subject**. Icons therefore append `ICON_STYLE`, which keeps the
+  aesthetic and drops the furniture. Never append plain `STYLE` to an icon.
+- **The glow trap.** An early prefix asked for `a plain dark background,
+  dramatic single warm light source, heavy contrast`. Flux made the subject
+  itself the light source and shrank it to a fifth of the frame. Don't name a
+  light source inside the frame; prefer `moody desaturated backdrop` over
+  `plain dark background`.
 - **Negations don't work in the positive prompt.** `no horizon, no background
   scenery, nothing in the corners` mostly just reinforced the emptiness —
   Flux's T5 encoder barely honours negation. Exclusions belong in `NEGATIVE`.
@@ -229,13 +252,11 @@ The reliable reference is the `market` deck prefix (`a single object portrait
 ... soft warm side-light`), which produced 200+ good card illustrations on this
 exact model and LoRA. When in doubt, mirror it.
 
-**Known off-spec setting.** `build_workflow` samples Flux Dev at `cfg 4.0` with
-a real negative prompt. Flux Dev is guidance-distilled and normally wants
-`cfg 1.0` plus a `FluxGuidance` node (~3.5); true CFG above 1 is a plausible
-cause of the black/neon blowouts. It has been left alone deliberately — the
-existing 200+ card illustrations were rendered this way and changing it would
-shift the look of the whole art set. Raise it as an art-direction decision
-rather than changing it mid-run.
+**What was *not* the cause**, each disproved by experiment, so nobody repeats
+them: the LoRA (dropping `c4r1mj34` from 0.85 to 0.35 changed nothing about the
+orb, and only cost the DST ink line); the model, VAE or custom nodes (the M_BAT
+control below reproduced the committed card exactly); and the seed (the same
+failure survived dozens of fresh seeds).
 
 ## 5. Commit
 

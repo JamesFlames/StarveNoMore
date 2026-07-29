@@ -23,17 +23,6 @@ function findOneByTag(tag)
     return nil
 end
 
-function findOneByTags(tags)
-    for _, obj in ipairs(getAllObjects()) do
-        local match = true
-        for _, t in ipairs(tags) do
-            if not safeHasTag(obj, t) then match = false; break end
-        end
-        if match then return obj end
-    end
-    return nil
-end
-
 -----------------------------------------------------------------------
 -- Dead-handle-safe readers.
 -- A handle can outlive its object (merged into a deck, destroyed by a
@@ -128,10 +117,6 @@ function getMarketSlots()
         if s then table.insert(slots, s) end
     end
     return slots
-end
-
-function getPathVariantBag(variant)
-    return findOneByTag("PathVariant:" .. variant)
 end
 
 function getResourceBag(resType)
@@ -481,13 +466,6 @@ function colorToCharacter(color)
         if c == color then return name end
     end
     return nil
-end
-
-function characterToColor(name)
-    for color, char in pairs((gameState and gameState.activeChars) or {}) do
-        if char.name == name then return color end
-    end
-    return CHARACTER_COLORS[name]
 end
 
 -----------------------------------------------------------------------
