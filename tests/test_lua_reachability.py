@@ -55,6 +55,20 @@ CONSOLE_ENTRY_POINTS = frozenset({
     "runSelfTest",
     "auditFirstLoad", "auditTooltips", "auditHintCoverage", "auditObjectCount",
     "auditBoardGeometry", "auditObjectFootprints", "lockdownCriticalObjects",
+    # Force a named scenario instead of the random draw Setup does, so the
+    # same one can be played twice on purpose. setup.lua.
+    "applyScenario",
+})
+
+# Functions whose ONLY references are in tests/ — a deliberate test seam, not
+# a caller. See test_no_function_is_reachable_only_from_the_suite below for
+# why this list has to be short and reviewed.
+TEST_SEAMS = frozenset({
+    # Single-fighter shorthand for beginCombat, which takes a colour LIST.
+    # The real fight path (doFightTarget) resolves the statline, applies chip
+    # damage and assembles participants before calling beginCombat; the combat
+    # tests want the resolver without the targeting UI in the way.
+    "resolveCombat",
 })
 
 ALLOWED_UNREFERENCED = TTS_EVENT_CALLBACKS | CONSOLE_ENTRY_POINTS
@@ -155,13 +169,72 @@ def test_no_global_function_is_unreachable():
     )
 
 
+def test_no_function_is_reachable_only_from_the_suite():
+    """A test calling a rule is not the game running it.
+
+    The scan above counts `tests/` as a reference, which is right — a seam
+    the suite drives is real code — but it is also the blind spot that let
+    `doFlee` sit unreachable through the whole 2026-07 audit. Flee is §12.4's
+    escape valve, the rule Last Nerve exists to protect, and six places in
+    the UI told players to use it ("Too hungry to fight. Flee is always
+    legal", the Hunger tooltip, the notebook, What-now...). It had no button.
+    Two tests called it, so it counted as reachable, and it read to a starving
+    player as a rule the game had broken rather than one it never had.
+
+    So: a function the *game* never calls has to be named here on purpose.
+    """
+    corpus = _corpus()
+    game_only = {rel: src for rel, src in corpus.items() if not rel.startswith("tests/")}
+
+    by_name = {}
+    for name, f, line in _global_functions():
+        by_name.setdefault(name, []).append((f, line))
+
+    orphans = []
+    for name, definitions in sorted(by_name.items()):
+        if name in ALLOWED_UNREFERENCED or name in TEST_SEAMS:
+            continue
+        if _reference_count(name, definitions, game_only) == 0:
+            f, line = definitions[0]
+            orphans.append(f"{f}:{line}  {name}()")
+
+    assert not orphans, (
+        f"{len(orphans)} function(s) that only the test suite calls:\n  "
+        + "\n  ".join(orphans)
+        + "\n\nNothing in lua/ or xml/ reaches these, so the rule does not "
+          "exist for players however green the suite is. Wire it to a button, "
+          "dialog or phase step; or, if it is genuinely a seam the suite "
+          "drives (or a console tool), add it to TEST_SEAMS / "
+          "CONSOLE_ENTRY_POINTS in this file with the reason."
+    )
+
+
 def test_the_allowlist_has_no_stale_entries():
     """An allowlist nobody prunes is where a real orphan hides."""
     defined = {name for name, _f, _l in _global_functions()}
-    stale = sorted(ALLOWED_UNREFERENCED - defined)
+    stale = sorted((ALLOWED_UNREFERENCED | TEST_SEAMS) - defined)
     assert not stale, (
         f"allowlisted names that no longer exist in lua/: {stale} — remove "
-        "them from TTS_EVENT_CALLBACKS / CONSOLE_ENTRY_POINTS in this file.")
+        "them from TTS_EVENT_CALLBACKS / CONSOLE_ENTRY_POINTS / TEST_SEAMS "
+        "in this file.")
+
+
+def test_a_seam_that_gains_a_real_caller_leaves_the_list():
+    """TEST_SEAMS is a statement that the game does not call these. If one
+    picks up a real caller, the entry is now hiding a live handler."""
+    game_only = {rel: src for rel, src in _corpus().items()
+                 if not rel.startswith("tests/")}
+    by_name = {}
+    for name, f, line in _global_functions():
+        by_name.setdefault(name, []).append((f, line))
+
+    promoted = sorted(
+        name for name in TEST_SEAMS
+        if name in by_name and _reference_count(name, by_name[name], game_only) > 0
+    )
+    assert not promoted, (
+        f"listed as test-only but the game now calls them: {promoted} — "
+        "remove them from TEST_SEAMS in this file.")
 
 
 def test_the_guard_can_actually_fail():

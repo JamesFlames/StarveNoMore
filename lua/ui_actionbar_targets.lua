@@ -39,12 +39,24 @@ end
 
 -- Global: also cancels a pending targeted action. Called from turn-end
 -- (day_loop.lua) and from every action-button handler.
+-- pendingAction types that are "pick a target on the table": their prompt is
+-- the 3D buttons _clearTargetButtons removes, so clearing the buttons has to
+-- clear the intent too, or a cancelled action stays half-armed.
+--
+-- A set rather than a chain of ors, because it was a chain of ors and "flee"
+-- and "drift" had been left out of it — Flee's click-again-to-cancel could not
+-- cancel, and a ghost's pending drift outlived the turn that armed it. The
+-- dialog-driven types (revive, stabilize, posterize) are deliberately absent:
+-- their prompt is a UI panel with its own dismissal, not a tile button.
+local TILE_TARGET_ACTIONS = {
+    move = true, bonusmove = true, drift = true, flee = true,
+    craft = true, cook = true, trade = true, fight = true,
+    rally = true, signature_heal = true,
+}
+
 function clearActionTargets()
     local pa = gameState.pendingAction
-    if pa and (pa.type == "move" or pa.type == "bonusmove"
-            or pa.type == "craft" or pa.type == "cook" or pa.type == "trade"
-            or pa.type == "fight" or pa.type == "rally"
-            or pa.type == "signature_heal") then
+    if pa and TILE_TARGET_ACTIONS[pa.type] then
         gameState.pendingAction = nil
     end
     _clearTargetButtons()
@@ -88,14 +100,18 @@ end
 
 -- Move targets are always 1-step neighbours; Rayman's 2-tile Speed is
 -- delivered as a chained free second hop, so his buttons are 1-step too.
--- mode: "move" | "bonusmove" (Rayman's Speed) | "drift" (a ghost, §16.4).
--- Drift reuses this because a ghost picks a destination exactly the way the
--- living do — one adjacent tile — and duplicating the tile-button machinery
--- for the one case is how the two drift apart.
-local MOVE_BUTTON_LABEL = { bonusmove = "FREE MOVE", drift = "DRIFT HERE" }
+-- mode: "move" | "bonusmove" (Rayman's Speed) | "drift" (a ghost, §16.4)
+--     | "flee" (§12.4).
+-- Drift and Flee reuse this because they pick a destination exactly the way
+-- the living walking do — one adjacent tile — and duplicating the tile-button
+-- machinery per case is how the four drift apart.
+local MOVE_BUTTON_LABEL = {
+    bonusmove = "FREE MOVE", drift = "DRIFT HERE", flee = "FLEE HERE",
+}
 local MOVE_BUTTON_NOTE = {
     bonusmove = " (free second step)",
     drift     = " (ghost drift — free, once per round)",
+    flee      = " (flee — 1 Sanity, no action; the threat stays behind)",
     move      = " (1 action, 1 Hunger)",
 }
 
@@ -105,7 +121,7 @@ function _spawnMoveButtons(color, mode)
     local label = MOVE_BUTTON_LABEL[mode] or "MOVE HERE"
     local n = 0
     local names = {}
-    for _, locName in ipairs(_adjacentLocations(char.location)) do
+    for _, locName in ipairs(adjacentLocations(char.location)) do
         local tile = getLocationTile(locName)
         if tile then
             tile.highlightOn("Green", HIGHLIGHT_DURATION)
@@ -213,7 +229,7 @@ function _handleStandeeDrop(dropColor, obj, charName)
         return
     end
     local adjacent = false
-    for _, n in ipairs(_adjacentLocations(char.location or "")) do
+    for _, n in ipairs(adjacentLocations(char.location or "")) do
         if n == dest then adjacent = true break end
     end
     if not adjacent then
@@ -343,7 +359,8 @@ end
 -----------------------------------------------------------------------
 function onMoveTargetClick(obj, clickerColor, altClick)
     local pa = gameState.pendingAction
-    if not (pa and (pa.type == "move" or pa.type == "bonusmove" or pa.type == "drift")) then
+    if not (pa and (pa.type == "move" or pa.type == "bonusmove"
+                    or pa.type == "drift" or pa.type == "flee")) then
         return
     end
     if clickerColor ~= pa.color then
@@ -368,6 +385,12 @@ function onMoveTargetClick(obj, clickerColor, altClick)
         gameState.driftedThisRound[color] = true
         safecall(function() ghostDrift(color, loc) end, "GhostDrift")
         safecall(function() refreshReactionsPanel() end, "Reactions")
+    elseif mode == "flee" then
+        -- No action cost and no Hunger: running is priced in Sanity (§12.4),
+        -- and doFlee owns the Last Nerve discount and the adjacency re-check.
+        safecall(function() doFlee(color, loc) end, "Flee")
+        refreshPhaseBanner()
+        updateActivePlayerIndicator()
     elseif mode == "move" then
         -- Safety net (I.6): walking a character below 3 Health onto a tile
         -- that draws Threat cards at night is how a Down happens by accident.

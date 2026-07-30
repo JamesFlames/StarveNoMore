@@ -394,6 +394,10 @@ function applyRandomScenario()
     scenario.onApply()
 end
 
+-- Force a named scenario, e.g. applyScenario("SC_WINTER") — a console-only
+-- playtest tool (tests/test_lua_reachability.py::CONSOLE_ENTRY_POINTS). Setup
+-- always draws at random via applyRandomScenario, so this is the only way to
+-- play the same scenario twice on purpose, which is what testing one needs.
 function applyScenario(scenarioId)
     local scenario = SCENARIOS[scenarioId]
     if not scenario then

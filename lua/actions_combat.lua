@@ -183,11 +183,11 @@ function doFlee(color, targetLocation)
         return
     end
 
-    local adjacent = false
-    for _, n in ipairs(LOCATION_ADJACENCY[char.location] or {}) do
-        if n == targetLocation then adjacent = true; break end
-    end
-    if not adjacent then
+    -- adjacentLocations(), not raw LOCATION_ADJACENCY: Flee used to be the one
+    -- movement verb that didn't know about SC_SHORTCUT's extra road, so on a
+    -- variant that doesn't print it you could walk the shortcut and scramble
+    -- down it but not run down it — in the one direction the rule is for.
+    if not isAdjacent(char.location, targetLocation) then
         broadcastToColor(targetLocation .. " is not adjacent to " .. (char.location or "?") ..
             ". Flee reaches 1 tile only.", color, BROADCAST_COLORS.damage)
         return

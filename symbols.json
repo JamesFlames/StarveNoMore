@@ -502,7 +502,7 @@
   "CROCKPOT_HOME": [
    {
     "file": "lua/helpers.lua",
-    "line": 452,
+    "line": 482,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -742,7 +742,7 @@
   "HIGHLIGHT_DURATION": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 123,
+    "line": 112,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1002,7 +1002,7 @@
   "RESOURCE_LABELS": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 152,
+    "line": 141,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1112,7 +1112,7 @@
   "SITUATIONAL_ACTIONS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 296,
+    "line": 346,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1251,22 +1251,10 @@
     "doc": "WITNESS (free, 1 Sanity) — Design §10.1, the Haunted buy-in. \"An ally at your location may pay 1 Sanity to see what you see, and may then fight your Haunted th…"
    }
   ],
-  "_adjacentLocations": [
-   {
-    "file": "lua/ui_actionbar_core.lua",
-    "line": 100,
-    "kind": "function",
-    "params": [
-     "loc"
-    ],
-    "arity": 1,
-    "doc": ""
-   }
-  ],
   "_armTargetTimeout": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 62,
+    "line": 74,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1276,7 +1264,7 @@
   "_cardIdFromTags": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 187,
+    "line": 176,
     "kind": "function",
     "params": [
      "card"
@@ -1343,7 +1331,7 @@
   "_handleStandeeDrop": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 167,
+    "line": 183,
     "kind": "function",
     "params": [
      "dropColor",
@@ -1357,7 +1345,7 @@
   "_highlightCleanseTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 484,
+    "line": 507,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1367,7 +1355,7 @@
   "_highlightCookTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 479,
+    "line": 502,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1377,7 +1365,7 @@
   "_highlightCraftTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 444,
+    "line": 467,
     "kind": "function",
     "params": [
      "color"
@@ -1402,7 +1390,7 @@
   "_resLabel": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 154,
+    "line": 143,
     "kind": "function",
     "params": [
      "resType"
@@ -1426,7 +1414,7 @@
   "_spawnCraftButtons": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 248,
+    "line": 264,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1436,7 +1424,7 @@
   "_spawnFightButtons": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 313,
+    "line": 329,
     "kind": "function",
     "params": [
      "color"
@@ -1448,7 +1436,7 @@
   "_spawnMoveButtons": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 102,
+    "line": 118,
     "kind": "function",
     "params": [
      "color",
@@ -1630,6 +1618,18 @@
     "doc": "pcall throughout: a freshly dealt card can merge with the one already on the slot and leave a dead handle (docs/tts-interface.md), and a tooltip is never worth…"
    }
   ],
+  "adjacentLocations": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 452,
+    "kind": "function",
+    "params": [
+     "loc"
+    ],
+    "arity": 1,
+    "doc": "One step from `loc`, deduplicated, including any edge a scenario adds. The single answer to \"is that tile adjacent?\" — Move, the Dusk scramble, Flee and the dr…"
+   }
+  ],
   "advanceToNextPlayer": [
    {
     "file": "lua/turns.lua",
@@ -1669,7 +1669,7 @@
   "announceInventory": [
    {
     "file": "lua/actions.lua",
-    "line": 322,
+    "line": 311,
     "kind": "function",
     "params": [
      "color"
@@ -1713,13 +1713,13 @@
   "applyScenario": [
    {
     "file": "lua/setup.lua",
-    "line": 397,
+    "line": 401,
     "kind": "function",
     "params": [
      "scenarioId"
     ],
     "arity": 1,
-    "doc": ""
+    "doc": "Force a named scenario, e.g. applyScenario(\"SC_WINTER\") — a console-only playtest tool (tests/test_lua_reachability.py::CONSOLE_ENTRY_POINTS). Setup always dra…"
    }
   ],
   "applyThreatDefeat": [
@@ -1945,7 +1945,7 @@
   "canAfford": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 195,
+    "line": 184,
     "kind": "function",
     "params": [
      "color",
@@ -1958,7 +1958,7 @@
   "canAppeaseTreeguard": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 131,
+    "line": 154,
     "kind": "function",
     "params": [
      "color"
@@ -1970,7 +1970,7 @@
   "canBarricade": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 118,
+    "line": 141,
     "kind": "function",
     "params": [
      "color"
@@ -1994,7 +1994,7 @@
   "canDrift": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 149,
+    "line": 172,
     "kind": "function",
     "params": [
      "color"
@@ -2037,6 +2037,18 @@
     ],
     "arity": 1,
     "doc": "Precondition check; the reason doubles as the why-disabled tooltip."
+   }
+  ],
+  "canFlee": [
+   {
+    "file": "lua/ui_actionbar_situational.lua",
+    "line": 128,
+    "kind": "function",
+    "params": [
+     "color"
+    ],
+    "arity": 1,
+    "doc": "Flee (§12.4) — the escape valve, and the rule Last Nerve exists to protect. It had no button at all: `doFlee` was implemented, correct, and reachable only from…"
    }
   ],
   "canPeek": [
@@ -2136,7 +2148,7 @@
   "charHasCompany": [
    {
     "file": "lua/helpers.lua",
-    "line": 482,
+    "line": 512,
     "kind": "function",
     "params": [
      "color"
@@ -2248,11 +2260,11 @@
   "clearActionTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 42,
+    "line": 57,
     "kind": "function",
     "params": [],
     "arity": 0,
-    "doc": "Global: also cancels a pending targeted action. Called from turn-end (day_loop.lua) and from every action-button handler."
+    "doc": ""
    }
   ],
   "clearHighlight": [
@@ -2298,7 +2310,7 @@
   "colorToCharacter": [
    {
     "file": "lua/helpers.lua",
-    "line": 507,
+    "line": 537,
     "kind": "function",
     "params": [
      "color"
@@ -2397,7 +2409,7 @@
   "crockpotAt": [
    {
     "file": "lua/helpers.lua",
-    "line": 454,
+    "line": 484,
     "kind": "function",
     "params": [
      "loc"
@@ -2602,7 +2614,7 @@
   "doGather": [
    {
     "file": "lua/actions.lua",
-    "line": 363,
+    "line": 352,
     "kind": "function",
     "params": [
      "color"
@@ -2690,7 +2702,7 @@
   "doRest": [
    {
     "file": "lua/actions.lua",
-    "line": 452,
+    "line": 441,
     "kind": "function",
     "params": [
      "color",
@@ -2966,7 +2978,7 @@
   "formatIngredientCost": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 286,
+    "line": 302,
     "kind": "function",
     "params": [
      "cost"
@@ -2978,7 +2990,7 @@
   "gameRoll": [
    {
     "file": "lua/helpers.lua",
-    "line": 523,
+    "line": 553,
     "kind": "function",
     "params": [
      "a",
@@ -3001,7 +3013,7 @@
   "gatherRandomResources": [
    {
     "file": "lua/actions.lua",
-    "line": 348,
+    "line": 337,
     "kind": "function",
     "params": [
      "color",
@@ -3015,7 +3027,7 @@
   "getActivePlayerColors": [
    {
     "file": "lua/helpers.lua",
-    "line": 494,
+    "line": 524,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3299,7 +3311,7 @@
   "getPlayerResources": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 136,
+    "line": 125,
     "kind": "function",
     "params": [
      "color"
@@ -3487,6 +3499,19 @@
      "id"
     ],
     "arity": 1,
+    "doc": ""
+   }
+  ],
+  "isAdjacent": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 469,
+    "kind": "function",
+    "params": [
+     "from",
+     "to"
+    ],
+    "arity": 2,
     "doc": ""
    }
   ],
@@ -3798,7 +3823,7 @@
   "onActAppease": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 284,
+    "line": 334,
     "kind": "function",
     "params": [
      "player",
@@ -3812,7 +3837,7 @@
   "onActBarricade": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 280,
+    "line": 330,
     "kind": "function",
     "params": [
      "player",
@@ -3820,7 +3845,7 @@
      "id"
     ],
     "arity": 3,
-    "doc": "Barricade and Appease pay their own resources inside the action (and refund the spent action if unaffordable), so no cost table here."
+    "doc": ""
    }
   ],
   "onActCleanse": [
@@ -3868,7 +3893,7 @@
   "onActDefend": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 265,
+    "line": 288,
     "kind": "function",
     "params": [
      "player",
@@ -3882,7 +3907,7 @@
   "onActEatRaw": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 274,
+    "line": 297,
     "kind": "function",
     "params": [
      "player",
@@ -3896,7 +3921,7 @@
   "onActEnergyDrink": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 269,
+    "line": 292,
     "kind": "function",
     "params": [
      "player",
@@ -3919,6 +3944,20 @@
     ],
     "arity": 3,
     "doc": ""
+   }
+  ],
+  "onActFlee": [
+   {
+    "file": "lua/ui_actionbar_situational.lua",
+    "line": 305,
+    "kind": "function",
+    "params": [
+     "player",
+     "value",
+     "id"
+    ],
+    "arity": 3,
+    "doc": "Barricade and Appease pay their own resources inside the action (and refund the spent action if unaffordable), so no cost table here. Flee picks a destination …"
    }
   ],
   "onActGather": [
@@ -4022,7 +4061,7 @@
   "onActRevive": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 188,
+    "line": 211,
     "kind": "function",
     "params": [
      "player",
@@ -4050,7 +4089,7 @@
   "onActStabilize": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 201,
+    "line": 224,
     "kind": "function",
     "params": [
      "player",
@@ -4216,7 +4255,7 @@
   "onCraftTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 402,
+    "line": 425,
     "kind": "function",
     "params": [
      "obj",
@@ -4244,7 +4283,7 @@
   "onDownedCancel": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 235,
+    "line": 258,
     "kind": "function",
     "params": [
      "player",
@@ -4258,7 +4297,7 @@
   "onDownedTargetClick": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 213,
+    "line": 236,
     "kind": "function",
     "params": [
      "player",
@@ -4300,7 +4339,7 @@
   "onFightTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 436,
+    "line": 459,
     "kind": "function",
     "params": [
      "obj",
@@ -4314,7 +4353,7 @@
   "onFightTogetherClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 440,
+    "line": 463,
     "kind": "function",
     "params": [
      "obj",
@@ -4494,7 +4533,7 @@
   "onMoveTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 344,
+    "line": 360,
     "kind": "function",
     "params": [
      "obj",
@@ -4550,7 +4589,7 @@
   "onObjectDrop": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 157,
+    "line": 173,
     "kind": "function",
     "params": [
      "dropColor",
@@ -4778,20 +4817,6 @@
     "params": [],
     "arity": 0,
     "doc": ""
-   }
-  ],
-  "onSetupClick": [
-   {
-    "file": "lua/global.lua",
-    "line": 441,
-    "kind": "function",
-    "params": [
-     "obj",
-     "playerColor",
-     "altClick"
-    ],
-    "arity": 3,
-    "doc": "Setup entry point. The physical 3D board button is gone (it rendered upside down and duplicated Host Controls > Setup Game); onSetupClick remains as the handle…"
    }
   ],
   "onSignatureCancel": [
@@ -5046,7 +5071,7 @@
   "playerHasBackpack": [
    {
     "file": "lua/actions.lua",
-    "line": 336,
+    "line": 325,
     "kind": "function",
     "params": [
      "color"
@@ -5499,7 +5524,7 @@
   "refreshSituationalButtons": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 319,
+    "line": 373,
     "kind": "function",
     "params": [
      "color"
@@ -5757,7 +5782,7 @@
   "safecall": [
    {
     "file": "lua/helpers.lua",
-    "line": 529,
+    "line": 559,
     "kind": "function",
     "params": [
      "fn",
@@ -6028,7 +6053,7 @@
   "sportCourtSurcharge": [
    {
     "file": "lua/helpers.lua",
-    "line": 475,
+    "line": 505,
     "kind": "function",
     "params": [
      "from",
@@ -6299,7 +6324,7 @@
   "verifyAndPayResources": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 156,
+    "line": 145,
     "kind": "function",
     "params": [
      "color",
@@ -6680,13 +6705,13 @@
   },
   "actAppease": {
    "file": "xml/hud.xml",
-   "line": 383,
+   "line": 389,
    "element": "Button",
    "onClick": "onActAppease"
   },
   "actBarricade": {
    "file": "xml/hud.xml",
-   "line": 377,
+   "line": 383,
    "element": "Button",
    "onClick": "onActBarricade"
   },
@@ -6732,6 +6757,12 @@
    "element": "Button",
    "onClick": "onActFight"
   },
+  "actFlee": {
+   "file": "xml/hud.xml",
+   "line": 377,
+   "element": "Button",
+   "onClick": "onActFlee"
+  },
   "actGather": {
    "file": "xml/hud.xml",
    "line": 284,
@@ -6746,7 +6777,7 @@
   },
   "actPass": {
    "file": "xml/hud.xml",
-   "line": 394,
+   "line": 400,
    "element": "Button",
    "onClick": "onActPass"
   },
@@ -6800,7 +6831,7 @@
   },
   "actUndo": {
    "file": "xml/hud.xml",
-   "line": 389,
+   "line": 395,
    "element": "Button",
    "onClick": "onActUndo"
   },
@@ -6812,13 +6843,13 @@
   },
   "actionTooltip": {
    "file": "xml/hud.xml",
-   "line": 461,
+   "line": 467,
    "element": "Panel",
    "onClick": ""
   },
   "actionTooltipText": {
    "file": "xml/hud.xml",
-   "line": 469,
+   "line": 475,
    "element": "Text",
    "onClick": ""
   },
@@ -6986,7 +7017,7 @@
   },
   "charRoster": {
    "file": "xml/hud.xml",
-   "line": 553,
+   "line": 559,
    "element": "Panel",
    "onClick": ""
   },
@@ -7112,25 +7143,25 @@
   },
   "cube1": {
    "file": "xml/hud.xml",
-   "line": 405,
+   "line": 411,
    "element": "Text",
    "onClick": ""
   },
   "cube2": {
    "file": "xml/hud.xml",
-   "line": 406,
+   "line": 412,
    "element": "Text",
    "onClick": ""
   },
   "cube3": {
    "file": "xml/hud.xml",
-   "line": 407,
+   "line": 413,
    "element": "Text",
    "onClick": ""
   },
   "cubeLabel": {
    "file": "xml/hud.xml",
-   "line": 408,
+   "line": 414,
    "element": "Text",
    "onClick": ""
   },
@@ -7586,25 +7617,25 @@
   },
   "reactBtn_1": {
    "file": "xml/hud.xml",
-   "line": 444,
+   "line": 450,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactBtn_2": {
    "file": "xml/hud.xml",
-   "line": 447,
+   "line": 453,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactBtn_3": {
    "file": "xml/hud.xml",
-   "line": 450,
+   "line": 456,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactionsPanel": {
    "file": "xml/hud.xml",
-   "line": 431,
+   "line": 437,
    "element": "Panel",
    "onClick": ""
   },
@@ -7688,241 +7719,241 @@
   },
   "rosterHealthVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 617,
+   "line": 623,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 693,
+   "line": 699,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_James": {
    "file": "xml/hud.xml",
-   "line": 579,
+   "line": 585,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 731,
+   "line": 737,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 655,
+   "line": 661,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealth_Coco": {
    "file": "xml/hud.xml",
-   "line": 614,
+   "line": 620,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Ellie": {
    "file": "xml/hud.xml",
-   "line": 690,
+   "line": 696,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_James": {
    "file": "xml/hud.xml",
-   "line": 576,
+   "line": 582,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Luca": {
    "file": "xml/hud.xml",
-   "line": 728,
+   "line": 734,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Rayman": {
    "file": "xml/hud.xml",
-   "line": 652,
+   "line": 658,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHungerVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 627,
+   "line": 633,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 703,
+   "line": 709,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_James": {
    "file": "xml/hud.xml",
-   "line": 589,
+   "line": 595,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 741,
+   "line": 747,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 665,
+   "line": 671,
    "element": "Text",
    "onClick": ""
   },
   "rosterHunger_Coco": {
    "file": "xml/hud.xml",
-   "line": 624,
+   "line": 630,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Ellie": {
    "file": "xml/hud.xml",
-   "line": 700,
+   "line": 706,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_James": {
    "file": "xml/hud.xml",
-   "line": 586,
+   "line": 592,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Luca": {
    "file": "xml/hud.xml",
-   "line": 738,
+   "line": 744,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Rayman": {
    "file": "xml/hud.xml",
-   "line": 662,
+   "line": 668,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterName_Coco": {
    "file": "xml/hud.xml",
-   "line": 608,
+   "line": 614,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Ellie": {
    "file": "xml/hud.xml",
-   "line": 684,
+   "line": 690,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_James": {
    "file": "xml/hud.xml",
-   "line": 570,
+   "line": 576,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Luca": {
    "file": "xml/hud.xml",
-   "line": 722,
+   "line": 728,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Rayman": {
    "file": "xml/hud.xml",
-   "line": 646,
+   "line": 652,
    "element": "Text",
    "onClick": ""
   },
   "rosterRow_Coco": {
    "file": "xml/hud.xml",
-   "line": 606,
+   "line": 612,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Ellie": {
    "file": "xml/hud.xml",
-   "line": 682,
+   "line": 688,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_James": {
    "file": "xml/hud.xml",
-   "line": 568,
+   "line": 574,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Luca": {
    "file": "xml/hud.xml",
-   "line": 720,
+   "line": 726,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Rayman": {
    "file": "xml/hud.xml",
-   "line": 644,
+   "line": 650,
    "element": "Panel",
    "onClick": ""
   },
   "rosterSanityVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 637,
+   "line": 643,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 713,
+   "line": 719,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_James": {
    "file": "xml/hud.xml",
-   "line": 599,
+   "line": 605,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 751,
+   "line": 757,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 675,
+   "line": 681,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanity_Coco": {
    "file": "xml/hud.xml",
-   "line": 634,
+   "line": 640,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Ellie": {
    "file": "xml/hud.xml",
-   "line": 710,
+   "line": 716,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_James": {
    "file": "xml/hud.xml",
-   "line": 596,
+   "line": 602,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Luca": {
    "file": "xml/hud.xml",
-   "line": 748,
+   "line": 754,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Rayman": {
    "file": "xml/hud.xml",
-   "line": 672,
+   "line": 678,
    "element": "ProgressBar",
    "onClick": ""
   },
@@ -8006,67 +8037,67 @@
   },
   "statCharName": {
    "file": "xml/hud.xml",
-   "line": 489,
+   "line": 495,
    "element": "Text",
    "onClick": ""
   },
   "statDisplay": {
    "file": "xml/hud.xml",
-   "line": 479,
+   "line": 485,
    "element": "Panel",
    "onClick": ""
   },
   "statHealthBar": {
    "file": "xml/hud.xml",
-   "line": 497,
+   "line": 503,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statHealthVal": {
    "file": "xml/hud.xml",
-   "line": 500,
+   "line": 506,
    "element": "Text",
    "onClick": ""
   },
   "statHungerBar": {
    "file": "xml/hud.xml",
-   "line": 509,
+   "line": 515,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statHungerVal": {
    "file": "xml/hud.xml",
-   "line": 512,
+   "line": 518,
    "element": "Text",
    "onClick": ""
   },
   "statLocation": {
    "file": "xml/hud.xml",
-   "line": 529,
+   "line": 535,
    "element": "Text",
    "onClick": ""
   },
   "statPerks": {
    "file": "xml/hud.xml",
-   "line": 542,
+   "line": 548,
    "element": "Text",
    "onClick": ""
   },
   "statResources": {
    "file": "xml/hud.xml",
-   "line": 533,
+   "line": 539,
    "element": "Text",
    "onClick": ""
   },
   "statSanityBar": {
    "file": "xml/hud.xml",
-   "line": 521,
+   "line": 527,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statSanityVal": {
    "file": "xml/hud.xml",
-   "line": 524,
+   "line": 530,
    "element": "Text",
    "onClick": ""
   },

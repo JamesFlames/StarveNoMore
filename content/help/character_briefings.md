@@ -59,7 +59,7 @@ You are calm when the world isn't. You're visiting — no house of your own.
 - Calming Presence: allies at your tile lose 1 less Sanity at Tick.
 - Touch of Hope (once per game): heal any character +4 Health.
 - Light in the Dark: never triggers Charlie attacks.
-- Wanderer's Gift: gain +1 Sanity each time you move to a new location.
+- Wanderer's Gift: gain +1 Sanity every time you Move — any tile, including one you have already been to.
 
 **Constraint**
 - No Home: alone at a non-house tile at night = -3 Sanity.

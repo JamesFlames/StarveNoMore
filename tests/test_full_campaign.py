@@ -190,9 +190,9 @@ def test_reentrant_setup_is_refused():
     flush(env)
     day_before = env.eval("gameState.day")
 
-    env.globals().Setup("White")           # bare path
-    env.execute('onSetupClick(TTS.makeObject({}), "White")')   # 3D board button path
+    env.globals().Setup("White")                               # bare path
     env.execute('onHostSetupGuided(Player["White"])')          # host panel path
+    env.execute('startGuidedSetup("White")')                   # the walkthrough itself
     flush(env)
 
     assert env.eval("gameState.started") is True

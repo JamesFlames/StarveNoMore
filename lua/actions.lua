@@ -231,18 +231,7 @@ function doDuskMove(color, targetLocation)
     end
 
     -- One tile only, even for Rayman — everyone is tired at Dusk.
-    local adjacent = false
-    for _, n in ipairs(LOCATION_ADJACENCY[char.location] or {}) do
-        if n == targetLocation then adjacent = true; break end
-    end
-    local sFlags = gameState.scenarioFlags or {}
-    if sFlags.shortcutPath then
-        if (char.location == "JamesHouse" and targetLocation == "BadmintonCourt") or
-           (char.location == "BadmintonCourt" and targetLocation == "JamesHouse") then
-            adjacent = true
-        end
-    end
-    if not adjacent then
+    if not isAdjacent(char.location, targetLocation) then
         broadcastToColor(targetLocation .. " is not adjacent to " .. (char.location or "?") ..
             ". Scramble reaches 1 tile only.", color, BROADCAST_COLORS.damage)
         return

@@ -443,6 +443,36 @@ function isSportCourt(loc)
     return loc == "BasketballCourt" or loc == "BadmintonCourt"
 end
 
+-- One step from `loc`, deduplicated, including any edge a scenario adds.
+--
+-- The single answer to "is that tile adjacent?" — Move, the Dusk scramble,
+-- Flee and the drag-a-standee handler all route through here. LOCATION_ADJACENCY
+-- itself is rebuilt per path variant by applyPathVariant (ui_actionbar_core);
+-- this reads it at call time, never captures it.
+function adjacentLocations(loc)
+    local out, seen = {}, {}
+    for _, n in ipairs((LOCATION_ADJACENCY or {})[loc] or {}) do
+        if not seen[n] then seen[n] = true; out[#out + 1] = n end
+    end
+    -- SC_SHORTCUT's JamesHouse <-> BadmintonCourt edge. Ring (the default
+    -- variant) and Sprawl already print that road, so adding it unguarded
+    -- handed back the same neighbour twice — two overlapping MOVE HERE
+    -- buttons on one tile, and an inflated count of legal targets.
+    if (gameState.scenarioFlags or {}).shortcutPath then
+        local extra = (loc == "JamesHouse" and "BadmintonCourt")
+                   or (loc == "BadmintonCourt" and "JamesHouse")
+        if extra and not seen[extra] then out[#out + 1] = extra end
+    end
+    return out
+end
+
+function isAdjacent(from, to)
+    for _, n in ipairs(adjacentLocations(from or "")) do
+        if n == to then return true end
+    end
+    return false
+end
+
 -- Where can a recipe be cooked? The kitchen at Ellie & Luca's House always,
 -- and any tile where somebody standing there carries the Portable Crockpot
 -- ("Persistent. Allows cooking at any tile (not just kitchen)" — the card was

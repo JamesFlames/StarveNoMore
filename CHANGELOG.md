@@ -2,6 +2,54 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Flee had no button (2026-07)
+
+The escape valve. §12.4, the rule Last Nerve exists to protect — "the escape
+hatch is priced in the currency most likely to be empty", as `helpers.lua` puts
+it — and there was no way to use it. `doFlee` was implemented, correct, and
+called by nothing outside the test suite: no button, no handler, no XML.
+
+Six places told players to use it anyway: `canFight`'s refusal ("Too hungry to
+fight (Hunger < 3). Flee is always legal: 1 tile, 1 Sanity"), the same line from
+`doFightTarget`, the threat-draw warning every Night, the Hunger tooltip on the
+HUD, the notebook, and the Active Rules panel. A starving player was told four
+ways to run and given no way to do it — the exact failure the eight-rules audit
+was about, hiding behind the one loophole in its guard: `tests/` counts as a
+reference, so two test calls made it look reachable.
+
+Flee is now a situational verb beside Barricade and Appease, appearing whenever
+something fightable shares your tile. It costs 1 Sanity and *no action* (0 on
+Last Nerve), because "always legal, even starving" is the point of the rule. It
+picks its destination with the same tile buttons Move uses.
+
+Two things fell out of wiring it:
+
+- **Flee was the one movement verb that didn't know about the Shortcut.** Move
+  and the Dusk scramble each open-coded LOCATION_ADJACENCY *plus* SC_SHORTCUT's
+  extra road; Flee open-coded only the first half, so on a variant that doesn't
+  print that road you could walk it and scramble down it but not run down it.
+  All four now go through one `adjacentLocations()`.
+- **`clearActionTargets` had a hand-maintained list of pending-action types**
+  and neither `flee` nor `drift` was in it, so Flee's click-again-to-cancel
+  could not cancel and a ghost's pending drift outlived the turn that armed it.
+
+Also removed: **`onSetupClick`**, dead since the 3D setup button was deleted.
+Its own comment claimed it "remains as the handler for that panel button" —
+never true; the panel has always called `onHostSetupGuided`. What was left was a
+strict duplicate plus a `clearButtons()` on an object that no longer exists.
+**`applyScenario`** is declared a console tool, which is what it is: the only
+way to play a chosen scenario twice on purpose.
+
+**The guard:** `test_lua_reachability.py` now also fails on any function only
+the *suite* calls, with a short reviewed `TEST_SEAMS` list (and a check that an
+entry leaves it the moment the game gains a real caller). A test calling a rule
+is not the game running it.
+
+Fixed in passing: Coco's **Wanderer's Gift** is "+1 Sanity every time she
+Moves"; the briefing, notebook and PlayerRules all said "to a *new* location",
+a restriction the code has never had and which would have had players
+under-using the perk.
+
 ## Eleven ongoing effects that were never wired up (2026-07)
 
 The reachability audit below caught rules that were *functions* nothing called.

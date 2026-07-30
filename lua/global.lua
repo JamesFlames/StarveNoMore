@@ -434,17 +434,15 @@ function onSave()
 end
 
 -----------------------------------------------------------------------
--- Setup entry point. The physical 3D board button is gone (it rendered
--- upside down and duplicated Host Controls > Setup Game); onSetupClick
--- remains as the handler for that panel button and for tests.
+-- Setup entry point: onHostSetupGuided (ui_setup.lua), wired to the Host
+-- Controls > Setup Game button.
+--
+-- There used to be a second one here, onSetupClick, for a physical 3D board
+-- button. That button was removed (it rendered upside down and duplicated
+-- Host Controls), and the comment left behind claimed onSetupClick "remains
+-- as the handler for that panel button" — which was never true: the panel
+-- button has always called onHostSetupGuided. What was left was a strict
+-- duplicate of it, plus a clearButtons() call on an object that no longer
+-- exists, kept alive in the reachability scan by the one test that called
+-- it. Deleted, the way resolveGroupCombat was.
 -----------------------------------------------------------------------
-function onSetupClick(obj, playerColor, altClick)
-    -- Route through the guided walkthrough — the bare Setup() would assign
-    -- characters by seat color and ignore the players' picks.
-    if gameState.started then
-        broadcastToColor("Game already started. Click Restart first.", playerColor, BROADCAST_COLORS.damage)
-        return
-    end
-    obj.clearButtons()
-    safecall(function() startGuidedSetup(playerColor) end, "Setup")
-end

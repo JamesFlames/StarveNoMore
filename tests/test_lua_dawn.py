@@ -390,15 +390,15 @@ class TestPathVariants:
         env.globals().applyPathVariant("Ring")
         env.execute("gameState.scenarioFlags = { shortcutPath = true }")
         for loc in ("JamesHouse", "BadmintonCourt"):
-            names = lua_to_py(env.globals()._adjacentLocations(loc))
+            names = lua_to_py(env.globals().adjacentLocations(loc))
             assert len(names) == len(set(names)), f"{loc} -> {names}"
 
     def test_the_shortcut_still_adds_the_road_where_it_is_missing(self, env):
         self._board(env)
         env.globals().applyPathVariant("Star")   # no James<->Badminton edge
         env.execute("gameState.scenarioFlags = { shortcutPath = true }")
-        assert "BadmintonCourt" in lua_to_py(env.globals()._adjacentLocations("JamesHouse"))
-        assert "JamesHouse" in lua_to_py(env.globals()._adjacentLocations("BadmintonCourt"))
+        assert "BadmintonCourt" in lua_to_py(env.globals().adjacentLocations("JamesHouse"))
+        assert "JamesHouse" in lua_to_py(env.globals().adjacentLocations("BadmintonCourt"))
 
 
 class TestVariantAwareQuickStart:

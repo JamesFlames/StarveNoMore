@@ -74,7 +74,7 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 | `raymanTilesMovedToday` | `0` | declared | `actions.lua`, `day_loop.lua`, `turns.lua` | `actions.lua`, `night.lua`, `tick_victory.lua`, `turns.lua` |
 | `resources` | `{}` | declared | `helpers.lua`, `setup.lua`, `ui_setup.lua` | `helpers.lua`, `ui_actionbar_core.lua` |
 | `scenario` | — | nil is the default | `setup.lua` | `telemetry.lua`, `ui_rules.lua` |
-| `scenarioFlags` | `{}` | declared | `selftest.lua`, `setup.lua` | `actions.lua`, `night.lua`, `tick_victory.lua`, `ui_actionbar_core.lua` |
+| `scenarioFlags` | `{}` | declared | `selftest.lua`, `setup.lua` | `actions.lua`, `helpers.lua`, `night.lua`, `tick_victory.lua` |
 | `solo` | `false` | declared | `ui_setup.lua` | `achievement_rules.lua`, `telemetry.lua`, `ui_rules.lua`, `ui_setup.lua` |
 | `sourceSplit` | — | world state | `combat.lua`, `effects/dawn_effects_phase4.lua`, `setup.lua`, `ui_setup.lua` | `combat.lua`, `ui_rules.lua` |
 | `started` | `false` | declared | `selftest.lua`, `setup.lua`, `ui_setup.lua` | `global.lua`, `selftest.lua`, `setup.lua`, `ui_actionbar_display.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_reactions.lua`, `ui_rules.lua`, `ui_setup.lua` |

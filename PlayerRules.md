@@ -175,7 +175,7 @@ Every character has one **Signature** — a once-per-game named move, fired from
 - **Calming Presence:** allies at her tile lose 1 less Sanity at Tick.
 - **Touch of Hope (Signature, 1×):** heal any character +4 Health, anywhere on the map.
 - **Light in the Dark:** never triggers Charlie attacks.
-- **Wanderer's Gift:** +1 Sanity each time she Moves to a new location.
+- **Wanderer's Gift:** +1 Sanity every time she Moves — any tile, including one she has already visited.
 - **No Home (constraint):** end Night alone in a non-house = -3 Sanity.
 - Starting hand: First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery, Friendship Bracelet.
 

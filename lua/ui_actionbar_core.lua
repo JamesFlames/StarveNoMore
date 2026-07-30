@@ -97,23 +97,12 @@ function applyPathVariant(variant)
     return variant
 end
 
-function _adjacentLocations(loc)
-    local out, seen = {}, {}
-    for _, n in ipairs(LOCATION_ADJACENCY[loc] or {}) do
-        if not seen[n] then seen[n] = true; out[#out+1] = n end
-    end
-    -- Shortcut scenario: JamesHouse <-> BadmintonCourt edge. Ring (the
-    -- default variant) and Sprawl already print that road, so the scenario
-    -- was handing back the same neighbour twice — two overlapping MOVE HERE
-    -- buttons on one tile, and an inflated legal-target count.
-    local sFlags = gameState.scenarioFlags or {}
-    if sFlags.shortcutPath then
-        local extra = (loc == "JamesHouse" and "BadmintonCourt")
-                   or (loc == "BadmintonCourt" and "JamesHouse")
-        if extra and not seen[extra] then out[#out+1] = extra end
-    end
-    return out
-end
+-- The walkable neighbours of a tile live in adjacentLocations() (helpers.lua)
+-- so Move, the Dusk scramble, Flee and the standee-drag all answer "is that
+-- one step away?" the same way. They did not: three of them open-coded
+-- LOCATION_ADJACENCY plus the Shortcut edge, and Flee open-coded only the
+-- first half — so under SC_SHORTCUT you could walk the shortcut but not run
+-- down it, which is the one direction that rule exists for.
 
 -----------------------------------------------------------------------
 -- Highlight helpers — flash legal targets when an action is selected.

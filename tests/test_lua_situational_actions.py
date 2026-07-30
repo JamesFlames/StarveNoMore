@@ -41,6 +41,11 @@ def click(env, handler, color, value=""):
     flush(env)
 
 
+def arm_flee(env, color="White"):
+    """onActFlee without flush() — see test_the_click_offers_tiles_and_the_target_runs."""
+    env.eval("onActFlee")(player(env, color), "", "")
+
+
 def enabled(env):
     """Which action-bar buttons the last refresh left visible."""
     return set(lua_to_py(env.eval("ENABLED_ACTIONS")) or {})
@@ -337,6 +342,95 @@ class TestGhostDrift:
         flush(env)
         assert env.eval('gameState.driftedThisRound.Yellow') is None, \
             "drift is once per ROUND — Dawn must hand it back"
+
+
+# ---------------------------------------------------------------------------
+# Flee (§12.4) — the escape valve. doFlee was implemented and correct and
+# reachable only from this suite: no button, no handler, no XML. Meanwhile
+# canFight's refusal, the threat-draw warning, the Hunger tooltip, the
+# notebook, What-now and the Active Rules panel all told players to use it.
+# ---------------------------------------------------------------------------
+
+
+class TestFlee:
+    def _cornered(self, env, color="White", loc="BasketballCourt", **overrides):
+        """A character with a real threat card on their tile."""
+        add_char(env, color, "James", location=loc, **overrides)
+        env.execute(
+            '__here = TTS.addObject({tags = {"Location:%s"}, position = {0,1,0}})\n'
+            '__there = TTS.addObject({tags = {"Location:EllieLucaHouse"}, position = {40,1,40}})\n'
+            'TTS.addObject({tags = {"ThreatCard", "T_SHADOW_STALKER"}, type = "Card",\n'
+            '               nickname = "Shadow Stalker", position = {1,1,1}})' % loc)
+        start_day(env, color)
+
+    def test_the_button_appears_only_when_something_is_there(self, env):
+        add_char(env, "White", "James", location="BasketballCourt")
+        env.execute('TTS.addObject({tags = {"Location:BasketballCourt"}, position = {0,1,0}})')
+        start_day(env)
+        ok, why = env.eval("canFlee")("White")
+        assert ok is False and "flee from" in why
+
+    def test_a_cornered_character_may_flee(self, env):
+        self._cornered(env)
+        assert env.eval("canFlee")("White") is True
+
+    def test_starving_does_not_block_flee(self, env):
+        """Hunger < 3 blocks Fight and never Flee — that is the whole rule."""
+        self._cornered(env, hunger=1)
+        assert env.eval("canFight")("White") is not True
+        assert env.eval("canFlee")("White") is True
+
+    def test_no_actions_left_does_not_block_flee(self, env):
+        self._cornered(env, actionsLeft=0)
+        assert env.eval("canFlee")("White") is True
+
+    def test_a_down_character_cannot_flee(self, env):
+        self._cornered(env, down=True)
+        ok, why = env.eval("canFlee")("White")
+        assert ok is False and "Down" in why
+
+    def test_the_click_offers_tiles_and_the_target_runs(self, env):
+        # No flush() between the two clicks: the stub runs every pending Wait
+        # immediately, which would fire the 30s target timeout and clear the
+        # pending action before the player could pick a tile.
+        self._cornered(env, sanity=8)
+        arm_flee(env)
+        assert env.eval('gameState.pendingAction.type') == "flee"
+
+        env.eval("onMoveTargetClick")(env.eval("__there"), "White", False)
+        flush(env)
+        assert env.eval("gameState.activeChars.White.location") == "EllieLucaHouse"
+        assert env.eval("gameState.activeChars.White.sanity") == 7   # -1
+        assert env.eval("gameState.activeChars.White.actionsLeft") == 3  # never an action
+
+    def test_last_nerve_makes_running_free(self, env):
+        self._cornered(env, sanity=2)
+        arm_flee(env)
+        env.eval("onMoveTargetClick")(env.eval("__there"), "White", False)
+        flush(env)
+        assert env.eval("gameState.activeChars.White.sanity") == 2   # no cost
+        assert any("last nerve" in m.lower() for m in broadcasts(env))
+
+    def test_clicking_flee_twice_cancels(self, env):
+        self._cornered(env)
+        arm_flee(env)
+        arm_flee(env)
+        assert env.eval('gameState.pendingAction') is None
+
+    def test_flee_refuses_a_tile_that_is_not_adjacent(self, env):
+        self._cornered(env, loc="JamesHouse", sanity=8)
+        env.execute("LOCATION_ADJACENCY = buildAdjacency('Star')")  # James -> hub only
+        env.globals().doFlee("White", "BadmintonCourt")
+        assert env.eval("gameState.activeChars.White.location") == "JamesHouse"
+        assert env.eval("gameState.activeChars.White.sanity") == 8
+
+    def test_flee_follows_the_shortcut_like_every_other_move(self, env):
+        self._cornered(env, loc="JamesHouse", sanity=8)
+        env.execute("LOCATION_ADJACENCY = buildAdjacency('Star')")
+        env.execute("gameState.scenarioFlags = { shortcutPath = true }")
+        env.execute('TTS.addObject({tags = {"Location:BadmintonCourt"}, position = {60,1,60}})')
+        env.globals().doFlee("White", "BadmintonCourt")
+        assert env.eval("gameState.activeChars.White.location") == "BadmintonCourt"
 
 
 # ---------------------------------------------------------------------------

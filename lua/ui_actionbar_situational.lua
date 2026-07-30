@@ -115,6 +115,29 @@ function canEatRaw(color)
     return true
 end
 
+-- Flee (§12.4) — the escape valve, and the rule Last Nerve exists to protect.
+-- It had no button at all: `doFlee` was implemented, correct, and reachable
+-- only from the test suite, while six places in the UI told the player to use
+-- it ("Too hungry to fight (Hunger < 3). Flee is always legal", the threat-draw
+-- warning, the Hunger tooltip, the notebook, What-now, the Active Rules panel).
+-- A starving player was told four ways to run and given no way to do it.
+--
+-- Deliberately NOT gated on the action budget or on Hunger: "always legal, even
+-- starving" is the whole point, and doFlee charges Sanity (0 on Last Nerve),
+-- never an action.
+function canFlee(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.down then return false, "You are Down." end
+    if #fightTargetsAt(char.location) == 0 then
+        return false, "Nothing to flee from at " .. (char.location or "your tile") .. "."
+    end
+    if #adjacentLocations(char.location or "") == 0 then
+        return false, "Nowhere to run from " .. (char.location or "?") .. "."
+    end
+    return true
+end
+
 function canBarricade(color)
     local char = gameState.activeChars[color]
     if not char then return false, "No character." end
@@ -277,6 +300,33 @@ end
 
 -- Barricade and Appease pay their own resources inside the action (and refund
 -- the spent action if unaffordable), so no cost table here.
+-- Flee picks a destination exactly the way Move does, so it rides the same
+-- tile buttons rather than growing a second set (see _spawnMoveButtons).
+function onActFlee(player, value, id)
+    local color = player.color
+    if not validateActivePlayer(color) then return end
+    local ok, why = canFlee(color)
+    if not ok then
+        broadcastToColor(why or "Can't flee right now.", color, BROADCAST_COLORS.damage)
+        return
+    end
+    -- Clicking Flee again while a flee is pending cancels it.
+    local pa = gameState.pendingAction
+    clearActionTargets()
+    if pa and pa.color == color and pa.type == "flee" then
+        broadcastToColor("Flee cancelled.", color, BROADCAST_COLORS.proc)
+        return
+    end
+    gameState.pendingAction = { type = "flee", color = color }
+    if _spawnMoveButtons(color, "flee") == 0 then
+        gameState.pendingAction = nil
+        broadcastToColor("Nowhere to run — no neighbouring tile is on the table.",
+            color, BROADCAST_COLORS.damage)
+        return
+    end
+    _armTargetTimeout()
+end
+
 function onActBarricade(player, value, id)
     runSituational(player, canBarricade, doBarricade, "Barricade")
 end
@@ -308,6 +358,10 @@ SITUATIONAL_ACTIONS = {
             "satisfies Wired for today (no -2 Sanity at Tick)." },
     { id = "actEatRaw", can = canEatRaw,
       tip = "Eat a Food token raw — free. +1 Hunger, -1 Sanity." },
+    { id = "actFlee", can = canFlee,
+      tip = "Run from what's here — 1 tile away, 1 Sanity, no action. Always " ..
+            "legal, even starving, and free while you are on your Last Nerve. " ..
+            "The threat stays behind and festers at Dawn." },
     { id = "actBarricade", can = canBarricade,
       tip = "Barricade this tile — 1 action + 1 Wood. It draws one fewer " ..
             "Threat tonight, then the barricade is gone." },
