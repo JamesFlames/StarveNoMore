@@ -2,6 +2,49 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## The Deerclops finally costs something (2026-07)
+
+"While Deerclops is on the map, all Sanity costs are doubled" — announced on
+arrival, repeated in the Active Rules panel, and promised back on its death
+("Sanity costs return to normal"). The Lua did nothing with the flag.
+
+The interesting part: **`simulate_balance.py` has been modelling this rule
+since the baseline was measured.** It doubles the Tick Sanity loss while the
+boss stands. So the win rates every band in `test_sim.py` is checked against
+already assume a Deerclops that hurts, and the game has been quietly easier
+than its own balance model for as long as both have existed. Wiring it up
+moves the game *toward* the sim, which is why the bands did not budge.
+
+Doubled at Tick, after the Doom-20 surcharge and before Coco's Calming
+Presence — the sim's order, so the two agree digit for digit. The card and
+panel text now say "double Sanity at Tick" instead of the broader "all Sanity
+costs", because that is the reading the balance model validates. Killing it
+clears the flag immediately rather than at the next Dawn, so the death
+broadcast's promise is true the same night.
+
+Also settled, with the same "does anything actually run this?" test:
+
+- **Doom 25's "boss-level threats can appear in any phase" is gone from the
+  player-facing text.** It described a mechanic the mod does not have — one
+  un-phased Threat deck, bosses placed by scripted Dawn cards that Doom never
+  touches. Nothing read it and nothing could. Nothing Left to Lose (+1 attack
+  die, Rest heals anywhere) is real and stays. The `anyPhaseBosses` constant
+  keeps its name with a note, since the sim mirrors it.
+- **P3_ALLY_MISSING's +1 action is scripted.** It was left to the table as
+  "the player with the fewest items", which sounded unknowable — except
+  `getPlayerCarriedObjects` has always answered exactly that for weapons,
+  lights, pry tools and the Bandage. The vanished ally is picked at reveal and
+  banked on `gameState.missingAlly`, because `beginDayPhase` resets the action
+  budget *after* Dawn resolves; a flag read later would hand the adrenaline to
+  whoever happened to ask.
+
+Two guards grew a check they were missing. `test_lua_effect_flags.py` now
+ejects a flag from `DISPLAY_ONLY` the moment a rule reads it — and caught that
+`eyeActive` had been misfiled there all along, since the Eye's each-Dawn extra
+threat has always read it. `docs/agents/combat-and-actions.md`, which had
+reached its 2500-token budget *exactly*, is split into it and
+`economy-and-session.md`; both now have over a thousand tokens of headroom.
+
 ## Items you could craft and could not use (2026-07)
 
 There was no Use Item verb. None. Not a hidden one, not a manual one — the

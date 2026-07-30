@@ -226,10 +226,15 @@ class TestNothingLeftToLose:
         env.globals().checkDoomThresholds()
         assert any("Nothing Left to Lose" in m for m in broadcasts(env))
 
-    def test_rules_panel_label_shows_both_faces(self, env):
+    def test_rules_panel_label_states_only_rules_that_exist(self, env):
+        """The label used to open with "boss threats can appear in any phase",
+        which described a mechanic the mod does not have: one un-phased Threat
+        deck, and bosses placed by scripted Dawn cards that Doom never touches.
+        Nothing read the claim; it was a paper rule printed to the table."""
         label = env.eval("DOOM_THRESHOLD_RULES[4][2]")
         assert "Nothing Left to Lose" in label
-        assert "any phase" in label  # the original penalty is still stated
+        assert "attack die" in label and "Health" in label
+        assert "any phase" not in label
 
 
 # ---------------------------------------------------------------------------

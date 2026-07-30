@@ -88,7 +88,7 @@
 ## Doom Track
 - Public 0–30 track (Story: 35; Long Weekend: 15). At the end of the track, the team loses.
 - Advances each Dawn by the phase rate, **+1 per threat still on the map** (festering, max +3), **+2 per boss / +1 for the Treeguard** (no cap), and **+1 whenever a character goes Down**.
-- Thresholds: 10 (threats +1), 15 (crafts +1 resource), 20 (-1 Sanity Tick), 25 (bosses any phase + **Nothing Left to Lose**: +1 attack die for everyone, Rest heals +1 Health anywhere).
+- Thresholds: 10 (threats +1), 15 (crafts +1 resource), 20 (-1 Sanity Tick), 25 (**Nothing Left to Lose**: +1 attack die for everyone, Rest heals +1 Health anywhere).
 - Cleanse (Day action) reduces Doom by 2.
 
 ## Dusk Scramble

@@ -51,6 +51,16 @@ function resolveTick()
                 sanityLoss = sanityLoss + 1
             end
 
+            -- Deerclops (§14.1): while it stands on the map, the night takes
+            -- twice as much of you. Doubled AFTER the Doom surcharge and
+            -- BEFORE Coco's relief — that order is the balance model's, and
+            -- simulate_balance.py has assumed this rule since the baseline was
+            -- measured, while the Lua never implemented it: the boss arrived,
+            -- announced "all Sanity costs are doubled", and cost nothing.
+            if gameState.ongoingDawnEffects.deerclopsActive then
+                sanityLoss = sanityLoss * 2
+            end
+
             -- Calming Presence (§6.2): sharing Coco's tile softens the night.
             if cocoLocation and char.name ~= "Coco" and char.location == cocoLocation
                 and sanityLoss > 0 then

@@ -30,6 +30,7 @@ not the index.
 | [File Structure](docs/agents/file-structure.md) | find what lives where, or what a directory is for |
 | [Game Design Quick Reference](docs/agents/design-reference.md) | check characters, locations, phases, the Doom track, the win condition |
 | [Combat and Action Rules](docs/agents/combat-and-actions.md) | change combat maths or any player action |
+| [Economy, Session and Variants](docs/agents/economy-and-session.md) | change the resource economy, Dusk/difficulty/telemetry, or an A/B variant |
 | [Test Suite](docs/agents/test-suite.md) | know which module runs what gameplay, or run the release checklist |
 | [Test Suite — Static Guards](docs/agents/test-guards.md) | find the static guard that just failed, or add one |
 | [Balance Simulation](docs/agents/balance-simulation.md) | re-run the Monte Carlo after a rules change |

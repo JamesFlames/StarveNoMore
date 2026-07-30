@@ -210,14 +210,47 @@ DAWN_EFFECTS["P3_WALLS_CLOSE"] = {
     end,
 }
 
+-- Who was gone this morning: the standing character carrying the fewest
+-- items. Scripted rather than left to the table — getPlayerCarriedObjects
+-- already answers "what is this player holding?" for weapons, lights, pry
+-- tools and the Bandage, so "fewest items" was never actually unknowable.
+-- Ties break on seat order, so the answer is the same for everyone watching.
+local function _fewestItemsColor()
+    local best, bestN = nil, nil
+    for _, color in ipairs({"White", "Red", "Yellow", "Green", "Blue"}) do
+        local ch = gameState.activeChars[color]
+        if ch and not ch.down then
+            local n = 0
+            safecall(function() n = #getPlayerCarriedObjects(color, ch.name) end, "ItemCount")
+            if bestN == nil or n < bestN then best, bestN = color, n end
+        end
+    end
+    return best
+end
+
 DAWN_EFFECTS["P3_ALLY_MISSING"] = {
     onReveal = function(card)
-        broadcastEvent("proc", "One of you was gone this morning. The player with the fewest items loses all items and reappears at a random tile.")
+        local color = _fewestItemsColor()
+        local ch = color and gameState.activeChars[color]
+        if not ch then
+            broadcastEvent("proc", "Nobody was gone this morning — there is nobody left to go.")
+            return
+        end
+        -- The adrenaline is banked on the CHARACTER, not read live from the
+        -- flag: beginDayPhase resets everyone's budget after this Dawn
+        -- resolves, so a flag consulted later would be handing the bonus to
+        -- whoever happened to be asking.
+        gameState.missingAlly = color
         gameState.ongoingDawnEffects.missingAllyBonus = true
-        broadcastEvent("gain", "ONGOING: That player gets +1 action this day (adrenaline).")
+        broadcastEvent("proc", ch.name .. " was gone this morning — the fewest things to carry, " ..
+            "and nobody noticed until the light came up.")
+        broadcastEvent("gain", "ONGOING: " .. ch.name .. " gets +1 action today (adrenaline).")
+        broadcastEvent("warn", "Table step: " .. ch.name ..
+            " discards all Items and moves their standee to a random tile.")
     end,
     onCleanup = function()
         gameState.ongoingDawnEffects.missingAllyBonus = nil
+        gameState.missingAlly = nil
     end,
 }
 

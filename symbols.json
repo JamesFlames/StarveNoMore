@@ -332,7 +332,7 @@
   "BROADCAST_COLORS": [
    {
     "file": "lua/global.lua",
-    "line": 281,
+    "line": 285,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -432,7 +432,7 @@
   "CLEANSE_COST": [
    {
     "file": "lua/global.lua",
-    "line": 128,
+    "line": 132,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -442,7 +442,7 @@
   "CLEANSE_REDUCTION": [
    {
     "file": "lua/global.lua",
-    "line": 129,
+    "line": 133,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -552,7 +552,7 @@
   "DEATH_NARRATIONS": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 162,
+    "line": 172,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -592,7 +592,7 @@
   "DIFFICULTY_PARAMS": [
    {
     "file": "lua/global.lua",
-    "line": 176,
+    "line": 180,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -602,7 +602,7 @@
   "DOOM_RATES": [
    {
     "file": "lua/global.lua",
-    "line": 235,
+    "line": 239,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -692,7 +692,7 @@
   "HEART_SUPPLY_MAX": [
    {
     "file": "lua/global.lua",
-    "line": 141,
+    "line": 145,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1032,7 +1032,7 @@
   "REVIVE_HEALTH_COST": [
    {
     "file": "lua/global.lua",
-    "line": 136,
+    "line": 140,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1306,7 +1306,7 @@
   "_cardSnapshot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 397,
+    "line": 396,
     "kind": "function",
     "params": [
      "obj"
@@ -1338,7 +1338,7 @@
   "_dawnCardRevealed": [
    {
     "file": "lua/day_loop.lua",
-    "line": 424,
+    "line": 423,
     "kind": "function",
     "params": [
      "card",
@@ -1351,7 +1351,7 @@
   "_findCardAtDawnRevealSpot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 413,
+    "line": 412,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1673,7 +1673,7 @@
   "advanceToNextPlayer": [
    {
     "file": "lua/turns.lua",
-    "line": 79,
+    "line": 87,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1874,7 +1874,7 @@
   "beginDusk": [
    {
     "file": "lua/day_loop.lua",
-    "line": 463,
+    "line": 462,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1884,7 +1884,7 @@
   "beginNight": [
    {
     "file": "lua/day_loop.lua",
-    "line": 604,
+    "line": 603,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1950,7 +1950,7 @@
   "broadcastEvent": [
    {
     "file": "lua/global.lua",
-    "line": 289,
+    "line": 293,
     "kind": "function",
     "params": [
      "category",
@@ -2224,7 +2224,7 @@
   "checkBonusVictories": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 412,
+    "line": 422,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2234,7 +2234,7 @@
   "checkDefeat": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 352,
+    "line": 362,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2254,7 +2254,7 @@
   "checkDownState": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 185,
+    "line": 195,
     "kind": "function",
     "params": [
      "color"
@@ -2290,7 +2290,7 @@
   "checkVictory": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 382,
+    "line": 392,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2453,7 +2453,7 @@
   "countDuskReady": [
    {
     "file": "lua/turns.lua",
-    "line": 289,
+    "line": 297,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2515,7 +2515,7 @@
   "describeDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 262,
+    "line": 266,
     "kind": "function",
     "params": [
      "diff"
@@ -2576,7 +2576,7 @@
   "doCleanse": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 320,
+    "line": 330,
     "kind": "function",
     "params": [
      "color"
@@ -2927,7 +2927,7 @@
   "endPlayerTurn": [
    {
     "file": "lua/turns.lua",
-    "line": 147,
+    "line": 155,
     "kind": "function",
     "params": [
      "color"
@@ -3197,7 +3197,7 @@
   "getDifficulty": [
    {
     "file": "lua/global.lua",
-    "line": 194,
+    "line": 198,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3207,7 +3207,7 @@
   "getDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 246,
+    "line": 250,
     "kind": "function",
     "params": [
      "phase"
@@ -3219,7 +3219,7 @@
   "getDoomLimit": [
    {
     "file": "lua/global.lua",
-    "line": 199,
+    "line": 203,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3239,7 +3239,7 @@
   "getDoomRate": [
    {
     "file": "lua/global.lua",
-    "line": 252,
+    "line": 256,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3377,7 +3377,7 @@
   "getPhaseForDay": [
    {
     "file": "lua/global.lua",
-    "line": 217,
+    "line": 221,
     "kind": "function",
     "params": [
      "day"
@@ -3448,7 +3448,7 @@
   "getSourceMaxHP": [
    {
     "file": "lua/global.lua",
-    "line": 204,
+    "line": 208,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3458,7 +3458,7 @@
   "getSourceSplitHP": [
    {
     "file": "lua/global.lua",
-    "line": 212,
+    "line": 216,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3478,7 +3478,7 @@
   "getTotalDays": [
    {
     "file": "lua/global.lua",
-    "line": 198,
+    "line": 202,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3508,7 +3508,7 @@
   "ghostDrift": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 301,
+    "line": 311,
     "kind": "function",
     "params": [
      "color",
@@ -3749,7 +3749,7 @@
   "migrateGameState": [
    {
     "file": "lua/global.lua",
-    "line": 306,
+    "line": 310,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4638,7 +4638,7 @@
   "onLoad": [
    {
     "file": "lua/global.lua",
-    "line": 372,
+    "line": 377,
     "kind": "function",
     "params": [
      "savedState"
@@ -4929,7 +4929,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 432,
+    "line": 437,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5577,7 +5577,7 @@
   "refreshDuskReadyLabel": [
    {
     "file": "lua/turns.lua",
-    "line": 307,
+    "line": 315,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5805,7 +5805,7 @@
   "revealDawnCard": [
    {
     "file": "lua/day_loop.lua",
-    "line": 339,
+    "line": 338,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5815,7 +5815,7 @@
   "revealDuskCommitments": [
    {
     "file": "lua/turns.lua",
-    "line": 231,
+    "line": 239,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5825,7 +5825,7 @@
   "revealFirstDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 326,
+    "line": 325,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5835,7 +5835,7 @@
   "revealLastDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 282,
+    "line": 281,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5845,7 +5845,7 @@
   "revealTrophy": [
    {
     "file": "lua/combat.lua",
-    "line": 295,
+    "line": 300,
     "kind": "function",
     "params": [
      "key"
@@ -5857,7 +5857,7 @@
   "reviveCharacter": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 236,
+    "line": 246,
     "kind": "function",
     "params": [
      "reviverColor",
@@ -6185,7 +6185,7 @@
   "spendAction": [
    {
     "file": "lua/turns.lua",
-    "line": 174,
+    "line": 182,
     "kind": "function",
     "params": [
      "color",
@@ -6392,7 +6392,7 @@
   "toggleDuskReady": [
    {
     "file": "lua/turns.lua",
-    "line": 320,
+    "line": 328,
     "kind": "function",
     "params": [
      "color"

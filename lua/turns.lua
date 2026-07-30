@@ -62,6 +62,14 @@ function beginDayPhase()
     for color, char in pairs(gameState.activeChars) do
         if not char.down then
             char.actionsLeft = budget
+            -- P3_ALLY_MISSING: the one who vanished this morning came back
+            -- running (missingAlly is set by the Dawn effect, which resolves
+            -- before this reset — which is why it is banked rather than read
+            -- from the ongoing flag at spend time).
+            if gameState.missingAlly == color then
+                char.actionsLeft = char.actionsLeft + 1
+                broadcastEvent("gain", char.name .. " is running on adrenaline — +1 action today.")
+            end
         else
             char.actionsLeft = 0
         end

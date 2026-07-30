@@ -40,19 +40,21 @@ DISPLAY_ONLY = {
     # Boss-presence bookkeeping. The rules that matter (festering, victory,
     # persistent HP) key off the standee on the map and gameState.bossHP /
     # bossesDefeated, never off these; they exist so the Active Rules panel
-    # can name what is standing out there.
-    "deerclopsActive",
-    "eyeActive",
+    # can name what is standing out there. Only sourceActive qualifies:
+    # victory reads bossesDefeated.source and isBossOnMap, never this.
+    # (deerclopsActive and eyeActive were both listed here and both wrong —
+    # the Eye's each-Dawn extra threat has always read eyeActive, and
+    # simulate_balance.py had been modelling the Deerclops' double Sanity
+    # drain all along while only the Lua had not.)
     "sourceActive",
     # Set at reveal purely so the panel can report what the card already did
     # to the Doom track this Dawn (the cards apply the change themselves —
     # see dawn_effects_phase4.lua for why a deferred read cannot work).
     "doomReduced",
     "noDoomThisDawn",
-    # P3_ALLY_MISSING's +1 action goes to "the player with the fewest items",
-    # and item counts live on the table, not in gameState — the card carries a
-    # DAWN_MANUAL_STEPS entry for exactly that reason. The panel line is the
-    # reminder; the table applies it.
+    # P3_ALLY_MISSING's +1 action is real, but beginDayPhase reads it off
+    # gameState.missingAlly (banked at reveal, before the budget reset wipes
+    # it) rather than off this flag; the flag is what the panel shows.
     "missingAllyBonus",
 }
 
@@ -110,6 +112,17 @@ def test_display_only_allowlist_has_no_stale_entries():
         "DISPLAY_ONLY names flags EFFECT_RULES no longer announces: %s — "
         "remove them from tests/test_lua_effect_flags.py" % stale
     )
+
+
+def test_a_display_only_flag_that_gains_an_enforcer_leaves_the_list():
+    """DISPLAY_ONLY asserts a flag is panel decoration. Once a rule reads it,
+    that claim is false, and the entry starts shielding a real flag from the
+    check above — which is exactly how `deerclopsActive` would have gone back
+    to sleep after being wired up."""
+    promoted = sorted(f for f in DISPLAY_ONLY if _readers(f))
+    assert not promoted, (
+        f"listed as display-only but a rule now reads them: {promoted} — "
+        "remove them from DISPLAY_ONLY in tests/test_lua_effect_flags.py")
 
 
 def test_every_flag_a_dawn_card_sets_is_announced():

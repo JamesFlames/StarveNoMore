@@ -147,7 +147,7 @@ DAWN_EFFECTS["P2_DEERCLOPS_ARRIVES"] = {
         gameState.bossHP = gameState.bossHP or {}
         gameState.bossHP.deerclops = BOSS_BASE_STATS["Boss:Deerclops"].hp
         safecall(function() placeBossStandee("Deerclops", "BasketballCourt") end, "BossPlace")
-        broadcastEvent("warn", "ONGOING: While Deerclops is on the map, all Sanity costs are doubled. It festers Doom +2 each Dawn it stands.")
+        broadcastEvent("warn", "ONGOING: While Deerclops is on the map, every character loses DOUBLE Sanity at Tick. It festers Doom +2 each Dawn it stands.")
         broadcastEvent("proc", "Deerclops: HP " .. gameState.bossHP.deerclops .. ", Atk " ..
             BOSS_BASE_STATS["Boss:Deerclops"].attack .. " — Fight it at its tile; the script tracks its HP.")
         safecall(function() nudgeCameraToBoss("Deerclops", "BasketballCourt") end, "CameraNudge")

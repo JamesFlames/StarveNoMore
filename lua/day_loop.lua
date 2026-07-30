@@ -242,7 +242,6 @@ function checkDoomThresholds()
     end
     if d >= T.anyPhaseBosses and not gameState.ongoingDawnEffects.doom25 then
         gameState.ongoingDawnEffects.doom25 = true
-        broadcastEvent("warn", "DOOM THRESHOLD " .. T.anyPhaseBosses .. ": Boss-level threats can appear in any phase.")
         broadcastEvent("gain", "DOOM " .. T.anyPhaseBosses .. " — Nothing Left to Lose. +1 attack die for everyone; Rest heals +1 Health anywhere. Go down swinging.")
     end
 end

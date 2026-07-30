@@ -4,7 +4,7 @@
 
 Every field of `gameState`, where its default comes from, and which files touch it. `gameState` is the game's single source of truth and is persisted whole by `onSave`, so "who clears this?" and "what is this when a save is restored?" are the two questions that come up constantly.
 
-**72 fields** across **43 files**. 36 have a declared default in `migrateGameState()` (`lua/global.lua`); 36 are deliberately transient (see the table's *lifetime* column).
+**73 fields** across **43 files**. 37 have a declared default in `migrateGameState()` (`lua/global.lua`); 36 are deliberately transient (see the table's *lifetime* column).
 
 ## Persistence
 
@@ -58,6 +58,7 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 | `loudSignature` | `{}` | declared | `day_loop.lua`, `setup.lua`, `signatures.lua`, `ui_setup.lua` | `day_loop.lua`, `night.lua`, `signatures.lua` |
 | `lucaRallyUsed` | — | per-day | `actions_social.lua`, `day_loop.lua` | `actions_social.lua`, `ui_help.lua` |
 | `messageLog` | `{}` | declared | `ui_msglog.lua` | `ui_msglog.lua` |
+| `missingAlly` | `nil` | declared | `effects/dawn_effects_phase3.lua` | `turns.lua` |
 | `msgLogHidden` | — | ui-local | `ui_msglog.lua` | `ui_msglog.lua` |
 | `nightOmen` | — | per-day | `ui_banner.lua` | `ui_banner.lua` |
 | `ongoingDawnEffects` | `{}` | declared | `selftest.lua` | `achievement_rules.lua`, `actions.lua`, `combat.lua`, `combat_resolve.lua`, `crafting.lua`, `day_loop.lua`, `effects/dawn_effects_dispatch.lua`, `effects/dawn_effects_phase1.lua`, `effects/dawn_effects_phase2.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `helpers.lua`, `night.lua`, `setup.lua`, `tick_victory.lua`, `turns.lua`, `ui_actionbar_core.lua`, `ui_help.lua`, `ui_rules.lua` |

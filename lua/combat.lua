@@ -247,9 +247,14 @@ function markBossDefeated(threatName)
         key = "deerclops"
         gameState.bossesDefeated.deerclops = true
         e.deerclopsDefeated = true
+        -- Cleared HERE, not at the next Dawn's onCleanup. The flag now has
+        -- teeth (double Sanity at Tick), and the kill broadcast one line down
+        -- promises the drain stops — leaving it set until tomorrow would
+        -- charge the team a doubled Tick for a boss that is already in the bag.
+        e.deerclopsActive = nil
         gameState.doom = math.max(0, gameState.doom - 2)
         safecall(function() moveDoomMarker(gameState.doom) end, "Doom")
-        broadcastEvent("gain", "The Deerclops falls! Sanity costs return to normal — and the pressure eases: Doom -2 (now "
+        broadcastEvent("gain", "The Deerclops falls! Sanity drain returns to normal — and the pressure eases: Doom -2 (now "
             .. gameState.doom .. "). Its Trophy flips face-up on the trophy row — its power is live.")
     elseif string.find(lower, "eye of terror", 1, true) or string.find(lower, "eyeofterror", 1, true) then
         key = "eye"

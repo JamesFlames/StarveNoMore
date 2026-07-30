@@ -90,7 +90,7 @@ function getHelpDoomContent()
         {T.night,          "Night threat draws +1 at all locations."},
         {T.scarcity,       "Scarcity: every craft costs +1 extra resource (your choice)."},
         {T.tick,           "All characters lose +1 Sanity at Tick."},
-        {T.anyPhaseBosses, "Boss-level threats can appear in any phase."},
+        {T.anyPhaseBosses, "Nothing Left to Lose: +1 attack die for everyone, and Rest heals +1 Health anywhere."},
         {limit,            "DEFEAT — the neighborhood is consumed."},
     }
 

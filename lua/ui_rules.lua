@@ -26,7 +26,7 @@ DOOM_THRESHOLD_RULES = {
     { "doom10", "Doom 10+: Night threat draws +1 at all locations." },
     { "doom15", "Doom 15+ (Scarcity): every craft costs +1 extra resource." },
     { "doom20", "Doom 20+: everyone loses +1 extra Sanity at Tick." },
-    { "doom25", "Doom 25+: boss threats can appear in any phase. Nothing Left to Lose: +1 attack die for everyone; Rest heals +1 Health anywhere." },
+    { "doom25", "Doom 25+ (Nothing Left to Lose): +1 attack die for everyone; Rest heals +1 Health anywhere." },
 }
 
 -----------------------------------------------------------------------
@@ -59,7 +59,7 @@ EFFECT_RULES = {
     crowdThreat         = "The most-populated location draws +1 threat tonight.",
     dareCourtGlow       = "DARE — court floodlights: sleep at a sport court for +2 Threats there tonight; survivors claim 2 Market cards at Dawn.",
     darePorchLight      = "DARE — porch light: the first Gather at a house today may take 3 resources instead of 1, for 2 Sanity.",
-    deerclopsActive     = "DEERCLOPS is loose: all Sanity costs are doubled. Festers Doom +2 each Dawn.",
+    deerclopsActive     = "DEERCLOPS is loose: everyone loses double Sanity at Tick. Festers Doom +2 each Dawn.",
     eyeActive           = "EYE OF TERROR is loose: +1 extra threat at its tile each Dawn. Festers Doom +2 each Dawn.",
     sourceActive        = "THE SOURCE is here: destroy it before Day 7 ends — while it stands, there is no victory. Festers Doom +2 each Dawn.",
 }

@@ -87,7 +87,7 @@ The Doom track runs 0–30. At 30, the team loses. It advances each Dawn by the 
 - 10: night threats +1
 - 15: Scarcity — crafts cost +1 extra resource (your choice of type)
 - 20: all -1 Sanity at Tick
-- 25: bosses can appear in any phase — and **Nothing Left to Lose**: everyone gets +1 attack die, and Rest heals +1 Health anywhere (non-stacking with the at-home bonus). Go down swinging.
+- 25: **Nothing Left to Lose** — everyone gets +1 attack die, and Rest heals +1 Health anywhere (non-stacking with the at-home bonus). Go down swinging.
 - 30: defeat
 
 Push back Doom by Cleansing — or by killing a phase boss (Deerclops −2, Eye −3).

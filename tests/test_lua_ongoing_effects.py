@@ -126,6 +126,84 @@ class TestReducedActions:
         assert env.eval("gameState.activeChars.White.actionsLeft") == 3
 
 
+class TestDeerclopsDrain:
+    """simulate_balance.py has doubled the Tick Sanity loss while the Deerclops
+    stands since the baseline was measured. The Lua never did — the boss
+    arrived, announced that Sanity costs were doubled, and cost nothing. The
+    order matters as much as the rule: doubled AFTER the Doom-20 surcharge and
+    BEFORE Coco's relief, which is the order the sim uses."""
+
+    def _tick(self, env):
+        env.execute("gameState.jamesEnergyDrinkUsed = true")
+        env.globals().resolveTick()
+
+    def test_the_night_takes_twice_as_much(self, env):
+        add_char(env, "White", "James", sanity=8)
+        set_effect(env, "deerclopsActive")
+        self._tick(env)
+        assert env.eval("gameState.activeChars.White.sanity") == 6   # -1 x2
+
+    def test_an_ordinary_night_is_unchanged(self, env):
+        add_char(env, "White", "James", sanity=8)
+        self._tick(env)
+        assert env.eval("gameState.activeChars.White.sanity") == 7   # -1
+
+    def test_it_doubles_the_doom_surcharge_too(self, env):
+        add_char(env, "White", "James", sanity=8)
+        set_effect(env, "deerclopsActive")
+        set_effect(env, "doom20")
+        self._tick(env)
+        assert env.eval("gameState.activeChars.White.sanity") == 4   # (1+1) x2
+
+    def test_coco_softens_the_doubled_loss_after_doubling(self, env):
+        add_char(env, "Red", "Coco", location="JamesHouse")
+        add_char(env, "White", "James", sanity=8, location="JamesHouse")
+        set_effect(env, "deerclopsActive")
+        self._tick(env)
+        # 1 -> x2 = 2 -> Coco -1 = 1, not (1-1) x2 = 0
+        assert env.eval("gameState.activeChars.White.sanity") == 7
+
+    def test_killing_it_stops_the_drain_the_same_night(self, env):
+        add_char(env, "White", "James", sanity=8)
+        set_effect(env, "deerclopsActive")
+        env.globals().markBossDefeated("Deerclops")
+        assert env.eval("gameState.ongoingDawnEffects.deerclopsActive") is None
+        self._tick(env)
+        assert env.eval("gameState.activeChars.White.sanity") == 7   # back to -1
+
+
+class TestMissingAlly:
+    def test_the_lightest_traveller_vanishes_and_comes_back_running(self, env):
+        add_char(env, "White", "James")
+        add_char(env, "Yellow", "Rayman")
+        env.execute('TTS.setHand("White", { TTS.makeObject({}), TTS.makeObject({}) })')
+        env.execute('gameState.turnOrder = {"White", "Yellow"}')
+
+        env.eval("DAWN_EFFECTS.P3_ALLY_MISSING.onReveal")(None)
+        assert env.eval("gameState.missingAlly") == "Yellow"   # carrying nothing
+
+        env.globals().beginDayPhase()
+        assert env.eval("gameState.activeChars.Yellow.actionsLeft") == 4
+        assert env.eval("gameState.activeChars.White.actionsLeft") == 3
+
+    def test_it_stacks_with_a_shortened_day(self, env):
+        add_char(env, "White", "James")
+        env.execute('gameState.turnOrder = {"White"}')
+        env.eval("DAWN_EFFECTS.P3_ALLY_MISSING.onReveal")(None)
+        set_effect(env, "reducedActions")
+        env.globals().beginDayPhase()
+        assert env.eval("gameState.activeChars.White.actionsLeft") == 3   # 2 + 1
+
+    def test_cleanup_hands_the_adrenaline_back(self, env):
+        add_char(env, "White", "James")
+        env.execute('gameState.turnOrder = {"White"}')
+        env.eval("DAWN_EFFECTS.P3_ALLY_MISSING.onReveal")(None)
+        env.eval("DAWN_EFFECTS.P3_ALLY_MISSING.onCleanup")()
+        assert env.eval("gameState.missingAlly") is None
+        env.globals().beginDayPhase()
+        assert env.eval("gameState.activeChars.White.actionsLeft") == 3
+
+
 class TestRain:
     def test_gather_in_the_rain_costs_sanity_at_a_court(self, env):
         add_char(env, "Green", "Ellie", location="BasketballCourt", sanity=8)

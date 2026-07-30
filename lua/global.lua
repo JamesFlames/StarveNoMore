@@ -118,7 +118,11 @@ DOOM_THRESHOLDS = {
     night          = 10,   -- night threat draws +1 everywhere
     scarcity       = 15,   -- crafts cost +1 extra resource
     tick           = 20,   -- everyone -1 extra Sanity at Tick
-    anyPhaseBosses = 25,   -- bosses any phase + Nothing Left to Lose
+    anyPhaseBosses = 25,   -- Nothing Left to Lose (the name is historical:
+                           -- the "bosses in any phase" half described a
+                           -- mechanic the mod never had — one un-phased Threat
+                           -- deck, bosses placed by scripted Dawn cards — and
+                           -- was cut from the player-facing text in 2026-07)
 }
 
 -----------------------------------------------------------------------
@@ -347,6 +351,7 @@ function migrateGameState()
     gs.openingOffered       = gs.openingOffered or {}        -- Day-1 opening suggestion, once per player (§15.9)
     gs.duskPending          = gs.duskPending or {}           -- banked secret Dusk moves (§11.3 variant)
     gs.driftedThisRound     = gs.driftedThisRound or {}      -- ghost drift, once per round (§16.4)
+    gs.missingAlly          = gs.missingAlly or nil          -- P3_ALLY_MISSING: who gets today's +1 action
     if gs.duskSecret == nil then gs.duskSecret = false end   -- §11.3 A/B variant
     if gs.solo == nil then gs.solo = false end               -- §20.3 solo mode
     -- The achievement vault (achievements.lua). It spans games rather than
