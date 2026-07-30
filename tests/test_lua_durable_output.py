@@ -101,6 +101,10 @@ EFFECT_ACTIONS = {
     "doFightTarget", "doFlee", "doTrade", "doEnergyDrink", "doEatRaw", "doPass",
     "doBarricade", "doDefend", "doRally", "doPry", "doStabilize", "doCraft",
     "doCook", "doSignature", "doCleanse", "doAppeaseTreeguard",
+    # Use Item (items.lua): the card is consumed and a stat or the Doom track
+    # moves. Both halves are in the Message Log line it broadcasts, and the
+    # recipient is named there because the item auto-targets whoever needs it.
+    "doUseItem",
     # Witness (§10.1): it *reveals* an ally's Haunted threat, but the product
     # is a state change — the witness's Sanity is spent and they gain the right
     # to fight it — and both halves land in the Message Log and the Rules

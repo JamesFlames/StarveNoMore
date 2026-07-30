@@ -2,6 +2,38 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Items you could craft and could not use (2026-07)
+
+There was no Use Item verb. None. Not a hidden one, not a manual one — the
+action bar's twenty-one buttons are all specific verbs, there is no stat
+editor anywhere, and stats live in `gameState` where a player cannot reach
+them. So a crafted **First Aid Kit** ("Single-use. Restore 4 Health to any
+player at your location") was a card in your hand that could not do the thing
+printed on its face, by any means the mod provided. Same for the Protein Bar,
+Energy Bar, Hot Cocoa, Sports Drink, Friendship Bracelet and School Bell.
+
+Eight consumables now work, through one **Use Item** button (free — the action
+economy already charged you for the Craft that made them). Healing auto-targets
+whoever at your tile needs it most and says so, the way the Scarcity surcharge
+picks a resource and James's reroll picks a die; a prompt would have been a
+third target dialog for a decision that is nearly always forced. The card is
+spent.
+
+**The other 24 are now a written-down list, not a silence.**
+`tests/test_market_wiring.py` fails on any Market card that nothing reads and
+nothing explains. Each unwired card carries its reason — Circle of Salt needs
+boss-movement bans, the Toolbox needs a discount seam in `doCraft`, Reinforced
+Door wants a "defense" stat the game doesn't have, the Notebook is a prop. The
+failure this prevents is the one that happened: 33 cards quietly doing nothing,
+indistinguishable from 33 cards deliberately left to the table. A companion
+check ejects a card from the list the moment the Lua starts reading it, and a
+third asserts `USE_ITEMS` still matches the numbers printed on the cards.
+
+`M_BANDAGE` is the worked example of why the split needed writing down: its
+effect line went unimplemented for the whole project, and separately
+`doStabilize` charged a Bandage it never checked for. Two halves of one card,
+both missing, neither visible.
+
 ## Stabilize was free (2026-07)
 
 §12.3 Stabilize costs a Bandage. Four UI strings said so — the button tooltip,

@@ -1112,7 +1112,7 @@
   "SITUATIONAL_ACTIONS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 349,
+    "line": 398,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1219,6 +1219,36 @@
     "params": null,
     "arity": null,
     "doc": "Boss key → the Trophy it awards. MIRRORS the `boss` column of content/cards_trophies.csv (which holds the trophy NAMES, despite the column heading); tests/test…"
+   }
+  ],
+  "USE_ITEMS": [
+   {
+    "file": "lua/items.lua",
+    "line": 25,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "effect tables are { stat = amount }; `target` says who receives it:   \"self\"  — the user   \"tile\"  — whoever at the user's tile needs it most (the user include…"
+   }
+  ],
+  "USE_ITEM_DIALOG_SLOTS": [
+   {
+    "file": "lua/ui_actionbar_situational.lua",
+    "line": 310,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "Barricade and Appease pay their own resources inside the action (and refund the spent action if unaffordable), so no cost table here. Use Item (items.lua): the…"
+   }
+  ],
+  "USE_ITEM_ORDER": [
+   {
+    "file": "lua/items.lua",
+    "line": 45,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "Stable order, so the dialog never reshuffles between openings."
    }
   ],
   "WEAPON_DICE": [
@@ -1443,6 +1473,16 @@
      "mode"
     ],
     "arity": 2,
+    "doc": ""
+   }
+  ],
+  "_useItemDialogIds": [
+   {
+    "file": "lua/ui_actionbar_situational.lua",
+    "line": 311,
+    "kind": "table",
+    "params": null,
+    "arity": null,
     "doc": ""
    }
   ],
@@ -2111,6 +2151,18 @@
     "doc": ""
    }
   ],
+  "canUseItem": [
+   {
+    "file": "lua/items.lua",
+    "line": 101,
+    "kind": "function",
+    "params": [
+     "color"
+    ],
+    "arity": 1,
+    "doc": ""
+   }
+  ],
   "canUseSignature": [
    {
     "file": "lua/signatures.lua",
@@ -2472,6 +2524,18 @@
     "doc": "Human-readable Doom surcharge for a difficulty, for the setup announcement and the Rules panel. Exists because doomDelta has two shapes and every caller that a…"
    }
   ],
+  "describeItemEffect": [
+   {
+    "file": "lua/items.lua",
+    "line": 51,
+    "kind": "function",
+    "params": [
+     "spec"
+    ],
+    "arity": 1,
+    "doc": "\"+3 Hunger, +1 Sanity\" for a dialog label / broadcast."
+   }
+  ],
   "dispatchDawnEffect": [
    {
     "file": "lua/effects/dawn_effects_dispatch.lua",
@@ -2773,6 +2837,19 @@
     ],
     "arity": 1,
     "doc": ""
+   }
+  ],
+  "doUseItem": [
+   {
+    "file": "lua/items.lua",
+    "line": 119,
+    "kind": "function",
+    "params": [
+     "color",
+     "itemId"
+    ],
+    "arity": 2,
+    "doc": "Use one carried item. Free — these are consumables, not actions; the action economy already prices the Craft that produced them."
    }
   ],
   "doWitness": [
@@ -3849,7 +3926,7 @@
   "onActAppease": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 337,
+    "line": 386,
     "kind": "function",
     "params": [
      "player",
@@ -3863,7 +3940,7 @@
   "onActBarricade": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 333,
+    "line": 382,
     "kind": "function",
     "params": [
      "player",
@@ -3975,7 +4052,7 @@
   "onActFlee": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 308,
+    "line": 357,
     "kind": "function",
     "params": [
      "player",
@@ -3983,7 +4060,7 @@
      "id"
     ],
     "arity": 3,
-    "doc": "Barricade and Appease pay their own resources inside the action (and refund the spent action if unaffordable), so no cost table here. Flee picks a destination …"
+    "doc": "Flee picks a destination exactly the way Move does, so it rides the same tile buttons rather than growing a second set (see _spawnMoveButtons)."
    }
   ],
   "onActGather": [
@@ -4152,6 +4229,20 @@
     ],
     "arity": 3,
     "doc": "Undo: one-step rollback of the last action's stat / position / Doom bookkeeping (snapshot taken in spendAction via snapshotForUndo)."
+   }
+  ],
+  "onActUseItem": [
+   {
+    "file": "lua/ui_actionbar_situational.lua",
+    "line": 313,
+    "kind": "function",
+    "params": [
+     "player",
+     "value",
+     "id"
+    ],
+    "arity": 3,
+    "doc": ""
    }
   ],
   "onActionTooltipEnter": [
@@ -4999,6 +5090,34 @@
     "doc": ""
    }
   ],
+  "onUseItemCancel": [
+   {
+    "file": "lua/ui_actionbar_situational.lua",
+    "line": 351,
+    "kind": "function",
+    "params": [
+     "player",
+     "value",
+     "id"
+    ],
+    "arity": 3,
+    "doc": ""
+   }
+  ],
+  "onUseItemOptionClick": [
+   {
+    "file": "lua/ui_actionbar_situational.lua",
+    "line": 341,
+    "kind": "function",
+    "params": [
+     "player",
+     "value",
+     "id"
+    ],
+    "arity": 3,
+    "doc": ""
+   }
+  ],
   "onVariantsContinue": [
    {
     "file": "lua/ui_setup.lua",
@@ -5550,7 +5669,7 @@
   "refreshSituationalButtons": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 376,
+    "line": 428,
     "kind": "function",
     "params": [
      "color"
@@ -6335,6 +6454,18 @@
     "doc": ""
    }
   ],
+  "usableItemsFor": [
+   {
+    "file": "lua/items.lua",
+    "line": 65,
+    "kind": "function",
+    "params": [
+     "color"
+    ],
+    "arity": 1,
+    "doc": "Which item ids is this player actually carrying?"
+   }
+  ],
   "validateActivePlayer": [
    {
     "file": "lua/ui_actionbar_display.lua",
@@ -6731,13 +6862,13 @@
   },
   "actAppease": {
    "file": "xml/hud.xml",
-   "line": 389,
+   "line": 395,
    "element": "Button",
    "onClick": "onActAppease"
   },
   "actBarricade": {
    "file": "xml/hud.xml",
-   "line": 383,
+   "line": 389,
    "element": "Button",
    "onClick": "onActBarricade"
   },
@@ -6785,7 +6916,7 @@
   },
   "actFlee": {
    "file": "xml/hud.xml",
-   "line": 377,
+   "line": 383,
    "element": "Button",
    "onClick": "onActFlee"
   },
@@ -6803,7 +6934,7 @@
   },
   "actPass": {
    "file": "xml/hud.xml",
-   "line": 400,
+   "line": 406,
    "element": "Button",
    "onClick": "onActPass"
   },
@@ -6857,9 +6988,15 @@
   },
   "actUndo": {
    "file": "xml/hud.xml",
-   "line": 395,
+   "line": 401,
    "element": "Button",
    "onClick": "onActUndo"
+  },
+  "actUseItem": {
+   "file": "xml/hud.xml",
+   "line": 377,
+   "element": "Button",
+   "onClick": "onActUseItem"
   },
   "actionBar": {
    "file": "xml/hud.xml",
@@ -6869,13 +7006,13 @@
   },
   "actionTooltip": {
    "file": "xml/hud.xml",
-   "line": 467,
+   "line": 473,
    "element": "Panel",
    "onClick": ""
   },
   "actionTooltipText": {
    "file": "xml/hud.xml",
-   "line": 475,
+   "line": 481,
    "element": "Text",
    "onClick": ""
   },
@@ -7043,19 +7180,19 @@
   },
   "charRoster": {
    "file": "xml/hud.xml",
-   "line": 559,
+   "line": 565,
    "element": "Panel",
    "onClick": ""
   },
   "combatPanel": {
    "file": "xml/dialogs.xml",
-   "line": 539,
+   "line": 586,
    "element": "Panel",
    "onClick": ""
   },
   "combatStatus": {
    "file": "xml/dialogs.xml",
-   "line": 547,
+   "line": 594,
    "element": "Text",
    "onClick": ""
   },
@@ -7091,103 +7228,103 @@
   },
   "cookCancel": {
    "file": "xml/dialogs.xml",
-   "line": 240,
+   "line": 287,
    "element": "Button",
    "onClick": "onCookCancel"
   },
   "cookDialog": {
    "file": "xml/dialogs.xml",
-   "line": 197,
+   "line": 244,
    "element": "Panel",
    "onClick": ""
   },
   "cookDialogHint": {
    "file": "xml/dialogs.xml",
-   "line": 208,
+   "line": 255,
    "element": "Text",
    "onClick": ""
   },
   "cookOpt1": {
    "file": "xml/dialogs.xml",
-   "line": 210,
+   "line": 257,
    "element": "Button",
    "onClick": "onCookOptionClick"
   },
   "cookOpt10": {
    "file": "xml/dialogs.xml",
-   "line": 237,
+   "line": 284,
    "element": "Button",
    "onClick": "onCookOptionClick"
   },
   "cookOpt2": {
    "file": "xml/dialogs.xml",
-   "line": 213,
+   "line": 260,
    "element": "Button",
    "onClick": "onCookOptionClick"
   },
   "cookOpt3": {
    "file": "xml/dialogs.xml",
-   "line": 216,
+   "line": 263,
    "element": "Button",
    "onClick": "onCookOptionClick"
   },
   "cookOpt4": {
    "file": "xml/dialogs.xml",
-   "line": 219,
+   "line": 266,
    "element": "Button",
    "onClick": "onCookOptionClick"
   },
   "cookOpt5": {
    "file": "xml/dialogs.xml",
-   "line": 222,
+   "line": 269,
    "element": "Button",
    "onClick": "onCookOptionClick"
   },
   "cookOpt6": {
    "file": "xml/dialogs.xml",
-   "line": 225,
+   "line": 272,
    "element": "Button",
    "onClick": "onCookOptionClick"
   },
   "cookOpt7": {
    "file": "xml/dialogs.xml",
-   "line": 228,
+   "line": 275,
    "element": "Button",
    "onClick": "onCookOptionClick"
   },
   "cookOpt8": {
    "file": "xml/dialogs.xml",
-   "line": 231,
+   "line": 278,
    "element": "Button",
    "onClick": "onCookOptionClick"
   },
   "cookOpt9": {
    "file": "xml/dialogs.xml",
-   "line": 234,
+   "line": 281,
    "element": "Button",
    "onClick": "onCookOptionClick"
   },
   "cube1": {
    "file": "xml/hud.xml",
-   "line": 411,
+   "line": 417,
    "element": "Text",
    "onClick": ""
   },
   "cube2": {
    "file": "xml/hud.xml",
-   "line": 412,
+   "line": 418,
    "element": "Text",
    "onClick": ""
   },
   "cube3": {
    "file": "xml/hud.xml",
-   "line": 413,
+   "line": 419,
    "element": "Text",
    "onClick": ""
   },
   "cubeLabel": {
    "file": "xml/hud.xml",
-   "line": 414,
+   "line": 420,
    "element": "Text",
    "onClick": ""
   },
@@ -7235,103 +7372,103 @@
   },
   "downedBtn_Blue": {
    "file": "xml/dialogs.xml",
-   "line": 458,
+   "line": 505,
    "element": "Button",
    "onClick": "onDownedTargetClick"
   },
   "downedBtn_Green": {
    "file": "xml/dialogs.xml",
-   "line": 455,
+   "line": 502,
    "element": "Button",
    "onClick": "onDownedTargetClick"
   },
   "downedBtn_Red": {
    "file": "xml/dialogs.xml",
-   "line": 449,
+   "line": 496,
    "element": "Button",
    "onClick": "onDownedTargetClick"
   },
   "downedBtn_White": {
    "file": "xml/dialogs.xml",
-   "line": 446,
+   "line": 493,
    "element": "Button",
    "onClick": "onDownedTargetClick"
   },
   "downedBtn_Yellow": {
    "file": "xml/dialogs.xml",
-   "line": 452,
+   "line": 499,
    "element": "Button",
    "onClick": "onDownedTargetClick"
   },
   "downedCancel": {
    "file": "xml/dialogs.xml",
-   "line": 461,
+   "line": 508,
    "element": "Button",
    "onClick": "onDownedCancel"
   },
   "downedDialog": {
    "file": "xml/dialogs.xml",
-   "line": 433,
+   "line": 480,
    "element": "Panel",
    "onClick": ""
   },
   "downedNote": {
    "file": "xml/dialogs.xml",
-   "line": 444,
+   "line": 491,
    "element": "Text",
    "onClick": ""
   },
   "downedTitle": {
    "file": "xml/dialogs.xml",
-   "line": 442,
+   "line": 489,
    "element": "Text",
    "onClick": ""
   },
   "duskBadmintonCourt": {
    "file": "xml/dialogs.xml",
-   "line": 599,
+   "line": 646,
    "element": "Button",
    "onClick": "onDuskMoveClick"
   },
   "duskBasketballCourt": {
    "file": "xml/dialogs.xml",
-   "line": 594,
+   "line": 641,
    "element": "Button",
    "onClick": "onDuskMoveClick"
   },
   "duskEllieLucaHouse": {
    "file": "xml/dialogs.xml",
-   "line": 584,
+   "line": 631,
    "element": "Button",
    "onClick": "onDuskMoveClick"
   },
   "duskJamesHouse": {
    "file": "xml/dialogs.xml",
-   "line": 579,
+   "line": 626,
    "element": "Button",
    "onClick": "onDuskMoveClick"
   },
   "duskPanel": {
    "file": "xml/dialogs.xml",
-   "line": 566,
+   "line": 613,
    "element": "Panel",
    "onClick": ""
   },
   "duskRaymanHouse": {
    "file": "xml/dialogs.xml",
-   "line": 589,
+   "line": 636,
    "element": "Button",
    "onClick": "onDuskMoveClick"
   },
   "duskReadyBtn": {
    "file": "xml/dialogs.xml",
-   "line": 606,
+   "line": 653,
    "element": "Button",
    "onClick": "onDuskReadyClick"
   },
   "finishCombatBtn": {
    "file": "xml/dialogs.xml",
-   "line": 554,
+   "line": 601,
    "element": "Button",
    "onClick": "onFinishCombat"
   },
@@ -7469,61 +7606,61 @@
   },
   "peekBtn_Market": {
    "file": "xml/dialogs.xml",
-   "line": 345,
+   "line": 392,
    "element": "Button",
    "onClick": "onPeekDeckClick"
   },
   "peekBtn_Phase": {
    "file": "xml/dialogs.xml",
-   "line": 339,
+   "line": 386,
    "element": "Button",
    "onClick": "onPeekDeckClick"
   },
   "peekBtn_Threat": {
    "file": "xml/dialogs.xml",
-   "line": 342,
+   "line": 389,
    "element": "Button",
    "onClick": "onPeekDeckClick"
   },
   "peekBtn_Visitor": {
    "file": "xml/dialogs.xml",
-   "line": 348,
+   "line": 395,
    "element": "Button",
    "onClick": "onPeekDeckClick"
   },
   "peekCancel": {
    "file": "xml/dialogs.xml",
-   "line": 351,
+   "line": 398,
    "element": "Button",
    "onClick": "onPeekCancel"
   },
   "peekDialog": {
    "file": "xml/dialogs.xml",
-   "line": 326,
+   "line": 373,
    "element": "Panel",
    "onClick": ""
   },
   "peekResultBody": {
    "file": "xml/dialogs.xml",
-   "line": 376,
+   "line": 423,
    "element": "Text",
    "onClick": ""
   },
   "peekResultClose": {
    "file": "xml/dialogs.xml",
-   "line": 379,
+   "line": 426,
    "element": "Button",
    "onClick": "onPeekResultClose"
   },
   "peekResultPanel": {
    "file": "xml/dialogs.xml",
-   "line": 362,
+   "line": 409,
    "element": "Panel",
    "onClick": ""
   },
   "peekResultTitle": {
    "file": "xml/dialogs.xml",
-   "line": 374,
+   "line": 421,
    "element": "Text",
    "onClick": ""
   },
@@ -7595,391 +7732,391 @@
   },
   "pressAttackBtn": {
    "file": "xml/dialogs.xml",
-   "line": 550,
+   "line": 597,
    "element": "Button",
    "onClick": "onPressAttack"
   },
   "rallyBtn_Blue": {
    "file": "xml/dialogs.xml",
-   "line": 417,
+   "line": 464,
    "element": "Button",
    "onClick": "onRallyTargetClick"
   },
   "rallyBtn_Green": {
    "file": "xml/dialogs.xml",
-   "line": 414,
+   "line": 461,
    "element": "Button",
    "onClick": "onRallyTargetClick"
   },
   "rallyBtn_Red": {
    "file": "xml/dialogs.xml",
-   "line": 408,
+   "line": 455,
    "element": "Button",
    "onClick": "onRallyTargetClick"
   },
   "rallyBtn_White": {
    "file": "xml/dialogs.xml",
-   "line": 405,
+   "line": 452,
    "element": "Button",
    "onClick": "onRallyTargetClick"
   },
   "rallyBtn_Yellow": {
    "file": "xml/dialogs.xml",
-   "line": 411,
+   "line": 458,
    "element": "Button",
    "onClick": "onRallyTargetClick"
   },
   "rallyCancel": {
    "file": "xml/dialogs.xml",
-   "line": 420,
+   "line": 467,
    "element": "Button",
    "onClick": "onRallyCancel"
   },
   "rallyDialog": {
    "file": "xml/dialogs.xml",
-   "line": 392,
+   "line": 439,
    "element": "Panel",
    "onClick": ""
   },
   "reactBtn_1": {
    "file": "xml/hud.xml",
-   "line": 450,
+   "line": 456,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactBtn_2": {
    "file": "xml/hud.xml",
-   "line": 453,
+   "line": 459,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactBtn_3": {
    "file": "xml/hud.xml",
-   "line": 456,
+   "line": 462,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactionsPanel": {
    "file": "xml/hud.xml",
-   "line": 437,
+   "line": 443,
    "element": "Panel",
    "onClick": ""
   },
   "resPickBattery": {
    "file": "xml/dialogs.xml",
-   "line": 525,
+   "line": 572,
    "element": "Button",
    "onClick": "onResourcePickClick"
   },
   "resPickCancel": {
    "file": "xml/dialogs.xml",
-   "line": 528,
+   "line": 575,
    "element": "Button",
    "onClick": "onResourcePickCancel"
   },
   "resPickCloth": {
    "file": "xml/dialogs.xml",
-   "line": 517,
+   "line": 564,
    "element": "Button",
    "onClick": "onResourcePickClick"
   },
   "resPickEnergy": {
    "file": "xml/dialogs.xml",
-   "line": 523,
+   "line": 570,
    "element": "Button",
    "onClick": "onResourcePickClick"
   },
   "resPickFood": {
    "file": "xml/dialogs.xml",
-   "line": 521,
+   "line": 568,
    "element": "Button",
    "onClick": "onResourcePickClick"
   },
   "resPickMetal": {
    "file": "xml/dialogs.xml",
-   "line": 515,
+   "line": 562,
    "element": "Button",
    "onClick": "onResourcePickClick"
   },
   "resPickWood": {
    "file": "xml/dialogs.xml",
-   "line": 513,
+   "line": 560,
    "element": "Button",
    "onClick": "onResourcePickClick"
   },
   "resourcePickBody": {
    "file": "xml/dialogs.xml",
-   "line": 510,
+   "line": 557,
    "element": "Text",
    "onClick": ""
   },
   "resourcePickTitle": {
    "file": "xml/dialogs.xml",
-   "line": 508,
+   "line": 555,
    "element": "Text",
    "onClick": ""
   },
   "resourcePickerDialog": {
    "file": "xml/dialogs.xml",
-   "line": 499,
+   "line": 546,
    "element": "Panel",
    "onClick": ""
   },
   "restChoiceDialog": {
    "file": "xml/dialogs.xml",
-   "line": 470,
+   "line": 517,
    "element": "Panel",
    "onClick": ""
   },
   "restHunger": {
    "file": "xml/dialogs.xml",
-   "line": 483,
+   "line": 530,
    "element": "Button",
    "onClick": "onRestHunger"
   },
   "restSanity": {
    "file": "xml/dialogs.xml",
-   "line": 487,
+   "line": 534,
    "element": "Button",
    "onClick": "onRestSanity"
   },
   "rosterHealthVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 623,
+   "line": 629,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 699,
+   "line": 705,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_James": {
    "file": "xml/hud.xml",
-   "line": 585,
+   "line": 591,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 737,
+   "line": 743,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 661,
+   "line": 667,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealth_Coco": {
    "file": "xml/hud.xml",
-   "line": 620,
+   "line": 626,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Ellie": {
    "file": "xml/hud.xml",
-   "line": 696,
+   "line": 702,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_James": {
    "file": "xml/hud.xml",
-   "line": 582,
+   "line": 588,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Luca": {
    "file": "xml/hud.xml",
-   "line": 734,
+   "line": 740,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Rayman": {
    "file": "xml/hud.xml",
-   "line": 658,
+   "line": 664,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHungerVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 633,
+   "line": 639,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 709,
+   "line": 715,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_James": {
    "file": "xml/hud.xml",
-   "line": 595,
+   "line": 601,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 747,
+   "line": 753,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 671,
+   "line": 677,
    "element": "Text",
    "onClick": ""
   },
   "rosterHunger_Coco": {
    "file": "xml/hud.xml",
-   "line": 630,
+   "line": 636,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Ellie": {
    "file": "xml/hud.xml",
-   "line": 706,
+   "line": 712,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_James": {
    "file": "xml/hud.xml",
-   "line": 592,
+   "line": 598,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Luca": {
    "file": "xml/hud.xml",
-   "line": 744,
+   "line": 750,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Rayman": {
    "file": "xml/hud.xml",
-   "line": 668,
+   "line": 674,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterName_Coco": {
    "file": "xml/hud.xml",
-   "line": 614,
+   "line": 620,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Ellie": {
    "file": "xml/hud.xml",
-   "line": 690,
+   "line": 696,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_James": {
    "file": "xml/hud.xml",
-   "line": 576,
+   "line": 582,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Luca": {
    "file": "xml/hud.xml",
-   "line": 728,
+   "line": 734,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Rayman": {
    "file": "xml/hud.xml",
-   "line": 652,
+   "line": 658,
    "element": "Text",
    "onClick": ""
   },
   "rosterRow_Coco": {
    "file": "xml/hud.xml",
-   "line": 612,
+   "line": 618,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Ellie": {
    "file": "xml/hud.xml",
-   "line": 688,
+   "line": 694,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_James": {
    "file": "xml/hud.xml",
-   "line": 574,
+   "line": 580,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Luca": {
    "file": "xml/hud.xml",
-   "line": 726,
+   "line": 732,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Rayman": {
    "file": "xml/hud.xml",
-   "line": 650,
+   "line": 656,
    "element": "Panel",
    "onClick": ""
   },
   "rosterSanityVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 643,
+   "line": 649,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 719,
+   "line": 725,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_James": {
    "file": "xml/hud.xml",
-   "line": 605,
+   "line": 611,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 757,
+   "line": 763,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 681,
+   "line": 687,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanity_Coco": {
    "file": "xml/hud.xml",
-   "line": 640,
+   "line": 646,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Ellie": {
    "file": "xml/hud.xml",
-   "line": 716,
+   "line": 722,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_James": {
    "file": "xml/hud.xml",
-   "line": 602,
+   "line": 608,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Luca": {
    "file": "xml/hud.xml",
-   "line": 754,
+   "line": 760,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Rayman": {
    "file": "xml/hud.xml",
-   "line": 678,
+   "line": 684,
    "element": "ProgressBar",
    "onClick": ""
   },
@@ -8021,109 +8158,109 @@
   },
   "sigTargetBtn_Blue": {
    "file": "xml/dialogs.xml",
-   "line": 313,
+   "line": 360,
    "element": "Button",
    "onClick": "onSignatureTargetClick"
   },
   "sigTargetBtn_Green": {
    "file": "xml/dialogs.xml",
-   "line": 310,
+   "line": 357,
    "element": "Button",
    "onClick": "onSignatureTargetClick"
   },
   "sigTargetBtn_Red": {
    "file": "xml/dialogs.xml",
-   "line": 304,
+   "line": 351,
    "element": "Button",
    "onClick": "onSignatureTargetClick"
   },
   "sigTargetBtn_White": {
    "file": "xml/dialogs.xml",
-   "line": 301,
+   "line": 348,
    "element": "Button",
    "onClick": "onSignatureTargetClick"
   },
   "sigTargetBtn_Yellow": {
    "file": "xml/dialogs.xml",
-   "line": 307,
+   "line": 354,
    "element": "Button",
    "onClick": "onSignatureTargetClick"
   },
   "sigTargetCancel": {
    "file": "xml/dialogs.xml",
-   "line": 316,
+   "line": 363,
    "element": "Button",
    "onClick": "onSignatureCancel"
   },
   "signatureTargetDialog": {
    "file": "xml/dialogs.xml",
-   "line": 288,
+   "line": 335,
    "element": "Panel",
    "onClick": ""
   },
   "statCharName": {
    "file": "xml/hud.xml",
-   "line": 495,
+   "line": 501,
    "element": "Text",
    "onClick": ""
   },
   "statDisplay": {
    "file": "xml/hud.xml",
-   "line": 485,
+   "line": 491,
    "element": "Panel",
    "onClick": ""
   },
   "statHealthBar": {
    "file": "xml/hud.xml",
-   "line": 503,
+   "line": 509,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statHealthVal": {
    "file": "xml/hud.xml",
-   "line": 506,
+   "line": 512,
    "element": "Text",
    "onClick": ""
   },
   "statHungerBar": {
    "file": "xml/hud.xml",
-   "line": 515,
+   "line": 521,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statHungerVal": {
    "file": "xml/hud.xml",
-   "line": 518,
+   "line": 524,
    "element": "Text",
    "onClick": ""
   },
   "statLocation": {
    "file": "xml/hud.xml",
-   "line": 535,
+   "line": 541,
    "element": "Text",
    "onClick": ""
   },
   "statPerks": {
    "file": "xml/hud.xml",
-   "line": 548,
+   "line": 554,
    "element": "Text",
    "onClick": ""
   },
   "statResources": {
    "file": "xml/hud.xml",
-   "line": 539,
+   "line": 545,
    "element": "Text",
    "onClick": ""
   },
   "statSanityBar": {
    "file": "xml/hud.xml",
-   "line": 527,
+   "line": 533,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statSanityVal": {
    "file": "xml/hud.xml",
-   "line": 530,
+   "line": 536,
    "element": "Text",
    "onClick": ""
   },
@@ -8195,43 +8332,43 @@
   },
   "tradeBtn_Blue": {
    "file": "xml/dialogs.xml",
-   "line": 275,
+   "line": 322,
    "element": "Button",
    "onClick": "onTradeTargetClick"
   },
   "tradeBtn_Green": {
    "file": "xml/dialogs.xml",
-   "line": 272,
+   "line": 319,
    "element": "Button",
    "onClick": "onTradeTargetClick"
   },
   "tradeBtn_Red": {
    "file": "xml/dialogs.xml",
-   "line": 266,
+   "line": 313,
    "element": "Button",
    "onClick": "onTradeTargetClick"
   },
   "tradeBtn_White": {
    "file": "xml/dialogs.xml",
-   "line": 263,
+   "line": 310,
    "element": "Button",
    "onClick": "onTradeTargetClick"
   },
   "tradeBtn_Yellow": {
    "file": "xml/dialogs.xml",
-   "line": 269,
+   "line": 316,
    "element": "Button",
    "onClick": "onTradeTargetClick"
   },
   "tradeCancel": {
    "file": "xml/dialogs.xml",
-   "line": 278,
+   "line": 325,
    "element": "Button",
    "onClick": "onTradeCancel"
   },
   "tradeDialog": {
    "file": "xml/dialogs.xml",
-   "line": 250,
+   "line": 297,
    "element": "Panel",
    "onClick": ""
   },
@@ -8240,6 +8377,72 @@
    "line": 108,
    "element": "Button",
    "onClick": "onToggleCustomUI"
+  },
+  "useItemCancel": {
+   "file": "xml/dialogs.xml",
+   "line": 236,
+   "element": "Button",
+   "onClick": "onUseItemCancel"
+  },
+  "useItemDialog": {
+   "file": "xml/dialogs.xml",
+   "line": 199,
+   "element": "Panel",
+   "onClick": ""
+  },
+  "useItemHint": {
+   "file": "xml/dialogs.xml",
+   "line": 210,
+   "element": "Text",
+   "onClick": ""
+  },
+  "useItemOpt1": {
+   "file": "xml/dialogs.xml",
+   "line": 212,
+   "element": "Button",
+   "onClick": "onUseItemOptionClick"
+  },
+  "useItemOpt2": {
+   "file": "xml/dialogs.xml",
+   "line": 215,
+   "element": "Button",
+   "onClick": "onUseItemOptionClick"
+  },
+  "useItemOpt3": {
+   "file": "xml/dialogs.xml",
+   "line": 218,
+   "element": "Button",
+   "onClick": "onUseItemOptionClick"
+  },
+  "useItemOpt4": {
+   "file": "xml/dialogs.xml",
+   "line": 221,
+   "element": "Button",
+   "onClick": "onUseItemOptionClick"
+  },
+  "useItemOpt5": {
+   "file": "xml/dialogs.xml",
+   "line": 224,
+   "element": "Button",
+   "onClick": "onUseItemOptionClick"
+  },
+  "useItemOpt6": {
+   "file": "xml/dialogs.xml",
+   "line": 227,
+   "element": "Button",
+   "onClick": "onUseItemOptionClick"
+  },
+  "useItemOpt7": {
+   "file": "xml/dialogs.xml",
+   "line": 230,
+   "element": "Button",
+   "onClick": "onUseItemOptionClick"
+  },
+  "useItemOpt8": {
+   "file": "xml/dialogs.xml",
+   "line": 233,
+   "element": "Button",
+   "onClick": "onUseItemOptionClick"
   },
   "variantsContinue": {
    "file": "xml/setup.xml",

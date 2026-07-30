@@ -467,6 +467,134 @@ class TestFlee:
 
 
 # ---------------------------------------------------------------------------
+# Use Item — the single-use Market consumables. Every one printed a mechanical
+# effect and there was no verb to apply it: no Use Item button, no manual stat
+# editor, stats in gameState out of players' reach. A crafted First Aid Kit
+# could not do the thing written on its face.
+# ---------------------------------------------------------------------------
+
+
+class TestUseItem:
+    def _carry(self, env, color, *ids):
+        objs = ", ".join('TTS.makeObject({tags={"%s"}})' % i for i in ids)
+        env.execute(f'TTS.setHand("{color}", {{ {objs} }})')
+
+    def test_no_item_no_button(self, env):
+        add_char(env, "White", "James")
+        start_day(env)
+        ok, why = env.eval("canUseItem")("White")
+        assert ok is False and "No usable item" in why
+
+    def test_a_protein_bar_restores_hunger_and_is_spent(self, env):
+        add_char(env, "White", "James", hunger=1)
+        self._carry(env, "White", "M_PROTEIN_BAR")
+        start_day(env)
+
+        assert env.eval("canUseItem")("White") is True
+        assert env.globals().doUseItem("White", "M_PROTEIN_BAR") is True
+        assert env.eval("gameState.activeChars.White.hunger") == 5   # 1 + 4
+        assert env.globals().findCarriedItem("White", "M_PROTEIN_BAR", "Protein Bar") is None
+
+    def test_using_an_item_costs_no_action(self, env):
+        add_char(env, "White", "James", hunger=1)
+        self._carry(env, "White", "M_ENERGY_BAR")
+        start_day(env)
+        env.globals().doUseItem("White", "M_ENERGY_BAR")
+        assert env.eval("gameState.activeChars.White.actionsLeft") == 3
+
+    def test_a_stat_never_passes_its_maximum(self, env):
+        add_char(env, "White", "James")   # hunger starts at max 6
+        self._carry(env, "White", "M_PROTEIN_BAR")
+        start_day(env)
+        env.globals().doUseItem("White", "M_PROTEIN_BAR")
+        assert env.eval("gameState.activeChars.White.hunger") == 6
+
+    def test_hot_cocoa_moves_both_stats(self, env):
+        add_char(env, "White", "James", hunger=1, sanity=1)
+        self._carry(env, "White", "M_HOT_COCOA")
+        start_day(env)
+        env.globals().doUseItem("White", "M_HOT_COCOA")
+        assert env.eval("gameState.activeChars.White.hunger") == 3   # +2
+        assert env.eval("gameState.activeChars.White.sanity") == 2   # +1
+
+    def test_first_aid_reaches_the_worst_hurt_at_the_tile(self, env):
+        add_char(env, "White", "James", health=7, location="JamesHouse")
+        add_char(env, "Yellow", "Rayman", health=2, location="JamesHouse")
+        add_char(env, "Green", "Ellie", health=1, location="RaymanHouse")  # elsewhere
+        self._carry(env, "White", "M_FIRST_AID")
+        start_day(env)
+
+        env.globals().doUseItem("White", "M_FIRST_AID")
+        assert env.eval("gameState.activeChars.Yellow.health") == 6   # 2 + 4
+        assert env.eval("gameState.activeChars.White.health") == 7    # untouched
+        assert env.eval("gameState.activeChars.Green.health") == 1    # wrong tile
+
+    def test_first_aid_falls_back_to_the_user_when_alone(self, env):
+        add_char(env, "White", "James", health=2)
+        self._carry(env, "White", "M_FIRST_AID")
+        start_day(env)
+        env.globals().doUseItem("White", "M_FIRST_AID")
+        assert env.eval("gameState.activeChars.White.health") == 6
+
+    def test_the_bracelet_is_for_somebody_else(self, env):
+        add_char(env, "White", "James", sanity=2, location="JamesHouse")
+        add_char(env, "Yellow", "Rayman", sanity=1, location="JamesHouse")
+        self._carry(env, "White", "M_FRIENDSHIP_BRACELET")
+        start_day(env)
+
+        env.globals().doUseItem("White", "M_FRIENDSHIP_BRACELET")
+        assert env.eval("gameState.activeChars.Yellow.sanity") == 3   # 1 + 2
+        assert env.eval("gameState.activeChars.White.sanity") == 2    # not the giver
+
+    def test_the_bracelet_refuses_with_nobody_there(self, env):
+        add_char(env, "White", "James", sanity=2)
+        self._carry(env, "White", "M_FRIENDSHIP_BRACELET")
+        start_day(env)
+
+        ok, why = env.eval("canUseItem")("White")
+        assert ok is False and "give it to" in why
+        assert env.globals().doUseItem("White", "M_FRIENDSHIP_BRACELET") is False
+        assert env.globals().findCarriedItem(
+            "White", "M_FRIENDSHIP_BRACELET", "Friendship Bracelet") is not None
+
+    def test_the_school_bell_walks_doom_back(self, env):
+        add_char(env, "White", "James")
+        self._carry(env, "White", "M_SCHOOL_BELL")
+        env.execute("gameState.doom = 12")
+        start_day(env)
+        env.globals().doUseItem("White", "M_SCHOOL_BELL")
+        assert env.eval("gameState.doom") == 11
+
+    def test_doom_never_goes_negative(self, env):
+        add_char(env, "White", "James")
+        self._carry(env, "White", "M_SCHOOL_BELL")
+        env.execute("gameState.doom = 0")
+        start_day(env)
+        env.globals().doUseItem("White", "M_SCHOOL_BELL")
+        assert env.eval("gameState.doom") == 0
+
+    def test_an_item_you_do_not_carry_does_nothing(self, env):
+        """The cost is re-checked in doUseItem, not just the precondition —
+        the hole Revive guards against and Stabilize used to have."""
+        add_char(env, "White", "James", hunger=1)
+        start_day(env)
+        assert env.globals().doUseItem("White", "M_PROTEIN_BAR") is False
+        assert env.eval("gameState.activeChars.White.hunger") == 1
+
+    def test_the_dialog_lists_only_what_you_carry(self, env):
+        add_char(env, "White", "James", hunger=1)
+        self._carry(env, "White", "M_ENERGY_BAR", "M_SCHOOL_BELL")
+        start_day(env)
+
+        click(env, "onActUseItem", "White")
+        assert env.eval('TTS.ui.visible["useItemDialog"]') is True
+        labels = [env.eval(f'UI.getAttribute("useItemOpt{i}", "text")') for i in (1, 2, 3)]
+        assert any(lbl and "Energy Bar" in lbl for lbl in labels), labels
+        assert any(lbl and "School Bell" in lbl for lbl in labels), labels
+        assert env.eval('UI.getAttribute("useItemOpt3", "active")') == "false"
+
+
+# ---------------------------------------------------------------------------
 # Appease — the non-violent Treeguard resolution.
 # ---------------------------------------------------------------------------
 

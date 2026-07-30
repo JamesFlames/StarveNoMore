@@ -303,6 +303,55 @@ end
 
 -- Barricade and Appease pay their own resources inside the action (and refund
 -- the spent action if unaffordable), so no cost table here.
+-- Use Item (items.lua): the single-use Market consumables, which had no verb
+-- at all — no button, no manual stat editor, so a crafted First Aid Kit could
+-- not do the thing printed on it. Same dialog shape as Cook: a list of what
+-- you can actually use right now.
+USE_ITEM_DIALOG_SLOTS = 8
+_useItemDialogIds = {}
+
+function onActUseItem(player, value, id)
+    local color = player.color
+    if not validateActivePlayer(color) then return end
+    local ok, why = canUseItem(color)
+    if not ok then
+        broadcastToColor(why or "Nothing to use.", color, BROADCAST_COLORS.damage)
+        return
+    end
+    if not UI then return end
+
+    local shown = 0
+    _useItemDialogIds = {}
+    for _, itemId in ipairs(usableItemsFor(color)) do
+        if shown < USE_ITEM_DIALOG_SLOTS then
+            shown = shown + 1
+            _useItemDialogIds[shown] = itemId
+            local spec = USE_ITEMS[itemId]
+            setButtonLabel("useItemOpt" .. shown,
+                spec.label .. "   (" .. describeItemEffect(spec) .. ")")
+            UI.setAttribute("useItemOpt" .. shown, "active", "true")
+        end
+    end
+    for i = shown + 1, USE_ITEM_DIALOG_SLOTS do
+        UI.setAttribute("useItemOpt" .. i, "active", "false")
+    end
+    UI.show("useItemDialog")
+end
+
+function onUseItemOptionClick(player, value, id)
+    local slot = tonumber(id and id:match("useItemOpt(%d+)")) or tonumber(value)
+    local itemId = _useItemDialogIds and _useItemDialogIds[slot]
+    UI.hide("useItemDialog")
+    if not itemId then return end
+    safecall(function() doUseItem(player.color, itemId) end, "UseItem")
+    refreshPhaseBanner()
+    updateActivePlayerIndicator()
+end
+
+function onUseItemCancel(player, value, id)
+    UI.hide("useItemDialog")
+end
+
 -- Flee picks a destination exactly the way Move does, so it rides the same
 -- tile buttons rather than growing a second set (see _spawnMoveButtons).
 function onActFlee(player, value, id)
@@ -361,6 +410,9 @@ SITUATIONAL_ACTIONS = {
             "satisfies Wired for today (no -2 Sanity at Tick)." },
     { id = "actEatRaw", can = canEatRaw,
       tip = "Eat a Food token raw — free. +1 Hunger, -1 Sanity." },
+    { id = "actUseItem", can = canUseItem,
+      tip = "Use a single-use item you are carrying — free. The card is " ..
+            "spent; healing items go to whoever at your tile needs them most." },
     { id = "actFlee", can = canFlee,
       tip = "Run from what's here — 1 tile away, 1 Sanity, no action. Always " ..
             "legal, even starving, and free while you are on your Last Nerve. " ..

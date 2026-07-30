@@ -374,6 +374,12 @@
               fontSize="14" color="#D2B48CFF" textColor="#12180F"
               active="false"
               text="Eat Raw" />
+      <Button id="actUseItem"
+              onClick="onActUseItem"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#DCC864FF" textColor="#12180F"
+              active="false"
+              text="Use Item" />
       <Button id="actFlee"
               onClick="onActFlee"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
