@@ -2,6 +2,30 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Stabilize was free (2026-07)
+
+§12.3 Stabilize costs a Bandage. Four UI strings said so — the button tooltip,
+the target dialog's note, the module header, the design reference. The code
+said `-- Requires Bandage item (manual check)` and checked nothing.
+
+So Stabilize was a free, unlimited, one-action un-Down, standing next to
+Revive — which costs a *cooked* Telltale Heart (1 Cloth + 1 Battery + 1 Food +
+2 Health to make) plus 2 more Health to use. Nobody would ever pay for Revive.
+`reviveCharacter` guards its own cost for exactly this reason, with a comment
+saying so: "without this, a caller with an empty supply revives for free".
+Its neighbour didn't.
+
+It now requires a carried Bandage and consumes it, which also makes `M_BANDAGE`
+the first of the inert Market cards to do something. Both halves are checked —
+the precondition, so the button hides, and `doStabilize` itself, so a direct
+call can't skip it.
+
+Also routed through the shared `adjacentLocations()`: **Luca's Rally** (which
+couldn't reach an ally across the Shortcut road), the **Source's split** and
+the **Eye's Terror Beaks** (which couldn't place them down it), and Iced Tea's
+new adjacent-allies reach. That is every "one tile away" question in the game
+answered in one place.
+
 ## Flee had no button (2026-07)
 
 The escape valve. §12.4, the rule Last Nerve exists to protect — "the escape

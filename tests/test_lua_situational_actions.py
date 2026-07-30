@@ -272,9 +272,14 @@ class TestRevive:
 
 
 class TestStabilize:
+    def _bandage(self, env, color="White"):
+        env.execute(f'TTS.setHand("{color}", {{ TTS.makeObject({{tags={{"M_BANDAGE"}}, '
+                    f'nickname = "Bandage"}}) }})')
+
     def test_brings_an_ally_back_at_one_health(self, env):
         add_char(env, "White", "James", location="RaymanHouse")
         add_char(env, "Yellow", "Rayman", down=True, health=0, location="RaymanHouse")
+        self._bandage(env)
         start_day(env)
 
         click(env, "onActStabilize", "White")
@@ -283,9 +288,37 @@ class TestStabilize:
         assert env.eval("gameState.activeChars.Yellow.health") == 1, "not a full revival"
         assert env.eval("gameState.heartCount") in (0, None), "and costs no Heart"
 
+    def test_without_a_bandage_it_refuses_and_refunds(self, env):
+        """It used to be a comment reading "manual check": Stabilize was a
+        free, unlimited, one-action un-Down, undercutting Revive entirely,
+        while four UI strings promised it cost a Bandage."""
+        add_char(env, "White", "James", location="RaymanHouse")
+        add_char(env, "Yellow", "Rayman", down=True, health=0, location="RaymanHouse")
+        start_day(env)
+
+        ok, why = env.eval("canStabilize")("White")
+        assert ok is False and "Bandage" in why
+
+        env.globals().doStabilize("White", "Yellow")
+        assert env.eval("gameState.activeChars.Yellow.down") is True
+        assert env.eval("gameState.activeChars.White.actionsLeft") == 3
+
+    def test_the_bandage_is_single_use(self, env):
+        add_char(env, "White", "James", location="RaymanHouse")
+        add_char(env, "Yellow", "Rayman", down=True, health=0, location="RaymanHouse")
+        self._bandage(env)
+        start_day(env)
+
+        assert env.eval("canStabilize")("White") is True
+        env.globals().doStabilize("White", "Yellow")
+        assert env.eval("gameState.activeChars.Yellow.down") is False
+        # ...and the card is gone, so a second Down needs a second Bandage.
+        assert env.globals().findCarriedItem("White", "M_BANDAGE", "Bandage") is None
+
     def test_cancel_leaves_everything_alone(self, env):
         add_char(env, "White", "James", location="RaymanHouse")
         add_char(env, "Yellow", "Rayman", down=True, health=0, location="RaymanHouse")
+        self._bandage(env)
         start_day(env)
 
         click(env, "onActStabilize", "White")

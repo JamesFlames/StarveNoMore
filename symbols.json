@@ -502,7 +502,7 @@
   "CROCKPOT_HOME": [
    {
     "file": "lua/helpers.lua",
-    "line": 482,
+    "line": 510,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -962,7 +962,7 @@
   "PRY_TOOLS": [
    {
     "file": "lua/actions_social.lua",
-    "line": 296,
+    "line": 298,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1112,7 +1112,7 @@
   "SITUATIONAL_ACTIONS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 346,
+    "line": 349,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1621,7 +1621,7 @@
   "adjacentLocations": [
    {
     "file": "lua/helpers.lua",
-    "line": 452,
+    "line": 480,
     "kind": "function",
     "params": [
      "loc"
@@ -1958,7 +1958,7 @@
   "canAppeaseTreeguard": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 154,
+    "line": 157,
     "kind": "function",
     "params": [
      "color"
@@ -1970,7 +1970,7 @@
   "canBarricade": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 141,
+    "line": 144,
     "kind": "function",
     "params": [
      "color"
@@ -1982,7 +1982,7 @@
   "canDefend": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 80,
+    "line": 83,
     "kind": "function",
     "params": [
      "color"
@@ -1994,7 +1994,7 @@
   "canDrift": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 172,
+    "line": 175,
     "kind": "function",
     "params": [
      "color"
@@ -2006,7 +2006,7 @@
   "canEatRaw": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 104,
+    "line": 107,
     "kind": "function",
     "params": [
      "color"
@@ -2018,7 +2018,7 @@
   "canEnergyDrink": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 90,
+    "line": 93,
     "kind": "function",
     "params": [
      "color"
@@ -2042,7 +2042,7 @@
   "canFlee": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 128,
+    "line": 131,
     "kind": "function",
     "params": [
      "color"
@@ -2066,7 +2066,7 @@
   "canPry": [
    {
     "file": "lua/actions_social.lua",
-    "line": 389,
+    "line": 391,
     "kind": "function",
     "params": [
      "color"
@@ -2148,7 +2148,7 @@
   "charHasCompany": [
    {
     "file": "lua/helpers.lua",
-    "line": 512,
+    "line": 540,
     "kind": "function",
     "params": [
      "color"
@@ -2310,7 +2310,7 @@
   "colorToCharacter": [
    {
     "file": "lua/helpers.lua",
-    "line": 537,
+    "line": 565,
     "kind": "function",
     "params": [
      "color"
@@ -2374,6 +2374,18 @@
     "doc": "Warn when sleeping alone at a sport court"
    }
   ],
+  "consumeCarriedItem": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 468,
+    "kind": "function",
+    "params": [
+     "obj"
+    ],
+    "arity": 1,
+    "doc": "Consume a single-use carried item. Best-effort: the rule has already been paid for by the time the card is destroyed, and a dead handle must not un-apply the e…"
+   }
+  ],
   "cookTelltaleHeart": [
    {
     "file": "lua/crafting.lua",
@@ -2409,7 +2421,7 @@
   "crockpotAt": [
    {
     "file": "lua/helpers.lua",
-    "line": 484,
+    "line": 512,
     "kind": "function",
     "params": [
      "loc"
@@ -2664,7 +2676,7 @@
   "doPry": [
    {
     "file": "lua/actions_social.lua",
-    "line": 452,
+    "line": 454,
     "kind": "function",
     "params": [
      "color"
@@ -2676,7 +2688,7 @@
   "doRally": [
    {
     "file": "lua/actions_social.lua",
-    "line": 267,
+    "line": 269,
     "kind": "function",
     "params": [
      "lucaColor",
@@ -2728,7 +2740,7 @@
   "doStabilize": [
    {
     "file": "lua/actions_social.lua",
-    "line": 478,
+    "line": 480,
     "kind": "function",
     "params": [
      "color",
@@ -2933,6 +2945,20 @@
     "doc": "These scan every object on the table, so they meet stale handles first: one dead handle used to make EVERY tag lookup in the mod throw \"cannot access field has…"
    }
   ],
+  "findCarriedItem": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 450,
+    "kind": "function",
+    "params": [
+     "color",
+     "marketId",
+     "label"
+    ],
+    "arity": 3,
+    "doc": "The carried object matching a Market id (or its printed name), or nil. Same two places every other carried-item rule looks — the hand and the player-board area…"
+   }
+  ],
   "findOneByTag": [
    {
     "file": "lua/helpers.lua",
@@ -2990,7 +3016,7 @@
   "gameRoll": [
    {
     "file": "lua/helpers.lua",
-    "line": 553,
+    "line": 581,
     "kind": "function",
     "params": [
      "a",
@@ -3027,7 +3053,7 @@
   "getActivePlayerColors": [
    {
     "file": "lua/helpers.lua",
-    "line": 524,
+    "line": 552,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3505,7 +3531,7 @@
   "isAdjacent": [
    {
     "file": "lua/helpers.lua",
-    "line": 469,
+    "line": 497,
     "kind": "function",
     "params": [
      "from",
@@ -3823,7 +3849,7 @@
   "onActAppease": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 334,
+    "line": 337,
     "kind": "function",
     "params": [
      "player",
@@ -3837,7 +3863,7 @@
   "onActBarricade": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 330,
+    "line": 333,
     "kind": "function",
     "params": [
      "player",
@@ -3893,7 +3919,7 @@
   "onActDefend": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 288,
+    "line": 291,
     "kind": "function",
     "params": [
      "player",
@@ -3907,7 +3933,7 @@
   "onActEatRaw": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 297,
+    "line": 300,
     "kind": "function",
     "params": [
      "player",
@@ -3921,7 +3947,7 @@
   "onActEnergyDrink": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 292,
+    "line": 295,
     "kind": "function",
     "params": [
      "player",
@@ -3949,7 +3975,7 @@
   "onActFlee": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 305,
+    "line": 308,
     "kind": "function",
     "params": [
      "player",
@@ -4061,7 +4087,7 @@
   "onActRevive": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 211,
+    "line": 214,
     "kind": "function",
     "params": [
      "player",
@@ -4089,7 +4115,7 @@
   "onActStabilize": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 224,
+    "line": 227,
     "kind": "function",
     "params": [
      "player",
@@ -4283,7 +4309,7 @@
   "onDownedCancel": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 258,
+    "line": 261,
     "kind": "function",
     "params": [
      "player",
@@ -4297,7 +4323,7 @@
   "onDownedTargetClick": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 236,
+    "line": 239,
     "kind": "function",
     "params": [
      "player",
@@ -5083,7 +5109,7 @@
   "playerPryTool": [
    {
     "file": "lua/actions_social.lua",
-    "line": 321,
+    "line": 323,
     "kind": "function",
     "params": [
      "color"
@@ -5524,7 +5550,7 @@
   "refreshSituationalButtons": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 373,
+    "line": 376,
     "kind": "function",
     "params": [
      "color"
@@ -5782,7 +5808,7 @@
   "safecall": [
    {
     "file": "lua/helpers.lua",
-    "line": 559,
+    "line": 587,
     "kind": "function",
     "params": [
      "fn",
@@ -6053,7 +6079,7 @@
   "sportCourtSurcharge": [
    {
     "file": "lua/helpers.lua",
-    "line": 505,
+    "line": 533,
     "kind": "function",
     "params": [
      "from",

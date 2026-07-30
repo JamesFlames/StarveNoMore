@@ -176,6 +176,15 @@ local function makeObject(spec)
         for i, w in ipairs(TTS.world) do
             if w == o then table.remove(TTS.world, i); break end
         end
+        -- ...and out of any hand holding it. Real TTS destroys the object
+        -- wherever it is; the stub used to leave a destroyed card sitting in
+        -- getHandObjects(), so a single-use item consumed from hand (the
+        -- Stabilize Bandage) still read as carried afterwards.
+        for _, objs in pairs(TTS.hands) do
+            for i, h in ipairs(objs) do
+                if h == o then table.remove(objs, i); break end
+            end
+        end
         return true
     end
     o.createButton = function(params) table.insert(state.buttons, params); return true end

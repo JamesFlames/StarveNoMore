@@ -254,7 +254,9 @@ function rallyTargets(color)
     local char = gameState.activeChars[color]
     if not char then return out end
     local nearby = { [char.location or ""] = true }
-    for _, n in ipairs(LOCATION_ADJACENCY[char.location] or {}) do nearby[n] = true end
+    -- adjacentLocations(), so "adjacent" means the same thing to Rally as it
+    -- does to Move and Flee — including any road a scenario adds.
+    for _, n in ipairs(adjacentLocations(char.location or "")) do nearby[n] = true end
     for c2, ch2 in pairs(gameState.activeChars) do
         if c2 ~= color and not ch2.down and nearby[ch2.location or ""]
             and (ch2.actionsLeft or 0) > 0 then
@@ -493,7 +495,21 @@ function doStabilize(color, targetColor)
         return
     end
 
-    -- Requires Bandage item (manual check)
+    -- The Bandage is the cost, so it is checked HERE and not only in the
+    -- button's precondition — the same reason reviveCharacter re-checks
+    -- heartCount. It used to be a comment reading "manual check", which meant
+    -- Stabilize was a free, unlimited, one-action un-Down while four UI
+    -- strings promised it cost a Bandage; that undercut Revive (a cooked
+    -- Telltale Heart plus 2 Health) for a third of the price of nothing.
+    local bandage = findCarriedItem(color, "M_BANDAGE", "Bandage")
+    if not bandage then
+        broadcastToColor("No Bandage in hand or by your board — craft one (1 Cloth) first.",
+            color, BROADCAST_COLORS.damage)
+        char.actionsLeft = char.actionsLeft + 1
+        return
+    end
+    consumeCarriedItem(bandage)   -- single-use, as the card prints
+
     broadcastEvent("proc", char.name .. " stabilizes " .. target.name .. " with a Bandage!")
     target.health = 1
     target.down = false

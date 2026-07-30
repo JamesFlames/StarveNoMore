@@ -194,7 +194,7 @@ function sourceSplitIntoBeaks()
     end
     sourceLoc = sourceLoc or "EllieLucaHouse"
 
-    local adjacent = (LOCATION_ADJACENCY and LOCATION_ADJACENCY[sourceLoc]) or {}
+    local adjacent = adjacentLocations(sourceLoc)
     if #adjacent == 0 then adjacent = { sourceLoc } end
 
     -- Pull Terror Beak cards out of the threat deck onto the adjacent tiles;

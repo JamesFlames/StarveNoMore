@@ -443,6 +443,34 @@ function isSportCourt(loc)
     return loc == "BasketballCourt" or loc == "BadmintonCourt"
 end
 
+-- The carried object matching a Market id (or its printed name), or nil.
+-- Same two places every other carried-item rule looks — the hand and the
+-- player-board area — via getPlayerCarriedObjects. Returns the OBJECT, so a
+-- single-use item can be consumed rather than merely detected.
+function findCarriedItem(color, marketId, label)
+    local char = gameState.activeChars[color]
+    if not char then return nil end
+    local found = nil
+    safecall(function()
+        for _, obj in ipairs(getPlayerCarriedObjects(color, char.name)) do
+            if safeHasTag(obj, marketId) then found = obj; return end
+            if label and safeNickname(obj):lower():find(label:lower(), 1, true) then
+                found = obj; return
+            end
+        end
+    end, "CarriedItem")
+    return found
+end
+
+-- Consume a single-use carried item. Best-effort: the rule has already been
+-- paid for by the time the card is destroyed, and a dead handle must not
+-- un-apply the effect (docs/tts-interface.md).
+function consumeCarriedItem(obj)
+    if not obj then return false end
+    pcall(function() obj.destruct() end)
+    return true
+end
+
 -- One step from `loc`, deduplicated, including any edge a scenario adds.
 --
 -- The single answer to "is that tile adjacent?" — Move, the Dusk scramble,

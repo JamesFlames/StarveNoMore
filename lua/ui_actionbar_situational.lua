@@ -74,6 +74,9 @@ function canStabilize(color)
     if #downedAlliesHere(color) == 0 then
         return false, "Nobody is Down at " .. (char.location or "your tile") .. "."
     end
+    if not findCarriedItem(color, "M_BANDAGE", "Bandage") then
+        return false, "No Bandage in hand or by your board — craft one (1 Cloth)."
+    end
     return true
 end
 

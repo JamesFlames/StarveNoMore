@@ -341,7 +341,7 @@ function doCook(color, recipeId)
     -- happened. Down characters are skipped, as everywhere else.
     if recipe.adjacentAllies then
         local neighbours = {}
-        for _, n in ipairs(LOCATION_ADJACENCY[char.location or ""] or {}) do neighbours[n] = true end
+        for _, n in ipairs(adjacentLocations(char.location or "")) do neighbours[n] = true end
         for c, ch in pairs(gameState.activeChars) do
             if not ch.down and c ~= color and neighbours[ch.location or ""] then
                 local gains = _applyStats(ch, recipe.adjacentAllies, 0)

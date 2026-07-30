@@ -62,10 +62,8 @@ DAWN_EFFECTS["P3_EYE_SPLITS"] = {
         -- at tiles adjacent to where the Eye stood (default: the map hub).
         safecall(function()
             local origin = gameState.eyeLocation or "EllieLucaHouse"
-            local spots = {}
-            for _, n in ipairs(LOCATION_ADJACENCY[origin] or {"EllieLucaHouse"}) do
-                table.insert(spots, n)
-            end
+            local spots = adjacentLocations(origin)
+            if #spots == 0 then spots = { "EllieLucaHouse" } end
             local deck = getThreatDeck()
             if not deck or not deck.getObjects then return end
             local placed = 0
