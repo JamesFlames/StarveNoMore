@@ -61,14 +61,13 @@ end
 function onActCook(player, value, id)
     local color = player.color
     if not validateActivePlayer(color) then return end
-    -- Check if at a Crockpot location
+    -- Check if at a Crockpot location (the kitchen, or a Portable Crockpot
+    -- carried by anyone standing here — crockpotAt, helpers.lua).
     local char = gameState.activeChars[color]
     if char then
-        local loc = char.location or ""
-        local hasCrockpot = (loc == "EllieLucaHouse")
-        -- Also check portable crockpot item (manual for now)
-        if not hasCrockpot then
-            broadcastToColor("No Crockpot here. Move to Ellie & Luca's House to cook.", color, BROADCAST_COLORS.damage)
+        if not crockpotAt(char.location or "") then
+            broadcastToColor("No Crockpot here. Move to Ellie & Luca's House — or craft the Portable Crockpot.",
+                color, BROADCAST_COLORS.damage)
             return
         end
     end

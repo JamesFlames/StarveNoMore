@@ -327,6 +327,23 @@ class TestThreePlayerReliefs:
         env.execute("gameState.raymanTilesMovedToday = 3")
         assert env.globals().raymanLoudTonight() is True
 
+    def test_undo_rewinds_the_tile_count_too(self, env):
+        """snapshotForUndo captured raymanMovedToday but not the tile COUNT,
+        so an undone move kept ticking both 3-player thresholds — the Loud
+        relief (< 3 tiles) and the Big Appetite relief (< 2)."""
+        self._rayman(env, players=3)
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["Location:EllieLucaHouse"], "position": [0, 1, 0]}))
+        env.execute("gameState.activeChars.Yellow.location = 'JamesHouse'")
+        env.globals().doMove("Yellow", "EllieLucaHouse")
+        assert env.eval("gameState.raymanTilesMovedToday") == 1
+        env.globals().doUndo("Yellow")
+        assert env.eval("gameState.raymanTilesMovedToday") == 0
+        assert not env.eval("gameState.raymanMovedToday")
+        # ...so a genuinely quiet day is still quiet at Tick.
+        env.globals().resolveTick()
+        assert env.eval("gameState.activeChars.Yellow.hunger") == 9   # -1, relieved
+
     def test_loud_fires_on_any_move_at_4p(self, env):
         self._rayman(env, players=4)
         env.execute("gameState.raymanMovedToday = true; gameState.raymanTilesMovedToday = 1")

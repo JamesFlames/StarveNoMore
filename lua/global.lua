@@ -135,6 +135,11 @@ CLEANSE_REDUCTION = 2
 -- rather than inline in the one that happens to charge it.
 REVIVE_HEALTH_COST = 2
 
+-- How many Telltale Hearts can exist at once (Design §13.4). Checked by
+-- doCook before it charges the recipe's 2 Health, and again by
+-- cookTelltaleHeart itself.
+HEART_SUPPLY_MAX = 5
+
 -----------------------------------------------------------------------
 -- Difficulty and length are SEPARATE DIALS (Design §17.2).
 --

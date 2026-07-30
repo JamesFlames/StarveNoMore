@@ -60,7 +60,7 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 | `messageLog` | `{}` | declared | `ui_msglog.lua` | `ui_msglog.lua` |
 | `msgLogHidden` | — | ui-local | `ui_msglog.lua` | `ui_msglog.lua` |
 | `nightOmen` | — | per-day | `ui_banner.lua` | `ui_banner.lua` |
-| `ongoingDawnEffects` | `{}` | declared | `selftest.lua` | `achievement_rules.lua`, `actions.lua`, `combat.lua`, `combat_resolve.lua`, `crafting.lua`, `day_loop.lua`, `effects/dawn_effects_dispatch.lua`, `effects/dawn_effects_phase1.lua`, `effects/dawn_effects_phase2.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `night.lua`, `setup.lua`, `tick_victory.lua`, `ui_actionbar_core.lua`, `ui_help.lua`, `ui_rules.lua` |
+| `ongoingDawnEffects` | `{}` | declared | `selftest.lua` | `achievement_rules.lua`, `actions.lua`, `combat.lua`, `combat_resolve.lua`, `crafting.lua`, `day_loop.lua`, `effects/dawn_effects_dispatch.lua`, `effects/dawn_effects_phase1.lua`, `effects/dawn_effects_phase2.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `helpers.lua`, `night.lua`, `setup.lua`, `tick_victory.lua`, `turns.lua`, `ui_actionbar_core.lua`, `ui_help.lua`, `ui_rules.lua` |
 | `openingOffered` | `{}` | declared | `setup.lua`, `ui_banner.lua`, `ui_setup.lua` | `ui_banner.lua` |
 | `pathVariant` | — | nil is the default | `ui_actionbar_core.lua` | `telemetry.lua`, `ui_setup.lua` |
 | `pendingAction` | — | per-turn | `signatures.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_situational.lua`, `ui_actionbar_targets.lua`, `ui_reactions.lua` | `signatures.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_situational.lua`, `ui_actionbar_targets.lua` |

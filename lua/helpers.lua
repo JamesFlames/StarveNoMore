@@ -434,6 +434,51 @@ function hasLastNerve(color)
     return char.health < t or char.hunger < t or char.sanity < t
 end
 
+-- Sport court vs. house. The two sport courts are the only non-house tiles,
+-- and a dozen rules key off the distinction (threat rates, sleep regen, rain,
+-- Coco's No Home). Every one of them used to open-code the same
+-- `loc:find("Court") or loc:find("Badminton") or loc:find("Basketball")`
+-- triple, which is three chances to mistype a rule into silence.
+function isSportCourt(loc)
+    return loc == "BasketballCourt" or loc == "BadmintonCourt"
+end
+
+-- Where can a recipe be cooked? The kitchen at Ellie & Luca's House always,
+-- and any tile where somebody standing there carries the Portable Crockpot
+-- ("Persistent. Allows cooking at any tile (not just kitchen)" — the card was
+-- craftable and did nothing). One definition, so the Cook button, the Cook
+-- handler and a recipe's own requiresCrockpot flag can never disagree about
+-- where the pot is.
+CROCKPOT_HOME = "EllieLucaHouse"
+
+function crockpotAt(loc)
+    if not loc or loc == "" then return false end
+    if loc == CROCKPOT_HOME then return true end
+    for c, ch in pairs((gameState and gameState.activeChars) or {}) do
+        if ch.location == loc then
+            local carried = {}
+            safecall(function() carried = getPlayerCarriedObjects(c, ch.name) end, "Crockpot")
+            for _, obj in ipairs(carried) do
+                if safeHasTag(obj, "M_PORTABLE_CROCKPOT") then return true end
+                if safeNickname(obj):lower():find("portable crockpot", 1, true) then return true end
+            end
+        end
+    end
+    return false
+end
+
+-- P2_STRANGER_WAVES (sportCourtHungerCost): every step that touches a sport
+-- court costs +1 Hunger until next Dawn. Shared by all four ways a character
+-- changes tile — the ordinary Move, Rayman's free second step, the Dusk
+-- scramble and the Secret-Dusk reveal — so the surcharge cannot be walked
+-- around by picking a different verb.
+function sportCourtSurcharge(from, to)
+    if not gameState.ongoingDawnEffects.sportCourtHungerCost then return 0 end
+    if not (isSportCourt(from or "") or isSportCourt(to or "")) then return 0 end
+    broadcastEvent("warn", "The stranger's road: crossing to or from a sport court costs +1 Hunger.")
+    return 1
+end
+
 function charHasCompany(color)
     local char = gameState and gameState.activeChars and gameState.activeChars[color]
     if not char then return false end

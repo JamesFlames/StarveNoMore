@@ -16,6 +16,11 @@ function snapshotForUndo(color)
         actionsLeft = char.actionsLeft,
         doom = gameState.doom,
         raymanMovedToday = gameState.raymanMovedToday,
+        -- Both halves of the Loud bookkeeping, or neither: the tile COUNT
+        -- feeds two thresholds of its own (the 3p Loud relief at <3, night.lua,
+        -- and the 3p Big Appetite relief at <2, tick_victory.lua). Snapshotting
+        -- only the boolean left an undone move still counted against both.
+        raymanTilesMovedToday = gameState.raymanTilesMovedToday,
         raymanBonusMove = gameState.raymanBonusMove,
     }
 end
@@ -37,6 +42,7 @@ function doUndo(color)
     char.actionsLeft = snap.actionsLeft
     gameState.doom = snap.doom
     gameState.raymanMovedToday = snap.raymanMovedToday
+    gameState.raymanTilesMovedToday = snap.raymanTilesMovedToday or 0
     gameState.raymanBonusMove = snap.raymanBonusMove
 
     -- Move standee back if location changed
@@ -69,25 +75,40 @@ function doMove(color, targetLocation)
     local char = gameState.activeChars[color]
     if not char then return end
 
-    -- Low Health penalty: movement costs +1 action
+    -- Surcharges in actions: low Health (§10.1) and P3_GRAVITY_WRONG's
+    -- moveCostPlus1 each add one, and they stack — both are "this step is
+    -- harder than it should be", from different directions.
+    local extraActions, why = 0, {}
     if char.health < 3 and char.health > 0 then
-        if char.actionsLeft <= 0 then
-            broadcastEvent("damage", char.name .. " is critically injured — movement requires an extra action you don't have.")
-            -- Refund the action
+        extraActions = extraActions + 1
+        why[#why + 1] = "Health < 3"
+    end
+    if gameState.ongoingDawnEffects.moveCostPlus1 then
+        extraActions = extraActions + 1
+        why[#why + 1] = "gravity feels wrong"
+    end
+    if extraActions > 0 then
+        if char.actionsLeft < extraActions then
+            broadcastEvent("damage", char.name .. " can't afford this move — it needs " ..
+                extraActions .. " extra action(s) (" .. table.concat(why, ", ") .. ") they don't have.")
+            -- Refund the action spendAction just took
             char.actionsLeft = char.actionsLeft + 1
             return
         end
-        char.actionsLeft = char.actionsLeft - 1
-        broadcastEvent("warn", char.name .. " spends an extra action to move (Health < 3).")
+        char.actionsLeft = char.actionsLeft - extraActions
+        broadcastEvent("warn", char.name .. " spends " .. extraActions ..
+            " extra action(s) to move (" .. table.concat(why, ", ") .. ").")
     end
 
     -- Movement costs 1 Hunger
     local hungerCost = 1
 
+    local from = char.location or ""
+    hungerCost = hungerCost + sportCourtSurcharge(from, targetLocation)
+
     -- Shortcut scenario: free movement between JamesHouse and BadmintonCourt
     local sFlags = gameState.scenarioFlags or {}
     if sFlags.shortcutPath then
-        local from = char.location or ""
         local shortcutPair = (from == "JamesHouse" and targetLocation == "BadmintonCourt") or
                              (from == "BadmintonCourt" and targetLocation == "JamesHouse")
         if shortcutPair then
@@ -153,10 +174,11 @@ function doRaymanBonusMove(color, targetLocation)
     if not char or char.name ~= "Rayman" then return end
     gameState.raymanTilesMovedToday = (gameState.raymanTilesMovedToday or 0) + 1
 
-    char.hunger = math.max(0, char.hunger - 1)
+    local hungerCost = 1 + sportCourtSurcharge(char.location, targetLocation)
+    char.hunger = math.max(0, char.hunger - hungerCost)
     char.location = targetLocation
 
-    broadcastEvent("proc", "Rayman moves again to " .. targetLocation .. ". (-1 Hunger)")
+    broadcastEvent("proc", "Rayman moves again to " .. targetLocation .. ". (-" .. hungerCost .. " Hunger)")
 
     local standee = getCharacterStandee(char.name)
     local tile = getLocationTile(targetLocation)
@@ -243,14 +265,16 @@ function doDuskMove(color, targetLocation)
         return
     end
 
-    char.hunger = math.max(0, char.hunger - 1)
+    local hungerCost = 1 + sportCourtSurcharge(char.location, targetLocation)
+    char.hunger = math.max(0, char.hunger - hungerCost)
     char.location = targetLocation
     if char.name == "Rayman" then
         gameState.raymanMovedToday = true
         gameState.raymanTilesMovedToday = (gameState.raymanTilesMovedToday or 0) + 1
     end
 
-    broadcastEvent("warn", char.name .. " scrambles to " .. targetLocation .. " as the light fades. (-1 Hunger)")
+    broadcastEvent("warn", char.name .. " scrambles to " .. targetLocation ..
+        " as the light fades. (-" .. hungerCost .. " Hunger)")
 
     local standee = getCharacterStandee(char.name)
     local tile = getLocationTile(targetLocation)
@@ -354,6 +378,16 @@ function doGather(color)
 
     broadcastEvent("proc", char.name .. " gathers at " .. loc .. ".")
 
+    -- P2_RAIN_STARTS (rainSanityCost): searching a sport court in the rain
+    -- costs 1 Sanity. Charged before the haul so a Gather that puts the
+    -- character Down still delivers what they found.
+    if gameState.ongoingDawnEffects.rainSanityCost and isSportCourt(loc) then
+        char.sanity = math.max(0, char.sanity - 1)
+        broadcastEvent("damage", char.name .. " searches " .. loc ..
+            " in the rain — 1 Sanity. (Now " .. char.sanity .. ")")
+        checkDownState(color)
+    end
+
     local extra = playerHasBackpack(color) and 1 or 0   -- Backpack: gather +1
     if extra > 0 then
         broadcastToColor("Your Backpack gathers 1 extra resource.", color, BROADCAST_COLORS.gain)
@@ -421,19 +455,38 @@ function doRest(color, choice)
     local char = gameState.activeChars[color]
     if not char then return end
 
-    -- Check ongoing restrictions
-    if choice == "hunger" and gameState.ongoingDawnEffects.restNoHunger then
+    -- Ongoing restrictions and Luca's Needs an Audience (§6.5) can each
+    -- redirect the choice, and a redirect can land on the OTHER banned
+    -- half — so the two bans are re-checked after every redirect rather
+    -- than once each, in order. (Luca alone under P2_HUNGRY used to be
+    -- redirected sanity -> hunger *past* restNoHunger, and rested for the
+    -- Hunger the Dawn card had just forbidden.)
+    local noHunger = gameState.ongoingDawnEffects.restNoHunger
+    local noSanity = gameState.ongoingDawnEffects.restNoSanity
+    local lucaAlone = (char.name == "Luca") and not charHasCompany(color)
+
+    if choice == "hunger" and noHunger then
+        if noSanity then
+            broadcastEvent("warn", "Rest can restore neither Hunger nor Sanity today — " ..
+                char.name .. " rests for nothing.")
+            return
+        end
         broadcastEvent("warn", "Rest cannot restore Hunger (ongoing Dawn effect).")
         choice = "sanity"
     end
-    if choice == "sanity" and gameState.ongoingDawnEffects.restNoSanity then
-        broadcastEvent("warn", "Rest cannot restore Sanity (ongoing Dawn effect).")
-        choice = "hunger"
-    end
-
-    -- Needs an Audience (§6.5): alone, Luca's Sanity does not regenerate.
-    if choice == "sanity" and char.name == "Luca" and not charHasCompany(color) then
-        broadcastEvent("warn", "Needs an Audience: Luca is alone — his Sanity won't regenerate. He rests for Hunger instead.")
+    if choice == "sanity" and (noSanity or lucaAlone) then
+        if noHunger then
+            broadcastEvent("warn", (noSanity
+                and "Rest can restore neither Hunger nor Sanity today — "
+                or  "Needs an Audience, and Rest restores no Hunger today — ") ..
+                char.name .. " rests for nothing.")
+            return
+        end
+        if noSanity then
+            broadcastEvent("warn", "Rest cannot restore Sanity (ongoing Dawn effect).")
+        else
+            broadcastEvent("warn", "Needs an Audience: Luca is alone — his Sanity won't regenerate. He rests for Hunger instead.")
+        end
         choice = "hunger"
     end
 
@@ -456,7 +509,12 @@ function doRest(color, choice)
 
     -- At own house: also +1 Health. Nothing Left to Lose (Design §15.2):
     -- at Doom 25, Rest heals +1 Health anywhere — non-stacking with the
-    -- home bonus (one +1 Health either way).
+    -- home bonus (one +1 Health either way). P3_GRAVITY_WRONG suspends
+    -- the Health half of Rest entirely for the day.
+    if gameState.ongoingDawnEffects.restNoHealth then
+        broadcastEvent("warn", "Rest restores no Health today (gravity feels wrong).")
+        return
+    end
     local home = CHARACTER_HOMES[char.name]
     if home and char.location == home then
         char.health = math.min(char.maxHealth, char.health + 1)

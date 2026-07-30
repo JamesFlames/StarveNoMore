@@ -2,6 +2,68 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Eleven ongoing effects that were never wired up (2026-07)
+
+The reachability audit below caught rules that were *functions* nothing called.
+This one caught the same bug one level down: rules that were *flags* nothing
+read. Eleven Dawn cards set an `ongoingDawnEffects` flag, announced the rule in
+chat, listed it in the Active Rules panel — and no action, phase step or
+resolver had ever heard of it. The card said it, the panel said it, the table
+played around it, and the day played out exactly like any other.
+
+Now enforced: **P3_LONG_NIGHT** (`reducedActions`) really does cut the day to 2
+actions each; **P3_GRAVITY_WRONG** (`moveCostPlus1`, `restNoHealth`) charges the
+extra action to move and suspends Rest's Health; **P2_STRANGER_WAVES**
+(`sportCourtHungerCost`) bills +1 Hunger on every step to or from a court —
+including Rayman's free second step and the Dusk scramble, so it can't be walked
+around by picking a different verb; **P2_RAIN_STARTS** (`rainSanityCost`,
+`rainFireDisabled`) costs 1 Sanity to Gather at a court and drowns fire there,
+flames only, batteries fine; **P3_WALLS_CLOSE** (`reducedCapacity`) really does
+take a bed out of every house; **P4_LAST_MEAL** (`recipeBonusHunger`) adds its
++2 to the Hunger a recipe restores; **P4_MEMORY_FLOOD** (`homeSanityBonus`)
+doubles the sanity of your own bed.
+
+**P4_HOPE_REMAINS and P4_DAWN_BREAKS could not have worked as written.** Both
+name *this* Dawn's Doom advance, and `BeginDay` advances Doom before it reveals
+the card — so a flag set at reveal always missed the read it was for, and would
+have applied to tomorrow's advance instead, the one Dawn neither card is about.
+They now hand the points back on reveal: -1 for Hope Remains, the whole phase
+rate for Dawn Breaks (festering is not refunded — that is the map's bill, not
+the calendar's).
+
+Also fixed, same audit:
+
+- **Iced Tea's second line** ("Adjacent allies +1 Sanity"): `adjacentAllies` was
+  generated into `RECIPE_DATA` from the CSV and read by nothing.
+- **Gumbo's Crockpot requirement** (`requiresCrockpot`) was never checked, and
+  the **Portable Crockpot** — craftable, "allows cooking at any tile" — did
+  nothing. Both go through one new `crockpotAt()`, which the Cook button, the
+  Cook handler and the recipe flag now all read, so they can't disagree about
+  where the pot is.
+- **A full Telltale Heart supply used to charge you anyway.** The max-5 check
+  ran *after* the recipe's 2 Health cook penalty, so cooking against a full
+  supply cost 2 Health, three resources and an action for nothing.
+- **Birthday Cake (2 actions) with 1 action left** spent that action inside the
+  loop and then bailed. Multi-action recipes are all-or-nothing now.
+- **Luca alone under P2_HUNGRY rested for the Hunger the card had banned:**
+  Needs an Audience redirected him sanity → hunger *past* the `restNoHunger`
+  check that had already run. Both bans are re-checked after any redirect; if
+  both halves are shut, the Rest is refused rather than silently granted.
+- **Undo left Rayman's tile count ticking.** `snapshotForUndo` captured
+  `raymanMovedToday` but not `raymanTilesMovedToday`, which carries two
+  thresholds of its own — the 3-player Loud relief (< 3 tiles) and the 3-player
+  Big Appetite relief (< 2). An undone move counted against both.
+- **The Shortcut scenario duplicated a road it shared with the map.** Ring (the
+  default variant) and Sprawl already print JamesHouse↔BadmintonCourt, so
+  `_adjacentLocations` returned that neighbour twice: two overlapping MOVE HERE
+  buttons on one tile.
+
+**The guard:** `tests/test_lua_effect_flags.py` fails on any flag `EFFECT_RULES`
+promises that no non-`ui_` file reads — and in the other direction, on any flag
+a Dawn card sets that the Active Rules panel never shows. `ui_` files are
+excluded on purpose: printing a rule is what the panel is for, and printing it
+is exactly what all eleven were doing instead of happening.
+
 ## Eight rules that were never wired up (2026-07)
 
 A reachability audit of the Lua bundle found nine global functions that nothing

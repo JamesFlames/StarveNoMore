@@ -88,8 +88,16 @@ DAWN_EFFECTS["P4_LAST_LIGHTS"] = {
 DAWN_EFFECTS["P4_HOPE_REMAINS"] = {
     onReveal = function(card)
         allPlayersGain("sanity", 1)
+        -- Applied here, not as a flag BeginDay reads: BeginDay advances Doom
+        -- and only THEN reveals the Dawn card, so a flag set now could never
+        -- reach the advance it names — it would have sat until tomorrow's,
+        -- which is the one Dawn this card is not about. Refunding the point
+        -- the phase rate just took is the same arithmetic, in the right order.
+        gameState.doom = math.max(0, gameState.doom - 1)
+        moveDoomMarker(gameState.doom)
         gameState.ongoingDawnEffects.doomReduced = true
-        broadcastEvent("gain", "Hope remains. Doom advance reduced by 1 this Dawn only.")
+        broadcastEvent("gain", "Hope remains. Doom's advance is reduced by 1 this Dawn — now " ..
+            gameState.doom .. " / " .. getDoomLimit() .. ".")
     end,
     onCleanup = function()
         gameState.ongoingDawnEffects.doomReduced = nil
@@ -127,7 +135,13 @@ DAWN_EFFECTS["P4_ALL_TOGETHER"] = {
 
 DAWN_EFFECTS["P4_DAWN_BREAKS"] = {
     onReveal = function(card)
-        broadcastEvent("gain", "Dawn breaks. Doom does NOT advance this Dawn.")
+        -- Same ordering as P4_HOPE_REMAINS: hand back exactly the phase rate
+        -- BeginDay charged a moment ago. Festering (§15.1) is not refunded —
+        -- that is the map's bill, not the calendar's.
+        gameState.doom = math.max(0, gameState.doom - getDoomRate())
+        moveDoomMarker(gameState.doom)
+        broadcastEvent("gain", "Dawn breaks. Doom does NOT advance this Dawn — held at " ..
+            gameState.doom .. " / " .. getDoomLimit() .. ".")
         gameState.ongoingDawnEffects.noDoomThisDawn = true
         if gameState.day == getTotalDays() then
             broadcastEvent("phase", "The final day — continue to the final Tick. Survival check!")

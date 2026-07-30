@@ -381,6 +381,25 @@ class TestPathVariants:
         assert all(len(v) > 0 for v in adj.values()), \
             "a bad variant name must never leave every tile unreachable"
 
+    def test_the_shortcut_never_duplicates_a_road_that_is_already_printed(self, env):
+        """SC_SHORTCUT adds a JamesHouse<->BadmintonCourt edge. Ring (the
+        default) and Sprawl already have it, so the scenario was handing the
+        same neighbour back twice — two overlapping MOVE HERE buttons on one
+        tile, and an inflated count of legal targets."""
+        self._board(env)
+        env.globals().applyPathVariant("Ring")
+        env.execute("gameState.scenarioFlags = { shortcutPath = true }")
+        for loc in ("JamesHouse", "BadmintonCourt"):
+            names = lua_to_py(env.globals()._adjacentLocations(loc))
+            assert len(names) == len(set(names)), f"{loc} -> {names}"
+
+    def test_the_shortcut_still_adds_the_road_where_it_is_missing(self, env):
+        self._board(env)
+        env.globals().applyPathVariant("Star")   # no James<->Badminton edge
+        env.execute("gameState.scenarioFlags = { shortcutPath = true }")
+        assert "BadmintonCourt" in lua_to_py(env.globals()._adjacentLocations("JamesHouse"))
+        assert "JamesHouse" in lua_to_py(env.globals()._adjacentLocations("BadmintonCourt"))
+
 
 class TestVariantAwareQuickStart:
     """The Quick Start card described a 7-day/30-Doom game no matter which

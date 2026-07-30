@@ -47,9 +47,21 @@ function beginDayPhase()
     -- Reset all players' actions and trade counters
     gameState.combatContext = nil   -- no fight carries across into a new Day
     gameState.tradesThisTurn = {}
+
+    -- P3_LONG_NIGHT (reducedActions): the day is short — 2 actions, not 3.
+    -- Read here rather than in spendAction because the budget is what the
+    -- action bar and the What-now hints count down from; a mid-day check
+    -- would let a player plan three actions and be refused the third.
+    local budget = ACTIONS_PER_TURN
+    if gameState.ongoingDawnEffects.reducedActions then
+        budget = math.max(1, ACTIONS_PER_TURN - 1)
+        broadcastEvent("warn", "The night ran long — only " .. budget ..
+            " actions each today.")
+    end
+
     for color, char in pairs(gameState.activeChars) do
         if not char.down then
-            char.actionsLeft = ACTIONS_PER_TURN
+            char.actionsLeft = budget
         else
             char.actionsLeft = 0
         end
@@ -57,7 +69,7 @@ function beginDayPhase()
 
     if gameState.turnStyle == "rotate" then
         broadcastEvent("proc", "Rotation turns: take 1 action, then the next player goes — around the table until everyone has used all "
-            .. ACTIONS_PER_TURN .. ". Passing without acting forfeits your remaining actions.")
+            .. budget .. ". Passing without acting forfeits your remaining actions.")
     end
 
     -- Start the first player's turn
@@ -236,13 +248,14 @@ function revealDuskCommitments()
         local char = gameState.activeChars[color]
         local target = pending[color]
         if char and not char.down and target then
-            char.hunger = math.max(0, char.hunger - 1)
+            local hungerCost = 1 + sportCourtSurcharge(char.location, target)
+            char.hunger = math.max(0, char.hunger - hungerCost)
             char.location = target
             if char.name == "Rayman" then
                 gameState.raymanMovedToday = true
                 gameState.raymanTilesMovedToday = (gameState.raymanTilesMovedToday or 0) + 1
             end
-            broadcastEvent("warn", char.name .. " went to " .. target .. ". (-1 Hunger)")
+            broadcastEvent("warn", char.name .. " went to " .. target .. ". (-" .. hungerCost .. " Hunger)")
             safecall(function()
                 local standee = getCharacterStandee(char.name)
                 local tile = getLocationTile(target)

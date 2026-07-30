@@ -332,7 +332,7 @@
   "BROADCAST_COLORS": [
    {
     "file": "lua/global.lua",
-    "line": 276,
+    "line": 281,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -492,11 +492,21 @@
   "COOK_DIALOG_SLOTS": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 102,
+    "line": 101,
     "kind": "value",
     "params": null,
     "arity": null,
     "doc": "Fill the cook dialog with the recipes this player can actually make."
+   }
+  ],
+  "CROCKPOT_HOME": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 452,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "Where can a recipe be cooked? The kitchen at Ellie & Luca's House always, and any tile where somebody standing there carries the Portable Crockpot (\"Persistent…"
    }
   ],
   "CUSTOM_UI_PANELS": [
@@ -582,7 +592,7 @@
   "DIFFICULTY_PARAMS": [
    {
     "file": "lua/global.lua",
-    "line": 171,
+    "line": 176,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -592,7 +602,7 @@
   "DOOM_RATES": [
    {
     "file": "lua/global.lua",
-    "line": 230,
+    "line": 235,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -679,6 +689,16 @@
     "doc": "Unavailable actions are HIDDEN, not dimmed: a bar of grey buttons made players wonder which ones they could click. What remains is exactly what the player can …"
    }
   ],
+  "HEART_SUPPLY_MAX": [
+   {
+    "file": "lua/global.lua",
+    "line": 141,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "How many Telltale Hearts can exist at once (Design §13.4). Checked by doCook before it charges the recipe's 2 Health, and again by cookTelltaleHeart itself."
+   }
+  ],
   "HELP_GLOSSARY": [
    {
     "file": "lua/notebook_data.lua",
@@ -722,7 +742,7 @@
   "HIGHLIGHT_DURATION": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 119,
+    "line": 123,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -982,7 +1002,7 @@
   "RESOURCE_LABELS": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 148,
+    "line": 152,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1256,7 +1276,7 @@
   "_cardIdFromTags": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 183,
+    "line": 187,
     "kind": "function",
     "params": [
      "card"
@@ -1290,7 +1310,7 @@
   "_cookDialogIds": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 103,
+    "line": 102,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1382,7 +1402,7 @@
   "_resLabel": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 150,
+    "line": 154,
     "kind": "function",
     "params": [
      "resType"
@@ -1394,7 +1414,7 @@
   "_showCookDialog": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 115,
+    "line": 114,
     "kind": "function",
     "params": [
      "color"
@@ -1613,7 +1633,7 @@
   "advanceToNextPlayer": [
    {
     "file": "lua/turns.lua",
-    "line": 67,
+    "line": 79,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1649,7 +1669,7 @@
   "announceInventory": [
    {
     "file": "lua/actions.lua",
-    "line": 298,
+    "line": 322,
     "kind": "function",
     "params": [
      "color"
@@ -1890,7 +1910,7 @@
   "broadcastEvent": [
    {
     "file": "lua/global.lua",
-    "line": 284,
+    "line": 289,
     "kind": "function",
     "params": [
      "category",
@@ -1925,7 +1945,7 @@
   "canAfford": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 191,
+    "line": 195,
     "kind": "function",
     "params": [
      "color",
@@ -2116,7 +2136,7 @@
   "charHasCompany": [
    {
     "file": "lua/helpers.lua",
-    "line": 437,
+    "line": 482,
     "kind": "function",
     "params": [
      "color"
@@ -2278,7 +2298,7 @@
   "colorToCharacter": [
    {
     "file": "lua/helpers.lua",
-    "line": 462,
+    "line": 507,
     "kind": "function",
     "params": [
      "color"
@@ -2345,7 +2365,7 @@
   "cookTelltaleHeart": [
    {
     "file": "lua/crafting.lua",
-    "line": 324,
+    "line": 367,
     "kind": "function",
     "params": [
      "color"
@@ -2357,7 +2377,7 @@
   "countDuskReady": [
    {
     "file": "lua/turns.lua",
-    "line": 276,
+    "line": 289,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2372,6 +2392,18 @@
     "params": [],
     "arity": 0,
     "doc": "Returns two values: capped ordinary-threat fester and uncapped boss fester."
+   }
+  ],
+  "crockpotAt": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 454,
+    "kind": "function",
+    "params": [
+     "loc"
+    ],
+    "arity": 1,
+    "doc": ""
    }
   ],
   "customUIHidden": [
@@ -2407,7 +2439,7 @@
   "describeDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 257,
+    "line": 262,
     "kind": "function",
     "params": [
      "diff"
@@ -2506,7 +2538,7 @@
   "doDuskMove": [
    {
     "file": "lua/actions.lua",
-    "line": 187,
+    "line": 209,
     "kind": "function",
     "params": [
      "color",
@@ -2570,7 +2602,7 @@
   "doGather": [
    {
     "file": "lua/actions.lua",
-    "line": 339,
+    "line": 363,
     "kind": "function",
     "params": [
      "color"
@@ -2582,7 +2614,7 @@
   "doMove": [
    {
     "file": "lua/actions.lua",
-    "line": 66,
+    "line": 72,
     "kind": "function",
     "params": [
      "color",
@@ -2645,7 +2677,7 @@
   "doRaymanBonusMove": [
    {
     "file": "lua/actions.lua",
-    "line": 148,
+    "line": 169,
     "kind": "function",
     "params": [
      "color",
@@ -2658,7 +2690,7 @@
   "doRest": [
    {
     "file": "lua/actions.lua",
-    "line": 418,
+    "line": 452,
     "kind": "function",
     "params": [
      "color",
@@ -2710,7 +2742,7 @@
   "doUndo": [
    {
     "file": "lua/actions.lua",
-    "line": 23,
+    "line": 28,
     "kind": "function",
     "params": [
      "color"
@@ -2794,7 +2826,7 @@
   "endPlayerTurn": [
    {
     "file": "lua/turns.lua",
-    "line": 135,
+    "line": 147,
     "kind": "function",
     "params": [
      "color"
@@ -2946,7 +2978,7 @@
   "gameRoll": [
    {
     "file": "lua/helpers.lua",
-    "line": 478,
+    "line": 523,
     "kind": "function",
     "params": [
      "a",
@@ -2969,7 +3001,7 @@
   "gatherRandomResources": [
    {
     "file": "lua/actions.lua",
-    "line": 324,
+    "line": 348,
     "kind": "function",
     "params": [
      "color",
@@ -2983,7 +3015,7 @@
   "getActivePlayerColors": [
    {
     "file": "lua/helpers.lua",
-    "line": 449,
+    "line": 494,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3050,7 +3082,7 @@
   "getDifficulty": [
    {
     "file": "lua/global.lua",
-    "line": 189,
+    "line": 194,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3060,7 +3092,7 @@
   "getDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 241,
+    "line": 246,
     "kind": "function",
     "params": [
      "phase"
@@ -3072,7 +3104,7 @@
   "getDoomLimit": [
    {
     "file": "lua/global.lua",
-    "line": 194,
+    "line": 199,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3092,7 +3124,7 @@
   "getDoomRate": [
    {
     "file": "lua/global.lua",
-    "line": 247,
+    "line": 252,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3230,7 +3262,7 @@
   "getPhaseForDay": [
    {
     "file": "lua/global.lua",
-    "line": 212,
+    "line": 217,
     "kind": "function",
     "params": [
      "day"
@@ -3267,7 +3299,7 @@
   "getPlayerResources": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 132,
+    "line": 136,
     "kind": "function",
     "params": [
      "color"
@@ -3301,7 +3333,7 @@
   "getSourceMaxHP": [
    {
     "file": "lua/global.lua",
-    "line": 199,
+    "line": 204,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3311,7 +3343,7 @@
   "getSourceSplitHP": [
    {
     "file": "lua/global.lua",
-    "line": 207,
+    "line": 212,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3331,7 +3363,7 @@
   "getTotalDays": [
    {
     "file": "lua/global.lua",
-    "line": 193,
+    "line": 198,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3425,7 +3457,7 @@
   "identifyThreatType": [
    {
     "file": "lua/night.lua",
-    "line": 349,
+    "line": 361,
     "kind": "function",
     "params": [
      "card"
@@ -3504,6 +3536,18 @@
     "doc": ""
    }
   ],
+  "isSportCourt": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 442,
+    "kind": "function",
+    "params": [
+     "loc"
+    ],
+    "arity": 1,
+    "doc": "Sport court vs. house. The two sport courts are the only non-house tiles, and a dozen rules key off the distinction (threat rates, sleep regen, rain, Coco's No…"
+   }
+  ],
   "lockdownCriticalObjects": [
    {
     "file": "lua/audit.lua",
@@ -3577,7 +3621,7 @@
   "migrateGameState": [
    {
     "file": "lua/global.lua",
-    "line": 301,
+    "line": 306,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3782,7 +3826,7 @@
   "onActCleanse": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 236,
+    "line": 235,
     "kind": "function",
     "params": [
      "player",
@@ -3866,7 +3910,7 @@
   "onActFight": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 170,
+    "line": 169,
     "kind": "function",
     "params": [
      "player",
@@ -3908,7 +3952,7 @@
   "onActPass": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 252,
+    "line": 251,
     "kind": "function",
     "params": [
      "player",
@@ -3922,7 +3966,7 @@
   "onActPeek": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 384,
+    "line": 383,
     "kind": "function",
     "params": [
      "player",
@@ -3936,7 +3980,7 @@
   "onActPry": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 228,
+    "line": 227,
     "kind": "function",
     "params": [
      "player",
@@ -3950,7 +3994,7 @@
   "onActRally": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 411,
+    "line": 410,
     "kind": "function",
     "params": [
      "player",
@@ -3964,7 +4008,7 @@
   "onActRest": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 198,
+    "line": 197,
     "kind": "function",
     "params": [
      "player",
@@ -4020,7 +4064,7 @@
   "onActTrade": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 326,
+    "line": 325,
     "kind": "function",
     "params": [
      "player",
@@ -4034,7 +4078,7 @@
   "onActUndo": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 456,
+    "line": 455,
     "kind": "function",
     "params": [
      "player",
@@ -4132,7 +4176,7 @@
   "onCookCancel": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 164,
+    "line": 163,
     "kind": "function",
     "params": [
      "player"
@@ -4144,7 +4188,7 @@
   "onCookOptionClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 155,
+    "line": 154,
     "kind": "function",
     "params": [
      "player",
@@ -4228,7 +4272,7 @@
   "onDuskMoveClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 474,
+    "line": 473,
     "kind": "function",
     "params": [
      "player",
@@ -4242,7 +4286,7 @@
   "onDuskReadyClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 469,
+    "line": 468,
     "kind": "function",
     "params": [
      "player",
@@ -4284,7 +4328,7 @@
   "onFinishCombat": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 315,
+    "line": 314,
     "kind": "function",
     "params": [
      "player",
@@ -4438,7 +4482,7 @@
   "onLoad": [
    {
     "file": "lua/global.lua",
-    "line": 367,
+    "line": 372,
     "kind": "function",
     "params": [
      "savedState"
@@ -4519,7 +4563,7 @@
   "onPeekCancel": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 401,
+    "line": 400,
     "kind": "function",
     "params": [
      "player",
@@ -4533,7 +4577,7 @@
   "onPeekDeckClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 395,
+    "line": 394,
     "kind": "function",
     "params": [
      "player",
@@ -4603,7 +4647,7 @@
   "onPressAttack": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 294,
+    "line": 293,
     "kind": "function",
     "params": [
      "player",
@@ -4617,7 +4661,7 @@
   "onRallyCancel": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 446,
+    "line": 445,
     "kind": "function",
     "params": [
      "player",
@@ -4631,7 +4675,7 @@
   "onRallyTargetClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 436,
+    "line": 435,
     "kind": "function",
     "params": [
      "player",
@@ -4687,7 +4731,7 @@
   "onRestHunger": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 206,
+    "line": 205,
     "kind": "function",
     "params": [
      "player",
@@ -4701,7 +4745,7 @@
   "onRestSanity": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 217,
+    "line": 216,
     "kind": "function",
     "params": [
      "player",
@@ -4729,7 +4773,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 427,
+    "line": 432,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4739,7 +4783,7 @@
   "onSetupClick": [
    {
     "file": "lua/global.lua",
-    "line": 436,
+    "line": 441,
     "kind": "function",
     "params": [
      "obj",
@@ -4879,7 +4923,7 @@
   "onTradeCancel": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 374,
+    "line": 373,
     "kind": "function",
     "params": [
      "player",
@@ -4893,7 +4937,7 @@
   "onTradeTargetClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 364,
+    "line": 363,
     "kind": "function",
     "params": [
      "player",
@@ -5002,7 +5046,7 @@
   "playerHasBackpack": [
    {
     "file": "lua/actions.lua",
-    "line": 312,
+    "line": 336,
     "kind": "function",
     "params": [
      "color"
@@ -5333,7 +5377,7 @@
   "refreshCombatPanel": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 280,
+    "line": 279,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5363,7 +5407,7 @@
   "refreshDuskReadyLabel": [
    {
     "file": "lua/turns.lua",
-    "line": 294,
+    "line": 307,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5549,7 +5593,7 @@
   "resolveSleep": [
    {
     "file": "lua/night.lua",
-    "line": 391,
+    "line": 403,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5559,7 +5603,7 @@
   "resolveStorytelling": [
    {
     "file": "lua/night.lua",
-    "line": 364,
+    "line": 376,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5601,7 +5645,7 @@
   "revealDuskCommitments": [
    {
     "file": "lua/turns.lua",
-    "line": 219,
+    "line": 231,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5713,7 +5757,7 @@
   "safecall": [
    {
     "file": "lua/helpers.lua",
-    "line": 484,
+    "line": 529,
     "kind": "function",
     "params": [
      "fn",
@@ -5971,7 +6015,7 @@
   "spendAction": [
    {
     "file": "lua/turns.lua",
-    "line": 162,
+    "line": 174,
     "kind": "function",
     "params": [
      "color",
@@ -5979,6 +6023,19 @@
     ],
     "arity": 2,
     "doc": ""
+   }
+  ],
+  "sportCourtSurcharge": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 475,
+    "kind": "function",
+    "params": [
+     "from",
+     "to"
+    ],
+    "arity": 2,
+    "doc": "P2_STRANGER_WAVES (sportCourtHungerCost): every step that touches a sport court costs +1 Hunger until next Dawn. Shared by all four ways a character changes ti…"
    }
   ],
   "startGuidedSetup": [
@@ -6165,7 +6222,7 @@
   "toggleDuskReady": [
    {
     "file": "lua/turns.lua",
-    "line": 307,
+    "line": 320,
     "kind": "function",
     "params": [
      "color"
@@ -6242,7 +6299,7 @@
   "verifyAndPayResources": [
    {
     "file": "lua/ui_actionbar_core.lua",
-    "line": 152,
+    "line": 156,
     "kind": "function",
     "params": [
      "color",

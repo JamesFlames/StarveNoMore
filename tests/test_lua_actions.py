@@ -484,6 +484,68 @@ class TestCookIngredients:
         # Ellie shaves one Food (the largest ingredient); 1 Food is left over.
         assert held["Food"] == 1 and held["Wood"] == 0
 
+    def test_full_heart_supply_refuses_before_charging_the_cook(self, env):
+        """The Telltale Heart is the one recipe whose penalty (2 Health) is
+        paid up front, and its supply ceiling used to be checked *after* —
+        so a cook against a full supply cost 2 Health, three resources and an
+        action, and produced nothing."""
+        self._cook_world(env, "Rayman")
+        for res in ("Battery", "Cloth", "Food"):
+            env.globals().giveResource("Green", res, 1)
+        env.execute("gameState.heartCount = HEART_SUPPLY_MAX")
+        start_health = env.eval("gameState.activeChars.Green.health")
+        env.globals().doCook("Green", "R_TELLTALE_HEART")
+        assert env.eval("gameState.activeChars.Green.health") == start_health
+        assert env.eval("gameState.activeChars.Green.actionsLeft") == 3
+        assert self._held(env)["Battery"] == 1   # nothing spent
+        assert env.eval("gameState.heartCount") == env.eval("HEART_SUPPLY_MAX")
+
+    def test_a_two_action_recipe_is_all_or_nothing(self, env):
+        """Birthday Cake costs 2 actions. Starting it with 1 left used to
+        spend that action inside the loop and then bail."""
+        self._cook_world(env, "Rayman")
+        env.execute("gameState.activeChars.Green.actionsLeft = 1")
+        for res in ("Cloth", "EnergyDrink", "Food"):
+            env.globals().giveResource("Green", res, 3)
+        env.globals().doCook("Green", "R_BIRTHDAY_CAKE")
+        assert env.eval("gameState.activeChars.Green.actionsLeft") == 1
+        assert env.eval("gameState.usedRecipes.R_BIRTHDAY_CAKE") is None
+
+    def test_a_two_action_recipe_cooks_with_the_budget_for_it(self, env):
+        self._cook_world(env, "Rayman")
+        for res in ("Cloth", "EnergyDrink", "Food"):
+            env.globals().giveResource("Green", res, 3)
+        env.globals().doCook("Green", "R_BIRTHDAY_CAKE")
+        assert env.eval("gameState.activeChars.Green.actionsLeft") == 1   # 3 - 2
+        assert env.eval("gameState.usedRecipes.R_BIRTHDAY_CAKE") is True
+
+    def test_requires_crockpot_is_enforced(self, env):
+        """Gumbo prints "Requires non-empty Crockpot tile"; the flag was
+        generated into RECIPE_DATA and read by nothing."""
+        self._cook_world(env, "Rayman")
+        env.execute("gameState.activeChars.Green.location = 'BasketballCourt'")
+        for res in ("Food", "Wood", "Cloth"):
+            env.globals().giveResource("Green", res, 3)
+        env.globals().doCook("Green", "R_GUMBO")
+        assert env.eval("gameState.activeChars.Green.actionsLeft") == 3
+        assert self._held(env)["Wood"] == 3
+
+    def test_portable_crockpot_makes_any_tile_a_kitchen(self, env):
+        """"Persistent. Allows cooking at any tile (not just kitchen)" — the
+        card was craftable and inert; crockpotAt() is now the one answer the
+        Cook button, the Cook handler and requiresCrockpot all read."""
+        self._cook_world(env, "Rayman")
+        env.execute("gameState.activeChars.Green.location = 'BasketballCourt'")
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["Location:BasketballCourt"], "position": [30, 1, 30]}))
+        assert env.globals().crockpotAt("BasketballCourt") is False
+        env.execute('TTS.setHand("Green", { TTS.makeObject({tags={"M_PORTABLE_CROCKPOT"}}) })')
+        assert env.globals().crockpotAt("BasketballCourt") is True
+        for res in ("Food", "Wood", "Cloth"):
+            env.globals().giveResource("Green", res, 3)
+        env.globals().doCook("Green", "R_GUMBO")
+        assert env.eval("gameState.activeChars.Green.actionsLeft") == 2   # it cooked
+
 
 # ---------------------------------------------------------------------------
 # Regression guards for bug CLASSES seen in playtest (see also

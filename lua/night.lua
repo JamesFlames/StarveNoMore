@@ -169,7 +169,7 @@ function resolveNightAtLocation(location, colors)
     end
 
     -- Alone at a sport court: +1 extra threat
-    if #colors == 1 and (location:find("Court") or location:find("Badminton") or location:find("Basketball")) then
+    if #colors == 1 and isSportCourt(location) then
         baseRate = baseRate + 1
         broadcastEvent("warn", charNames[1] .. " is alone at " .. location .. "! Extra threat drawn.")
     end
@@ -190,7 +190,7 @@ function resolveNightAtLocation(location, colors)
     -- Dare — the court floodlights (P1_LIGHTS_FLICKER): the glow draws the
     -- dark. The reward half pays out at Dawn beside Moonlit Salvage.
     if gameState.ongoingDawnEffects.dareCourtGlow
-        and (location:find("Court") or location:find("Badminton") or location:find("Basketball")) then
+        and isSportCourt(location) then
         baseRate = baseRate + 2
         broadcastEvent("warn", "The floodlights hum over " .. location .. " — the dare's price: +2 Threats.")
     end
@@ -217,7 +217,7 @@ function resolveNightAtLocation(location, colors)
 
     -- No house threats (P1_NEIGHBORHOOD_QUIET)
     if gameState.ongoingDawnEffects.noHouseThreats then
-        if not (location:find("Court") or location:find("Badminton") or location:find("Basketball")) then
+        if not isSportCourt(location) then
             baseRate = 0
             broadcastEvent("proc", "No threats at " .. location .. " tonight (Neighborhood quiet).")
         end
@@ -244,7 +244,7 @@ function resolveNightAtLocation(location, colors)
 
     if not gameState.ongoingDawnEffects.charliePaused then
         local charlieApplies = gameState.ongoingDawnEffects.charlieEverywhere or
-            (location:find("Court") or location:find("Badminton") or location:find("Basketball"))
+            isSportCourt(location)
 
         -- At house tiles, Charlie only hits if there's no light source
         -- For now, we broadcast the check and let players confirm light sources
@@ -298,9 +298,13 @@ function checkPlayerHasLight(color)
     if not char then return false end
     local fireOnly = gameState.ongoingDawnEffects.flashlightsDisabled
                   or gameState.ongoingDawnEffects.onlyFireLight
+    -- P2_RAIN_STARTS (rainFireDisabled): the rain puts out every open flame
+    -- at the sport courts. Under the roofs it burns fine.
+    local rainedOut = gameState.ongoingDawnEffects.rainFireDisabled
+                      and isSportCourt(char.location or "")
 
     -- Shared fire: a Campfire at this character's tile covers everyone there.
-    local tile = getLocationTile(char.location or "")
+    local tile = (not rainedOut) and getLocationTile(char.location or "") or nil
     if tile then
         local tp = tile.getPosition()
         for _, obj in ipairs(getAllObjects()) do
@@ -321,22 +325,30 @@ function checkPlayerHasLight(color)
     end
 
     -- Personal lights: hand + player-board area.
-    local foundDisabled = nil
+    local foundDisabled, disabledWhy = nil, nil
     for _, obj in ipairs(getPlayerCarriedObjects(color, char.name)) do
         for _, src in ipairs(LIGHT_SOURCES) do
             if _matchesLight(obj, src) then
-                if src.fire or not fireOnly then
+                if src.fire and rainedOut then
+                    -- Rain at a sport court drowns the flame; a Flashlight
+                    -- (src.fire == false) is unaffected and keeps checking.
+                    foundDisabled = src.label
+                    disabledWhy = "the rain has put every flame out at the courts"
+                elseif src.fire or not fireOnly then
                     local note = (src.id == "M_FIRE_KIT") and " (spend 1 Wood for tonight's fire)" or ""
                     broadcastEvent("proc", char.name .. "'s " .. src.label .. " keeps the dark out" .. note .. " — Charlie stays away.")
                     return true
+                else
+                    foundDisabled = src.label
+                    disabledWhy = "only Fire counts as light"
                 end
-                foundDisabled = src.label
             end
         end
     end
 
     if foundDisabled then
-        broadcastEvent("warn", char.name .. "'s " .. foundDisabled .. " is useless tonight — only Fire counts as light.")
+        broadcastEvent("warn", char.name .. "'s " .. foundDisabled ..
+            " is useless tonight — " .. disabledWhy .. ".")
     else
         broadcastEvent("proc", char.name .. " has no light: no Flashlight/Lantern/Fire Kit in hand or by their player board, no Campfire at their tile.")
     end
@@ -395,14 +407,22 @@ function resolveSleep()
     -- character beyond the second at the same house gets the floor — no
     -- sleep regeneration. Beds go to owners first, then to the guests who
     -- need them most (lowest Sanity).
+    -- P3_WALLS_CLOSE (reducedCapacity): the walls are closer — every house
+    -- sleeps one fewer, so the third body was already on the floor and now
+    -- the second is too. Never below one bed: a house nobody can sleep in
+    -- would make the card a location ban rather than a squeeze.
     local BEDS_PER_HOUSE = 2
+    if gameState.ongoingDawnEffects.reducedCapacity then
+        BEDS_PER_HOUSE = math.max(1, BEDS_PER_HOUSE - 1)
+        broadcastEvent("warn", "The walls are closer — each house sleeps only " ..
+            BEDS_PER_HOUSE .. " tonight.")
+    end
     local floorSleepers = {}   -- [color] = true
     local sleepersByLoc = {}   -- [loc] = { {color=, char=}, ... }
     for color, char in pairs(gameState.activeChars) do
         if not char.down then
             local loc = char.location or ""
-            local isHouse = not (loc:find("Court") or loc:find("Badminton") or loc:find("Basketball"))
-            if isHouse then
+            if not isSportCourt(loc) then
                 sleepersByLoc[loc] = sleepersByLoc[loc] or {}
                 table.insert(sleepersByLoc[loc], { color = color, char = char })
             end
@@ -430,7 +450,7 @@ function resolveSleep()
             local loc = char.location or ""
             local home = CHARACTER_HOMES[char.name]
             local isOwnHome = (home and loc == home)
-            local isHouse = not (loc:find("Court") or loc:find("Badminton") or loc:find("Basketball"))
+            local isHouse = not isSportCourt(loc)
 
             -- Count others at same location
             local othersHere = 0
@@ -442,6 +462,10 @@ function resolveSleep()
 
             -- Winter scenario: houses give +1 Sanity bonus at sleep
             local winterBonus = (gameState.scenarioFlags or {}).housesSanityBonus and isHouse
+            -- P4_MEMORY_FLOOD (homeSanityBonus): your own bed is worth +2
+            -- Sanity tonight instead of +1. Only your OWN home — the card is
+            -- about the memories in that room.
+            local memoryBonus = gameState.ongoingDawnEffects.homeSanityBonus and isOwnHome
 
             -- Crowded-floor sleepers get no regen (broadcast already sent
             -- above); everyone else settles according to where they slept.
@@ -450,14 +474,15 @@ function resolveSleep()
                     -- Own house: +1 Sanity, +1 Hunger, +1 Health.
                     -- Needs an Audience (§6.5): Luca alone regains no Sanity —
                     -- the body rests, the mind doesn't.
-                    local sanityGain = 1 + (winterBonus and 1 or 0)
+                    local sanityGain = 1 + (winterBonus and 1 or 0) + (memoryBonus and 1 or 0)
                     if char.name == "Luca" and othersHere == 0 then
                         sanityGain = 0
                     end
                     char.sanity = math.min(char.maxSanity, char.sanity + sanityGain)
                     char.hunger = math.min(char.maxHunger, char.hunger + 1)
                     char.health = math.min(char.maxHealth, char.health + 1)
-                    local winterNote = winterBonus and " (+1 Winter huddle)" or ""
+                    local winterNote = (winterBonus and " (+1 Winter huddle)" or "") ..
+                                       (memoryBonus and " (+1 Memory Flood)" or "")
                     if sanityGain == 0 then
                         broadcastEvent("gain", char.name .. " sleeps at home alone: +1 Health, +1 Hunger — but no Sanity (Needs an Audience).")
                     else

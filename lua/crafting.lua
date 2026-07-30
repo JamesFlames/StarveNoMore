@@ -213,14 +213,27 @@ function doCook(color, recipeId)
     -- Night-only restriction: none here. Midnight Snack (canCookAtNight)
     -- may be cooked during the Day too, so this cook is never gated by phase.
 
-    -- Once-per-game check FIRST (before spending anything), so a repeat
-    -- attempt doesn't cost an action or ingredients.
+    -- Every reason this cook CAN'T happen is checked before anything is
+    -- spent, so a refused cook never costs an action, ingredients or a cook
+    -- penalty. (The Telltale Heart used to fail on a full supply *after*
+    -- charging its 2 Health — the one recipe whose penalty is paid up front.)
     if recipe.oncePerGame then
         gameState.usedRecipes = gameState.usedRecipes or {}
         if gameState.usedRecipes[recipeId] then
             broadcastEvent("damage", recipe.name .. " can only be cooked once per game.")
             return
         end
+    end
+    if recipe.special == "heart" and (gameState.heartCount or 0) >= HEART_SUPPLY_MAX then
+        broadcastEvent("damage", "Telltale Heart supply is exhausted (max " ..
+            HEART_SUPPLY_MAX .. ").")
+        return
+    end
+    -- Gumbo and friends need the pot, not just the ingredients.
+    if recipe.requiresCrockpot and not crockpotAt(char.location) then
+        broadcastToColor(recipe.name .. " needs a Crockpot at your tile. There isn't one at " ..
+            (char.location or "?") .. ".", color, BROADCAST_COLORS.damage)
+        return
     end
 
     -- Action cost. The Feast (Ellie's Signature, §6.7) covers every cook
@@ -230,8 +243,20 @@ function doCook(color, recipeId)
         actionCost = 0
         broadcastEvent("proc", "The Feast: " .. recipe.name .. " costs no action.")
     end
+    -- Multi-action recipes are all-or-nothing: the Birthday Cake costs 2, and
+    -- starting it with 1 action left used to burn that action on nothing.
+    if char.actionsLeft < actionCost then
+        broadcastToColor(recipe.name .. " takes " .. actionCost .. " actions — you have " ..
+            char.actionsLeft .. ".", color, BROADCAST_COLORS.damage)
+        return
+    end
     for i = 1, actionCost do
-        if not spendAction(color, "Cook (" .. recipe.name .. ")") then return end
+        if not spendAction(color, "Cook (" .. recipe.name .. ")") then
+            -- Refund whatever this cook already took (rotation turns can
+            -- refuse the second action even when the budget allowed it).
+            for _ = 1, i - 1 do char.actionsLeft = char.actionsLeft + 1 end
+            return
+        end
     end
 
     -- Ingredients are paid automatically from the held count (no dropping
@@ -274,22 +299,31 @@ function doCook(color, recipeId)
 
     -- Ellie's Comfort Food perk: +1 hunger and +1 sanity to each ally she shares food with
     local ellieBonus = (char.name == "Ellie") and true or false
+    -- P4_LAST_MEAL (recipeBonusHunger): the last of the food goes further —
+    -- every Hunger a recipe restores today is worth 2 more. Applied per eater,
+    -- once, to the Hunger term only.
+    local mealBonus = gameState.ongoingDawnEffects.recipeBonusHunger and 2 or 0
+
+    -- Apply a recipe's stat table to one character, returning the "+N Stat"
+    -- fragments actually granted. `extra` is the Comfort Food ally bonus.
+    local function _applyStats(ch, tbl, extra)
+        local gains = {}
+        for stat, amount in pairs(tbl) do
+            local maxKey = "max" .. stat:sub(1,1):upper() .. stat:sub(2)
+            local total = amount + extra + ((stat == "hunger") and mealBonus or 0)
+            ch[stat] = math.min(ch[maxKey], ch[stat] + total)
+            gains[#gains + 1] = "+" .. total .. " " .. stat
+        end
+        return gains
+    end
 
     -- Apply effects to all at the same tile
     if recipe.allAtTile then
         local loc = char.location
         for c, ch in pairs(gameState.activeChars) do
             if not ch.down and ch.location == loc then
-                for stat, amount in pairs(recipe.allAtTile) do
-                    local maxKey = "max" .. stat:sub(1,1):upper() .. stat:sub(2)
-                    local bonus = 0
-                    if ellieBonus and c ~= color then bonus = 1 end
-                    ch[stat] = math.min(ch[maxKey], ch[stat] + amount + bonus)
-                end
-                local gains = {}
-                for stat, amount in pairs(recipe.allAtTile) do
-                    table.insert(gains, "+" .. amount .. " " .. stat)
-                end
+                local extra = (ellieBonus and c ~= color) and 1 or 0
+                local gains = _applyStats(ch, recipe.allAtTile, extra)
                 broadcastEvent("gain", ch.name .. " gains " .. table.concat(gains, ", ") .. " from " .. recipe.name .. ".")
             end
         end
@@ -297,15 +331,24 @@ function doCook(color, recipeId)
 
     -- Apply cook-only effects
     if recipe.cookOnly then
-        for stat, amount in pairs(recipe.cookOnly) do
-            local maxKey = "max" .. stat:sub(1,1):upper() .. stat:sub(2)
-            char[stat] = math.min(char[maxKey], char[stat] + amount)
-        end
-        local gains = {}
-        for stat, amount in pairs(recipe.cookOnly) do
-            table.insert(gains, "+" .. amount .. " " .. stat)
-        end
+        local gains = _applyStats(char, recipe.cookOnly, 0)
         broadcastEvent("gain", char.name .. " (cook) gains " .. table.concat(gains, ", ") .. ".")
+    end
+
+    -- Adjacent allies (Iced Tea): the tile next door gets a share. Printed on
+    -- the card and generated into RECIPE_DATA since the CSV had it, but no
+    -- code had ever read the field — the recipe's second line simply never
+    -- happened. Down characters are skipped, as everywhere else.
+    if recipe.adjacentAllies then
+        local neighbours = {}
+        for _, n in ipairs(LOCATION_ADJACENCY[char.location or ""] or {}) do neighbours[n] = true end
+        for c, ch in pairs(gameState.activeChars) do
+            if not ch.down and c ~= color and neighbours[ch.location or ""] then
+                local gains = _applyStats(ch, recipe.adjacentAllies, 0)
+                broadcastEvent("gain", ch.name .. " catches the smell from " .. (char.location or "?") ..
+                    " — " .. table.concat(gains, ", ") .. " from " .. recipe.name .. ".")
+            end
+        end
     end
 
     -- Apply one-ally bonus (e.g., Grilled Cheese)
@@ -325,10 +368,12 @@ function cookTelltaleHeart(color)
     local char = gameState.activeChars[color]
     if not char then return end
 
-    -- Check supply (max 5 in the game)
+    -- Backstop: doCook checks the same ceiling BEFORE charging the 2 Health
+    -- cook penalty, so this only fires for a direct call.
     gameState.heartCount = gameState.heartCount or 0
-    if gameState.heartCount >= 5 then
-        broadcastEvent("damage", "Telltale Heart supply is exhausted (max 5).")
+    if gameState.heartCount >= HEART_SUPPLY_MAX then
+        broadcastEvent("damage", "Telltale Heart supply is exhausted (max " ..
+            HEART_SUPPLY_MAX .. ").")
         return
     end
 

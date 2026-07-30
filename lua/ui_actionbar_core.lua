@@ -98,15 +98,19 @@ function applyPathVariant(variant)
 end
 
 function _adjacentLocations(loc)
-    local out = {}
+    local out, seen = {}, {}
     for _, n in ipairs(LOCATION_ADJACENCY[loc] or {}) do
-        out[#out+1] = n
+        if not seen[n] then seen[n] = true; out[#out+1] = n end
     end
-    -- Shortcut scenario: JamesHouse <-> BadmintonCourt edge
+    -- Shortcut scenario: JamesHouse <-> BadmintonCourt edge. Ring (the
+    -- default variant) and Sprawl already print that road, so the scenario
+    -- was handing back the same neighbour twice — two overlapping MOVE HERE
+    -- buttons on one tile, and an inflated legal-target count.
     local sFlags = gameState.scenarioFlags or {}
     if sFlags.shortcutPath then
-        if loc == "JamesHouse" then out[#out+1] = "BadmintonCourt"
-        elseif loc == "BadmintonCourt" then out[#out+1] = "JamesHouse" end
+        local extra = (loc == "JamesHouse" and "BadmintonCourt")
+                   or (loc == "BadmintonCourt" and "JamesHouse")
+        if extra and not seen[extra] then out[#out+1] = extra end
     end
     return out
 end

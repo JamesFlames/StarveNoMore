@@ -101,7 +101,7 @@ function refreshActionButtonStates(color)
 
     local noActions = char.actionsLeft <= 0
     local loc = char.location or ""
-    local hasCrockpot = (loc == "EllieLucaHouse")
+    local hasCrockpot = crockpotAt(loc)
     local tooHungry = char.hunger < 3
 
     -- Move: always available if actions remain
