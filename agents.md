@@ -33,6 +33,7 @@ not the index.
 | [Economy, Session and Variants](docs/agents/economy-and-session.md) | change the resource economy, Dusk/difficulty/telemetry, or an A/B variant |
 | [Test Suite](docs/agents/test-suite.md) | know which module runs what gameplay, or run the release checklist |
 | [Test Suite — Static Guards](docs/agents/test-guards.md) | find the static guard that just failed, or add one |
+| [Regression Guards](docs/agents/regression-guards.md) | the eight recurring bug classes `test_regression_guards.py` pins |
 | [Balance Simulation](docs/agents/balance-simulation.md) | re-run the Monte Carlo after a rules change |
 | [UX Affordances](docs/agents/ux-affordances.md) | keep "the next legal action is always visible" true |
 | [Audio](docs/agents/audio.md) | add or change a sound |

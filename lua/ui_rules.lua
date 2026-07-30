@@ -154,6 +154,29 @@ local function collectActiveRules()
             ": an unresolved threat sits face-down. Go look — or it resolves at the next Dawn, where it stands.")
     end
 
+    -- 2.7) Persistent threats standing on tiles (lua/threat_persistent.lua).
+    -- These change what an action does at a tile for as long as the card is
+    -- there, which is precisely what this panel is for — and the rule is
+    -- otherwise only visible on a card face somebody has to walk over and
+    -- read. Each line ends in the one verb that removes it.
+    local persistents = persistentThreatsEverywhere()
+    for _, locName in ipairs(LOCATION_ORDER) do
+        for _, p in ipairs(persistents[locName] or {}) do
+            local how
+            if p.rule.fought then
+                how = "Fight it."
+            elseif p.rule.sealed then
+                how = "Pry it open (free action + tool)."
+            else
+                how = "Clear it: " .. CLEAR_PERSISTENT_ACTIONS .. " actions + " ..
+                      CLEAR_PERSISTENT_WOOD .. " Wood."
+            end
+            table.insert(lines, p.name .. " at " .. locName .. ": " ..
+                (p.rule.blurb or "It stays until cleared.") ..
+                " Festers Doom +1 each Dawn. " .. how)
+        end
+    end
+
     -- 3) Treeguard mini-boss (lua/treeguard.lua)
     local tg = gameState.treeguard
     if tg and tg.active then

@@ -29,6 +29,7 @@ Each player has **3 actions**, taken as one turn (default) — or, with the **Ro
 - **Fight (1)** — attack a Threat at this tile.
 - **Rest (1)** — +1 Hunger or +2 Sanity. Own house: also +1 Health.
 - **Pry (free)** — with a Crowbar, Lockpick, or Pry Bar: open a sealed thing at your tile for its printed reward (sealed Threat cards; the Sealed Basement at Ellie & Luca's House).
+- **Clear (2)** — pay 2 actions + 1 Wood to remove a **Persistent** threat that can be neither fought (0 HP) nor pried open. Its rule stops, and so does its +1 Doom every Dawn.
 - **Cleanse (1)** — pay 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink → Doom -2.
 - **Trade (free)** — same tile, both consent.
 
@@ -40,7 +41,10 @@ Last chance to move: each character may **scramble 1 tile** (costs 1 Hunger, onc
 ### Night
 For each occupied tile, least-populated first:
 - Draw threats per the location's threat rate (modified by Doom thresholds).
-- Resolve combat or damage.
+- Resolve combat or damage. Each drawn card is one of three kinds:
+  - **Soft** — it does its printed thing once and is discarded. Nothing to fight.
+  - **Hard** — it must be fought or fled. Left standing, it festers at Dawn.
+  - **Persistent** — it *stays on that tile* and its rule applies to everyone there until it is removed: Fight it if it has HP, Pry it if it is sealed, otherwise **Clear** it (2 actions + 1 Wood). It festers every Dawn it stands, so leaving one alone is a running Doom cost.
 - Charlie check: no light source = **2 Sanity + 1 Health**. Each consecutive night in darkness, +1 to both. A night with light resets her.
 - Storytelling: Comfort Items used here for shared Sanity gain.
 - Sleep — a house sleeps **two** comfortably; each sleeper beyond the second gets the floor (no regen):

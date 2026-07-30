@@ -87,6 +87,14 @@ function doMove(color, targetLocation)
         extraActions = extraActions + 1
         why[#why + 1] = "gravity feels wrong"
     end
+    -- Persistent threats on the tile being LEFT (Fog Bank costs an action,
+    -- Cracked Floor costs Hunger). Read before the location changes.
+    local fromLoc = char.location or ""
+    local pActions, pActionNames, pHunger, pHungerNames = persistentMoveSurcharge(fromLoc)
+    if pActions > 0 then
+        extraActions = extraActions + pActions
+        for _, n in ipairs(pActionNames) do why[#why + 1] = n end
+    end
     if extraActions > 0 then
         if char.actionsLeft < extraActions then
             broadcastEvent("damage", char.name .. " can't afford this move — it needs " ..
@@ -115,6 +123,15 @@ function doMove(color, targetLocation)
             hungerCost = 0
             broadcastEvent("gain", char.name .. " uses the Shortcut — free movement!")
         end
+    end
+
+    -- Cracked Floor and friends: leaving this tile is harder than arriving.
+    -- AFTER the Shortcut's zeroing — the shortcut is a shorter walk, not a
+    -- repaired floor, so the surcharge still has to be paid on the way out.
+    if pHunger > 0 then
+        hungerCost = hungerCost + pHunger
+        broadcastEvent("warn", char.name .. " pays " .. pHunger .. " extra Hunger to get out of " ..
+            from .. " (" .. table.concat(pHungerNames, ", ") .. ").")
     end
 
     char.hunger = math.max(0, char.hunger - hungerCost)
@@ -174,10 +191,20 @@ function doRaymanBonusMove(color, targetLocation)
     if not char or char.name ~= "Rayman" then return end
     gameState.raymanTilesMovedToday = (gameState.raymanTilesMovedToday or 0) + 1
 
-    local hungerCost = 1 + sportCourtSurcharge(char.location, targetLocation)
+    -- The Hunger half of a persistent surcharge rides the free second step
+    -- too (the action half cannot — this move costs no action). Otherwise
+    -- Rayman walks off a Cracked Floor for free and the card reads as
+    -- "everyone but Rayman".
+    local from = char.location
+    local _, _, pHunger, pHungerNames = persistentMoveSurcharge(from)
+    local hungerCost = 1 + sportCourtSurcharge(from, targetLocation) + pHunger
     char.hunger = math.max(0, char.hunger - hungerCost)
     char.location = targetLocation
 
+    if pHunger > 0 then
+        broadcastEvent("warn", "Rayman pays " .. pHunger .. " extra Hunger to get out of " ..
+            (from or "?") .. " (" .. table.concat(pHungerNames, ", ") .. ").")
+    end
     broadcastEvent("proc", "Rayman moves again to " .. targetLocation .. ". (-" .. hungerCost .. " Hunger)")
 
     local standee = getCharacterStandee(char.name)
@@ -338,6 +365,19 @@ function gatherRandomResources(color, loc, n)
     local char = gameState.activeChars[color]
     if not char then return end
     local yields = LOCATION_YIELDS[loc] or {"Food"}
+    -- Contaminated Water (Persistent): no Food comes off this tile. If Food
+    -- is all the tile yields there is nothing to draw, and saying so beats
+    -- quietly substituting something the card did not offer.
+    local kept, blocker = persistentFilterYields(loc, yields)
+    if blocker then
+        if not kept then
+            broadcastEvent("damage", char.name .. " finds nothing at " .. loc ..
+                " — " .. blocker .. " has spoiled everything this tile yields.")
+            return
+        end
+        yields = kept
+        broadcastEvent("warn", "No Food comes out of " .. loc .. " — " .. blocker .. ".")
+    end
     local got = {}
     for _ = 1, (n or 1) do
         local resType = yields[gameRoll(#yields)]
@@ -443,6 +483,16 @@ function doRest(color, choice)
 
     local char = gameState.activeChars[color]
     if not char then return end
+
+    -- Roots Through the Floor (Persistent): "Rest actions here restore
+    -- nothing" — all three stats, so it short-circuits ahead of the
+    -- Hunger/Sanity redirects rather than joining them.
+    local rootsHere = persistentBlocksRest(char.location)
+    if rootsHere then
+        broadcastEvent("warn", char.name .. " cannot rest at " .. (char.location or "?") ..
+            " — " .. rootsHere .. ". The action is spent for nothing until it is cleared.")
+        return
+    end
 
     -- Ongoing restrictions and Luca's Needs an Audience (§6.5) can each
     -- redirect the choice, and a redirect can land on the OTHER banned

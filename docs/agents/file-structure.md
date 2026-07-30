@@ -26,6 +26,8 @@ StarveNoMore/
 │   ├── combat.lua              # Dice roll + boss/Source HP lifecycle + rewards/trophies (SOURCE_MAX_HP etc.)
 │   ├── combat_resolve.lua      # Fight resolution flow (beginCombat..finishCombat, Charlie); calls Audio.stopBossLoop on defeat
 │   ├── crafting.lua            # Market craft + Crockpot cook handlers
+│   ├── threat_effects.lua      # Soft threats: printed effect + discard (SOFT_THREAT_EFFECTS/MANUAL_SOFT)
+│   ├── threat_persistent.lua   # Persistent threats: PERSISTENT_THREAT_RULES, per-tile effect hooks, the Clear verb
 │   ├── night.lua               # Night-phase resolver (threat draw, Charlie, sleep)
 │   ├── tick_victory.lua        # Tick decay, victory/defeat, Down state + revival hint
 │   ├── actions.lua             # Player actions core: undo/snapshot, move, dusk-move, gather, rest
@@ -38,7 +40,7 @@ StarveNoMore/
 │   ├── ui_actionbar_core.lua      # Resource helpers (getPlayerResources, verifyAndPayResources, canAfford) + Move adjacency + highlight duration
 │   ├── ui_actionbar_targets.lua   # Target-button plumbing + move/craft/cook/fight target spawns, click handlers, highlights
 │   ├── ui_actionbar_handlers.lua  # onActX action-bar handlers, Press-the-Attack panel, trade/peek/rally/undo/dusk handlers
-│   ├── ui_actionbar_situational.lua # Situational verbs: Revive, Stabilize, Defend, Energy Drink, Eat Raw, Barricade, Appease (+ canX preconditions); Ghost Drift rides ui_reactions
+│   ├── ui_actionbar_situational.lua # Situational verbs: Revive, Stabilize, Defend, Energy Drink, Eat Raw, Barricade, Appease, Clear (+ canX preconditions); Ghost Drift rides ui_reactions
 │   ├── ui_actionbar_display.lua   # Validate, action-bar refresh + cubes, per-button enable/reasons, stat display, action tooltips
 │   ├── ui_controls.lua         # Host controls (contextual — only valid buttons show), confirm dialogs, tooltips
 │   ├── ui_setup.lua            # Guided setup walkthrough (path → variants → characters → briefing) + welcome

@@ -29,6 +29,7 @@
     "clues.lua",
     "crafting.lua",
     "threat_effects.lua",
+    "threat_persistent.lua",
     "night.lua",
     "tick_victory.lua",
     "actions.lua",

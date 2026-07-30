@@ -125,6 +125,11 @@ function resolveTick()
         end
     end
 
+    -- Persistent threats that feed at Tick (the Hungry Dog). After the decay
+    -- loop, so the Food it takes is Food you no longer get to eat tomorrow
+    -- rather than Food you never had.
+    safecall(function() resolvePersistentTick() end, "PersistentTick")
+
     -- Charlie streak: a night without an attack resets her interest.
     for color, char in pairs(gameState.activeChars) do
         if char.charlieHitTonight then

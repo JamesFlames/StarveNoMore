@@ -398,6 +398,12 @@
               fontSize="14" color="#9CC49CFF" textColor="#12180F"
               active="false"
               text="Appease" />
+      <Button id="actClear"
+              onClick="onActClear"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#C4B49CFF" textColor="#12180F"
+              active="false"
+              text="Clear" />
       <Button id="actUndo"
               onClick="onActUndo"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"

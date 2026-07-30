@@ -101,6 +101,10 @@ EFFECT_ACTIONS = {
     "doFightTarget", "doFlee", "doTrade", "doEnergyDrink", "doEatRaw", "doPass",
     "doBarricade", "doDefend", "doRally", "doPry", "doStabilize", "doCraft",
     "doCook", "doSignature", "doCleanse", "doAppeaseTreeguard",
+    # Clear (threat_persistent.lua): 2 actions + 1 Wood take a Persistent
+    # threat off the tile. The state change is the card leaving — visible on
+    # the board, and reported in the Message Log line it broadcasts.
+    "doClearPersistent",
     # Use Item (items.lua): the card is consumed and a stat or the Doom track
     # moves. Both halves are in the Message Log line it broadcasts, and the
     # recipient is named there because the item auto-targets whoever needs it.

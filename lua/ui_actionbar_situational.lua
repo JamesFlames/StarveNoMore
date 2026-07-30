@@ -151,6 +151,10 @@ function canBarricade(color)
     if ((gameState.barricades or {})[loc] or 0) > 0 then
         return false, loc .. " is already barricaded tonight."
     end
+    local roots = persistentBlocksBarricade(loc)
+    if roots then
+        return false, loc .. " cannot be barricaded — " .. roots .. " holds the floor."
+    end
     return true
 end
 
@@ -387,6 +391,13 @@ function onActAppease(player, value, id)
     runSituational(player, canAppeaseTreeguard, doAppeaseTreeguard, "Appease")
 end
 
+-- Clear: the removal path for the Persistent threats that are neither
+-- fightable (hp 0) nor sealed (no Pry reward). Without it those cards sat on
+-- the tile applying their rule and charging +1 Doom every Dawn, permanently.
+function onActClear(player, value, id)
+    runSituational(player, canClearPersistent, doClearPersistent, "Clear")
+end
+
 -----------------------------------------------------------------------
 -- Bar refresh. Driven from refreshActionButtonStates (display), so these
 -- appear and vanish in the same pass as Peek/Rally/Pry.
@@ -423,6 +434,10 @@ SITUATIONAL_ACTIONS = {
     { id = "actAppease", can = canAppeaseTreeguard,
       tip = "Plant saplings and send the Treeguard back to sleep — 1 action " ..
             "+ 2 Wood. No fight, and no salvage." },
+    { id = "actClear", can = canClearPersistent,
+      tip = "Clear a Persistent threat that cannot be fought or pried — " ..
+            CLEAR_PERSISTENT_ACTIONS .. " actions + " .. CLEAR_PERSISTENT_WOOD ..
+            " Wood. Its rule stops, and so does its +1 Doom every Dawn." },
 }
 
 function refreshSituationalButtons(color)

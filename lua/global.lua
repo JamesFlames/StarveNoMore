@@ -99,6 +99,13 @@ CHARACTER_HOMES = {
 -- Mirrors scripts/simulate_balance.py's YIELDS (lower-cased there);
 -- tests/test_sim.py::test_location_yields_match guards the two.
 -----------------------------------------------------------------------
+-- The five tiles in a fixed order, for the passes that must visit every
+-- location (LOCATION_YIELDS is a hash, so it has none). Iterating it instead
+-- of pairs() keeps the Rules panel from reshuffling between refreshes.
+LOCATION_ORDER = {
+    "JamesHouse", "RaymanHouse", "EllieLucaHouse", "BasketballCourt", "BadmintonCourt",
+}
+
 LOCATION_YIELDS = {
     JamesHouse      = {"EnergyDrink", "Battery", "Food"},
     RaymanHouse     = {"Metal", "Battery", "Food"},

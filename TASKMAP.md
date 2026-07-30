@@ -15,6 +15,7 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 | Change combat math | `lua/combat.lua` | `generate_symbol_index.py`; mirror constants in `scripts/simulate_balance.py` |
 | Change a Dawn event | `lua/effects/dawn_effects*.lua` + `content/cards_phase*.csv` | `generate_symbol_index.py` |
 | Change the day/night flow | `lua/day_loop.lua`, `lua/night.lua` | `generate_symbol_index.py` |
+| Change what a threat card DOES | Soft: `lua/threat_effects.lua`; Persistent: `lua/threat_persistent.lua`; the type lookup itself: `identifyThreatType` in `lua/night.lua` | `generate_threat_types.py`, `generate_symbol_index.py` |
 | Change victory/defeat | `lua/tick_victory.lua` | `generate_symbol_index.py`; mirror in `scripts/simulate_balance.py` |
 | Add/change an achievement | `content/achievements.csv` + `lua/achievement_rules.lua` (read [`docs/achievements.md`](docs/achievements.md)) | `generate_achievement_data.py`, `generate_achievement_icons.py`, `generate_symbol_index.py` |
 | Regenerate the achievement art | [`docs/comfyui-achievement-icons.md`](docs/comfyui-achievement-icons.md) | `generate_achievement_icons.py` |

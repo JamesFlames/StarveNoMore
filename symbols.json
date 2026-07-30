@@ -74,7 +74,7 @@
   "ACTIONS_PER_TURN": [
    {
     "file": "lua/global.lua",
-    "line": 110,
+    "line": 117,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -332,7 +332,7 @@
   "BROADCAST_COLORS": [
    {
     "file": "lua/global.lua",
-    "line": 285,
+    "line": 292,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -432,7 +432,7 @@
   "CLEANSE_COST": [
    {
     "file": "lua/global.lua",
-    "line": 132,
+    "line": 139,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -442,7 +442,27 @@
   "CLEANSE_REDUCTION": [
    {
     "file": "lua/global.lua",
-    "line": 133,
+    "line": 140,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
+  "CLEAR_PERSISTENT_ACTIONS": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 47,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "The Clear action's price. The one Persistent card whose removal cost is PRINTED is The Nest (\"Destroy with 2 actions + 1 Wood (burn it)\"), so that is the cost …"
+   }
+  ],
+  "CLEAR_PERSISTENT_WOOD": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 48,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -552,7 +572,7 @@
   "DEATH_NARRATIONS": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 172,
+    "line": 177,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -592,7 +612,7 @@
   "DIFFICULTY_PARAMS": [
    {
     "file": "lua/global.lua",
-    "line": 180,
+    "line": 187,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -602,7 +622,7 @@
   "DOOM_RATES": [
    {
     "file": "lua/global.lua",
-    "line": 239,
+    "line": 246,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -632,7 +652,7 @@
   "DOOM_THRESHOLDS": [
    {
     "file": "lua/global.lua",
-    "line": 117,
+    "line": 124,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -692,7 +712,7 @@
   "HEART_SUPPLY_MAX": [
    {
     "file": "lua/global.lua",
-    "line": 145,
+    "line": 152,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -702,7 +722,7 @@
   "HELP_GLOSSARY": [
    {
     "file": "lua/notebook_data.lua",
-    "line": 248,
+    "line": 252,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -732,7 +752,7 @@
   "HELP_QUICKSTART": [
    {
     "file": "lua/notebook_data.lua",
-    "line": 212,
+    "line": 216,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -772,7 +792,7 @@
   "LIGHT_SOURCES": [
    {
     "file": "lua/night.lua",
-    "line": 291,
+    "line": 311,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -789,6 +809,16 @@
     "doc": ""
    }
   ],
+  "LOCATION_ORDER": [
+   {
+    "file": "lua/global.lua",
+    "line": 105,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "Gather yields per location (Design §7-8). A Gather draws one resource picked uniformly from this list, so Food comes up twice as often at Ellie & Luca's House.…"
+   }
+  ],
   "LOCATION_THREAT_RATE": [
    {
     "file": "lua/night.lua",
@@ -802,11 +832,11 @@
   "LOCATION_YIELDS": [
    {
     "file": "lua/global.lua",
-    "line": 102,
+    "line": 109,
     "kind": "table",
     "params": null,
     "arity": null,
-    "doc": "Gather yields per location (Design §7-8). A Gather draws one resource picked uniformly from this list, so Food comes up twice as often at Ellie & Luca's House.…"
+    "doc": ""
    }
   ],
   "MANUAL_SOFT": [
@@ -902,7 +932,7 @@
   "NOTEBOOK_CHARACTERS": [
    {
     "file": "lua/notebook_data.lua",
-    "line": 160,
+    "line": 164,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -952,11 +982,21 @@
   "PEEK_DECKS": [
    {
     "file": "lua/actions_social.lua",
-    "line": 141,
+    "line": 168,
     "kind": "table",
     "params": null,
     "arity": null,
     "doc": "PATTERN RECOGNITION (James, free action, once per day) — Design §6.1 Peek at the top card of any deck; the name goes to James alone."
+   }
+  ],
+  "PERSISTENT_THREAT_RULES": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 62,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "The rules table. One row per Persistent card in content/cards_threats.csv; tests/test_persistent_threats.py enforces the roster in both directions.   fought   …"
    }
   ],
   "PHASE_NAMES": [
@@ -972,7 +1012,7 @@
   "PRY_TOOLS": [
    {
     "file": "lua/actions_social.lua",
-    "line": 298,
+    "line": 325,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1042,7 +1082,7 @@
   "REVIVE_HEALTH_COST": [
    {
     "file": "lua/global.lua",
-    "line": 140,
+    "line": 147,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1082,7 +1122,7 @@
   "SEALED_REWARDS": [
    {
     "file": "lua/threat_types.lua",
-    "line": 126,
+    "line": 185,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1122,7 +1162,7 @@
   "SITUATIONAL_ACTIONS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 398,
+    "line": 409,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1184,7 +1224,7 @@
   "THREAT_STATS": [
    {
     "file": "lua/threat_types.lua",
-    "line": 65,
+    "line": 124,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1194,17 +1234,27 @@
   "THREAT_STATS_BY_NAME": [
    {
     "file": "lua/threat_types.lua",
-    "line": 120,
+    "line": 179,
     "kind": "table",
     "params": null,
     "arity": null,
     "doc": "Nickname mirror, for cards matched by name instead of id tag."
    }
   ],
+  "THREAT_TYPE_BY_ID": [
+   {
+    "file": "lua/threat_types.lua",
+    "line": 10,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "threat_types.lua AUTO-GENERATED by scripts/generate_threat_types.py — do not edit by hand. Source: content/cards_threats.csv (name/type + pry_reward columns) T…"
+   }
+  ],
   "THREAT_TYPE_BY_NAME": [
    {
     "file": "lua/threat_types.lua",
-    "line": 9,
+    "line": 68,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1254,7 +1304,7 @@
   "USE_ITEM_DIALOG_SLOTS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 310,
+    "line": 314,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1499,7 +1549,7 @@
   "_useItemDialogIds": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 311,
+    "line": 315,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1729,13 +1779,27 @@
   "announceInventory": [
    {
     "file": "lua/actions.lua",
-    "line": 311,
+    "line": 338,
     "kind": "function",
     "params": [
      "color"
     ],
     "arity": 1,
     "doc": "After tokens land, whisper the player's full stock so \"what do I have now?\" never needs counting tokens by eye. Delayed so the smooth-moving tokens are actuall…"
+   }
+  ],
+  "announcePersistentThreat": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 219,
+    "kind": "function",
+    "params": [
+     "id",
+     "name",
+     "location"
+    ],
+    "arity": 3,
+    "doc": "Announcement when a Persistent card lands (drawThreatsAt, night.lua). Says what it does and — the part that was missing entirely — how to be rid of it. \"Must b…"
    }
   ],
   "applyCounterAttack": [
@@ -1970,7 +2034,7 @@
   "broadcastEvent": [
    {
     "file": "lua/global.lua",
-    "line": 293,
+    "line": 300,
     "kind": "function",
     "params": [
      "category",
@@ -2018,7 +2082,7 @@
   "canAppeaseTreeguard": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 157,
+    "line": 161,
     "kind": "function",
     "params": [
      "color"
@@ -2039,6 +2103,18 @@
     "doc": ""
    }
   ],
+  "canClearPersistent": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 345,
+    "kind": "function",
+    "params": [
+     "color"
+    ],
+    "arity": 1,
+    "doc": "Precondition check; the reason doubles as the why-disabled tooltip."
+   }
+  ],
   "canDefend": [
    {
     "file": "lua/ui_actionbar_situational.lua",
@@ -2054,7 +2130,7 @@
   "canDrift": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 175,
+    "line": 179,
     "kind": "function",
     "params": [
      "color"
@@ -2114,7 +2190,7 @@
   "canPeek": [
    {
     "file": "lua/actions_social.lua",
-    "line": 148,
+    "line": 175,
     "kind": "function",
     "params": [
      "color"
@@ -2126,7 +2202,7 @@
   "canPry": [
    {
     "file": "lua/actions_social.lua",
-    "line": 391,
+    "line": 418,
     "kind": "function",
     "params": [
      "color"
@@ -2138,7 +2214,7 @@
   "canRally": [
    {
     "file": "lua/actions_social.lua",
-    "line": 237,
+    "line": 264,
     "kind": "function",
     "params": [
      "color"
@@ -2244,7 +2320,7 @@
   "checkBonusVictories": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 422,
+    "line": 427,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2254,7 +2330,7 @@
   "checkDefeat": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 362,
+    "line": 367,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2274,7 +2350,7 @@
   "checkDownState": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 195,
+    "line": 200,
     "kind": "function",
     "params": [
      "color"
@@ -2286,7 +2362,7 @@
   "checkPlayerHasLight": [
    {
     "file": "lua/night.lua",
-    "line": 331,
+    "line": 351,
     "kind": "function",
     "params": [
      "color"
@@ -2310,7 +2386,7 @@
   "checkVictory": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 392,
+    "line": 397,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2320,7 +2396,7 @@
   "checkWrongnessEntry": [
    {
     "file": "lua/effects/dawn_effects_phase2.lua",
-    "line": 115,
+    "line": 128,
     "kind": "function",
     "params": [
      "color"
@@ -2357,6 +2433,18 @@
     "params": [],
     "arity": 0,
     "doc": ""
+   }
+  ],
+  "clearablePersistentsAt": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 336,
+    "kind": "function",
+    "params": [
+     "locName"
+    ],
+    "arity": 1,
+    "doc": "The clearable persistents at this tile (not fought, not sealed)."
    }
   ],
   "clueDueForRefill": [
@@ -2535,7 +2623,7 @@
   "describeDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 266,
+    "line": 273,
     "kind": "function",
     "params": [
      "diff"
@@ -2584,7 +2672,7 @@
   "doBarricade": [
    {
     "file": "lua/actions_social.lua",
-    "line": 98,
+    "line": 114,
     "kind": "function",
     "params": [
      "color"
@@ -2596,13 +2684,25 @@
   "doCleanse": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 330,
+    "line": 335,
     "kind": "function",
     "params": [
      "color"
     ],
     "arity": 1,
     "doc": "F.11 — Cleanse Doom action Design §15.3: Spend 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink + 1 Action → Doom -2"
+   }
+  ],
+  "doClearPersistent": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 364,
+    "kind": "function",
+    "params": [
+     "color"
+    ],
+    "arity": 1,
+    "doc": ""
    }
   ],
   "doCook": [
@@ -2634,7 +2734,7 @@
   "doDefend": [
    {
     "file": "lua/actions_social.lua",
-    "line": 123,
+    "line": 150,
     "kind": "function",
     "params": [
      "color"
@@ -2646,7 +2746,7 @@
   "doDuskMove": [
    {
     "file": "lua/actions.lua",
-    "line": 209,
+    "line": 236,
     "kind": "function",
     "params": [
      "color",
@@ -2659,7 +2759,7 @@
   "doEatRaw": [
    {
     "file": "lua/actions_social.lua",
-    "line": 64,
+    "line": 76,
     "kind": "function",
     "params": [
      "color"
@@ -2671,7 +2771,7 @@
   "doEnergyDrink": [
    {
     "file": "lua/actions_social.lua",
-    "line": 45,
+    "line": 57,
     "kind": "function",
     "params": [
      "color"
@@ -2710,7 +2810,7 @@
   "doGather": [
    {
     "file": "lua/actions.lua",
-    "line": 352,
+    "line": 392,
     "kind": "function",
     "params": [
      "color"
@@ -2735,7 +2835,7 @@
   "doPass": [
    {
     "file": "lua/actions_social.lua",
-    "line": 85,
+    "line": 101,
     "kind": "function",
     "params": [
      "color"
@@ -2747,7 +2847,7 @@
   "doPeek": [
    {
     "file": "lua/actions_social.lua",
-    "line": 177,
+    "line": 204,
     "kind": "function",
     "params": [
      "color",
@@ -2760,7 +2860,7 @@
   "doPry": [
    {
     "file": "lua/actions_social.lua",
-    "line": 454,
+    "line": 481,
     "kind": "function",
     "params": [
      "color"
@@ -2772,7 +2872,7 @@
   "doRally": [
    {
     "file": "lua/actions_social.lua",
-    "line": 269,
+    "line": 296,
     "kind": "function",
     "params": [
      "lucaColor",
@@ -2785,7 +2885,7 @@
   "doRaymanBonusMove": [
    {
     "file": "lua/actions.lua",
-    "line": 169,
+    "line": 186,
     "kind": "function",
     "params": [
      "color",
@@ -2798,7 +2898,7 @@
   "doRest": [
    {
     "file": "lua/actions.lua",
-    "line": 441,
+    "line": 481,
     "kind": "function",
     "params": [
      "color",
@@ -2824,7 +2924,7 @@
   "doStabilize": [
    {
     "file": "lua/actions_social.lua",
-    "line": 480,
+    "line": 507,
     "kind": "function",
     "params": [
      "color",
@@ -3136,7 +3236,7 @@
   "gatherRandomResources": [
    {
     "file": "lua/actions.lua",
-    "line": 337,
+    "line": 364,
     "kind": "function",
     "params": [
      "color",
@@ -3217,7 +3317,7 @@
   "getDifficulty": [
    {
     "file": "lua/global.lua",
-    "line": 198,
+    "line": 205,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3227,7 +3327,7 @@
   "getDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 250,
+    "line": 257,
     "kind": "function",
     "params": [
      "phase"
@@ -3239,7 +3339,7 @@
   "getDoomLimit": [
    {
     "file": "lua/global.lua",
-    "line": 203,
+    "line": 210,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3259,7 +3359,7 @@
   "getDoomRate": [
    {
     "file": "lua/global.lua",
-    "line": 256,
+    "line": 263,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3397,7 +3497,7 @@
   "getPhaseForDay": [
    {
     "file": "lua/global.lua",
-    "line": 221,
+    "line": 228,
     "kind": "function",
     "params": [
      "day"
@@ -3468,7 +3568,7 @@
   "getSourceMaxHP": [
    {
     "file": "lua/global.lua",
-    "line": 208,
+    "line": 215,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3478,7 +3578,7 @@
   "getSourceSplitHP": [
    {
     "file": "lua/global.lua",
-    "line": 216,
+    "line": 223,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3498,7 +3598,7 @@
   "getTotalDays": [
    {
     "file": "lua/global.lua",
-    "line": 202,
+    "line": 209,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3528,7 +3628,7 @@
   "ghostDrift": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 311,
+    "line": 316,
     "kind": "function",
     "params": [
      "color",
@@ -3592,13 +3692,13 @@
   "identifyThreatType": [
    {
     "file": "lua/night.lua",
-    "line": 413,
+    "line": 449,
     "kind": "function",
     "params": [
      "card"
     ],
     "arity": 1,
-    "doc": "Identify threat type from card tags or GM notes"
+    "doc": "Identify threat type from card tags or GM notes Returns \"Soft\" | \"Hard\" | \"Persistent\" for a drawn threat card. This used to read ONLY `ThreatType:<type>` tags…"
    }
   ],
   "importAchievementCode": [
@@ -3769,7 +3869,7 @@
   "migrateGameState": [
    {
     "file": "lua/global.lua",
-    "line": 310,
+    "line": 317,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3946,7 +4046,7 @@
   "onActAppease": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 386,
+    "line": 390,
     "kind": "function",
     "params": [
      "player",
@@ -3960,7 +4060,7 @@
   "onActBarricade": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 382,
+    "line": 386,
     "kind": "function",
     "params": [
      "player",
@@ -3983,6 +4083,20 @@
     ],
     "arity": 3,
     "doc": ""
+   }
+  ],
+  "onActClear": [
+   {
+    "file": "lua/ui_actionbar_situational.lua",
+    "line": 397,
+    "kind": "function",
+    "params": [
+     "player",
+     "value",
+     "id"
+    ],
+    "arity": 3,
+    "doc": "Clear: the removal path for the Persistent threats that are neither fightable (hp 0) nor sealed (no Pry reward). Without it those cards sat on the tile applyin…"
    }
   ],
   "onActCook": [
@@ -4016,7 +4130,7 @@
   "onActDefend": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 291,
+    "line": 295,
     "kind": "function",
     "params": [
      "player",
@@ -4030,7 +4144,7 @@
   "onActEatRaw": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 300,
+    "line": 304,
     "kind": "function",
     "params": [
      "player",
@@ -4044,7 +4158,7 @@
   "onActEnergyDrink": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 295,
+    "line": 299,
     "kind": "function",
     "params": [
      "player",
@@ -4072,7 +4186,7 @@
   "onActFlee": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 357,
+    "line": 361,
     "kind": "function",
     "params": [
      "player",
@@ -4184,7 +4298,7 @@
   "onActRevive": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 214,
+    "line": 218,
     "kind": "function",
     "params": [
      "player",
@@ -4212,7 +4326,7 @@
   "onActStabilize": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 227,
+    "line": 231,
     "kind": "function",
     "params": [
      "player",
@@ -4254,7 +4368,7 @@
   "onActUseItem": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 313,
+    "line": 317,
     "kind": "function",
     "params": [
      "player",
@@ -4406,7 +4520,7 @@
   "onDawnStepClick": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 331,
+    "line": 354,
     "kind": "function",
     "params": [
      "player",
@@ -4420,7 +4534,7 @@
   "onDownedCancel": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 261,
+    "line": 265,
     "kind": "function",
     "params": [
      "player",
@@ -4434,7 +4548,7 @@
   "onDownedTargetClick": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 239,
+    "line": 243,
     "kind": "function",
     "params": [
      "player",
@@ -4658,7 +4772,7 @@
   "onLoad": [
    {
     "file": "lua/global.lua",
-    "line": 377,
+    "line": 384,
     "kind": "function",
     "params": [
      "savedState"
@@ -4767,7 +4881,7 @@
   "onPeekResultClose": [
    {
     "file": "lua/actions_social.lua",
-    "line": 173,
+    "line": 200,
     "kind": "function",
     "params": [
      "player",
@@ -4935,7 +5049,7 @@
   "onRulesToggle": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 284,
+    "line": 307,
     "kind": "function",
     "params": [
      "player",
@@ -4949,7 +5063,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 437,
+    "line": 444,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5113,7 +5227,7 @@
   "onUseItemCancel": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 351,
+    "line": 355,
     "kind": "function",
     "params": [
      "player",
@@ -5127,7 +5241,7 @@
   "onUseItemOptionClick": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 341,
+    "line": 345,
     "kind": "function",
     "params": [
      "player",
@@ -5210,7 +5324,7 @@
   "payLightFuel": [
    {
     "file": "lua/night.lua",
-    "line": 301,
+    "line": 321,
     "kind": "function",
     "params": [
      "color",
@@ -5218,6 +5332,139 @@
     ],
     "arity": 2,
     "doc": "Burn a light's fuel for tonight. Quiet when the player can't pay — the caller reports it as part of \"why are you in the dark\", and a shortfall broadcast per ch…"
+   }
+  ],
+  "persistentBlocksBarricade": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 290,
+    "kind": "function",
+    "params": [
+     "locName"
+    ],
+    "arity": 1,
+    "doc": ""
+   }
+  ],
+  "persistentBlocksRest": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 285,
+    "kind": "function",
+    "params": [
+     "locName"
+    ],
+    "arity": 1,
+    "doc": "Rest (doRest, actions.lua) and Barricade (canBarricade/doBarricade, actions_social.lua): the two things Roots Through the Floor forbids."
+   }
+  ],
+  "persistentBlocksTrade": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 295,
+    "kind": "function",
+    "params": [
+     "locName"
+    ],
+    "arity": 1,
+    "doc": ""
+   }
+  ],
+  "persistentFilterYields": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 265,
+    "kind": "function",
+    "params": [
+     "locName",
+     "yields"
+    ],
+    "arity": 2,
+    "doc": "Gather (gatherRandomResources, actions.lua): Contaminated Water takes Food off this tile's yield table. If Food is ALL the tile yields the gather fails rather …"
+   }
+  ],
+  "persistentMoveSurcharge": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 256,
+    "kind": "function",
+    "params": [
+     "fromLoc"
+    ],
+    "arity": 1,
+    "doc": "Move (doMove, actions.lua). Keyed on the tile being LEFT — both printed rules are about getting out. Returns four values, actions and hunger kept apart so each…"
+   }
+  ],
+  "persistentNightThreatBonus": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 301,
+    "kind": "function",
+    "params": [
+     "locName"
+    ],
+    "arity": 1,
+    "doc": "Night draw (resolveNightAtLocation, night.lua): The Nest."
+   }
+  ],
+  "persistentRawFoodSanityCost": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 277,
+    "kind": "function",
+    "params": [
+     "locName"
+    ],
+    "arity": 1,
+    "doc": "Eat Raw (doEatRaw, actions_social.lua): Contaminated Water makes it worse."
+   }
+  ],
+  "persistentRuleHolder": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 206,
+    "kind": "function",
+    "params": [
+     "locName",
+     "key"
+    ],
+    "arity": 2,
+    "doc": "The first persistent at a tile whose rule sets a boolean key, or nil. Callers use its name in the refusal, so the player is told WHAT stopped them."
+   }
+  ],
+  "persistentRuleTotal": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 192,
+    "kind": "function",
+    "params": [
+     "locName",
+     "key"
+    ],
+    "arity": 2,
+    "doc": "Sum one numeric rule key over every persistent at a tile, collecting the card names that contributed. Returns (total, { \"Fog Bank\", ... })."
+   }
+  ],
+  "persistentThreatsAt": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 120,
+    "kind": "function",
+    "params": [
+     "locName"
+    ],
+    "arity": 1,
+    "doc": "Which persistents are standing at a tile, right now. Returns { { obj = card, id = \"T_...\", rule = {...}, name = \"...\" }, ... }."
+   }
+  ],
+  "persistentThreatsEverywhere": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 156,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Every persistent on the board at once, bucketed by tile: { JamesHouse = { entry, ... }, ... }, only for tiles that have one. persistentThreatsAt scans the whol…"
    }
   ],
   "placeBossStandee": [
@@ -5249,7 +5496,7 @@
   "playerHasBackpack": [
    {
     "file": "lua/actions.lua",
-    "line": 325,
+    "line": 352,
     "kind": "function",
     "params": [
      "color"
@@ -5261,7 +5508,7 @@
   "playerPryTool": [
    {
     "file": "lua/actions_social.lua",
-    "line": 323,
+    "line": 350,
     "kind": "function",
     "params": [
      "color"
@@ -5350,7 +5597,7 @@
   "rallyTargets": [
    {
     "file": "lua/actions_social.lua",
-    "line": 252,
+    "line": 279,
     "kind": "function",
     "params": [
      "color"
@@ -5590,7 +5837,7 @@
   "refreshCycleStrip": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 353,
+    "line": 376,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5600,7 +5847,7 @@
   "refreshDawnChecklist": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 297,
+    "line": 320,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5692,7 +5939,7 @@
   "refreshRulesPanel": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 234,
+    "line": 257,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5702,7 +5949,7 @@
   "refreshSituationalButtons": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 428,
+    "line": 443,
     "kind": "function",
     "params": [
      "color"
@@ -5783,7 +6030,7 @@
   "resolveNightAtLocation": [
    {
     "file": "lua/night.lua",
-    "line": 139,
+    "line": 150,
     "kind": "function",
     "params": [
      "location",
@@ -5793,10 +6040,20 @@
     "doc": "Resolve threats at one location"
    }
   ],
+  "resolvePersistentTick": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 308,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Tick (resolveTick, tick_victory.lua): the Hungry Dog eats. It takes from whoever at its tile has the most Food, so the loss is real rather than landing on whic…"
+   }
+  ],
   "resolveSleep": [
    {
     "file": "lua/night.lua",
-    "line": 455,
+    "line": 507,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5821,7 +6078,7 @@
   "resolveStorytelling": [
    {
     "file": "lua/night.lua",
-    "line": 428,
+    "line": 480,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5905,7 +6162,7 @@
   "reviveCharacter": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 246,
+    "line": 251,
     "kind": "function",
     "params": [
      "reviverColor",
@@ -6125,7 +6382,7 @@
   "showPeekResult": [
    {
     "file": "lua/actions_social.lua",
-    "line": 163,
+    "line": 190,
     "kind": "function",
     "params": [
      "color",
@@ -6926,6 +7183,12 @@
    "element": "Button",
    "onClick": "onActCleanse"
   },
+  "actClear": {
+   "file": "xml/hud.xml",
+   "line": 401,
+   "element": "Button",
+   "onClick": "onActClear"
+  },
   "actCook": {
    "file": "xml/hud.xml",
    "line": 294,
@@ -6982,7 +7245,7 @@
   },
   "actPass": {
    "file": "xml/hud.xml",
-   "line": 406,
+   "line": 412,
    "element": "Button",
    "onClick": "onActPass"
   },
@@ -7036,7 +7299,7 @@
   },
   "actUndo": {
    "file": "xml/hud.xml",
-   "line": 401,
+   "line": 407,
    "element": "Button",
    "onClick": "onActUndo"
   },
@@ -7054,13 +7317,13 @@
   },
   "actionTooltip": {
    "file": "xml/hud.xml",
-   "line": 473,
+   "line": 479,
    "element": "Panel",
    "onClick": ""
   },
   "actionTooltipText": {
    "file": "xml/hud.xml",
-   "line": 481,
+   "line": 487,
    "element": "Text",
    "onClick": ""
   },
@@ -7228,7 +7491,7 @@
   },
   "charRoster": {
    "file": "xml/hud.xml",
-   "line": 565,
+   "line": 571,
    "element": "Panel",
    "onClick": ""
   },
@@ -7354,25 +7617,25 @@
   },
   "cube1": {
    "file": "xml/hud.xml",
-   "line": 417,
+   "line": 423,
    "element": "Text",
    "onClick": ""
   },
   "cube2": {
    "file": "xml/hud.xml",
-   "line": 418,
+   "line": 424,
    "element": "Text",
    "onClick": ""
   },
   "cube3": {
    "file": "xml/hud.xml",
-   "line": 419,
+   "line": 425,
    "element": "Text",
    "onClick": ""
   },
   "cubeLabel": {
    "file": "xml/hud.xml",
-   "line": 420,
+   "line": 426,
    "element": "Text",
    "onClick": ""
   },
@@ -7828,25 +8091,25 @@
   },
   "reactBtn_1": {
    "file": "xml/hud.xml",
-   "line": 456,
+   "line": 462,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactBtn_2": {
    "file": "xml/hud.xml",
-   "line": 459,
+   "line": 465,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactBtn_3": {
    "file": "xml/hud.xml",
-   "line": 462,
+   "line": 468,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactionsPanel": {
    "file": "xml/hud.xml",
-   "line": 443,
+   "line": 449,
    "element": "Panel",
    "onClick": ""
   },
@@ -7930,241 +8193,241 @@
   },
   "rosterHealthVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 629,
+   "line": 635,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 705,
+   "line": 711,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_James": {
    "file": "xml/hud.xml",
-   "line": 591,
+   "line": 597,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 743,
+   "line": 749,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 667,
+   "line": 673,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealth_Coco": {
    "file": "xml/hud.xml",
-   "line": 626,
+   "line": 632,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Ellie": {
    "file": "xml/hud.xml",
-   "line": 702,
+   "line": 708,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_James": {
    "file": "xml/hud.xml",
-   "line": 588,
+   "line": 594,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Luca": {
    "file": "xml/hud.xml",
-   "line": 740,
+   "line": 746,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Rayman": {
    "file": "xml/hud.xml",
-   "line": 664,
+   "line": 670,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHungerVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 639,
+   "line": 645,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 715,
+   "line": 721,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_James": {
    "file": "xml/hud.xml",
-   "line": 601,
+   "line": 607,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 753,
+   "line": 759,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 677,
+   "line": 683,
    "element": "Text",
    "onClick": ""
   },
   "rosterHunger_Coco": {
    "file": "xml/hud.xml",
-   "line": 636,
+   "line": 642,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Ellie": {
    "file": "xml/hud.xml",
-   "line": 712,
+   "line": 718,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_James": {
    "file": "xml/hud.xml",
-   "line": 598,
+   "line": 604,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Luca": {
    "file": "xml/hud.xml",
-   "line": 750,
+   "line": 756,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Rayman": {
    "file": "xml/hud.xml",
-   "line": 674,
+   "line": 680,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterName_Coco": {
    "file": "xml/hud.xml",
-   "line": 620,
+   "line": 626,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Ellie": {
    "file": "xml/hud.xml",
-   "line": 696,
+   "line": 702,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_James": {
    "file": "xml/hud.xml",
-   "line": 582,
+   "line": 588,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Luca": {
    "file": "xml/hud.xml",
-   "line": 734,
+   "line": 740,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Rayman": {
    "file": "xml/hud.xml",
-   "line": 658,
+   "line": 664,
    "element": "Text",
    "onClick": ""
   },
   "rosterRow_Coco": {
    "file": "xml/hud.xml",
-   "line": 618,
+   "line": 624,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Ellie": {
    "file": "xml/hud.xml",
-   "line": 694,
+   "line": 700,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_James": {
    "file": "xml/hud.xml",
-   "line": 580,
+   "line": 586,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Luca": {
    "file": "xml/hud.xml",
-   "line": 732,
+   "line": 738,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Rayman": {
    "file": "xml/hud.xml",
-   "line": 656,
+   "line": 662,
    "element": "Panel",
    "onClick": ""
   },
   "rosterSanityVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 649,
+   "line": 655,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 725,
+   "line": 731,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_James": {
    "file": "xml/hud.xml",
-   "line": 611,
+   "line": 617,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 763,
+   "line": 769,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 687,
+   "line": 693,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanity_Coco": {
    "file": "xml/hud.xml",
-   "line": 646,
+   "line": 652,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Ellie": {
    "file": "xml/hud.xml",
-   "line": 722,
+   "line": 728,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_James": {
    "file": "xml/hud.xml",
-   "line": 608,
+   "line": 614,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Luca": {
    "file": "xml/hud.xml",
-   "line": 760,
+   "line": 766,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Rayman": {
    "file": "xml/hud.xml",
-   "line": 684,
+   "line": 690,
    "element": "ProgressBar",
    "onClick": ""
   },
@@ -8248,67 +8511,67 @@
   },
   "statCharName": {
    "file": "xml/hud.xml",
-   "line": 501,
+   "line": 507,
    "element": "Text",
    "onClick": ""
   },
   "statDisplay": {
    "file": "xml/hud.xml",
-   "line": 491,
+   "line": 497,
    "element": "Panel",
    "onClick": ""
   },
   "statHealthBar": {
    "file": "xml/hud.xml",
-   "line": 509,
+   "line": 515,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statHealthVal": {
    "file": "xml/hud.xml",
-   "line": 512,
+   "line": 518,
    "element": "Text",
    "onClick": ""
   },
   "statHungerBar": {
    "file": "xml/hud.xml",
-   "line": 521,
+   "line": 527,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statHungerVal": {
    "file": "xml/hud.xml",
-   "line": 524,
+   "line": 530,
    "element": "Text",
    "onClick": ""
   },
   "statLocation": {
    "file": "xml/hud.xml",
-   "line": 541,
+   "line": 547,
    "element": "Text",
    "onClick": ""
   },
   "statPerks": {
    "file": "xml/hud.xml",
-   "line": 554,
+   "line": 560,
    "element": "Text",
    "onClick": ""
   },
   "statResources": {
    "file": "xml/hud.xml",
-   "line": 545,
+   "line": 551,
    "element": "Text",
    "onClick": ""
   },
   "statSanityBar": {
    "file": "xml/hud.xml",
-   "line": 533,
+   "line": 539,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statSanityVal": {
    "file": "xml/hud.xml",
-   "line": 536,
+   "line": 542,
    "element": "Text",
    "onClick": ""
   },

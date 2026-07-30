@@ -2,6 +2,63 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Persistent threats did nothing, and six of them could never be removed (2026-07)
+
+Two bugs, and the first is why the second went unnoticed for so long.
+
+**Nothing was ever classified.** `identifyThreatType` decided Soft/Hard/
+Persistent by reading `ThreatType:<type>` tags and GMNotes. The built save has
+neither — a threat card carries `["ThreatCard", "<CSV id>"]`, and *every*
+object's GMNotes is the empty string. So every card ever drawn fell through to
+the `return "Hard"` default. That means the Soft-threat fix in the entry below
+was **dead code in the shipped mod**: the branch that resolves and discards a
+Soft card could not be reached, so the twenty printed effects still never
+happened and the cards still festered +1 Doom a Dawn. It also announced *"must
+be fought or fled"* over all thirteen Persistent cards, eleven of which have
+0 HP and cannot be fought at any price.
+
+The card's own id is now the lookup, against a generated `THREAT_TYPE_BY_ID`
+straight from `cards_threats.csv`, so the card face and its classification
+cannot drift; the build also stamps a real `ThreatType:` tag on every card so
+the save is readable on its own.
+
+**Then the Persistents themselves.** Thirteen cards whose printed rule — "Move
+actions out of this tile cost 1 extra Hunger", "No Food can be gathered at this
+tile", "each Tick eats 1 Food at this tile", "At each Night spawns 1 additional
+Hard threat" — had no code anywhere. And of the seven with 0 HP, only four are
+Sealed (openable with Pry). The other **six had no removal path at any price**
+while `countFesteringThreats` charged +1 Doom for each of them at every Dawn:
+the same permanent, un-payable Doom tax as the Soft cards, except a Persistent
+card is *meant* to stay on the tile, so nothing was ever going to take it off.
+
+New `lua/threat_persistent.lua` gives each card one declarative row and hooks
+those rows into the verbs that own them: Cracked Floor charges Hunger to leave,
+Fog Bank charges an action, Contaminated Water strips Food from the tile's
+yields and doubles the Sanity cost of eating raw there, Roots blocks Barricade
+and makes Rest restore nothing, The Watcher stops trades, The Nest adds a
+Threat to its tile's Night draw, the Hungry Dog eats at Tick, and the Stairway
+announces its Risk step. Every one of them is now on the Rules panel while it
+stands, naming the tile and the way out.
+
+The way out is the second half: **Fight it** if it has HP, **Pry it** if it is
+sealed, and otherwise **Clear it** — a new action, 2 actions + 1 Wood at that
+tile. That price is not invented: it is what The Nest's own card prints
+("Destroy with 2 actions + 1 Wood"), generalised to the cards that print
+nothing rather than picking a second number. Two actions is most of a turn, so
+clearing stays a real decision against the Doom the card would otherwise charge
+every Dawn — but it is a decision the table can now actually make.
+
+Guarded by `tests/test_persistent_threats.py`, which fails on a Persistent card
+with no rule row, on a row naming a non-Persistent card, on a `fought`/`sealed`
+flag that disagrees with the card's HP or pry reward (that would advertise a
+verb that refuses), and on a built save missing a type tag. As with the Soft
+module, one test asserts an *uncleared* card still festers, so the rest keeps
+meaning something.
+
+Also fixed here: the Wrongness (the face-down Dawn-card threat) printed
+"resolve it and discard" and did neither. It now runs the revealed card through
+the same resolvers as one drawn at Night.
+
 ## Soft threats never resolved, and never left (2026-07)
 
 `drawThreatsAt` announced it on every draw: *"X is a soft threat — resolves

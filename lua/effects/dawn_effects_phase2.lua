@@ -103,9 +103,22 @@ function resolveWrongness(trigger)
     local tDesc = ""
     pcall(function() tDesc = card.getDescription() or "" end)
     if tDesc ~= "" then broadcastEvent("proc", tDesc) end
+    -- The revealed card is an ordinary threat from here on, so it goes
+    -- through the same resolvers as one drawn at Night. This used to print
+    -- "resolve it and discard" at the table and do neither — the Soft card
+    -- then sat there unfightable, festering, which is exactly the bug
+    -- threat_effects.lua exists to prevent.
+    local tId = nil
+    pcall(function()
+        for _, tag in ipairs(card.getTags() or {}) do
+            if THREAT_STATS[tag] then tId = tag; break end
+        end
+    end)
     local tType = identifyThreatType(card)
     if tType == "Soft" then
-        broadcastEvent("proc", tName .. " is a soft threat — resolve it and discard.")
+        resolveSoftThreat(tId, w.location, tName, card)
+    elseif tType == "Persistent" then
+        announcePersistentThreat(tId, tName, w.location)
     else
         broadcastEvent("warn", tName .. " must be fought or fled. Left standing, it festers at Dawn.")
     end

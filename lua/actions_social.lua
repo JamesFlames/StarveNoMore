@@ -16,6 +16,18 @@ function doTrade(color, targetColor)
         sameLocation = (char.location == target.location)
     end
 
+    -- The Watcher (Persistent): nobody at its tile can trade — either end of
+    -- the exchange is enough to stop it, so a remote trade cannot be used to
+    -- hand things out from under it.
+    local watcher = persistentBlocksTrade(char.location)
+        or (target and persistentBlocksTrade(target.location))
+    if watcher then
+        broadcastToColor("No trading here — " .. watcher ..
+            " is watching. Clear it (2 actions + 1 Wood) to trade at this tile again.",
+            color, BROADCAST_COLORS.damage)
+        return
+    end
+
     -- Track free trades per turn (1 free trade per turn at same location)
     gameState.tradesThisTurn = gameState.tradesThisTurn or {}
     local tradeCount = gameState.tradesThisTurn[color] or 0
@@ -72,10 +84,14 @@ function doEatRaw(color)
         return
     end
 
-    char.hunger = math.min(char.maxHunger, char.hunger + 1)
-    char.sanity = math.max(0, char.sanity - 1)
+    -- Contaminated Water (Persistent): raw food costs 2 Sanity at its tile.
+    local sanityCost, spoiler = persistentRawFoodSanityCost(char.location)
 
-    broadcastEvent("proc", char.name .. " eats raw food. +1 Hunger, -1 Sanity.")
+    char.hunger = math.min(char.maxHunger, char.hunger + 1)
+    char.sanity = math.max(0, char.sanity - sanityCost)
+
+    broadcastEvent("proc", char.name .. " eats raw food. +1 Hunger, -" .. sanityCost .. " Sanity." ..
+        (spoiler and (" (" .. spoiler .. " — everything here tastes of it.)") or ""))
     checkDownState(color)
 end
 
@@ -96,6 +112,17 @@ end
 -- Barricade is consumed after one night.
 -----------------------------------------------------------------------
 function doBarricade(color)
+    local pre = gameState.activeChars[color]
+    -- Roots Through the Floor (Persistent): "This tile cannot be barricaded."
+    -- Checked before the action is spent — the refusal must not cost a turn.
+    local roots = pre and persistentBlocksBarricade(pre.location)
+    if roots then
+        broadcastToColor("Nothing to nail to at " .. (pre.location or "?") .. " — " .. roots ..
+            ". Clear it (2 actions + 1 Wood) before you can barricade here.",
+            color, BROADCAST_COLORS.damage)
+        return
+    end
+
     if not spendAction(color, "Barricade") then return end
 
     local char = gameState.activeChars[color]

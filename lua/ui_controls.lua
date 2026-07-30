@@ -371,7 +371,7 @@ TOOLTIP_DATA = {
     ["DayCounter"]           = "Day Counter. Current: Day {day} of {totalDays}.",
     -- Decks
     ["MarketCardDeck"]       = "Market Deck. Craft items by spending resources. 5 face-up in the display.",
-    ["ThreatCardDeck"]       = "Threat Deck. Drawn at Night. Soft threats resolve instantly; Hard ones must be fought. Threats left on the map fester at Dawn: +1 Doom each (max +3); bosses +2 each, no cap.",
+    ["ThreatCardDeck"]       = "Threat Deck. Drawn at Night. Soft threats resolve instantly; Hard ones must be fought; Persistent ones stay on the tile applying their rule until you Fight, Pry or Clear them. Threats left on the map fester at Dawn: +1 Doom each (max +3); bosses +2 each, no cap.",
     ["VisitorCardDeck"]      = "Visitor Deck. Absent characters may arrive via Dawn cards.",
     -- Supply
     ["TelltaleHeartSupply"]  = "Telltale Hearts (5 max). Cook: 1 Cloth + 1 Battery + 1 Food + 2 Health. Use to revive a Down character.",

@@ -106,7 +106,18 @@ function drawThreatsAt(location, count)
 
                         -- Auto-resolve soft threats (HP = 0)
                         local tType = identifyThreatType(threatCard)
-                        if tType == "Soft" then
+                        if tType == "Persistent" then
+                            -- Persistent cards stay on the tile by design, so
+                            -- the announcement has to carry the whole rule:
+                            -- what it does from now on, and the one way off
+                            -- the tile. "Must be fought" was false for the
+                            -- eleven of thirteen that cannot be fought.
+                            local pId = nil
+                            for _, tag in ipairs(threatCard.getTags() or {}) do
+                                if THREAT_STATS[tag] then pId = tag; break end
+                            end
+                            announcePersistentThreat(pId, tName, location)
+                        elseif tType == "Soft" then
                             -- This branch used to be the announcement alone:
                             -- "resolves and discards", doing neither. The card
                             -- then sat on the tile unfightable (hp = 0 is
@@ -208,6 +219,15 @@ function resolveNightAtLocation(location, colors)
     if (gameState.loudSignature or {})[location] then
         baseRate = baseRate + 1
         broadcastEvent("warn", "The echo of the dunk draws attention — +1 Threat at " .. location .. ".")
+    end
+
+    -- The Nest (Persistent): every Night its tile draws extra. Counted
+    -- before the Barricade so boarding the place up can hold it back.
+    local nestBonus, nestNames = persistentNightThreatBonus(location)
+    if nestBonus > 0 then
+        baseRate = baseRate + nestBonus
+        broadcastEvent("warn", table.concat(nestNames, ", ") .. " at " .. location ..
+            " — +" .. nestBonus .. " Threat. Clear it or this happens every night.")
     end
 
     -- Barricade reduces threat draws
@@ -410,13 +430,45 @@ end
 -----------------------------------------------------------------------
 -- Identify threat type from card tags or GM notes
 -----------------------------------------------------------------------
+-- Returns "Soft" | "Hard" | "Persistent" for a drawn threat card.
+--
+-- This used to read ONLY `ThreatType:<type>` tags and GMNotes, and the built
+-- save has neither: build_save.py tags each card with its CSV id, and leaves
+-- GMNotes empty on every object. So every real card fell through to the
+-- `return "Hard"` default — which meant the Soft branch of drawThreatsAt was
+-- dead code in the shipped mod (Soft cards never resolved and never
+-- discarded, the exact bug threat_effects.lua was written to fix), and every
+-- Persistent card was announced as "must be fought" including the seven that
+-- have hp 0 and cannot be fought at all.
+--
+-- The id tag is now the primary lookup, against the generated
+-- THREAT_TYPE_BY_ID (threat_types.lua, straight from the CSV) — the card face
+-- and its classification cannot drift. The nickname mirror covers hand-placed
+-- cards; the tags and GMNotes are kept as a last resort for anything a player
+-- or a future generator labels by hand.
 function identifyThreatType(card)
-    if card.hasTag and card.hasTag("ThreatType:Soft") then return "Soft" end
-    if card.hasTag and card.hasTag("ThreatType:Hard") then return "Hard" end
-    if card.hasTag and card.hasTag("ThreatType:Persistent") then return "Persistent" end
+    if not card then return "Hard" end
+
+    if card.getTags and THREAT_TYPE_BY_ID then
+        local ok, tags = pcall(function() return card.getTags() end)
+        if ok and tags then
+            for _, tag in ipairs(tags) do
+                if THREAT_TYPE_BY_ID[tag] then return THREAT_TYPE_BY_ID[tag] end
+            end
+        end
+    end
+
+    local byName = THREAT_TYPE_BY_NAME and THREAT_TYPE_BY_NAME[safeNickname(card)]
+    if byName then return byName end
+
+    if safeHasTag(card, "ThreatType:Soft") then return "Soft" end
+    if safeHasTag(card, "ThreatType:Hard") then return "Hard" end
+    if safeHasTag(card, "ThreatType:Persistent") then return "Persistent" end
+    if safeHasTag(card, "Persistent") then return "Persistent" end
 
     -- Fallback: check GMNotes
-    local gm = card.getGMNotes and card.getGMNotes() or ""
+    local gm = ""
+    pcall(function() gm = (card.getGMNotes and card.getGMNotes()) or "" end)
     if gm:find("Soft") then return "Soft" end
     if gm:find("Persistent") then return "Persistent" end
     return "Hard"

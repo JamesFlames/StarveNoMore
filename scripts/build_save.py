@@ -885,11 +885,19 @@ threat_deck = make_deck(
     nickname="Threat Deck",
     face_down=True
 )
-# Sub-tag persistent threats
+# Sub-tag every threat with its TYPE. identifyThreatType (lua/night.lua) reads
+# `ThreatType:<type>` first among its tag checks; before this existed the only
+# type marker in the save was the bare "Persistent" tag below, which nothing
+# read — so every drawn card classified as Hard and the Soft-resolution path
+# never ran in a real game. (The Lua also resolves the type from the card's id
+# tag via THREAT_TYPE_BY_ID, so the two agree by construction; this tag makes
+# the save readable on its own.)
 for card in threat_deck["ContainedObjects"]:
     for row in threats:
-        if row["id"] in card["Tags"] and row["type"] == "Persistent":
-            card["Tags"].append("Persistent")
+        if row["id"] in card["Tags"]:
+            card["Tags"].append("ThreatType:" + row["type"])
+            if row["type"] == "Persistent":
+                card["Tags"].append("Persistent")
             break
 objects.append(threat_deck)
 
