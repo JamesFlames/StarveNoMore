@@ -2,6 +2,47 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Soft threats never resolved, and never left (2026-07)
+
+`drawThreatsAt` announced it on every draw: *"X is a soft threat — resolves
+and discards."* It did neither. The first half is twenty printed effects that
+never happened. The second half is worse, and compounds:
+
+* a Soft card has `hp = 0`, and `fightTargetsAt` filters those out — so it
+  could never be fought;
+* nothing else removed it, so it stayed on its tile for the rest of the week;
+* and `countFesteringThreats` counts every Threat card near a tile — so each
+  one charged **+1 Doom at every Dawn, for ever**, with no counterplay
+  available at any price.
+
+Soft threats were the cheapest cards in the deck and they were quietly the
+most expensive: a permanent Doom tax, pinned at the +3 fester cap within a
+couple of nights, that no action in the game could clear.
+
+New `lua/threat_effects.lua` resolves them and takes the card off the map.
+Sixteen of the twenty are scripted — the Sanity and Health hits, Voices
+(1 per ally standing somewhere else), Buzzing's d8, the Roaches and Food Gone
+Wrong taking Food, Lights Out / Power Flicker / Fire Out / Moth Cloud riding
+the light flags the night check already reads, and The Clock Stops borrowing
+P3_LONG_NIGHT's shortened day. The four that ask the table for a judgement the
+script has no basis to make (which house is "front-most", which Item to
+discard, Friend's Blood's choice, the Echo's memory) announce that step
+instead. **Every Soft card is discarded either way** — that is the half that
+was doing the damage, so no card can leak back into the fester count by being
+forgotten in a table.
+
+Guarded by `tests/test_soft_threats.py`, which fails on a Soft card in neither
+table, on either table naming a Hard or Persistent card (those are fought, or
+stay on the tile by design), and on a card in both. It also pins the mechanism
+itself: one test asserts an *unresolved* card still festers, so if that ever
+stops being true the rest of the module stops meaning anything.
+
+Also fixed here: **the Fire Starter Kit was free.** Its card says "Reusable.
+Needs 1 Wood per use" and nothing charged the Wood, so a 1 Wood + 1 Cloth +
+1 Metal craft bought permanent immunity to Charlie — strictly better than the
+Lantern it is meant to trade against (pricier to craft, genuinely free to
+run). It burns its Wood now, and with none left it simply doesn't light.
+
 ## The Deerclops finally costs something (2026-07)
 
 "While Deerclops is on the map, all Sanity costs are doubled" — announced on

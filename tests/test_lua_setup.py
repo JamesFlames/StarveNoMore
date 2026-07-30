@@ -169,8 +169,35 @@ class TestLightCheck:
         add_char(env, "White", "James")
         self._tile(env)
         env.execute('TTS.setHand("White", { TTS.makeObject({tags={"M_FIRE_KIT"}}) })')
+        env.globals().giveResource("White", "Wood", 1)   # "Needs 1 Wood per use"
         env.execute("gameState.ongoingDawnEffects.flashlightsDisabled = true")
         assert env.globals().checkPlayerHasLight("White") is True
+
+    def test_the_fire_kit_burns_a_wood_each_night(self, env):
+        """The card prints "Reusable. Needs 1 Wood per use." Nothing charged
+        it, so a 1 Wood + 1 Cloth + 1 Metal craft bought permanent Charlie
+        immunity — strictly better than the Lantern it trades off against."""
+        add_char(env, "White", "James")
+        self._tile(env)
+        env.execute('TTS.setHand("White", { TTS.makeObject({tags={"M_FIRE_KIT"}}) })')
+        env.globals().giveResource("White", "Wood", 2)
+
+        assert env.globals().checkPlayerHasLight("White") is True
+        assert env.eval('getPlayerResources("White").Wood') == 1
+        assert env.globals().checkPlayerHasLight("White") is True
+        assert env.eval('getPlayerResources("White").Wood') == 0
+        # Out of Wood: the kit doesn't light, and Charlie gets her night.
+        assert env.globals().checkPlayerHasLight("White") is False
+
+    def test_the_lantern_burns_nothing(self, env):
+        """The Lantern is the pricier craft that then runs for free — that is
+        the whole trade between the two fire sources."""
+        add_char(env, "White", "James")
+        self._tile(env)
+        env.execute('TTS.setHand("White", { TTS.makeObject({tags={"M_LANTERN"}}) })')
+        env.globals().giveResource("White", "Wood", 1)
+        assert env.globals().checkPlayerHasLight("White") is True
+        assert env.eval('getPlayerResources("White").Wood') == 1
 
     def test_campfire_at_tile_covers_everyone(self, env):
         add_char(env, "Red", "Coco", location="BasketballCourt")

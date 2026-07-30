@@ -107,7 +107,16 @@ function drawThreatsAt(location, count)
                         -- Auto-resolve soft threats (HP = 0)
                         local tType = identifyThreatType(threatCard)
                         if tType == "Soft" then
-                            broadcastEvent("proc", tName .. " is a soft threat — resolves and discards.")
+                            -- This branch used to be the announcement alone:
+                            -- "resolves and discards", doing neither. The card
+                            -- then sat on the tile unfightable (hp = 0 is
+                            -- filtered out of fightTargetsAt) and festering
+                            -- +1 Doom every Dawn for the rest of the week.
+                            local tId = nil
+                            for _, tag in ipairs(threatCard.getTags() or {}) do
+                                if THREAT_STATS[tag] then tId = tag; break end
+                            end
+                            resolveSoftThreat(tId, location, tName, threatCard)
                         else
                             broadcastEvent("warn", tName .. " must be fought or fled! Flee: move 1 tile away, pay 1 Sanity (always legal, even starving). A fled threat stays here and festers at Dawn.")
                         end
@@ -275,11 +284,37 @@ end
 -- Cards are matched by their Market id tag (build_save.py tags each
 -- card with its CSV id) with a nickname fallback for hand-placed items.
 -----------------------------------------------------------------------
+-- `fuel`, where present, is what the card charges to burn for one Night.
+-- Only the Fire Starter Kit has one ("Reusable. Needs 1 Wood per use"); the
+-- Lantern and Flashlight are pricier crafts that then run for free, which is
+-- the trade the three are supposed to present.
 LIGHT_SOURCES = {
     { id = "M_FLASHLIGHT", label = "Flashlight",       fire = false },
     { id = "M_LANTERN",    label = "Lantern",          fire = true  },
-    { id = "M_FIRE_KIT",   label = "Fire Starter Kit", fire = true  },
+    { id = "M_FIRE_KIT",   label = "Fire Starter Kit", fire = true,
+      fuel = { Wood = 1 } },
 }
+
+-- Burn a light's fuel for tonight. Quiet when the player can't pay — the
+-- caller reports it as part of "why are you in the dark", and a shortfall
+-- broadcast per character per night would bury the Night log.
+function payLightFuel(color, src)
+    if not src.fuel then return true end
+    local held = getPlayerResources(color)
+    for resType, qty in pairs(src.fuel) do
+        if (held[resType] or 0) < qty then return false end
+    end
+    local stock = ensurePlayerResources(color)
+    for resType, qty in pairs(src.fuel) do
+        stock[resType] = math.max(0, (stock[resType] or 0) - qty)
+        safecall(function() removeVisualTokens(color, resType, qty) end, "FuelTokens")
+    end
+    local char = gameState.activeChars[color]
+    broadcastEvent("proc", (char and char.name or color) .. " burns 1 Wood in the " ..
+        src.label .. " for tonight's fire.")
+    safecall(function() refreshStatDisplay() end, "StatDisplay")
+    return true
+end
 
 local CAMPFIRE_RADIUS = 7  -- matches the fester radius: "at this tile"
 
@@ -300,8 +335,10 @@ function checkPlayerHasLight(color)
                   or gameState.ongoingDawnEffects.onlyFireLight
     -- P2_RAIN_STARTS (rainFireDisabled): the rain puts out every open flame
     -- at the sport courts. Under the roofs it burns fine.
-    local rainedOut = gameState.ongoingDawnEffects.rainFireDisabled
-                      and isSportCourt(char.location or "")
+    local rainedOut = (gameState.ongoingDawnEffects.rainFireDisabled
+                       and isSportCourt(char.location or ""))
+                      -- T_FIRE_OUT / T_MOTH_CLOUD put every flame out, everywhere.
+                      or gameState.ongoingDawnEffects.fireDisabled or false
 
     -- Shared fire: a Campfire at this character's tile covers everyone there.
     local tile = (not rainedOut) and getLocationTile(char.location or "") or nil
@@ -333,11 +370,26 @@ function checkPlayerHasLight(color)
                     -- Rain at a sport court drowns the flame; a Flashlight
                     -- (src.fire == false) is unaffected and keeps checking.
                     foundDisabled = src.label
-                    disabledWhy = "the rain has put every flame out at the courts"
+                    disabledWhy = gameState.ongoingDawnEffects.fireDisabled
+                        and "every flame has gone out tonight"
+                        or "the rain has put every flame out at the courts"
                 elseif src.fire or not fireOnly then
-                    local note = (src.id == "M_FIRE_KIT") and " (spend 1 Wood for tonight's fire)" or ""
-                    broadcastEvent("proc", char.name .. "'s " .. src.label .. " keeps the dark out" .. note .. " — Charlie stays away.")
-                    return true
+                    -- The Fire Starter Kit is the one light with a running
+                    -- cost: "Reusable. Needs 1 Wood per use." The Wood was
+                    -- never charged, which made a 1 Wood + 1 Cloth + 1 Metal
+                    -- craft into permanent free Charlie immunity — strictly
+                    -- better than the Lantern it is meant to trade off
+                    -- against (pricier to craft, but genuinely free to run).
+                    -- Out of Wood, the kit simply doesn't light, and the scan
+                    -- carries on to whatever else this character is holding.
+                    if src.fuel and not payLightFuel(color, src) then
+                        foundDisabled = src.label
+                        disabledWhy = "there is no Wood left to burn"
+                    else
+                        broadcastEvent("proc", char.name .. "'s " .. src.label ..
+                            " keeps the dark out — Charlie stays away.")
+                        return true
+                    end
                 else
                     foundDisabled = src.label
                     disabledWhy = "only Fire counts as light"

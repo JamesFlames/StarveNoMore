@@ -672,7 +672,7 @@
   "EFFECT_RULE_ORDER": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 68,
+    "line": 69,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -772,7 +772,7 @@
   "LIGHT_SOURCES": [
    {
     "file": "lua/night.lua",
-    "line": 278,
+    "line": 291,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -807,6 +807,16 @@
     "params": null,
     "arity": null,
     "doc": "Gather yields per location (Design §7-8). A Gather draws one resource picked uniformly from this list, so Food comes up twice as often at Ellie & Luca's House.…"
+   }
+  ],
+  "MANUAL_SOFT": [
+   {
+    "file": "lua/threat_effects.lua",
+    "line": 167,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "Cards whose printed effect asks the table for a judgement the script has no basis to make. They still resolve and discard; the instruction is announced so it d…"
    }
   ],
   "MAP_LOCATIONS": [
@@ -1117,6 +1127,16 @@
     "params": null,
     "arity": null,
     "doc": "Bar refresh. Driven from refreshActionButtonStates (display), so these appear and vanish in the same pass as Peek/Rally/Pry. Functions are referenced directly …"
+   }
+  ],
+  "SOFT_THREAT_EFFECTS": [
+   {
+    "file": "lua/threat_effects.lua",
+    "line": 45,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": ""
    }
   ],
   "SOURCE_MAX_HP": [
@@ -2266,7 +2286,7 @@
   "checkPlayerHasLight": [
    {
     "file": "lua/night.lua",
-    "line": 296,
+    "line": 331,
     "kind": "function",
     "params": [
      "color"
@@ -3572,7 +3592,7 @@
   "identifyThreatType": [
    {
     "file": "lua/night.lua",
-    "line": 361,
+    "line": 413,
     "kind": "function",
     "params": [
      "card"
@@ -4386,7 +4406,7 @@
   "onDawnStepClick": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 330,
+    "line": 331,
     "kind": "function",
     "params": [
      "player",
@@ -4915,7 +4935,7 @@
   "onRulesToggle": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 283,
+    "line": 284,
     "kind": "function",
     "params": [
      "player",
@@ -5185,6 +5205,19 @@
     ],
     "arity": 2,
     "doc": "Split text into a list of page strings."
+   }
+  ],
+  "payLightFuel": [
+   {
+    "file": "lua/night.lua",
+    "line": 301,
+    "kind": "function",
+    "params": [
+     "color",
+     "src"
+    ],
+    "arity": 2,
+    "doc": "Burn a light's fuel for tonight. Quiet when the player can't pay — the caller reports it as part of \"why are you in the dark\", and a shortfall broadcast per ch…"
    }
   ],
   "placeBossStandee": [
@@ -5557,7 +5590,7 @@
   "refreshCycleStrip": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 352,
+    "line": 353,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5567,7 +5600,7 @@
   "refreshDawnChecklist": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 296,
+    "line": 297,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5659,7 +5692,7 @@
   "refreshRulesPanel": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 233,
+    "line": 234,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5750,7 +5783,7 @@
   "resolveNightAtLocation": [
    {
     "file": "lua/night.lua",
-    "line": 130,
+    "line": 139,
     "kind": "function",
     "params": [
      "location",
@@ -5763,17 +5796,32 @@
   "resolveSleep": [
    {
     "file": "lua/night.lua",
-    "line": 403,
+    "line": 455,
     "kind": "function",
     "params": [],
     "arity": 0,
     "doc": "Sleep regeneration (Design §11.4 step 5)"
    }
   ],
+  "resolveSoftThreat": [
+   {
+    "file": "lua/threat_effects.lua",
+    "line": 177,
+    "kind": "function",
+    "params": [
+     "id",
+     "location",
+     "name",
+     "card"
+    ],
+    "arity": 4,
+    "doc": "Resolve one Soft threat, then take its card off the map. `id` is the CSV id (the card's own tag); `card` may be nil or a dead handle, which is why the effect n…"
+   }
+  ],
   "resolveStorytelling": [
    {
     "file": "lua/night.lua",
-    "line": 376,
+    "line": 428,
     "kind": "function",
     "params": [],
     "arity": 0,
