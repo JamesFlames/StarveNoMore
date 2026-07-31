@@ -33,7 +33,7 @@ python scripts/simulate_balance.py --no-defence         # control group for loca
 
 Ruleset: **Source-mandatory victory**, **uncapped boss festering**, **no boss arrival Doom**, retuned per-count Doom rates, batches 1–3 (Press the Attack, boss-kill rewards, Nothing Left to Lose, Signature Moves, Source split, Last Dawn, Sealed Basement, Wrongness), batch 4 (**Source HP 10 → 8**, the 3-player reliefs), batch 5 (**the Last Nerve valve**, **per-location defence**). Under `--rules old` the same policies win 72–100% — that control group is frozen and unaffected by anything below.
 
-Earlier tables are preserved in git: batch 3 was turtle 34 / spread 27 / balanced 11 / court_camper 10, batch 4 turtle 42 / spread 42 / balanced 15 / court_camper 14.
+Earlier tables are in git: batch 3 turtle 34 / spread 27 / balanced 11, batch 4 turtle 42 / spread 42 / balanced 15.
 
 | policy | win% (defence on) | win% (`--no-defence`) | Δ | loss:source | loss:down | late-loss% |
 |---|---|---|---|---|---|---|
@@ -45,36 +45,30 @@ Earlier tables are preserved in git: batch 3 was turtle 34 / spread 27 / balance
 
 Standard error at 3000 sims is ~0.9 points, so only the court_camper row is comfortably outside noise. Two live calibration facts:
 
-1. **The best lines now sit at 50–52%, above the 40–50% band** (§20.2) — where batch 4 recorded 42%. The cause is the **Last Nerve valve** (§10.1.1), which landed after that calibration and was never re-baselined; setting `LAST_NERVE_THRESHOLD = 0` reproduces the batch-4 row almost exactly (turtle 41.4 / spread 42.1 / balanced 14.1 / court_camper 14.2), which is what identifies the valve rather than model drift. It is worth ~+9 points, and it is the number to take to the next table session — not location defence.
+1. **The best lines now sit at 50–52%, above the 40–50% band** (§20.2) — where batch 4 recorded 42%. The cause is the **Last Nerve valve** (§10.1.1), worth ~+9 points: setting `LAST_NERVE_THRESHOLD = 0` reproduces the batch-4 row almost exactly (turtle 41.4 / spread 42.1 / balanced 14.1 / court_camper 14.2), which identifies the valve rather than model drift. **This is a known and accepted number, not a discovery** — §20.1 measured it at the time (51% on its own 400-game run) and deliberately chose not to compensate: per §17, Last Nerve, the Haunted buy-in, the secret-Dusk variant and the difficulty axis all push the same way, and retuning Standard now would make the combined effect attributable to none of them. What was stale was *this table*, which still read 42%.
 2. **Losses still land on Days 6–7 ~100% of the time.** The near-miss shape survived both changes.
 
 The `--no-defence` column is the control for batch 5's location-defence rule; the probe that reads it apart is [balance-location-defence.md](balance-location-defence.md).
 
-### Knobs measured for the overshoot (none taken — a menu, not a decision)
+### The ordered knobs, priced (none taken — §20.1 gates all three on table data)
 
-§5 names the tuning path for the valve: *"free Flee alone may be enough, and the Rest bonus is the half to drop first."* **Measured, that order is backwards** (3000 sims/cell, 4p): free Flee carries the whole effect and the Rest bonus is worth nothing.
+§20.1 line 130 lists three knobs *if tables confirm the Final Hours are too soft*: drop the Rest half of Last Nerve, then Source HP 8 → 9, then Phase 3–4 Doom rate +1. Priced at 3000 sims/cell, 4p, with location defence on:
 
-| valve variant | turtle | spread | balanced | court_camper |
+| knob | turtle | spread | balanced | court_camper |
 |---|---|---|---|---|
-| off | 42.0% | 42.6% | 14.4% | 11.8% |
-| Rest bonus only | 42.7% | 42.7% | 15.3% | 12.6% |
-| free Flee only | 50.7% | 52.5% | 17.0% | 14.5% |
-| both (shipped) | 50.4% | 52.5% | 18.1% | 14.8% |
+| shipped | 50.4% | 52.5% | 18.4% | 15.2% |
+| 1 — drop Rest half | 50.7% | 52.5% | 17.0% | 14.5% |
+| **2 — Source HP 8 → 9** | **45.8%** | **47.8%** | 16.7% | 13.7% |
+| 3 — Phase 4 Doom +1 | 40.3% | 41.8% | 16.4% | 13.7% |
+| 2 + 3 together | 35.9% | 37.8% | 15.6% | 13.0% |
 
-Dropping the Rest half costs the §25 agency fix and buys back ~0 points: the valve's magnitude *is* free Flee, and cutting that is cutting the rule.
+**Knob 1 does nothing, exactly as §20.1 predicted** — it recorded the Rest half at ~0 pp and lists it first because it is cheap, not because it is heavy; this confirms that rather than contradicting it. The valve's whole magnitude is free Flee (50.7% alone vs 42.0% valve-off), so there is no "tune it down" setting: cutting free Flee is cutting the rule.
 
-§20.1's other sanctioned lever — *"if diligent teams cruise, raise Phase 3–4 rates by +1 before touching festering"* — lands the band on its smallest setting. Phase **4** alone, `DOOM_RATES[4]` `[1,1,1,2] → [1,1,1,3]`:
+**Knob 2 lands the band centrally** — 45.8–47.8% against knob 3's 40.3–41.8% at the bottom edge — on one difficulty parameter, the same one batch 4 moved the other way. Together they overshoot below the band.
 
-| rates | turtle | spread | balanced | court_camper |
-|---|---|---|---|---|
-| shipped `[1,1,1,2]` | 50.4% | 52.5% | 18.0% | 14.7% |
-| **phase 4 +1 `[1,1,1,3]`** | **40.3%** | **42.0%** | 16.3% | 13.6% |
-| phase 3+4 +1 `[1,1,2,3]` | 24.7% | 21.6% | 14.7% | 12.1% |
-| phase 3 +1 `[1,1,2,2]` | 38.7% | 35.3% | 15.7% | 12.9% |
+If knob 3 is ever wanted, phase **4** alone is its only usable setting: phase 3+4 crashes to 21.6–24.7%, phase 3 alone undershoots at 35.3–38.7%. That +1 is worth −10 points at 4p and 5p and **nothing at 3p** (99.3 → 99.4), where the game ends before the Doom clock binds.
 
-Losses stay ~100% on Days 6–7 in every row, so the gate holds throughout. Taking both phases overshoots well below the band; phase 3 alone undershoots it. Across counts the same +1 is worth −10 points at 4p and 5p and **nothing at 3p** (99.3 → 99.4) — at three players the game ends before the Doom clock is the binding constraint, which is §20.1's standing "3p is not fixed by tuning" result, now with a number on it. 5-player spread stays at 62% either way; it was out of band before this knob and is not what this knob is for.
-
-Recommendation if the band matters: **one number, `DOOM_RATES[4][4]` 2 → 3**, valve kept whole. Not applied — taking a knob is a design decision §20.1 records with its rationale.
+Losses stay ~100% on Days 6–7 in every row and the ladder holds (Nightmare 13.1%, floor 8%). **None of this is applied**: §20.1's trigger is table data that does not exist yet, and §17's reason for waiting is that four changes currently push difficulty the same way.
 
 **3-player sweep after the W2 reliefs** (`--sweep3`): the cliff is gone but over-corrected in the sim — Rayman trios now top the turtle table (99–100%) because Loud is his only modeled cost against his fully-modeled combat value. Floor gate passes (worst trio 48% under its best policy; nothing near 0). Treat the sim's Rayman numbers as a bracket, not a measurement: the real tuning verdict belongs to the W2 table A/B.
 

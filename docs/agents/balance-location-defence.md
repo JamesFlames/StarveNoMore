@@ -49,7 +49,7 @@ Splitting the rule into halves (4000 sims, ±0.6 — "cover" = the positive tile
 
 ## Taking this to the table
 
-The bigger finding of this pass is not the defence rule: **the best lines now win 50–52%, above the §20.2 target band of 40–50%**, and the cause is the Last Nerve valve, which landed after the batch-4 calibration and was never re-baselined. See [balance-simulation.md](balance-simulation.md). Location defence moves the fighting lines *down* by 1–4 points, which pushes in the right direction but is nowhere near large enough to be the knob.
+Context this probe sits inside: **the best lines win 50–52%, above the §20.2 target band of 40–50%**, because of the Last Nerve valve — a number §20.1 measured and knowingly accepted, pending table data. Location defence moves the fighting lines *down* by 1–4 points, which pushes in the right direction but is nowhere near large enough to be the knob, and it does not touch the camping lines that set the ceiling. See [balance-simulation.md](balance-simulation.md) for the priced knob list.
 
 The two questions this model genuinely cannot answer, and a table can:
 
