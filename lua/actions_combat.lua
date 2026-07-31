@@ -37,17 +37,33 @@ BOSS_BASE_STATS = {
 -- The keys beginCombat/applyCounterAttack read off threatData:
 local COMBAT_RIDER_KEYS = { "sanityPerAttackDie", "sanityPerFight", "counterDice" }
 
+-- The Full Moon (softToHard): "all Soft threats become Hard (+2 HP, +1
+-- attack)". Applied HERE rather than at the draw, because the statline is
+-- what makes a card fightable at all: fightTargetsAt filters out hp 0, so a
+-- Soft card left at hp 0 would still be unfightable — the scenario would have
+-- turned every atmospheric card into an unkillable Doom tax instead of a
+-- monster. THREAT_STATS rows are shared table references, so the promotion
+-- returns a copy and never edits the generated data.
+local function _fullMoonPromote(stats, id)
+    if not stats then return stats end
+    if not (gameState.scenarioFlags or {}).softToHard then return stats end
+    if (THREAT_TYPE_BY_ID or {})[id or ""] ~= "Soft" then return stats end
+    return { name = stats.name, hp = (stats.hp or 0) + 2, attack = (stats.attack or 0) + 1 }
+end
+
 function threatStatsForCard(card)
     if card.getTags then
         for _, tag in ipairs(card.getTags()) do
-            if THREAT_STATS and THREAT_STATS[tag] then return THREAT_STATS[tag], tag end
+            if THREAT_STATS and THREAT_STATS[tag] then
+                return _fullMoonPromote(THREAT_STATS[tag], tag), tag
+            end
         end
     end
     local nick = (card.getNickname and card.getNickname()) or ""
     local s = THREAT_STATS_BY_NAME and THREAT_STATS_BY_NAME[nick]
     if s then
         for id, stats in pairs(THREAT_STATS) do
-            if stats == s then return s, id end
+            if stats == s then return _fullMoonPromote(s, id), id end
         end
     end
     return nil, nil

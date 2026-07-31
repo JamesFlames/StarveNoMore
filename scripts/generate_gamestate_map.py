@@ -69,7 +69,12 @@ TRANSIENT_FIELDS = {
             "(a boss, a barricade, an opened basement)."
         ),
         ["barricades", "basementOpened", "bossesDefeated", "eyeLocation",
-         "heartCount", "treeguard", "sourceSplit", "wrongness"],
+         "heartCount", "treeguard", "sourceSplit", "wrongness",
+         # Strict Rationing's restock clock. nil means "never restocked",
+         # which is exactly what the first refill of the week must see — a
+         # declared 0 would read as "restocked on day 0" and silently delay
+         # it. Only that scenario ever writes it.
+         "lastMarketRefillDay"],
     ),
     "end of game": (
         "Written once, when the game ends. Absent for the whole run before that.",

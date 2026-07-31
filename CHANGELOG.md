@@ -2,6 +2,59 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Two Scenarios did nothing at all, and four more were half-inert (2026-07)
+
+`gameState.scenarioFlags` is the twin of `ongoingDawnEffects`.
+`tests/test_lua_effect_flags.py` has guarded the Dawn table since the
+eleven-orphan audit — *"every ongoing rule the game announces must be a rule
+something enforces"* — and the Scenario table sat outside it the whole time.
+The identical rot ran unchecked for longer and got further: **twelve of the
+seventeen flags the eight Scenario cards set were read by nothing.**
+
+- **The Rotting Autumn** — `foodSpoilsAtDawn`, `recipeBonus`, `clothBonus`.
+  All three dead. The scenario did **literally nothing**.
+- **Strict Rationing** — `slowMarket`, `cheapRecipes`. Both dead. Likewise.
+- **The Long Winter** — the food never froze (`foodGatherPenalty`).
+- **The Scorching Summer** — Energy Drinks and courts were ordinary. Only the
+  −2 max Hunger, applied inline at setup, ever happened: the scenario was
+  its own downside with neither of its compensations.
+- **Total Blackout** — Batteries were still on the shelves and in the ground.
+- **The Full Moon** — Soft threats stayed soft.
+
+A Scenario rots worse than a Dawn card. It is chosen once at setup and
+announced once, so nobody re-reads it to check; and it lasts the whole game,
+so its absence is seven days of a rule that never arrives, not one.
+
+All twelve are wired now, each at the verb its clause names — the frozen
+ground, the extra court resource, the +1 Sanity on a cold drink, the ration
+that spoils overnight at each occupied tile, Cloth added to the draw table,
+Batteries removed from it, anything needing a Battery refused at the Market
+(derived from the cost table, not a hardcoded card id — that *is* the rule the
+scenario states), the market's every-second-day restock, the one-ingredient
+recipe discount that never takes the last ingredient, and the Full Moon's
+Soft-to-Hard promotion.
+
+**And two of the five that "worked" were on borrowed time.** Total Blackout
+and The Full Moon put their rule in `ongoingDawnEffects` (`onlyFireLight`,
+`charliePaused`) — a *per-Dawn scratchpad* that unrelated Dawn cards clear in
+their `onCleanup`. `dawn_effects_phase4` nils `onlyFireLight`; `phase3` nils
+`charliePaused`. Drawing either card would have handed flashlights back, or
+brought Charlie back, for the rest of a week-long scenario, silently and with
+no message. Both rules are read from `scenarioFlags` now, which nothing else
+can touch.
+
+The Full Moon's promotion is worth a note: it is applied in
+`threatStatsForCard`, not at the draw, because `fightTargetsAt` filters out
+`hp = 0`. Promoting only the *type* would have turned every atmospheric card
+into an unfightable, undiscardable permanent Doom tax — the exact bug the last
+three entries have been clearing out. It returns a copy, so the generated
+`THREAT_STATS` rows are never mutated.
+
+Guarded by `tests/test_scenarios.py`, and by a new half of
+`test_lua_effect_flags.py` that applies the Dawn-flag check to `scenarioFlags`
+— allowlist-staleness and promotion checks included, so the gap that let this
+run for so long cannot reopen.
+
 ## Five rules the interface stated as fact (2026-07)
 
 Not cards this time — the places you stand and the bosses you kill. Every one

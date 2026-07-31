@@ -379,6 +379,8 @@ function migrateGameState()
     gs.duskPending          = gs.duskPending or {}           -- banked secret Dusk moves (§11.3 variant)
     gs.driftedThisRound     = gs.driftedThisRound or {}      -- ghost drift, once per round (§16.4)
     gs.sledUsedThisTurn     = gs.sledUsedThisTurn or {}      -- Antler Sled trophy, once per turn (trophies.lua)
+    -- Deliberately absent: lastMarketRefillDay. nil means "never restocked",
+    -- which is exactly what Strict Rationing's first refill needs to see.
     gs.missingAlly          = gs.missingAlly or nil          -- P3_ALLY_MISSING: who gets today's +1 action
     if gs.duskSecret == nil then gs.duskSecret = false end   -- §11.3 A/B variant
     if gs.solo == nil then gs.solo = false end               -- §20.3 solo mode

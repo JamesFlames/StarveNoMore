@@ -370,6 +370,27 @@ function gatherRandomResources(color, loc, n)
     local char = gameState.activeChars[color]
     if not char then return end
     local yields = LOCATION_YIELDS[loc] or {"Food"}
+
+    -- Scenario reshaping of what a tile yields (§17.3). Each of these is a
+    -- clause of a Scenario description the setup banner and the Rules panel
+    -- print all week; every one of them was set at setup and read by nothing.
+    local sFlags = gameState.scenarioFlags or {}
+    if sFlags.clothBonus or sFlags.noBatteries then
+        local reshaped = {}
+        for _, r in ipairs(yields) do
+            -- Total Blackout: "No Batteries in the game." They cannot come
+            -- out of the ground either, or the scenario is a suggestion.
+            if not (sFlags.noBatteries and r == "Battery") then
+                reshaped[#reshaped + 1] = r
+            end
+        end
+        -- The Rotting Autumn: "Cloth is easier to find" — a second entry in
+        -- the draw table, which is what "easier to find" means when the draw
+        -- is a uniform pick.
+        if sFlags.clothBonus then reshaped[#reshaped + 1] = "Cloth" end
+        if #reshaped > 0 then yields = reshaped end
+    end
+
     -- Contaminated Water (Persistent): no Food comes off this tile. If Food
     -- is all the tile yields there is nothing to draw, and saying so beats
     -- quietly substituting something the card did not offer.
@@ -383,11 +404,27 @@ function gatherRandomResources(color, loc, n)
         yields = kept
         broadcastEvent("warn", "No Food comes out of " .. loc .. " — " .. blocker .. ".")
     end
-    local got = {}
+    local got, frozen = {}, 0
     for _ = 1, (n or 1) do
         local resType = yields[gameRoll(#yields)]
-        giveResource(color, resType, 1)
-        got[resType] = (got[resType] or 0) + 1
+        -- The Long Winter (foodGatherPenalty): "food gathering -1". The
+        -- ground is frozen — a draw that comes up Food comes up empty. The
+        -- roll is still made, so the scenario costs you the Food it found
+        -- rather than quietly handing you something else instead.
+        if sFlags.foodGatherPenalty and resType == "Food" then
+            frozen = frozen + 1
+        else
+            giveResource(color, resType, 1)
+            got[resType] = (got[resType] or 0) + 1
+        end
+    end
+    if frozen > 0 then
+        broadcastEvent("warn", char.name .. " turns up " .. frozen ..
+            " frozen scrap where the food should be (The Long Winter).")
+    end
+    if next(got) == nil then
+        broadcastEvent("damage", char.name .. " finds nothing usable at " .. loc .. ".")
+        return
     end
     broadcastEvent("gain", char.name .. " gathers " .. _describeHaul(got) .. " at " .. loc ..
         " (tokens delivered to your board automatically).")
@@ -433,9 +470,22 @@ function doGather(color)
         checkDownState(color)
     end
 
-    local extra = playerHasBackpack(color) and 1 or 0   -- Backpack: gather +1
-    if extra > 0 then
+    -- Two independent +1s, and each announces itself: `extra > 0` used to be
+    -- read as "has a Backpack", which stops being true the moment anything
+    -- else adds to it.
+    local hasPack = playerHasBackpack(color)
+    local extra = hasPack and 1 or 0                    -- Backpack: gather +1
+    if hasPack then
         broadcastToColor("Your Backpack gathers 1 extra resource.", color, BROADCAST_COLORS.gain)
+    end
+
+    -- The Scorching Summer (courtGatherBonus): "courts yield +1 resource" —
+    -- the long days are good for scavenging, and it is the counterweight to
+    -- everyone's -2 max Hunger.
+    if (gameState.scenarioFlags or {}).courtGatherBonus and isSportCourt(loc) then
+        extra = extra + 1
+        broadcastToColor("The long summer light turns up one more (Scorching Summer).",
+            color, BROADCAST_COLORS.gain)
     end
 
     -- Ellie's perk: "Knows the Pantry" (§6.4) — at her own house she picks

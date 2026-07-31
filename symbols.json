@@ -792,7 +792,7 @@
   "LIGHT_SOURCES": [
    {
     "file": "lua/night.lua",
-    "line": 318,
+    "line": 325,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -992,7 +992,7 @@
   "PEEK_DECKS": [
    {
     "file": "lua/actions_social.lua",
-    "line": 168,
+    "line": 176,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1022,7 +1022,7 @@
   "PRY_TOOLS": [
    {
     "file": "lua/actions_social.lua",
-    "line": 325,
+    "line": 333,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1396,7 +1396,7 @@
   "_cardSnapshot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 396,
+    "line": 417,
     "kind": "function",
     "params": [
      "obj"
@@ -1428,7 +1428,7 @@
   "_dawnCardRevealed": [
    {
     "file": "lua/day_loop.lua",
-    "line": 423,
+    "line": 444,
     "kind": "function",
     "params": [
      "card",
@@ -1441,7 +1441,7 @@
   "_findCardAtDawnRevealSpot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 412,
+    "line": 433,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1497,7 +1497,7 @@
   "_pickScarcityResource": [
    {
     "file": "lua/crafting.lua",
-    "line": 125,
+    "line": 140,
     "kind": "function",
     "params": [
      "color",
@@ -1988,7 +1988,7 @@
   "beginDusk": [
    {
     "file": "lua/day_loop.lua",
-    "line": 462,
+    "line": 483,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1998,7 +1998,7 @@
   "beginNight": [
    {
     "file": "lua/day_loop.lua",
-    "line": 608,
+    "line": 629,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2052,7 +2052,7 @@
   "bossStatsFor": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 56,
+    "line": 72,
     "kind": "function",
     "params": [
      "obj"
@@ -2210,7 +2210,7 @@
   "canFight": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 99,
+    "line": 115,
     "kind": "function",
     "params": [
      "color"
@@ -2234,7 +2234,7 @@
   "canPeek": [
    {
     "file": "lua/actions_social.lua",
-    "line": 175,
+    "line": 183,
     "kind": "function",
     "params": [
      "color"
@@ -2246,7 +2246,7 @@
   "canPry": [
    {
     "file": "lua/actions_social.lua",
-    "line": 418,
+    "line": 426,
     "kind": "function",
     "params": [
      "color"
@@ -2258,7 +2258,7 @@
   "canRally": [
    {
     "file": "lua/actions_social.lua",
-    "line": 264,
+    "line": 272,
     "kind": "function",
     "params": [
      "color"
@@ -2384,7 +2384,7 @@
   "checkDoomThresholds": [
    {
     "file": "lua/day_loop.lua",
-    "line": 227,
+    "line": 248,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2406,7 +2406,7 @@
   "checkPlayerHasLight": [
    {
     "file": "lua/night.lua",
-    "line": 358,
+    "line": 365,
     "kind": "function",
     "params": [
      "color"
@@ -2593,7 +2593,7 @@
   "cookTelltaleHeart": [
    {
     "file": "lua/crafting.lua",
-    "line": 367,
+    "line": 411,
     "kind": "function",
     "params": [
      "color"
@@ -2615,7 +2615,7 @@
   "countFesteringThreats": [
    {
     "file": "lua/day_loop.lua",
-    "line": 197,
+    "line": 218,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2716,7 +2716,7 @@
   "doBarricade": [
    {
     "file": "lua/actions_social.lua",
-    "line": 114,
+    "line": 122,
     "kind": "function",
     "params": [
      "color"
@@ -2752,7 +2752,7 @@
   "doCook": [
    {
     "file": "lua/crafting.lua",
-    "line": 203,
+    "line": 244,
     "kind": "function",
     "params": [
      "color",
@@ -2778,7 +2778,7 @@
   "doDefend": [
    {
     "file": "lua/actions_social.lua",
-    "line": 150,
+    "line": 158,
     "kind": "function",
     "params": [
      "color"
@@ -2803,7 +2803,7 @@
   "doEatRaw": [
    {
     "file": "lua/actions_social.lua",
-    "line": 76,
+    "line": 84,
     "kind": "function",
     "params": [
      "color"
@@ -2827,7 +2827,7 @@
   "doFightTarget": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 116,
+    "line": 132,
     "kind": "function",
     "params": [
      "color",
@@ -2841,7 +2841,7 @@
   "doFlee": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 201,
+    "line": 217,
     "kind": "function",
     "params": [
      "color",
@@ -2854,7 +2854,7 @@
   "doGather": [
    {
     "file": "lua/actions.lua",
-    "line": 397,
+    "line": 434,
     "kind": "function",
     "params": [
      "color"
@@ -2879,7 +2879,7 @@
   "doPass": [
    {
     "file": "lua/actions_social.lua",
-    "line": 101,
+    "line": 109,
     "kind": "function",
     "params": [
      "color"
@@ -2891,7 +2891,7 @@
   "doPeek": [
    {
     "file": "lua/actions_social.lua",
-    "line": 204,
+    "line": 212,
     "kind": "function",
     "params": [
      "color",
@@ -2904,7 +2904,7 @@
   "doPry": [
    {
     "file": "lua/actions_social.lua",
-    "line": 481,
+    "line": 489,
     "kind": "function",
     "params": [
      "color"
@@ -2916,7 +2916,7 @@
   "doRally": [
    {
     "file": "lua/actions_social.lua",
-    "line": 296,
+    "line": 304,
     "kind": "function",
     "params": [
      "lucaColor",
@@ -2942,7 +2942,7 @@
   "doRest": [
    {
     "file": "lua/actions.lua",
-    "line": 538,
+    "line": 588,
     "kind": "function",
     "params": [
      "color",
@@ -2968,7 +2968,7 @@
   "doStabilize": [
    {
     "file": "lua/actions_social.lua",
-    "line": 507,
+    "line": 515,
     "kind": "function",
     "params": [
      "color",
@@ -3155,7 +3155,7 @@
   "fightTargetsAt": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 71,
+    "line": 87,
     "kind": "function",
     "params": [
      "locName"
@@ -3800,7 +3800,7 @@
   "identifyThreatType": [
    {
     "file": "lua/night.lua",
-    "line": 456,
+    "line": 468,
     "kind": "function",
     "params": [
      "card"
@@ -3849,7 +3849,7 @@
   "isBossOnMap": [
    {
     "file": "lua/day_loop.lua",
-    "line": 190,
+    "line": 211,
     "kind": "function",
     "params": [
      "bossTag"
@@ -4894,7 +4894,7 @@
   "onLoad": [
    {
     "file": "lua/global.lua",
-    "line": 405,
+    "line": 407,
     "kind": "function",
     "params": [
      "savedState"
@@ -5003,7 +5003,7 @@
   "onPeekResultClose": [
    {
     "file": "lua/actions_social.lua",
-    "line": 200,
+    "line": 208,
     "kind": "function",
     "params": [
      "player",
@@ -5185,7 +5185,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 465,
+    "line": 467,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5446,7 +5446,7 @@
   "payLightFuel": [
    {
     "file": "lua/night.lua",
-    "line": 328,
+    "line": 335,
     "kind": "function",
     "params": [
      "color",
@@ -5630,7 +5630,7 @@
   "playerPryTool": [
    {
     "file": "lua/actions_social.lua",
-    "line": 350,
+    "line": 358,
     "kind": "function",
     "params": [
      "color"
@@ -5719,7 +5719,7 @@
   "rallyTargets": [
    {
     "file": "lua/actions_social.lua",
-    "line": 279,
+    "line": 287,
     "kind": "function",
     "params": [
      "color"
@@ -5741,14 +5741,14 @@
   "recipeIngredientCost": [
    {
     "file": "lua/crafting.lua",
-    "line": 184,
+    "line": 228,
     "kind": "function",
     "params": [
      "color",
      "recipe"
     ],
     "arity": 2,
-    "doc": "The Resource cost to cook this recipe, after Ellie's Crockpot Master perk (§6.4: \"recipes need 1 fewer ingredient, min 1\") — one unit is shaved off the largest…"
+    "doc": ""
    }
   ],
   "recommendNext": [
@@ -5883,7 +5883,7 @@
   "refillMarketSlot": [
    {
     "file": "lua/crafting.lua",
-    "line": 135,
+    "line": 150,
     "kind": "function",
     "params": [
      "slot"
@@ -6152,7 +6152,7 @@
   "resolveEchoes": [
    {
     "file": "lua/actions.lua",
-    "line": 508,
+    "line": 558,
     "kind": "function",
     "params": [
      "color",
@@ -6226,7 +6226,7 @@
   "resolveSleep": [
    {
     "file": "lua/night.lua",
-    "line": 514,
+    "line": 537,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6251,7 +6251,7 @@
   "resolveStorytelling": [
    {
     "file": "lua/night.lua",
-    "line": 487,
+    "line": 510,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6293,7 +6293,7 @@
   "revealDawnCard": [
    {
     "file": "lua/day_loop.lua",
-    "line": 338,
+    "line": 359,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6313,7 +6313,7 @@
   "revealFirstDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 325,
+    "line": 346,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6323,7 +6323,7 @@
   "revealLastDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 281,
+    "line": 302,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6565,7 +6565,7 @@
   "showPeekResult": [
    {
     "file": "lua/actions_social.lua",
-    "line": 190,
+    "line": 198,
     "kind": "function",
     "params": [
      "color",
@@ -6946,7 +6946,7 @@
   "threatStatsForCard": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 40,
+    "line": 54,
     "kind": "function",
     "params": [
      "card"

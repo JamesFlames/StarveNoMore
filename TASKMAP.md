@@ -23,6 +23,7 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 | Change the in-game Rulebook tab / Help paging | `lua/ui_help_pages.lua` + `lua/ui_help.lua` + `xml/dialogs.xml` | `generate_symbol_index.py` |
 | Add an off-turn (reaction) action | `lua/ui_reactions.lua` + `xml/hud.xml` | `generate_symbol_index.py` |
 | Change a UI panel | matching `lua/ui_*.lua` + `xml/*.xml` | `generate_symbol_index.py` |
+| Change a Scenario (the week-long twist) | `lua/setup.lua` (`SCENARIOS`) + the verb each flag names; every flag needs a reader or `test_lua_effect_flags.py` fails | `generate_symbol_index.py` |
 | Rebalance | `scripts/simulate_balance.py`, `content/cards_*.csv` | rerun sim both rulesets; update `test_sim.py` bands |
 | Add/adjust a Signature Move | `lua/signatures.lua` | `generate_symbol_index.py` |
 | Change crafting/cooking | `lua/crafting.lua`, `content/cards_recipes.csv` | `generate_recipe_data.py`, `generate_symbol_index.py` |

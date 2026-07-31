@@ -82,6 +82,21 @@ function doCraft(color, marketSlotIndex)
     -- now — no dropping tokens on a tray). Build the cost, add the Scarcity
     -- surcharge if Doom ≥ 15, then verify+pay; refund the action if short.
     local cardId = _cardIdFromTags(card)
+
+    -- Total Blackout (noBatteries): "No Batteries in the game; Flashlights
+    -- uncraftable." Refused before the action is charged, and derived from
+    -- the cost table rather than a hardcoded card id — anything that needs a
+    -- Battery is unbuildable in a world with no Batteries, which is the rule
+    -- the scenario is actually stating.
+    if (gameState.scenarioFlags or {}).noBatteries
+        and ((cardId and MARKET_COSTS[cardId]) or {}).Battery then
+        broadcastToColor(itemName .. " needs a Battery, and there are none left in the " ..
+            "world (Total Blackout). Fire is the only light this week.",
+            color, BROADCAST_COLORS.damage)
+        char.actionsLeft = char.actionsLeft + 1   -- refund the Craft action
+        return
+    end
+
     local cost = {}
     for r, q in pairs((cardId and MARKET_COSTS[cardId]) or {}) do cost[r] = q end
     if gameState.ongoingDawnEffects.doom15 then
@@ -136,6 +151,19 @@ function refillMarketSlot(slot)
     local marketDeck = getMarketDeck()
     if not marketDeck then return end
 
+    -- Strict Rationing (slowMarket): "Market restocks 1 card per 2 days."
+    -- One card enters the market every second day, whoever bought and
+    -- whenever — so an empty slot stays empty and the shelf really is bare.
+    if (gameState.scenarioFlags or {}).slowMarket then
+        local last = gameState.lastMarketRefillDay
+        if last and (gameState.day - last) < 2 then
+            broadcastEvent("warn", "Strict Rationing: the shelf stays empty — " ..
+                "the market restocks one card every two days (last on Day " .. last .. ").")
+            return
+        end
+        gameState.lastMarketRefillDay = gameState.day
+    end
+
     local qty = marketDeck.getQuantity and marketDeck.getQuantity() or 0
     if qty <= 0 then
         broadcastEvent("proc", "Market deck is empty — no refill.")
@@ -181,21 +209,34 @@ end
 -- The Resource cost to cook this recipe, after Ellie's Crockpot Master
 -- perk (§6.4: "recipes need 1 fewer ingredient, min 1") — one unit is
 -- shaved off the largest ingredient, never below 1 ingredient total.
+-- Take one unit off the largest line of a cost, but never take the last one:
+-- a recipe that costs nothing is a different card. Shared by Ellie's Crockpot
+-- Master perk and Strict Rationing, which are the same discount from two
+-- different directions and were not going to stay in step written twice.
+local function _discountOne(cost)
+    local total = 0
+    for _, q in pairs(cost) do total = total + q end
+    if total <= 1 then return end
+    local best, bestQ = nil, 0
+    for r, q in pairs(cost) do if q > bestQ then best, bestQ = r, q end end
+    if best then
+        cost[best] = cost[best] - 1
+        if cost[best] <= 0 then cost[best] = nil end
+    end
+end
+
 function recipeIngredientCost(color, recipe)
     local cost = {}
     for r, q in pairs(recipe.ingredients or {}) do cost[r] = q end
     local char = gameState.activeChars[color]
     if char and char.name == "Ellie" then
-        local total = 0
-        for _, q in pairs(cost) do total = total + q end
-        if total > 1 then
-            local best, bestQ = nil, 0
-            for r, q in pairs(cost) do if q > bestQ then best, bestQ = r, q end end
-            if best then
-                cost[best] = cost[best] - 1
-                if cost[best] <= 0 then cost[best] = nil end
-            end
-        end
+        _discountOne(cost)
+    end
+    -- Strict Rationing (cheapRecipes): "recipes cost 1 fewer ingredient".
+    -- Applied after Ellie's, so the two stack the way two discounts should —
+    -- and `_discountOne` refuses to take the last ingredient either time.
+    if (gameState.scenarioFlags or {}).cheapRecipes then
+        _discountOne(cost)
     end
     return cost
 end
@@ -303,6 +344,9 @@ function doCook(color, recipeId)
     -- every Hunger a recipe restores today is worth 2 more. Applied per eater,
     -- once, to the Hunger term only.
     local mealBonus = gameState.ongoingDawnEffects.recipeBonusHunger and 2 or 0
+    -- The Rotting Autumn (recipeBonus): "recipes yield +1 Hunger". Stacks
+    -- with the Dawn card above — one is a season, the other is a day.
+    if (gameState.scenarioFlags or {}).recipeBonus then mealBonus = mealBonus + 1 end
 
     -- Apply a recipe's stat table to one character, returning the "+N Stat"
     -- fragments actually granted. `extra` is the Comfort Food ally bonus.

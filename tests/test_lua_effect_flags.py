@@ -151,3 +151,85 @@ def test_every_flag_a_dawn_card_sets_is_announced():
           "the table has to remember from one line of chat. Add its text to "
           "EFFECT_RULES and its place to EFFECT_RULE_ORDER."
     )
+
+
+# ---------------------------------------------------------------------------
+# The same check, one table over: gameState.scenarioFlags.
+#
+# This module has guarded ongoingDawnEffects since the eleven-orphan audit,
+# and scenarioFlags sat outside it the whole time — so the identical rot ran
+# unchecked for longer and got further. A 2026-07 sweep found TWELVE of the
+# seventeen flags the eight Scenario cards set were read by nothing, which
+# made **The Rotting Autumn and Strict Rationing do literally nothing** and
+# left four more scenarios partly inert, while the Rules panel printed each
+# scenario's full description as a rule in force all week.
+#
+# Scenario flags are worse than Dawn flags when they rot, for two reasons: a
+# Scenario is chosen at setup and announced once, so nobody re-reads it; and
+# it lasts the whole game, so its absence is seven days of a rule that never
+# arrives rather than one.
+# ---------------------------------------------------------------------------
+
+# Scenario flags with no rules-code reader, each with the reason. Same bar as
+# DISPLAY_ONLY: "not got round to it" is the bug, not an entry.
+SCENARIO_DISPLAY_ONLY = set()
+
+
+def _scenario_flags_set():
+    """Every flag name the SCENARIOS table (setup.lua) assigns."""
+    src = read_text(os.path.join(LUA_DIR, "setup.lua"))
+    body = src.split("SCENARIOS = {", 1)[1].split("\nfunction ", 1)[0]
+    names = set()
+    for m in re.finditer(r"scenarioFlags\s*=\s*\{([^}]*)\}", body):
+        names |= set(re.findall(r"(\w+)\s*=", m.group(1)))
+    return names
+
+
+def _scenario_readers(flag):
+    """Files outside ui_* and setup.lua that READ this scenario flag.
+
+    setup.lua is excluded because that is where the flag is written; a
+    scenario whose only mention of its own rule is the line that sets it is
+    exactly the shape this check exists to catch.
+    """
+    hits = []
+    # The flags are read through short-lived locals (`local flags =
+    # gameState.scenarioFlags or {}`), so match the field name rather than
+    # the full path — with the assignment lines filtered out below.
+    # No leading \b: the commonest read is `(gameState.scenarioFlags or {}).x`,
+    # and `}` is not a word character, so a boundary anchor never matches it.
+    pat = re.compile(r"(?:flags|sFlags|scenarioFlags|\}\))\.%s\b" % flag)
+    for dirpath, _dirs, files in os.walk(LUA_DIR):
+        for fn in sorted(files):
+            if not fn.endswith(".lua") or fn.startswith("ui_") or fn == "setup.lua":
+                continue
+            for i, line in enumerate(read_text(os.path.join(dirpath, fn)).splitlines(), 1):
+                code = line.split("--", 1)[0]
+                if pat.search(code) and not re.search(r"\.%s\s*=(?!=)" % flag, code):
+                    hits.append("%s:%d" % (fn, i))
+    return hits
+
+
+def test_every_scenario_flag_has_an_enforcer():
+    orphans = sorted(f for f in _scenario_flags_set()
+                     if f not in SCENARIO_DISPLAY_ONLY and not _scenario_readers(f))
+    assert not orphans, (
+        "%d Scenario flag(s) set at setup that no rule reads:\n  %s\n\nThe "
+        "Scenario's description is printed at setup and in the Active Rules "
+        "panel for the whole week, so every clause of it is a promise. Wire "
+        "the flag into the action or resolver its clause describes, or add it "
+        "to SCENARIO_DISPLAY_ONLY in this file with the reason."
+        % (len(orphans), "\n  ".join(orphans))
+    )
+
+
+def test_scenario_display_only_has_no_stale_entries():
+    stale = sorted(SCENARIO_DISPLAY_ONLY - _scenario_flags_set())
+    assert not stale, (
+        "SCENARIO_DISPLAY_ONLY names flags no Scenario sets: %s" % stale)
+
+
+def test_a_scenario_flag_that_gains_an_enforcer_leaves_the_list():
+    promoted = sorted(f for f in SCENARIO_DISPLAY_ONLY if _scenario_readers(f))
+    assert not promoted, (
+        f"listed as display-only but a rule now reads them: {promoted}")

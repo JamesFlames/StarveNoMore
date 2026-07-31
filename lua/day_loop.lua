@@ -82,6 +82,27 @@ function BeginDay()
         safecall(function() resolveWrongness("dawn") end, "Wrongness")
     end
 
+    -- The Rotting Autumn (foodSpoilsAtDawn): "1 Food spoils per location at
+    -- Dawn." Held Food is per-player, so "per location" resolves to the
+    -- fullest larder at each occupied tile — one spoiled ration per place,
+    -- not per person, and taken from whoever can most afford it.
+    if (gameState.scenarioFlags or {}).foodSpoilsAtDawn then
+        for _, locName in ipairs(LOCATION_ORDER) do
+            local bestColor, bestFood = nil, 0
+            for color, ch in pairs(gameState.activeChars) do
+                if not ch.down and ch.location == locName then
+                    local held = (getPlayerResources(color) or {}).Food or 0
+                    if held > bestFood then bestColor, bestFood = color, held end
+                end
+            end
+            if bestColor then
+                takeResourceFromPlayer(bestColor, "Food", 1)
+                broadcastEvent("damage", gameState.activeChars[bestColor].name ..
+                    " loses 1 Food at " .. locName .. " — it turned overnight (The Rotting Autumn).")
+            end
+        end
+    end
+
     -- Moonlit Salvage (Design §7.4/§7.5): anyone who spent the night at a
     -- sport court and is still standing gathers 2 resources at Dawn.
     for color, char in pairs(gameState.activeChars) do

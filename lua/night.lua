@@ -278,7 +278,14 @@ function resolveNightAtLocation(location, colors)
         end
     end
 
-    if not gameState.ongoingDawnEffects.charliePaused then
+    -- SC_FULL_MOON (noCharlie): "Charlie never attacks" is a WEEK-long rule,
+    -- so it is read from scenarioFlags, not from ongoingDawnEffects. Setup
+    -- also sets ongoingDawnEffects.charliePaused, and that copy is not safe
+    -- to rely on: dawn_effects_phase3's onCleanup clears charliePaused when
+    -- ITS card ends, which would silently switch the scenario off for the
+    -- rest of the game. A per-Dawn scratchpad cannot hold a rule that lasts
+    -- the week.
+    if not (gameState.ongoingDawnEffects.charliePaused or flags.noCharlie) then
         local charlieApplies = gameState.ongoingDawnEffects.charlieEverywhere or
             isSportCourt(location)
 
@@ -358,8 +365,13 @@ end
 function checkPlayerHasLight(color)
     local char = gameState.activeChars[color]
     if not char then return false end
+    -- SC_BLACKOUT (onlyFireLight): a week-long rule, so the scenario copy is
+    -- the authority. Setup also sets the ongoingDawnEffects copy, and
+    -- dawn_effects_phase4's onCleanup clears that one when its own card ends
+    -- — which would hand flashlights back for the rest of a Total Blackout.
     local fireOnly = gameState.ongoingDawnEffects.flashlightsDisabled
                   or gameState.ongoingDawnEffects.onlyFireLight
+                  or (gameState.scenarioFlags or {}).onlyFireLight
     -- P2_RAIN_STARTS (rainFireDisabled): the rain puts out every open flame
     -- at the sport courts. Under the roofs it burns fine.
     local rainedOut = (gameState.ongoingDawnEffects.rainFireDisabled
@@ -456,19 +468,30 @@ end
 function identifyThreatType(card)
     if not card then return "Hard" end
 
+    -- The Full Moon (softToHard): "all Soft threats become Hard". Resolved
+    -- here so every consumer agrees at once — the draw stops auto-resolving
+    -- and discarding them, the Wrongness reveal treats them as a fight, and
+    -- the Dusk deck peek reports what the table will actually face.
+    -- threatStatsForCard supplies the +2 HP / +1 attack that makes them
+    -- fightable.
+    local function _kind(t)
+        if t == "Soft" and (gameState.scenarioFlags or {}).softToHard then return "Hard" end
+        return t
+    end
+
     if card.getTags and THREAT_TYPE_BY_ID then
         local ok, tags = pcall(function() return card.getTags() end)
         if ok and tags then
             for _, tag in ipairs(tags) do
-                if THREAT_TYPE_BY_ID[tag] then return THREAT_TYPE_BY_ID[tag] end
+                if THREAT_TYPE_BY_ID[tag] then return _kind(THREAT_TYPE_BY_ID[tag]) end
             end
         end
     end
 
     local byName = THREAT_TYPE_BY_NAME and THREAT_TYPE_BY_NAME[safeNickname(card)]
-    if byName then return byName end
+    if byName then return _kind(byName) end
 
-    if safeHasTag(card, "ThreatType:Soft") then return "Soft" end
+    if safeHasTag(card, "ThreatType:Soft") then return _kind("Soft") end
     if safeHasTag(card, "ThreatType:Hard") then return "Hard" end
     if safeHasTag(card, "ThreatType:Persistent") then return "Persistent" end
     if safeHasTag(card, "Persistent") then return "Persistent" end
@@ -476,7 +499,7 @@ function identifyThreatType(card)
     -- Fallback: check GMNotes
     local gm = ""
     pcall(function() gm = (card.getGMNotes and card.getGMNotes()) or "" end)
-    if gm:find("Soft") then return "Soft" end
+    if gm:find("Soft") then return _kind("Soft") end
     if gm:find("Persistent") then return "Persistent" end
     return "Hard"
 end

@@ -65,8 +65,16 @@ function doEnergyDrink(color)
         gameState.jamesEnergyDrinkUsed = true
     end
 
-    char.sanity = math.min(char.maxSanity, char.sanity + 2)
-    broadcastEvent("gain", char.name .. " gains +2 Sanity from Energy Drink. (Now " .. char.sanity .. ")")
+    -- The Scorching Summer (energyDrinkBonus): "Energy Drinks +1 Sanity".
+    -- Cold sugar in the heat is worth more than it is in the cold.
+    local gain = 2
+    if (gameState.scenarioFlags or {}).energyDrinkBonus then
+        gain = gain + 1
+    end
+
+    char.sanity = math.min(char.maxSanity, char.sanity + gain)
+    broadcastEvent("gain", char.name .. " gains +" .. gain .. " Sanity from Energy Drink." ..
+        (gain > 2 and " (Scorching Summer)" or "") .. " (Now " .. char.sanity .. ")")
 end
 
 -----------------------------------------------------------------------
