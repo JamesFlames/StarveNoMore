@@ -332,7 +332,7 @@
   "BROADCAST_COLORS": [
    {
     "file": "lua/global.lua",
-    "line": 312,
+    "line": 316,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -612,7 +612,7 @@
   "DOOM_RATES": [
    {
     "file": "lua/global.lua",
-    "line": 266,
+    "line": 270,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -2078,7 +2078,7 @@
   "broadcastEvent": [
    {
     "file": "lua/global.lua",
-    "line": 320,
+    "line": 324,
     "kind": "function",
     "params": [
      "category",
@@ -2667,7 +2667,7 @@
   "describeDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 293,
+    "line": 297,
     "kind": "function",
     "params": [
      "diff"
@@ -3371,7 +3371,7 @@
   "getDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 277,
+    "line": 281,
     "kind": "function",
     "params": [
      "phase"
@@ -3403,7 +3403,7 @@
   "getDoomRate": [
    {
     "file": "lua/global.lua",
-    "line": 283,
+    "line": 287,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3977,7 +3977,7 @@
   "migrateGameState": [
    {
     "file": "lua/global.lua",
-    "line": 337,
+    "line": 341,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4894,7 +4894,7 @@
   "onLoad": [
    {
     "file": "lua/global.lua",
-    "line": 407,
+    "line": 411,
     "kind": "function",
     "params": [
      "savedState"
@@ -5185,7 +5185,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 467,
+    "line": 471,
     "kind": "function",
     "params": [],
     "arity": 0,

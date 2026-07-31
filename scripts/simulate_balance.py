@@ -127,7 +127,7 @@ LOCATION_DEFENSE = {
     "BadmintonCourt":  1,
 }
 
-DOOM_RATES = {3: [1, 1, 1, 1], 4: [1, 1, 1, 2], 5: [1, 1, 2, 2]}
+DOOM_RATES = {3: [1, 1, 1, 1], 4: [1, 1, 1, 3], 5: [1, 1, 2, 2]}
 PHASE_FOR_DAY = {1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 4, 7: 4}
 
 # Mirrors of lua/global.lua and lua/combat.lua — tests/test_sim.py enforces

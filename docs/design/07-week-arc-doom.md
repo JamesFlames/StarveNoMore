@@ -111,8 +111,10 @@ The doom-per-day rate is balanced for the 4-player baseline. Player counts adjus
 | Players | Phase 1 | Phase 2 | Phase 3 | Phase 4 |
 |---|---|---|---|---|
 | 3 | +1 | +1 | +1 | +1 |
-| 4 (default) | +1 | +1 | +1 | +2 |
+| 4 (default) | +1 | +1 | +1 | **+3** |
 | 5 | +1 | +1 | +2 | +2 |
+
+**Phase 4 at 4 players was +2 until the batch-5 calibration** (§20.1's third ordered knob). The Last Nerve valve had lifted the best simulated lines to 50–52%, above §20.2's 40–50% band; +3 lands them at 40–42% with losses still falling ~100% on Days 6–7. It is deliberately the *last* phase only: raising Phase 3 as well overshoots to ~22%, and raising Phase 3 alone undershoots at ~35–39%. The knob does nothing at 3 players (99.3% → 99.4%), where the roster and the policy dominate the clock — see §20.1.
 
 Rationale: more bodies at the table means more occupied tiles at night, more threat draws, and therefore more *responsive* Doom (festering) — so the fixed clock ticks slightly faster at higher counts to a lesser degree than it used to, not more. (Retuned 2026-07: the original table — 3p up to +2, 4p up to +3, 5p up to +3 — was calibrated before uncapped boss festering and the mandatory Source. Simulation showed it made 5-player games nearly unwinnable, with ~90% of losses to Doom, while the responsive sources now carry the late-game pressure the old flat rates were simulating. The Monte Carlo probe in `scripts/simulate_balance.py` validates the ordering; the exact 40–50% human win-rate target in §20.2 still needs playtests — the probe's combat model is too crude to certify it.)
 

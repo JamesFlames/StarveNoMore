@@ -263,9 +263,13 @@ end
 -- Retuned 2026-07 alongside uncapped boss festering and the removal of
 -- boss arrival Doom: the fixed clock is gentler because far more of the
 -- pressure is now responsive (festering bosses, threats, Downs).
+-- Phase 4 at the 4-player baseline raised 2 -> 3 in the batch-5 calibration
+-- (§20.1's third ordered knob): the Last Nerve valve had put the best lines
+-- at 50-52%, above §20.2's 40-50% band, and this is the smallest sanctioned
+-- change that lands them back in it. Phase 3 as well overshoots to ~22%.
 DOOM_RATES = {
     [3] = {1, 1, 1, 1},
-    [4] = {1, 1, 1, 2},
+    [4] = {1, 1, 1, 3},
     [5] = {1, 1, 2, 2},
 }
 

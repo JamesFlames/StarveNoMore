@@ -147,7 +147,9 @@ Loading the surcharge onto **Phases 3–4** keeps the early week merely tense an
 | Doom +1 Phases 3–4, Source 10 | 16.6% |
 | Doom +1 Phase 3, +2 Phase 4, Source 8 | 12.1% |
 
-At the shipped setting, **100% of losses fall on Days 6–7** and most are Doom losses — a near-miss finish rather than a mid-week strangle, which is what §20.1's gate asks for. Roughly one win in five, and the table number will be *lower* than that: the simulator cannot model `minPhase` at all (phases 1 and 2 share a Doom rate), so it never sees that Nightmare opens on the Strange Days deck instead of the gentle Phase 1 one. That deck swap is real difficulty the probe is blind to.
+At the shipped setting, **100% of losses fall on Days 6–7** and most are Doom losses — a near-miss finish rather than a mid-week strangle, which is what §20.1's gate asks for. Roughly one win in eight after the batch-5 Phase-4 knob (13% for the best line, down from 19%), and the table number will be *lower* than that: the simulator cannot model `minPhase` at all (phases 1 and 2 share a Doom rate), so it never sees that Nightmare opens on the Strange Days deck instead of the gentle Phase 1 one. That deck swap is real difficulty the probe is blind to.
+
+**The knob also changed which line is best here, which Standard's numbers do not show.** Nightmare's Phase 3–4 surcharge stacks on the new Phase 4 rate for a 4-per-day Doom clock in the final act, and the camping strategies cannot pay it: turtle falls to 4.8% and spread to 7.8%, while the boss-fighting lines hold at 10.5–13.1% on rebates and spoils. Nightmare is now the mode where ignoring the bosses stops working — worth watching at the table, since it is a sharper identity than "Standard but harder" and was not designed on purpose.
 
 **Measured ordering across all modes** (4 players, best line):
 

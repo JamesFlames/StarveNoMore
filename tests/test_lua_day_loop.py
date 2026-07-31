@@ -251,14 +251,16 @@ class TestDifficulty:
         because it compounds from Day 1 against an already-responsive clock.
         Phases 3-4 only keeps the exploratory half tense and makes the climax
         the part that kills you, which is where §14's arc wants the pressure.
-        Retuned to ~21% at the 4-player calibration count (§17.2)."""
+        Retuned to ~21% at the 4-player calibration count (§17.2); now ~13%
+        after batch 5 raised the 4p Phase 4 base from +2 to +3, which stacks
+        with this surcharge for a 4-per-day final act."""
         env.execute('gameState.difficulty = "nightmare"; gameState.playerCount = 4')
         rates = {}
         for phase in (1, 2, 3, 4):
             env.execute(f"gameState.phase = {phase}")
             rates[phase] = env.globals().getDoomRate()
-        # 4p base is [1, 1, 1, 2]; the surcharge lands on 3 and 4 only.
-        assert rates == {1: 1, 2: 1, 3: 2, 4: 3}, rates
+        # 4p base is [1, 1, 1, 3]; the surcharge lands on 3 and 4 only.
+        assert rates == {1: 1, 2: 1, 3: 2, 4: 4}, rates
 
     def test_nightmare_source_is_tougher_than_standard(self, env):
         env.execute('gameState.difficulty = "nightmare"')
@@ -283,9 +285,11 @@ class TestDifficulty:
         assert "Phase 3" in text and "Phase 4" in text, text
         assert "Phase 1" not in text, text
 
-    def test_standard_rates_unchanged(self, env):
+    def test_standard_rates_carry_no_surcharge(self, env):
+        """Standard's Phase 4 is the §15.6 base (+3 since batch 5) with no
+        difficulty delta on top — the surcharge is Nightmare's alone."""
         env.execute("gameState.playerCount = 4; gameState.phase = 4")
-        assert env.globals().getDoomRate() == 2
+        assert env.globals().getDoomRate() == 3
 
 
 # ---------------------------------------------------------------------------

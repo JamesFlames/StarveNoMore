@@ -255,21 +255,20 @@ def test_roster_override_sweep_smoke(policy):
 # Win-rate regression bands
 #
 # Baselines (docs/agents/balance-simulation.md, 2026-07 batch 5 — batch 4 plus
-# the Last Nerve valve and per-location defence; new rules, 4 players, 3000
-# sims): turtle 50%, spread 53%, balanced 18%, court_camper 15%,
-# net_camper 10%, with ~100% of losses on Days 6-7. The batch-4 row that
-# these bands were first drawn around (turtle/spread 42%, balanced 15%,
-# court_camper 14%) is the Last Nerve valve's ~9 points lower — hence the
-# raised ceiling on the two camping policies. Bands are generous — a failure
-# means a rule constant changed materially, not noise.
+# the Last Nerve valve, per-location defence, and the 4p Phase-4 Doom knob
+# (+2 -> +3) taken to answer the valve; new rules, 4 players, 3000 sims):
+# turtle 40%, spread 42%, balanced 16%, court_camper 14%, net_camper 8%,
+# with ~100% of losses on Days 6-7 and the best lines back inside §20.2's
+# 40-50% band. Bands are generous — a failure means a rule constant changed
+# materially, not noise.
 # ---------------------------------------------------------------------------
 
 WIN_BANDS = {
-    "turtle": (0.28, 0.60),
-    "spread": (0.28, 0.60),
+    "turtle": (0.28, 0.52),
+    "spread": (0.28, 0.52),
     "balanced": (0.05, 0.28),
     "court_camper": (0.05, 0.28),
-    "net_camper": (0.02, 0.22),
+    "net_camper": (0.02, 0.20),
 }
 
 

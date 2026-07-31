@@ -2,6 +2,44 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## The Doom clock closes on the last day (2026-07)
+
+**Rule change: at 4 players, Phase 4 now advances Doom +3 per Dawn, not +2**
+(§15.6). Nothing else moved.
+
+The Last Nerve valve (§10.1.1) is worth about nine points of win rate — free
+Flee is its entire magnitude, the Rest half is worth ~0 — and it had lifted the
+simulator's best lines to 50-52%, above the 40-50% band §20.2 targets. §20.1
+had measured that when the valve landed and deliberately left it, pending table
+data. Batch 5 takes the third of its three ordered knobs instead:
+
+    knob 1  drop the Rest half of Last Nerve   50.7 / 52.5   (no effect, as predicted)
+    knob 2  Source HP 8 -> 9                   45.8 / 47.8   (unused; the gentler option)
+    knob 3  Phase 4 Doom +2 -> +3       TAKEN  40.3 / 41.8
+
+Losses still fall ~100% on Days 6-7, and they are now mostly Doom rather than
+an unfought Source — a clock that runs out on a team still standing, which is
+the near-miss shape §20.1's gate asks for. Knob 2 stays on the shelf if 40-42%
+proves too harsh at a real table.
+
+**Watch Nightmare.** Its Phase 3-4 surcharge stacks on the new rate for a
+4-per-day final act, and that flipped which strategy is best: the camping lines
+fall to 4.8-7.8% while the boss-fighting lines hold at 10.5-13.1%. The ladder
+still holds (76% / 42% / 13%, floor 8%), but Nightmare has become the mode
+where ignoring the bosses stops working. That is a sharper identity than
+"Standard but harder" — and nobody designed it on purpose, so it wants a table.
+
+**The §17 caution now applies to the playtest, not the change.** Four rules
+currently push difficulty the same way and this one pushes back; a table result
+away from 40-50% cannot be attributed to any single one of them. It can only
+say whether the band is right.
+
+Alongside it, the simulator learned the location-defence roll it had never
+rolled (see the batch-5 balance probe): the counter-attack now reads the tile,
+--no-defence is the control, and net_camper is a fifth policy that exists so
+some line stands on the Badminton Court at all. The rule costs the map lines
+1-4 points and does nothing to turtling, which never leaves a 0-defence kitchen.
+
 ## Fifteen "What now?" hints nobody could ever be shown (2026-07)
 
 `content/help/whatnow_hints.md` is authored prose — the game's entire answer to

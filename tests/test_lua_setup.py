@@ -75,7 +75,7 @@ class TestPhaseAndDoom:
 
     @pytest.mark.parametrize("players,phase,rate", [
         (3, 1, 1), (3, 4, 1),
-        (4, 1, 1), (4, 3, 1), (4, 4, 2),
+        (4, 1, 1), (4, 3, 1), (4, 4, 3),   # Phase 4 raised 2 -> 3, batch 5
         (5, 2, 1), (5, 3, 2), (5, 4, 2),
     ])
     def test_doom_rate_by_player_count(self, env, players, phase, rate):
