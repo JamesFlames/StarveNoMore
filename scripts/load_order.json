@@ -30,6 +30,7 @@
     "crafting.lua",
     "threat_effects.lua",
     "threat_persistent.lua",
+    "threat_hard.lua",
     "night.lua",
     "tick_victory.lua",
     "actions.lua",

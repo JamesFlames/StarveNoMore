@@ -417,6 +417,17 @@ function doGather(color)
         checkDownState(color)
     end
 
+    -- The Scarecrow (Hard, standing): searching under its eye costs Sanity.
+    -- Charged beside the rain, and for the same reason — before the haul, so
+    -- a Gather that puts the character Down still delivers what they found.
+    local scareCost, scareName = hardThreatGatherSanity(loc)
+    if scareCost > 0 then
+        char.sanity = math.max(0, char.sanity - scareCost)
+        broadcastEvent("damage", char.name .. " searches " .. loc .. " with " .. scareName ..
+            " watching — " .. scareCost .. " Sanity. (Now " .. char.sanity .. ")")
+        checkDownState(color)
+    end
+
     local extra = playerHasBackpack(color) and 1 or 0   -- Backpack: gather +1
     if extra > 0 then
         broadcastToColor("Your Backpack gathers 1 extra resource.", color, BROADCAST_COLORS.gain)

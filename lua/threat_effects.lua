@@ -23,6 +23,21 @@
 -- count — these were weathered, not beaten.
 local SOFT_DISCARD_POS = { -13.5, 1.5, 10.8 }
 
+-- A threat card's CSV id, read off its tags. Every threat card the build
+-- emits carries one, and it is the key into THREAT_STATS, THREAT_TYPE_BY_ID,
+-- SOFT_THREAT_EFFECTS, PERSISTENT_THREAT_RULES and HARD_THREAT_SPECIALS —
+-- so every caller that wants a card's row starts here. Nil for a hand-made
+-- card with no id tag; each caller falls back on the nickname.
+function threatIdOf(card)
+    local id = nil
+    pcall(function()
+        for _, tag in ipairs(card.getTags() or {}) do
+            if THREAT_STATS[tag] then id = tag; return end
+        end
+    end)
+    return id
+end
+
 -- Everyone standing at `loc`.
 local function _atTile(loc)
     local out = {}

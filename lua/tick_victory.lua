@@ -21,11 +21,26 @@ function resolveTick()
         end
     end
 
+    -- Hard threats that tax the tile they stand on (the Shadow Stalker).
+    -- Swept once, before the decay loop, rather than rescanning the table
+    -- inside it once per character.
+    local hardByTile = threatCardsByTile(HARD_THREAT_SPECIALS)
+
     for color, char in pairs(gameState.activeChars) do
         if not char.down then
             -- Base tick: -1 Hunger, -1 Sanity
             local hungerLoss = 1
             local sanityLoss = 1
+
+            -- "While in play: all players at this tile lose +1 Sanity at
+            -- Tick." Added before the Doom surcharge and the doubling, so it
+            -- rides them the way every other tile penalty does.
+            local stalker = hardThreatTickSanity(char.location or "", hardByTile)
+            if stalker > 0 then
+                sanityLoss = sanityLoss + stalker
+                broadcastEvent("warn", char.name .. " spent the night watched — +" ..
+                    stalker .. " Sanity lost at " .. (char.location or "?") .. ".")
+            end
 
             -- Rayman's Big Appetite: -2 Hunger instead of -1.
             -- 3-player relief (§20.1, batch 4 W2): with only three characters

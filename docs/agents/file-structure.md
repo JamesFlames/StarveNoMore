@@ -28,6 +28,7 @@ StarveNoMore/
 │   ├── crafting.lua            # Market craft + Crockpot cook handlers
 │   ├── threat_effects.lua      # Soft threats: printed effect + discard (SOFT_THREAT_EFFECTS/MANUAL_SOFT)
 │   ├── threat_persistent.lua   # Persistent threats: PERSISTENT_THREAT_RULES, per-tile effect hooks, the Clear verb
+│   ├── threat_hard.lua         # Hard-threat riders: HARD_THREAT_SPECIALS (combat/draw/standing/on-death hooks)
 │   ├── night.lua               # Night-phase resolver (threat draw, Charlie, sleep)
 │   ├── tick_victory.lua        # Tick decay, victory/defeat, Down state + revival hint
 │   ├── actions.lua             # Player actions core: undo/snapshot, move, dusk-move, gather, rest

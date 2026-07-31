@@ -2,6 +2,57 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Hard threats: seventeen printed specials that no code had ever read (2026-07)
+
+The third and last threat kind to have its card text wired to anything.
+Eighteen Hard cards carry a `special` line. `COMBAT_SPECIALS` held **one**
+row — Your Roommate's Sanity cost — and that was the whole of it.
+
+Two of the seventeen were worse than inert.
+
+**The Grue has hp 0.** Its card reads "Cannot be fought. Resolves Charlie
+attack at this tile (1d8 Sanity 1d6 Health). Discard after." `fightTargetsAt`
+filters out hp 0, nothing else removed it, and `countFesteringThreats` counts
+every Threat card near a tile — so it charged +1 Doom at every Dawn for the
+rest of the week while the attack it prints never landed once. That is the
+third distinct card family to fall into the same hole (Soft threats, the
+hp-less Persistents, and now this), and the last one left. It bites and
+discards itself now, Coco's Night Vision spares her from it, and it never
+festers because it is never left standing.
+
+**Fight Together turned the Roommate off.** "1 Sanity per attack die rolled"
+was charged only when `#participants == 1`, so the group-fight button — right
+next to the solo one — bought off the entire printed cost of the one card in
+the deck whose point is that hitting it hurts. Every participant is billed
+now, each on their own dice, so Rayman's two base dice cost him two.
+
+The rest are wired through a new `lua/threat_hard.lua`, one declarative row per
+card. **Inside a fight:** A Child's Shadow charges a flat 1 Sanity per attacker
+(a different, cheaper shape than the Roommate's per-die bill, so it is a
+separate key); the Spider Thing's multi-attack counters with 2 dice instead of
+its printed 1; the Doppelganger makes you roll Sanity d8 before you can swing,
+and a hesitation costs the action and 1 Sanity; the Thing in the Attic refuses
+to be fought anywhere but a house tile, refused *before* the action is spent.
+**On the draw:** the Hollow Spectator's entry cost and the Wall Crawler's free
+first hit. **While it stands:** the Shadow Stalker's extra Sanity at Tick, the
+Scarecrow's toll on every Gather, the Glass Child's 2 Sanity a Night — all
+three now listed in the Rules panel with the tile they are on. **On its
+death:** the Black Dog hunts in pairs, so killing it draws another Threat.
+
+Four are declared **inert with the reason** rather than left blank, which is
+what made seventeen of these invisible in the first place: "cannot be attacked
+at range" has nothing to act on (ranged combat is not a mechanic here — the
+Slingshot is declared unwired for the same reason), the Terror Beak's
+"removed if the Eye is restored" has no state that can fire it, The Door is
+already wired through `SEALED_REWARDS`, and the Crawling Hand's "attacks the
+Down player first" would make it *weaker*, since damage to a Down character
+does nothing in this engine. Two more (the Mimic's disguise, the Swarm's
+split) are announced as table steps.
+
+Guarded by `tests/test_hard_threats.py`, which fails on a printed special with
+no row, a row naming a non-Hard card, a row that says nothing at all, and a
+scripted key the test module has never heard of.
+
 ## Persistent threats did nothing, and six of them could never be removed (2026-07)
 
 Two bugs, and the first is why the second went unnoticed for so long.

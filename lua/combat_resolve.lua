@@ -132,6 +132,16 @@ function applyThreatDefeat(threatName, colors)
     -- A kill is the moment its achievement should land, not the end of the
     -- week — and both flags and the chronicle are up to date by here.
     safecall(function() checkAchievements("kill") end, "Achievements")
+    -- Printed on-death riders (the Black Dog's mate answering from the dark).
+    -- Last, so the card that killed it has already been cleared away and the
+    -- new draw lands on a tidy tile — and after the achievement, so "defeat
+    -- fifteen threats" cannot be gamed by the reinforcement it summons.
+    local killedId = ctx and ctx.threat and ctx.threat.cardId
+    if killedId then
+        local where = colors[1] and gameState.activeChars[colors[1]]
+            and gameState.activeChars[colors[1]].location
+        safecall(function() resolveHardThreatDefeat(killedId, where) end, "DefeatRider")
+    end
 end
 
 -- Enemy counter-attack against the live combat, then leave HP as-is.
@@ -139,6 +149,9 @@ function applyCounterAttack()
     local ctx = gameState.combatContext
     if not ctx or ctx.threatHP <= 0 then return end
     local threatAtk = ctx.threat.attack or 0
+    -- Multi-attack (the Spider Thing): the card rolls more dice than its
+    -- printed Attack column, so the rider overrides rather than adds.
+    if ctx.threat.counterDice then threatAtk = ctx.threat.counterDice end
     if threatAtk <= 0 then return end
     local tName = ctx.threat.name or "Threat"
     broadcastEvent("proc", tName .. " counter-attacks with " .. threatAtk .. " dice...")
@@ -247,8 +260,15 @@ function beginCombat(colors, threatData)
     -- Dice were rolled in the open: a fight can't be taken back.
     gameState.undoSnapshot = nil
 
-    local totalDice = 0
-    for _, color in ipairs(participants) do totalDice = totalDice + getAttackDice(color) end
+    -- Per-fighter dice are kept, not just the sum: the Roommate bills Sanity
+    -- per die and must not re-call getAttackDice (it broadcasts the Court
+    -- Master and weapon lines as a side effect, so a second call prints them
+    -- twice).
+    local totalDice, diceByColor = 0, {}
+    for _, color in ipairs(participants) do
+        diceByColor[color] = getAttackDice(color)
+        totalDice = totalDice + diceByColor[color]
+    end
 
     broadcastEvent("proc", "--- COMBAT vs " .. threatName .. " ---")
     local atkResult = rollAttackDice(totalDice)
@@ -276,13 +296,34 @@ function beginCombat(colors, threatData)
         broadcastEvent("proc", "A 1 was rolled, but a hit landed — no fumble damage.")
     end
 
-    -- Sanity-on-attack special (single attacker only, e.g. Your Roommate).
-    if threatData.sanityCostPerAttack and #participants == 1 then
-        local c = gameState.activeChars[participants[1]]
-        local sLoss = threatData.sanityCostPerAttack * totalDice
-        c.sanity = math.max(0, c.sanity - sLoss)
-        broadcastEvent("damage", c.name .. " loses " .. sLoss .. " Sanity from attacking " .. threatName .. ".")
-        checkDownState(participants[1])
+    -- Sanity-on-attack specials (threat_hard.lua). Two shapes, because two
+    -- cards charge differently: Your Roommate bills per attack DIE rolled,
+    -- A Child's Shadow bills a flat 1 per attacker for swinging at all.
+    --
+    -- Both are charged to EVERY participant, each on their own dice. The
+    -- per-die rule used to be skipped entirely unless `#participants == 1`,
+    -- which made Fight Together a way to dodge the Roommate's whole printed
+    -- cost — the one card in the deck whose point is that hitting it hurts,
+    -- turned off by the button next to it.
+    if threatData.sanityPerAttackDie or threatData.sanityPerFight then
+        for _, pColor in ipairs(participants) do
+            local c = gameState.activeChars[pColor]
+            if c then
+                local sLoss = 0
+                if threatData.sanityPerAttackDie then
+                    sLoss = sLoss + threatData.sanityPerAttackDie * (diceByColor[pColor] or 1)
+                end
+                if threatData.sanityPerFight then
+                    sLoss = sLoss + threatData.sanityPerFight
+                end
+                if sLoss > 0 then
+                    c.sanity = math.max(0, c.sanity - sLoss)
+                    broadcastEvent("damage", c.name .. " loses " .. sLoss ..
+                        " Sanity from attacking " .. threatName .. ".")
+                    checkDownState(pColor)
+                end
+            end
+        end
     end
 
     gameState.combatContext = { colors = participants, threat = threatData,

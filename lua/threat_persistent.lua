@@ -114,10 +114,25 @@ PERSISTENT_THREAT_RULES = {
 }
 
 -----------------------------------------------------------------------
--- Which persistents are standing at a tile, right now.
--- Returns { { obj = card, id = "T_...", rule = {...}, name = "..." }, ... }.
+-- Shared tile scanner. `ruleTable` is keyed by CSV id
+-- (PERSISTENT_THREAT_RULES here, HARD_THREAT_SPECIALS in threat_hard.lua);
+-- a card counts when it carries a key of that table as a tag and lies within
+-- PERSIST_RADIUS of the tile. Entries are
+-- { obj = card, id = "T_...", rule = {...}, name = "..." }.
+--
+-- One implementation for both tables: the Persistent rules and the Hard
+-- specials ask the same question ("what is standing at this tile, and what
+-- does its row say"), and two copies of a getAllObjects scan is how the
+-- radius constants drift apart.
 -----------------------------------------------------------------------
-function persistentThreatsAt(locName)
+local function _ruleFor(obj, ruleTable)
+    for _, tag in ipairs(obj.getTags() or {}) do
+        if ruleTable[tag] then return ruleTable[tag], tag end
+    end
+    return nil, nil
+end
+
+function threatCardsAt(locName, ruleTable)
     local out = {}
     local tile = locName and getLocationTile(locName)
     if not tile then return out end
@@ -131,14 +146,11 @@ function persistentThreatsAt(locName)
             local p = obj.getPosition()
             local dx, dz = p.x - tp.x, p.z - tp.z
             if (dx * dx + dz * dz) > (PERSIST_RADIUS * PERSIST_RADIUS) then return end
-            for _, tag in ipairs(obj.getTags() or {}) do
-                local rule = PERSISTENT_THREAT_RULES[tag]
-                if rule then
-                    hit = { obj = obj, id = tag, rule = rule,
-                            name = (THREAT_STATS[tag] and THREAT_STATS[tag].name)
-                                   or safeNickname(obj) }
-                    return
-                end
+            local rule, id = _ruleFor(obj, ruleTable)
+            if rule then
+                hit = { obj = obj, id = id, rule = rule,
+                        name = (THREAT_STATS[id] and THREAT_STATS[id].name)
+                               or safeNickname(obj) }
             end
         end)
         if hit then out[#out + 1] = hit end
@@ -146,29 +158,26 @@ function persistentThreatsAt(locName)
     return out
 end
 
--- Every persistent on the board at once, bucketed by tile:
+-- Every matching card on the board at once, bucketed by tile:
 -- { JamesHouse = { entry, ... }, ... }, only for tiles that have one.
 --
--- persistentThreatsAt scans the whole table per call (findAllByTag does), and
--- the two callers that want ALL five tiles — the Rules panel, which refreshes
--- on every state change, and the Tick — would otherwise pay for five scans
--- each. This pays for one.
-function persistentThreatsEverywhere()
-    local out = {}
+-- threatCardsAt scans the whole table per call (findAllByTag does), and the
+-- callers that want ALL five tiles — the Rules panel, which refreshes on
+-- every state change, plus the Tick and Night sweeps — would otherwise pay
+-- for five scans each. This pays for one.
+function threatCardsByTile(ruleTable)
+    local buckets = {}
     for _, locName in ipairs(LOCATION_ORDER) do
         local tile = getLocationTile(locName)
-        if tile then out[locName] = { tile = tile.getPosition(), list = {} } end
+        if tile then buckets[locName] = { tile = tile.getPosition(), list = {} } end
     end
     for _, obj in ipairs(findAllByTag("ThreatCard")) do
         pcall(function()
             if obj.type ~= "Card" then return end
-            local rule, id = nil, nil
-            for _, tag in ipairs(obj.getTags() or {}) do
-                if PERSISTENT_THREAT_RULES[tag] then rule, id = PERSISTENT_THREAT_RULES[tag], tag; break end
-            end
+            local rule, id = _ruleFor(obj, ruleTable)
             if not rule then return end
             local p = obj.getPosition()
-            for _, bucket in pairs(out) do
+            for _, bucket in pairs(buckets) do
                 local dx, dz = p.x - bucket.tile.x, p.z - bucket.tile.z
                 if (dx * dx + dz * dz) <= (PERSIST_RADIUS * PERSIST_RADIUS) then
                     bucket.list[#bucket.list + 1] = {
@@ -181,10 +190,19 @@ function persistentThreatsEverywhere()
         end)
     end
     local byLoc = {}
-    for locName, bucket in pairs(out) do
+    for locName, bucket in pairs(buckets) do
         if #bucket.list > 0 then byLoc[locName] = bucket.list end
     end
     return byLoc
+end
+
+-- Which persistents are standing at a tile, right now.
+function persistentThreatsAt(locName)
+    return threatCardsAt(locName, PERSISTENT_THREAT_RULES)
+end
+
+function persistentThreatsEverywhere()
+    return threatCardsByTile(PERSISTENT_THREAT_RULES)
 end
 
 -- Sum one numeric rule key over every persistent at a tile, collecting the

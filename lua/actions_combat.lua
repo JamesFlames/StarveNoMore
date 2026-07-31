@@ -28,10 +28,14 @@ BOSS_BASE_STATS = {
                              hpFromDifficulty = true },
 }
 
--- Card-text combat riders the statline columns can't express.
-COMBAT_SPECIALS = {
-    T_ROOMMATE = { sanityCostPerAttack = 1 },   -- "1 Sanity per attack die rolled"
-}
+-- Card-text combat riders the statline columns can't express live in
+-- HARD_THREAT_SPECIALS (lua/threat_hard.lua) — one table for every printed
+-- rider, in and out of combat, so a card cannot be half-wired. This used to
+-- be a local COMBAT_SPECIALS holding exactly one row (the Roommate) while
+-- seventeen other printed specials had no home at all.
+--
+-- The keys beginCombat/applyCounterAttack read off threatData:
+local COMBAT_RIDER_KEYS = { "sanityPerAttackDie", "sanityPerFight", "counterDice" }
 
 function threatStatsForCard(card)
     if card.getTags then
@@ -129,7 +133,23 @@ function doFightTarget(color, targetObj, together)
         return
     end
 
+    -- Printed rules about WHERE it can be fought (the Thing in the Attic
+    -- will not come out to a court). Refused before the action is spent —
+    -- a rule that costs you a turn to discover is a worse rule.
+    local mayFight, whyNot = hardThreatBlocksFight(cardId, color)
+    if not mayFight then
+        broadcastToColor(whyNot, color, BROADCAST_COLORS.damage)
+        return
+    end
+
     if not spendAction(color, "Fight") then return end
+
+    -- The Doppelganger's hesitation roll: it happens AFTER the action is
+    -- committed, because hesitating is what the action bought.
+    if not hardThreatHesitation(cardId, color) then
+        refreshPhaseBanner()
+        return
+    end
 
     local participants = { color }
     if together then
@@ -147,15 +167,18 @@ function doFightTarget(color, targetObj, together)
     local threatData = { name = stats.name, hp = stats.hp, attack = stats.attack, maxHp = stats.hp }
     if not isBoss then
         threatData.cardGuid = targetObj.guid
+        threatData.cardId = cardId          -- applyThreatDefeat's on-death riders
         -- Chip damage from earlier fights carries over (gameState.threatDamage).
         local dmg = (gameState.threatDamage or {})[targetObj.guid] or 0
         threatData.hp = math.max(0, stats.hp - dmg)
         if dmg > 0 then
             broadcastEvent("proc", stats.name .. " is already wounded — " .. threatData.hp .. " HP left.")
         end
-        local special = cardId and COMBAT_SPECIALS[cardId]
+        local special = cardId and HARD_THREAT_SPECIALS[cardId]
         if special then
-            for k, v in pairs(special) do threatData[k] = v end
+            for _, k in ipairs(COMBAT_RIDER_KEYS) do
+                if special[k] ~= nil then threatData[k] = special[k] end
+            end
         end
     end
 

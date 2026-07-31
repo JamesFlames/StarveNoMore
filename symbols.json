@@ -499,16 +499,6 @@
     "doc": "Spreading the clues across the week. The proposal was \"shuffle one Clue into each third of the Market deck\". TTS has no insert-at-index on a Deck — takeObject …"
    }
   ],
-  "COMBAT_SPECIALS": [
-   {
-    "file": "lua/actions_combat.lua",
-    "line": 32,
-    "kind": "table",
-    "params": null,
-    "arity": null,
-    "doc": "Card-text combat riders the statline columns can't express."
-   }
-  ],
   "COOK_DIALOG_SLOTS": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
@@ -572,7 +562,7 @@
   "DEATH_NARRATIONS": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 177,
+    "line": 192,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -709,6 +699,16 @@
     "doc": "Unavailable actions are HIDDEN, not dimmed: a bar of grey buttons made players wonder which ones they could click. What remains is exactly what the player can …"
    }
   ],
+  "HARD_THREAT_SPECIALS": [
+   {
+    "file": "lua/threat_hard.lua",
+    "line": 36,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
   "HEART_SUPPLY_MAX": [
    {
     "file": "lua/global.lua",
@@ -792,7 +792,7 @@
   "LIGHT_SOURCES": [
    {
     "file": "lua/night.lua",
-    "line": 311,
+    "line": 318,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -842,7 +842,7 @@
   "MANUAL_SOFT": [
    {
     "file": "lua/threat_effects.lua",
-    "line": 167,
+    "line": 182,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1172,7 +1172,7 @@
   "SOFT_THREAT_EFFECTS": [
    {
     "file": "lua/threat_effects.lua",
-    "line": 45,
+    "line": 60,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1791,7 +1791,7 @@
   "announcePersistentThreat": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 219,
+    "line": 237,
     "kind": "function",
     "params": [
      "id",
@@ -1805,7 +1805,7 @@
   "applyCounterAttack": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 138,
+    "line": 148,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1935,7 +1935,7 @@
   "beginCombat": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 217,
+    "line": 230,
     "kind": "function",
     "params": [
      "colors",
@@ -2022,7 +2022,7 @@
   "bossStatsFor": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 52,
+    "line": 56,
     "kind": "function",
     "params": [
      "obj"
@@ -2106,7 +2106,7 @@
   "canClearPersistent": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 345,
+    "line": 363,
     "kind": "function",
     "params": [
      "color"
@@ -2166,7 +2166,7 @@
   "canFight": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 95,
+    "line": 99,
     "kind": "function",
     "params": [
      "color"
@@ -2320,7 +2320,7 @@
   "checkBonusVictories": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 427,
+    "line": 442,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2330,7 +2330,7 @@
   "checkDefeat": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 367,
+    "line": 382,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2350,7 +2350,7 @@
   "checkDownState": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 200,
+    "line": 215,
     "kind": "function",
     "params": [
      "color"
@@ -2362,7 +2362,7 @@
   "checkPlayerHasLight": [
    {
     "file": "lua/night.lua",
-    "line": 351,
+    "line": 358,
     "kind": "function",
     "params": [
      "color"
@@ -2386,7 +2386,7 @@
   "checkVictory": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 397,
+    "line": 412,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2396,7 +2396,7 @@
   "checkWrongnessEntry": [
    {
     "file": "lua/effects/dawn_effects_phase2.lua",
-    "line": 128,
+    "line": 123,
     "kind": "function",
     "params": [
      "color"
@@ -2438,7 +2438,7 @@
   "clearablePersistentsAt": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 336,
+    "line": 354,
     "kind": "function",
     "params": [
      "locName"
@@ -2684,7 +2684,7 @@
   "doCleanse": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 335,
+    "line": 350,
     "kind": "function",
     "params": [
      "color"
@@ -2696,7 +2696,7 @@
   "doClearPersistent": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 364,
+    "line": 382,
     "kind": "function",
     "params": [
      "color"
@@ -2783,7 +2783,7 @@
   "doFightTarget": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 112,
+    "line": 116,
     "kind": "function",
     "params": [
      "color",
@@ -2797,7 +2797,7 @@
   "doFlee": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 178,
+    "line": 201,
     "kind": "function",
     "params": [
      "color",
@@ -2898,7 +2898,7 @@
   "doRest": [
    {
     "file": "lua/actions.lua",
-    "line": 481,
+    "line": 492,
     "kind": "function",
     "params": [
      "color",
@@ -3012,7 +3012,7 @@
   "drawThreatsAt": [
    {
     "file": "lua/night.lua",
-    "line": 85,
+    "line": 89,
     "kind": "function",
     "params": [
      "location",
@@ -3111,7 +3111,7 @@
   "fightTargetsAt": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 67,
+    "line": 71,
     "kind": "function",
     "params": [
      "locName"
@@ -3171,7 +3171,7 @@
   "finishCombat": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 386,
+    "line": 427,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3628,7 +3628,7 @@
   "ghostDrift": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 316,
+    "line": 331,
     "kind": "function",
     "params": [
      "color",
@@ -3650,6 +3650,70 @@
     ],
     "arity": 3,
     "doc": ""
+   }
+  ],
+  "hardSpecialTotal": [
+   {
+    "file": "lua/threat_hard.lua",
+    "line": 156,
+    "kind": "function",
+    "params": [
+     "locName",
+     "key"
+    ],
+    "arity": 2,
+    "doc": "Sum one numeric key over the Hard threats at a tile. (total, names)"
+   }
+  ],
+  "hardThreatBlocksFight": [
+   {
+    "file": "lua/threat_hard.lua",
+    "line": 245,
+    "kind": "function",
+    "params": [
+     "cardId",
+     "color"
+    ],
+    "arity": 2,
+    "doc": "Before the dice (doFightTarget, actions_combat.lua). Returns (ok, reason): false stops the fight before an action is spent."
+   }
+  ],
+  "hardThreatGatherSanity": [
+   {
+    "file": "lua/threat_hard.lua",
+    "line": 299,
+    "kind": "function",
+    "params": [
+     "locName"
+    ],
+    "arity": 1,
+    "doc": "Gather (doGather, actions.lua): the Scarecrow's toll. (cost, name)"
+   }
+  ],
+  "hardThreatHesitation": [
+   {
+    "file": "lua/threat_hard.lua",
+    "line": 259,
+    "kind": "function",
+    "params": [
+     "cardId",
+     "color"
+    ],
+    "arity": 2,
+    "doc": "The Doppelganger's hesitation (rolled once for the group, by the character whose turn it is: they are the one who has to look at it). Returns true if the attac…"
+   }
+  ],
+  "hardThreatTickSanity": [
+   {
+    "file": "lua/threat_hard.lua",
+    "line": 306,
+    "kind": "function",
+    "params": [
+     "locName",
+     "byTile"
+    ],
+    "arity": 2,
+    "doc": "Tick (resolveTick, tick_victory.lua): extra Sanity per standing card at that character's tile. Returns the per-character extra for `locName`."
    }
   ],
   "hasLastNerve": [
@@ -3692,7 +3756,7 @@
   "identifyThreatType": [
    {
     "file": "lua/night.lua",
-    "line": 449,
+    "line": 456,
     "kind": "function",
     "params": [
      "card"
@@ -3856,7 +3920,7 @@
   "maybeJamesReroll": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 187,
+    "line": 200,
     "kind": "function",
     "params": [
      "participants",
@@ -4520,7 +4584,7 @@
   "onDawnStepClick": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 354,
+    "line": 368,
     "kind": "function",
     "params": [
      "player",
@@ -5049,7 +5113,7 @@
   "onRulesToggle": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 307,
+    "line": 321,
     "kind": "function",
     "params": [
      "player",
@@ -5324,7 +5388,7 @@
   "payLightFuel": [
    {
     "file": "lua/night.lua",
-    "line": 321,
+    "line": 328,
     "kind": "function",
     "params": [
      "color",
@@ -5337,7 +5401,7 @@
   "persistentBlocksBarricade": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 290,
+    "line": 308,
     "kind": "function",
     "params": [
      "locName"
@@ -5349,7 +5413,7 @@
   "persistentBlocksRest": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 285,
+    "line": 303,
     "kind": "function",
     "params": [
      "locName"
@@ -5361,7 +5425,7 @@
   "persistentBlocksTrade": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 295,
+    "line": 313,
     "kind": "function",
     "params": [
      "locName"
@@ -5373,7 +5437,7 @@
   "persistentFilterYields": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 265,
+    "line": 283,
     "kind": "function",
     "params": [
      "locName",
@@ -5386,7 +5450,7 @@
   "persistentMoveSurcharge": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 256,
+    "line": 274,
     "kind": "function",
     "params": [
      "fromLoc"
@@ -5398,7 +5462,7 @@
   "persistentNightThreatBonus": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 301,
+    "line": 319,
     "kind": "function",
     "params": [
      "locName"
@@ -5410,7 +5474,7 @@
   "persistentRawFoodSanityCost": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 277,
+    "line": 295,
     "kind": "function",
     "params": [
      "locName"
@@ -5422,7 +5486,7 @@
   "persistentRuleHolder": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 206,
+    "line": 224,
     "kind": "function",
     "params": [
      "locName",
@@ -5435,7 +5499,7 @@
   "persistentRuleTotal": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 192,
+    "line": 210,
     "kind": "function",
     "params": [
      "locName",
@@ -5448,23 +5512,23 @@
   "persistentThreatsAt": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 120,
+    "line": 200,
     "kind": "function",
     "params": [
      "locName"
     ],
     "arity": 1,
-    "doc": "Which persistents are standing at a tile, right now. Returns { { obj = card, id = \"T_...\", rule = {...}, name = \"...\" }, ... }."
+    "doc": "Which persistents are standing at a tile, right now."
    }
   ],
   "persistentThreatsEverywhere": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 156,
+    "line": 204,
     "kind": "function",
     "params": [],
     "arity": 0,
-    "doc": "Every persistent on the board at once, bucketed by tile: { JamesHouse = { entry, ... }, ... }, only for tiles that have one. persistentThreatsAt scans the whol…"
+    "doc": ""
    }
   ],
   "placeBossStandee": [
@@ -5552,7 +5616,7 @@
   "pressAttack": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 334,
+    "line": 375,
     "kind": "function",
     "params": [
      "color",
@@ -5837,7 +5901,7 @@
   "refreshCycleStrip": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 376,
+    "line": 390,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5847,7 +5911,7 @@
   "refreshDawnChecklist": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 320,
+    "line": 334,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5939,7 +6003,7 @@
   "refreshRulesPanel": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 257,
+    "line": 271,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6005,7 +6069,7 @@
   "resolveCharlieAttack": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 400,
+    "line": 441,
     "kind": "function",
     "params": [
      "color"
@@ -6017,7 +6081,7 @@
   "resolveCombat": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 324,
+    "line": 365,
     "kind": "function",
     "params": [
      "color",
@@ -6027,10 +6091,48 @@
     "doc": "Single-fighter shorthand for beginCombat, which takes a colour LIST. Game code does not call this and should not: the real fight path (doFight, actions_combat.…"
    }
   ],
+  "resolveHardThreatDefeat": [
+   {
+    "file": "lua/threat_hard.lua",
+    "line": 285,
+    "kind": "function",
+    "params": [
+     "cardId",
+     "location"
+    ],
+    "arity": 2,
+    "doc": "On its death (applyThreatDefeat, combat_resolve.lua)."
+   }
+  ],
+  "resolveHardThreatDraw": [
+   {
+    "file": "lua/threat_hard.lua",
+    "line": 172,
+    "kind": "function",
+    "params": [
+     "id",
+     "location",
+     "name",
+     "card"
+    ],
+    "arity": 4,
+    "doc": "On draw (drawThreatsAt, night.lua). Returns true if the card was spent and discarded, so the caller knows not to also say \"must be fought\"."
+   }
+  ],
+  "resolveHardThreatNight": [
+   {
+    "file": "lua/threat_hard.lua",
+    "line": 315,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Night (ResolveNight, night.lua): the Glass Child's nightly toll, swept across the whole board in one pass."
+   }
+  ],
   "resolveNightAtLocation": [
    {
     "file": "lua/night.lua",
-    "line": 150,
+    "line": 157,
     "kind": "function",
     "params": [
      "location",
@@ -6043,7 +6145,7 @@
   "resolvePersistentTick": [
    {
     "file": "lua/threat_persistent.lua",
-    "line": 308,
+    "line": 326,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6053,7 +6155,7 @@
   "resolveSleep": [
    {
     "file": "lua/night.lua",
-    "line": 507,
+    "line": 514,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6063,7 +6165,7 @@
   "resolveSoftThreat": [
    {
     "file": "lua/threat_effects.lua",
-    "line": 177,
+    "line": 192,
     "kind": "function",
     "params": [
      "id",
@@ -6078,7 +6180,7 @@
   "resolveStorytelling": [
    {
     "file": "lua/night.lua",
-    "line": 480,
+    "line": 487,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6162,7 +6264,7 @@
   "reviveCharacter": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 251,
+    "line": 266,
     "kind": "function",
     "params": [
      "reviverColor",
@@ -6682,10 +6784,47 @@
     "doc": "Best-effort discard: remove up to qty of resType from a player's held count (gameState), returning how many were actually taken — 0 is fine (dawn cards say \"di…"
    }
   ],
+  "threatCardsAt": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 135,
+    "kind": "function",
+    "params": [
+     "locName",
+     "ruleTable"
+    ],
+    "arity": 2,
+    "doc": ""
+   }
+  ],
+  "threatCardsByTile": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 168,
+    "kind": "function",
+    "params": [
+     "ruleTable"
+    ],
+    "arity": 1,
+    "doc": "Every matching card on the board at once, bucketed by tile: { JamesHouse = { entry, ... }, ... }, only for tiles that have one. threatCardsAt scans the whole t…"
+   }
+  ],
+  "threatIdOf": [
+   {
+    "file": "lua/threat_effects.lua",
+    "line": 31,
+    "kind": "function",
+    "params": [
+     "card"
+    ],
+    "arity": 1,
+    "doc": "A threat card's CSV id, read off its tags. Every threat card the build emits carries one, and it is the key into THREAT_STATS, THREAT_TYPE_BY_ID, SOFT_THREAT_E…"
+   }
+  ],
   "threatStatsForCard": [
    {
     "file": "lua/actions_combat.lua",
-    "line": 36,
+    "line": 40,
     "kind": "function",
     "params": [
      "card"

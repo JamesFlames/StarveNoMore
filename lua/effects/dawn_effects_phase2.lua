@@ -108,18 +108,13 @@ function resolveWrongness(trigger)
     -- "resolve it and discard" at the table and do neither — the Soft card
     -- then sat there unfightable, festering, which is exactly the bug
     -- threat_effects.lua exists to prevent.
-    local tId = nil
-    pcall(function()
-        for _, tag in ipairs(card.getTags() or {}) do
-            if THREAT_STATS[tag] then tId = tag; break end
-        end
-    end)
+    local tId = threatIdOf(card)
     local tType = identifyThreatType(card)
     if tType == "Soft" then
         resolveSoftThreat(tId, w.location, tName, card)
     elseif tType == "Persistent" then
         announcePersistentThreat(tId, tName, w.location)
-    else
+    elseif not resolveHardThreatDraw(tId, w.location, tName, card) then
         broadcastEvent("warn", tName .. " must be fought or fled. Left standing, it festers at Dawn.")
     end
 end

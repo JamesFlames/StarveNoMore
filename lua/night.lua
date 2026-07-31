@@ -64,6 +64,10 @@ function ResolveNight()
 
     -- After all locations resolved, proceed to storytelling + sleep + tick
     Wait.time(function()
+        -- Hard threats that take their toll nightly rather than in a fight
+        -- (the Glass Child). After every tile's draws and combat have
+        -- settled, so a card drawn tonight bills from tonight.
+        safecall(function() resolveHardThreatNight() end, "HardNight")
         resolveStorytelling()
     end, delay + 1.0)
 
@@ -104,7 +108,10 @@ function drawThreatsAt(location, count)
                         broadcastEvent("warn", "THREAT at " .. location .. ": " .. tName)
                         broadcastEvent("proc", tDesc)
 
-                        -- Auto-resolve soft threats (HP = 0)
+                        -- Dispatch on the card's kind. All three branches
+                        -- exist because all three kinds had cards whose
+                        -- printed rule no code had ever read.
+                        local tId = threatIdOf(threatCard)
                         local tType = identifyThreatType(threatCard)
                         if tType == "Persistent" then
                             -- Persistent cards stay on the tile by design, so
@@ -112,24 +119,24 @@ function drawThreatsAt(location, count)
                             -- what it does from now on, and the one way off
                             -- the tile. "Must be fought" was false for the
                             -- eleven of thirteen that cannot be fought.
-                            local pId = nil
-                            for _, tag in ipairs(threatCard.getTags() or {}) do
-                                if THREAT_STATS[tag] then pId = tag; break end
-                            end
-                            announcePersistentThreat(pId, tName, location)
+                            announcePersistentThreat(tId, tName, location)
                         elseif tType == "Soft" then
                             -- This branch used to be the announcement alone:
                             -- "resolves and discards", doing neither. The card
                             -- then sat on the tile unfightable (hp = 0 is
                             -- filtered out of fightTargetsAt) and festering
                             -- +1 Doom every Dawn for the rest of the week.
-                            local tId = nil
-                            for _, tag in ipairs(threatCard.getTags() or {}) do
-                                if THREAT_STATS[tag] then tId = tag; break end
-                            end
                             resolveSoftThreat(tId, location, tName, threatCard)
                         else
-                            broadcastEvent("warn", tName .. " must be fought or fled! Flee: move 1 tile away, pay 1 Sanity (always legal, even starving). A fled threat stays here and festers at Dawn.")
+                            -- Hard. Its printed rider fires now if it has one
+                            -- (the Spectator's entry cost, the Wall Crawler's
+                            -- free hit, the Grue's whole existence), and
+                            -- `spent` is true when the card resolved and left
+                            -- instead of becoming a fight.
+                            local spent = resolveHardThreatDraw(tId, location, tName, threatCard)
+                            if not spent then
+                                broadcastEvent("warn", tName .. " must be fought or fled! Flee: move 1 tile away, pay 1 Sanity (always legal, even starving). A fled threat stays here and festers at Dawn.")
+                            end
                         end
                     end)
                     if not ok then

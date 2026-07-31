@@ -88,7 +88,7 @@ For each occupied tile, least-populated first:
 - Draw threats per the location's threat rate (modified by Doom thresholds).
 - Resolve combat or damage. Each drawn card is one of three kinds:
   - Soft — it does its printed thing once and is discarded. Nothing to fight.
-  - Hard — it must be fought or fled. Left standing, it festers at Dawn.
+  - Hard — it must be fought or fled. Left standing, it festers at Dawn. Read its Special: several charge Sanity for attacking them, hit the moment they arrive, tax the tile they stand on, or call in help when they die.
   - Persistent — it *stays on that tile* and its rule applies to everyone there until it is removed: Fight it if it has HP, Pry it if it is sealed, otherwise Clear it (2 actions + 1 Wood). It festers every Dawn it stands, so leaving one alone is a running Doom cost.
 - Charlie check: no light source = 2 Sanity + 1 Health. Each consecutive night in darkness, +1 to both. A night with light resets her.
 - Storytelling: Comfort Items used here for shared Sanity gain.
@@ -315,6 +315,8 @@ ACTIONS
 - Signature Move — every character's once-per-game named move (Signature button): James's All-Nighter, Coco's Touch of Hope, Rayman's Posterize, Ellie's Feast, Luca's Speech. Each pays an off-stat cost.
 - Dare — an *optional* hook on some early-week Dawn cards: a temptation the team may take or decline (extra loot for extra risk). Never mandatory; the card and the Rules panel state the terms.
 - Pry — a free action with a Crowbar, Lockpick, or Pry Bar: open a sealed thing at your tile for its printed reward. Sealed Threat cards and the Sealed Basement (at Ellie & Luca's House from setup) all open this way.
+- Special (on a Threat card) — the printed rider under the statline, and it is live. Some are paid inside the fight (Your Roommate charges 1 Sanity per attack die you roll; A Child's Shadow charges a flat 1 for swinging at all; the Spider Thing counters with 2 dice; the Doppelganger makes you roll Sanity d8 before you can bring yourself to attack). Some fire on arrival (the Hollow Spectator's entry cost, the Wall Crawler's free first hit). Some tax the tile while the card stands (the Shadow Stalker at Tick, the Scarecrow on Gather, the Glass Child every Night). One calls for help when it dies (the Black Dog hunts in pairs). A few ask the table for a judgement and say so in chat.
+- The Grue — the one Threat card that is not a fight at all: it takes its bite (1d8 Sanity, 1d6 Health, and Coco's Night Vision spares her) and its card is discarded immediately. It never festers, because it is never left standing.
 - Persistent threat — a Threat card that stays on its tile instead of resolving or being fought off, applying its printed rule to everyone there (no Food gathered here, Rest restores nothing, +1 Hunger to leave, an extra Threat drawn here each Night…). It festers +1 Doom every Dawn it stands. Three ways off the tile: Fight it if it has HP, Pry it if it is sealed, or Clear it — 2 actions + 1 Wood, at that tile.
 - Clear (2 actions + 1 Wood) — the removal path for a Persistent threat that has no HP to fight and no seal to pry. The card leaves, its rule stops, and it stops charging Doom every Dawn.
 - The Wrongness — a face-down, unresolved Threat placed at a tile by a Dawn card. Someone can go look (it resolves on entering the tile) — or it resolves at the next Dawn, where it stands. It doesn't fester while face-down.

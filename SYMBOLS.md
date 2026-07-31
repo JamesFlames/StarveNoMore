@@ -243,7 +243,7 @@
 | line | kind | symbol |
 |---|---|---|
 | 86 | function | `resolveWrongness` |
-| 128 | function | `checkWrongnessEntry` |
+| 123 | function | `checkWrongnessEntry` |
 
 ## lua/effects/dawn_effects_phase3.lua (0 symbols)
 
@@ -287,13 +287,13 @@
 |---|---|---|
 | 26 | function | `getAttackDice` |
 | 98 | function | `applyThreatDefeat` |
-| 138 | function | `applyCounterAttack` |
-| 187 | function | `maybeJamesReroll` |
-| 217 | function | `beginCombat` |
-| 324 | function | `resolveCombat` |
-| 334 | function | `pressAttack` |
-| 386 | function | `finishCombat` |
-| 400 | function | `resolveCharlieAttack` |
+| 148 | function | `applyCounterAttack` |
+| 200 | function | `maybeJamesReroll` |
+| 230 | function | `beginCombat` |
+| 365 | function | `resolveCombat` |
+| 375 | function | `pressAttack` |
+| 427 | function | `finishCombat` |
+| 441 | function | `resolveCharlieAttack` |
 
 ## lua/clues.lua (8 symbols)
 
@@ -323,37 +323,54 @@
 | 203 | function | `doCook` |
 | 367 | function | `cookTelltaleHeart` |
 
-## lua/threat_effects.lua (3 symbols)
+## lua/threat_effects.lua (4 symbols)
 
 | line | kind | symbol |
 |---|---|---|
-| 45 | table | `SOFT_THREAT_EFFECTS` |
-| 167 | table | `MANUAL_SOFT` |
-| 177 | function | `resolveSoftThreat` |
+| 31 | function | `threatIdOf` |
+| 60 | table | `SOFT_THREAT_EFFECTS` |
+| 182 | table | `MANUAL_SOFT` |
+| 192 | function | `resolveSoftThreat` |
 
-## lua/threat_persistent.lua (19 symbols)
+## lua/threat_persistent.lua (21 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 47 | value | `CLEAR_PERSISTENT_ACTIONS` |
 | 48 | value | `CLEAR_PERSISTENT_WOOD` |
 | 62 | table | `PERSISTENT_THREAT_RULES` |
-| 120 | function | `persistentThreatsAt` |
-| 156 | function | `persistentThreatsEverywhere` |
-| 192 | function | `persistentRuleTotal` |
-| 206 | function | `persistentRuleHolder` |
-| 219 | function | `announcePersistentThreat` |
-| 256 | function | `persistentMoveSurcharge` |
-| 265 | function | `persistentFilterYields` |
-| 277 | function | `persistentRawFoodSanityCost` |
-| 285 | function | `persistentBlocksRest` |
-| 290 | function | `persistentBlocksBarricade` |
-| 295 | function | `persistentBlocksTrade` |
-| 301 | function | `persistentNightThreatBonus` |
-| 308 | function | `resolvePersistentTick` |
-| 336 | function | `clearablePersistentsAt` |
-| 345 | function | `canClearPersistent` |
-| 364 | function | `doClearPersistent` |
+| 135 | function | `threatCardsAt` |
+| 168 | function | `threatCardsByTile` |
+| 200 | function | `persistentThreatsAt` |
+| 204 | function | `persistentThreatsEverywhere` |
+| 210 | function | `persistentRuleTotal` |
+| 224 | function | `persistentRuleHolder` |
+| 237 | function | `announcePersistentThreat` |
+| 274 | function | `persistentMoveSurcharge` |
+| 283 | function | `persistentFilterYields` |
+| 295 | function | `persistentRawFoodSanityCost` |
+| 303 | function | `persistentBlocksRest` |
+| 308 | function | `persistentBlocksBarricade` |
+| 313 | function | `persistentBlocksTrade` |
+| 319 | function | `persistentNightThreatBonus` |
+| 326 | function | `resolvePersistentTick` |
+| 354 | function | `clearablePersistentsAt` |
+| 363 | function | `canClearPersistent` |
+| 382 | function | `doClearPersistent` |
+
+## lua/threat_hard.lua (9 symbols)
+
+| line | kind | symbol |
+|---|---|---|
+| 36 | table | `HARD_THREAT_SPECIALS` |
+| 156 | function | `hardSpecialTotal` |
+| 172 | function | `resolveHardThreatDraw` |
+| 245 | function | `hardThreatBlocksFight` |
+| 259 | function | `hardThreatHesitation` |
+| 285 | function | `resolveHardThreatDefeat` |
+| 299 | function | `hardThreatGatherSanity` |
+| 306 | function | `hardThreatTickSanity` |
+| 315 | function | `resolveHardThreatNight` |
 
 ## lua/night.lua (11 symbols)
 
@@ -362,28 +379,28 @@
 | 12 | table | `LOCATION_THREAT_RATE` |
 | 25 | function | `raymanLoudTonight` |
 | 36 | function | `ResolveNight` |
-| 85 | function | `drawThreatsAt` |
-| 150 | function | `resolveNightAtLocation` |
-| 311 | table | `LIGHT_SOURCES` |
-| 321 | function | `payLightFuel` |
-| 351 | function | `checkPlayerHasLight` |
-| 449 | function | `identifyThreatType` |
-| 480 | function | `resolveStorytelling` |
-| 507 | function | `resolveSleep` |
+| 89 | function | `drawThreatsAt` |
+| 157 | function | `resolveNightAtLocation` |
+| 318 | table | `LIGHT_SOURCES` |
+| 328 | function | `payLightFuel` |
+| 358 | function | `checkPlayerHasLight` |
+| 456 | function | `identifyThreatType` |
+| 487 | function | `resolveStorytelling` |
+| 514 | function | `resolveSleep` |
 
 ## lua/tick_victory.lua (9 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 8 | function | `resolveTick` |
-| 177 | table | `DEATH_NARRATIONS` |
-| 200 | function | `checkDownState` |
-| 251 | function | `reviveCharacter` |
-| 316 | function | `ghostDrift` |
-| 335 | function | `doCleanse` |
-| 367 | function | `checkDefeat` |
-| 397 | function | `checkVictory` |
-| 427 | function | `checkBonusVictories` |
+| 192 | table | `DEATH_NARRATIONS` |
+| 215 | function | `checkDownState` |
+| 266 | function | `reviveCharacter` |
+| 331 | function | `ghostDrift` |
+| 350 | function | `doCleanse` |
+| 382 | function | `checkDefeat` |
+| 412 | function | `checkVictory` |
+| 442 | function | `checkBonusVictories` |
 
 ## lua/actions.lua (10 symbols)
 
@@ -398,20 +415,19 @@
 | 352 | function | `playerHasBackpack` |
 | 364 | function | `gatherRandomResources` |
 | 392 | function | `doGather` |
-| 481 | function | `doRest` |
+| 492 | function | `doRest` |
 
-## lua/actions_combat.lua (8 symbols)
+## lua/actions_combat.lua (7 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 24 | table | `BOSS_BASE_STATS` |
-| 32 | table | `COMBAT_SPECIALS` |
-| 36 | function | `threatStatsForCard` |
-| 52 | function | `bossStatsFor` |
-| 67 | function | `fightTargetsAt` |
-| 95 | function | `canFight` |
-| 112 | function | `doFightTarget` |
-| 178 | function | `doFlee` |
+| 40 | function | `threatStatsForCard` |
+| 56 | function | `bossStatsFor` |
+| 71 | function | `fightTargetsAt` |
+| 99 | function | `canFight` |
+| 116 | function | `doFightTarget` |
+| 201 | function | `doFlee` |
 
 ## lua/actions_social.lua (19 symbols)
 
@@ -825,11 +841,11 @@
 | 25 | table | `DOOM_THRESHOLD_RULES` |
 | 37 | table | `EFFECT_RULES` |
 | 69 | table | `EFFECT_RULE_ORDER` |
-| 257 | function | `refreshRulesPanel` |
-| 307 | function | `onRulesToggle` |
-| 320 | function | `refreshDawnChecklist` |
-| 354 | function | `onDawnStepClick` |
-| 376 | function | `refreshCycleStrip` |
+| 271 | function | `refreshRulesPanel` |
+| 321 | function | `onRulesToggle` |
+| 334 | function | `refreshDawnChecklist` |
+| 368 | function | `onDawnStepClick` |
+| 390 | function | `refreshCycleStrip` |
 
 ## lua/ui_reactions.lua (3 symbols)
 
@@ -928,14 +944,13 @@
 | `CLUES_FOR_TRUTH_RUN` | lua/clues.lua | 35 |
 | `CLUE_IDS` | lua/clues.lua | 34 |
 | `CLUE_SURFACE_DAYS` | lua/clues.lua | 106 |
-| `COMBAT_SPECIALS` | lua/actions_combat.lua | 32 |
 | `COOK_DIALOG_SLOTS` | lua/ui_actionbar_handlers.lua | 101 |
 | `CROCKPOT_HOME` | lua/helpers.lua | 510 |
 | `CUSTOM_UI_PANELS` | lua/ui_controls.lua | 108 |
 | `DAWN_EFFECTS` | lua/effects/dawn_effects.lua | 5 |
 | `DAWN_MANUAL_STEPS` | lua/effects/dawn_effects_dispatch.lua | 63 |
 | `DAY_FLAVOR` | lua/ui_banner.lua | 16 |
-| `DEATH_NARRATIONS` | lua/tick_victory.lua | 177 |
+| `DEATH_NARRATIONS` | lua/tick_victory.lua | 192 |
 | `DEFAULT_PATH_VARIANT` | lua/ui_actionbar_core.lua | 36 |
 | `DIFFICULTY_BLURBS` | lua/ui_setup.lua | 251 |
 | `DIFFICULTY_CYCLE` | lua/ui_setup.lua | 250 |
@@ -949,6 +964,7 @@
 | `EFFECT_RULES` | lua/ui_rules.lua | 37 |
 | `EFFECT_RULE_ORDER` | lua/ui_rules.lua | 69 |
 | `ENABLED_ACTIONS` | lua/ui_actionbar_display.lua | 204 |
+| `HARD_THREAT_SPECIALS` | lua/threat_hard.lua | 36 |
 | `HEART_SUPPLY_MAX` | lua/global.lua | 152 |
 | `HELP_GLOSSARY` | lua/notebook_data.lua | 252 |
 | `HELP_PAGE_LINES` | lua/ui_help_pages.lua | 29 |
@@ -957,12 +973,12 @@
 | `HIGHLIGHT_DURATION` | lua/ui_actionbar_core.lua | 112 |
 | `LAST_NERVE_THRESHOLD` | lua/helpers.lua | 428 |
 | `LIGHTING_PRESETS` | lua/ui_mood.lua | 13 |
-| `LIGHT_SOURCES` | lua/night.lua | 311 |
+| `LIGHT_SOURCES` | lua/night.lua | 318 |
 | `LOCATION_ADJACENCY` | lua/ui_actionbar_core.lua | 54 |
 | `LOCATION_ORDER` | lua/global.lua | 105 |
 | `LOCATION_THREAT_RATE` | lua/night.lua | 12 |
 | `LOCATION_YIELDS` | lua/global.lua | 109 |
-| `MANUAL_SOFT` | lua/threat_effects.lua | 167 |
+| `MANUAL_SOFT` | lua/threat_effects.lua | 182 |
 | `MAP_LOCATIONS` | lua/ui_actionbar_core.lua | 38 |
 | `MARKET_COSTS` | lua/market_data.lua | 9 |
 | `MARKET_HELP_BODY` | lua/crafting.lua | 22 |
@@ -995,7 +1011,7 @@
 | `SIGNATURES` | lua/signatures.lua | 7 |
 | `SIGNATURE_NARRATIONS` | lua/signatures.lua | 25 |
 | `SITUATIONAL_ACTIONS` | lua/ui_actionbar_situational.lua | 409 |
-| `SOFT_THREAT_EFFECTS` | lua/threat_effects.lua | 45 |
+| `SOFT_THREAT_EFFECTS` | lua/threat_effects.lua | 60 |
 | `SOURCE_MAX_HP` | lua/combat.lua | 98 |
 | `SOURCE_SPLIT_HP` | lua/combat.lua | 99 |
 | `SUBPHASE_RULES` | lua/ui_rules.lua | 11 |
@@ -1052,8 +1068,8 @@
 | `allPlayersGain` | lua/effects/dawn_effects.lua | 44 |
 | `allPlayersLose` | lua/effects/dawn_effects.lua | 15 |
 | `announceInventory` | lua/actions.lua | 338 |
-| `announcePersistentThreat` | lua/threat_persistent.lua | 219 |
-| `applyCounterAttack` | lua/combat_resolve.lua | 138 |
+| `announcePersistentThreat` | lua/threat_persistent.lua | 237 |
+| `applyCounterAttack` | lua/combat_resolve.lua | 148 |
 | `applyPathVariant` | lua/ui_actionbar_core.lua | 68 |
 | `applyRandomScenario` | lua/setup.lua | 387 |
 | `applyScenario` | lua/setup.lua | 401 |
@@ -1065,7 +1081,7 @@
 | `auditObjectCount` | lua/audit.lua | 7 |
 | `auditObjectFootprints` | lua/audit.lua | 370 |
 | `auditTooltips` | lua/audit.lua | 137 |
-| `beginCombat` | lua/combat_resolve.lua | 217 |
+| `beginCombat` | lua/combat_resolve.lua | 230 |
 | `beginDayPhase` | lua/turns.lua | 40 |
 | `beginDusk` | lua/day_loop.lua | 462 |
 | `beginNight` | lua/day_loop.lua | 603 |
@@ -1073,19 +1089,19 @@
 | `benchUnusedCharacters` | lua/helpers.lua | 318 |
 | `boardArtUrl` | lua/ui_actionbar_core.lua | 62 |
 | `bossKeyForName` | lua/combat.lua | 108 |
-| `bossStatsFor` | lua/actions_combat.lua | 52 |
+| `bossStatsFor` | lua/actions_combat.lua | 56 |
 | `broadcastEvent` | lua/global.lua | 300 |
 | `buildAdjacency` | lua/ui_actionbar_core.lua | 41 |
 | `buildSessionLog` | lua/telemetry.lua | 110 |
 | `canAfford` | lua/ui_actionbar_core.lua | 184 |
 | `canAppeaseTreeguard` | lua/ui_actionbar_situational.lua | 161 |
 | `canBarricade` | lua/ui_actionbar_situational.lua | 144 |
-| `canClearPersistent` | lua/threat_persistent.lua | 345 |
+| `canClearPersistent` | lua/threat_persistent.lua | 363 |
 | `canDefend` | lua/ui_actionbar_situational.lua | 83 |
 | `canDrift` | lua/ui_actionbar_situational.lua | 179 |
 | `canEatRaw` | lua/ui_actionbar_situational.lua | 107 |
 | `canEnergyDrink` | lua/ui_actionbar_situational.lua | 93 |
-| `canFight` | lua/actions_combat.lua | 95 |
+| `canFight` | lua/actions_combat.lua | 99 |
 | `canFlee` | lua/ui_actionbar_situational.lua | 131 |
 | `canPeek` | lua/actions_social.lua | 175 |
 | `canPry` | lua/actions_social.lua | 418 |
@@ -1098,18 +1114,18 @@
 | `cancelGuidedSetup` | lua/ui_setup.lua | 81 |
 | `charHasCompany` | lua/helpers.lua | 540 |
 | `checkAchievements` | lua/achievements.lua | 88 |
-| `checkBonusVictories` | lua/tick_victory.lua | 427 |
-| `checkDefeat` | lua/tick_victory.lua | 367 |
+| `checkBonusVictories` | lua/tick_victory.lua | 442 |
+| `checkDefeat` | lua/tick_victory.lua | 382 |
 | `checkDoomThresholds` | lua/day_loop.lua | 227 |
-| `checkDownState` | lua/tick_victory.lua | 200 |
-| `checkPlayerHasLight` | lua/night.lua | 351 |
+| `checkDownState` | lua/tick_victory.lua | 215 |
+| `checkPlayerHasLight` | lua/night.lua | 358 |
 | `checkSourcePhase` | lua/combat.lua | 152 |
-| `checkVictory` | lua/tick_victory.lua | 397 |
-| `checkWrongnessEntry` | lua/effects/dawn_effects_phase2.lua | 128 |
+| `checkVictory` | lua/tick_victory.lua | 412 |
+| `checkWrongnessEntry` | lua/effects/dawn_effects_phase2.lua | 123 |
 | `clearActionTargets` | lua/ui_actionbar_targets.lua | 57 |
 | `clearHighlight` | lua/ui_banner.lua | 421 |
 | `clearSignatureTargets` | lua/signatures.lua | 179 |
-| `clearablePersistentsAt` | lua/threat_persistent.lua | 336 |
+| `clearablePersistentsAt` | lua/threat_persistent.lua | 354 |
 | `clueDueForRefill` | lua/clues.lua | 124 |
 | `clueIsOnOffer` | lua/clues.lua | 111 |
 | `colorToCharacter` | lua/helpers.lua | 565 |
@@ -1130,16 +1146,16 @@
 | `dispatchDawnEffect` | lua/effects/dawn_effects_dispatch.lua | 85 |
 | `doAppeaseTreeguard` | lua/treeguard.lua | 77 |
 | `doBarricade` | lua/actions_social.lua | 114 |
-| `doCleanse` | lua/tick_victory.lua | 335 |
-| `doClearPersistent` | lua/threat_persistent.lua | 364 |
+| `doCleanse` | lua/tick_victory.lua | 350 |
+| `doClearPersistent` | lua/threat_persistent.lua | 382 |
 | `doCook` | lua/crafting.lua | 203 |
 | `doCraft` | lua/crafting.lua | 48 |
 | `doDefend` | lua/actions_social.lua | 150 |
 | `doDuskMove` | lua/actions.lua | 236 |
 | `doEatRaw` | lua/actions_social.lua | 76 |
 | `doEnergyDrink` | lua/actions_social.lua | 57 |
-| `doFightTarget` | lua/actions_combat.lua | 112 |
-| `doFlee` | lua/actions_combat.lua | 178 |
+| `doFightTarget` | lua/actions_combat.lua | 116 |
+| `doFlee` | lua/actions_combat.lua | 201 |
 | `doGather` | lua/actions.lua | 392 |
 | `doMove` | lua/actions.lua | 72 |
 | `doPass` | lua/actions_social.lua | 101 |
@@ -1147,7 +1163,7 @@
 | `doPry` | lua/actions_social.lua | 481 |
 | `doRally` | lua/actions_social.lua | 296 |
 | `doRaymanBonusMove` | lua/actions.lua | 186 |
-| `doRest` | lua/actions.lua | 481 |
+| `doRest` | lua/actions.lua | 492 |
 | `doSignature` | lua/signatures.lua | 99 |
 | `doStabilize` | lua/actions_social.lua | 507 |
 | `doTrade` | lua/actions_social.lua | 8 |
@@ -1156,7 +1172,7 @@
 | `doWitness` | lua/actions_haunted.lua | 59 |
 | `doomStepWorld` | lua/setup.lua | 256 |
 | `downedAlliesHere` | lua/ui_actionbar_situational.lua | 39 |
-| `drawThreatsAt` | lua/night.lua | 85 |
+| `drawThreatsAt` | lua/night.lua | 89 |
 | `dropBossLoot` | lua/combat.lua | 54 |
 | `dumpSetupState` | lua/ui_setup.lua | 385 |
 | `endPlayerTurn` | lua/turns.lua | 155 |
@@ -1165,12 +1181,12 @@
 | `ensurePlayerResources` | lua/helpers.lua | 139 |
 | `exportAchievementCode` | lua/achievements.lua | 127 |
 | `exportSessionLog` | lua/telemetry.lua | 146 |
-| `fightTargetsAt` | lua/actions_combat.lua | 67 |
+| `fightTargetsAt` | lua/actions_combat.lua | 71 |
 | `finalizeGuidedSetup` | lua/ui_setup.lua | 698 |
 | `findAllByTag` | lua/helpers.lua | 9 |
 | `findCarriedItem` | lua/helpers.lua | 450 |
 | `findOneByTag` | lua/helpers.lua | 19 |
-| `finishCombat` | lua/combat_resolve.lua | 386 |
+| `finishCombat` | lua/combat_resolve.lua | 427 |
 | `flashSplitLighting` | lua/combat.lua | 163 |
 | `flashVictoryLighting` | lua/combat.lua | 71 |
 | `formatIngredientCost` | lua/ui_actionbar_targets.lua | 302 |
@@ -1212,12 +1228,17 @@
 | `getTotalDays` | lua/global.lua | 209 |
 | `getTreeguardStandee` | lua/treeguard.lua | 11 |
 | `getVisitorDeck` | lua/helpers.lua | 87 |
-| `ghostDrift` | lua/tick_victory.lua | 316 |
+| `ghostDrift` | lua/tick_victory.lua | 331 |
 | `giveResource` | lua/helpers.lua | 233 |
+| `hardSpecialTotal` | lua/threat_hard.lua | 156 |
+| `hardThreatBlocksFight` | lua/threat_hard.lua | 245 |
+| `hardThreatGatherSanity` | lua/threat_hard.lua | 299 |
+| `hardThreatHesitation` | lua/threat_hard.lua | 259 |
+| `hardThreatTickSanity` | lua/threat_hard.lua | 306 |
 | `hasLastNerve` | lua/helpers.lua | 430 |
 | `helpTabContent` | lua/ui_help.lua | 153 |
 | `highlightCTA` | lua/ui_banner.lua | 435 |
-| `identifyThreatType` | lua/night.lua | 449 |
+| `identifyThreatType` | lua/night.lua | 456 |
 | `importAchievementCode` | lua/achievements.lua | 136 |
 | `isAchievementUnlocked` | lua/achievements.lua | 37 |
 | `isAdjacent` | lua/helpers.lua | 497 |
@@ -1231,7 +1252,7 @@
 | `lowestStatPlayer` | lua/effects/dawn_effects.lua | 53 |
 | `markBossDefeated` | lua/combat.lua | 231 |
 | `markTurnStart` | lua/telemetry.lua | 89 |
-| `maybeJamesReroll` | lua/combat_resolve.lua | 187 |
+| `maybeJamesReroll` | lua/combat_resolve.lua | 200 |
 | `migrateGameState` | lua/global.lua | 317 |
 | `moveDoomMarker` | lua/setup.lua | 271 |
 | `noteInteraction` | lua/turns.lua | 14 |
@@ -1280,7 +1301,7 @@
 | `onCookOptionClick` | lua/ui_actionbar_handlers.lua | 154 |
 | `onCopySessionLog` | lua/telemetry.lua | 152 |
 | `onCraftTargetClick` | lua/ui_actionbar_targets.lua | 425 |
-| `onDawnStepClick` | lua/ui_rules.lua | 354 |
+| `onDawnStepClick` | lua/ui_rules.lua | 368 |
 | `onDownedCancel` | lua/ui_actionbar_situational.lua | 265 |
 | `onDownedTargetClick` | lua/ui_actionbar_situational.lua | 243 |
 | `onDuskMoveClick` | lua/ui_actionbar_handlers.lua | 473 |
@@ -1318,7 +1339,7 @@
 | `onResourcePickClick` | lua/ui_controls.lua | 73 |
 | `onRestHunger` | lua/ui_actionbar_handlers.lua | 205 |
 | `onRestSanity` | lua/ui_actionbar_handlers.lua | 216 |
-| `onRulesToggle` | lua/ui_rules.lua | 307 |
+| `onRulesToggle` | lua/ui_rules.lua | 321 |
 | `onSave` | lua/global.lua | 444 |
 | `onSignatureCancel` | lua/signatures.lua | 279 |
 | `onSignatureTargetClick` | lua/signatures.lua | 264 |
@@ -1338,18 +1359,18 @@
 | `onWhatNowClick` | lua/ui_help.lua | 243 |
 | `onWhatNowClose` | lua/ui_help.lua | 380 |
 | `paginateHelpText` | lua/ui_help_pages.lua | 52 |
-| `payLightFuel` | lua/night.lua | 321 |
-| `persistentBlocksBarricade` | lua/threat_persistent.lua | 290 |
-| `persistentBlocksRest` | lua/threat_persistent.lua | 285 |
-| `persistentBlocksTrade` | lua/threat_persistent.lua | 295 |
-| `persistentFilterYields` | lua/threat_persistent.lua | 265 |
-| `persistentMoveSurcharge` | lua/threat_persistent.lua | 256 |
-| `persistentNightThreatBonus` | lua/threat_persistent.lua | 301 |
-| `persistentRawFoodSanityCost` | lua/threat_persistent.lua | 277 |
-| `persistentRuleHolder` | lua/threat_persistent.lua | 206 |
-| `persistentRuleTotal` | lua/threat_persistent.lua | 192 |
-| `persistentThreatsAt` | lua/threat_persistent.lua | 120 |
-| `persistentThreatsEverywhere` | lua/threat_persistent.lua | 156 |
+| `payLightFuel` | lua/night.lua | 328 |
+| `persistentBlocksBarricade` | lua/threat_persistent.lua | 308 |
+| `persistentBlocksRest` | lua/threat_persistent.lua | 303 |
+| `persistentBlocksTrade` | lua/threat_persistent.lua | 313 |
+| `persistentFilterYields` | lua/threat_persistent.lua | 283 |
+| `persistentMoveSurcharge` | lua/threat_persistent.lua | 274 |
+| `persistentNightThreatBonus` | lua/threat_persistent.lua | 319 |
+| `persistentRawFoodSanityCost` | lua/threat_persistent.lua | 295 |
+| `persistentRuleHolder` | lua/threat_persistent.lua | 224 |
+| `persistentRuleTotal` | lua/threat_persistent.lua | 210 |
+| `persistentThreatsAt` | lua/threat_persistent.lua | 200 |
+| `persistentThreatsEverywhere` | lua/threat_persistent.lua | 204 |
 | `placeBossStandee` | lua/effects/dawn_effects.lua | 70 |
 | `placeCharacterAtTile` | lua/helpers.lua | 298 |
 | `playerHasBackpack` | lua/actions.lua | 352 |
@@ -1357,7 +1378,7 @@
 | `poolBossStandee` | lua/effects/dawn_effects.lua | 104 |
 | `popAchievementToast` | lua/ui_achievements.lua | 159 |
 | `populateNotebook` | lua/ui_help.lua | 520 |
-| `pressAttack` | lua/combat_resolve.lua | 334 |
+| `pressAttack` | lua/combat_resolve.lua | 375 |
 | `pulseHandZone` | lua/ui_banner.lua | 503 |
 | `quickStartCardText` | lua/ui_help.lua | 498 |
 | `quickStartTextForVariant` | lua/ui_help.lua | 473 |
@@ -1382,8 +1403,8 @@
 | `refreshActionButtonStates` | lua/ui_actionbar_display.lua | 98 |
 | `refreshCharRoster` | lua/ui_banner.lua | 193 |
 | `refreshCombatPanel` | lua/ui_actionbar_handlers.lua | 279 |
-| `refreshCycleStrip` | lua/ui_rules.lua | 376 |
-| `refreshDawnChecklist` | lua/ui_rules.lua | 320 |
+| `refreshCycleStrip` | lua/ui_rules.lua | 390 |
+| `refreshDawnChecklist` | lua/ui_rules.lua | 334 |
 | `refreshDuskReadyLabel` | lua/turns.lua | 315 |
 | `refreshDynamicTooltips` | lua/ui_controls.lua | 412 |
 | `refreshHelpPanel` | lua/ui_help.lua | 182 |
@@ -1392,19 +1413,22 @@
 | `refreshPhaseBanner` | lua/ui_banner.lua | 98 |
 | `refreshQuickStartCard` | lua/ui_help.lua | 514 |
 | `refreshReactionsPanel` | lua/ui_reactions.lua | 141 |
-| `refreshRulesPanel` | lua/ui_rules.lua | 257 |
+| `refreshRulesPanel` | lua/ui_rules.lua | 271 |
 | `refreshSituationalButtons` | lua/ui_actionbar_situational.lua | 443 |
 | `refreshStandeeTooltips` | lua/ui_banner.lua | 247 |
 | `refreshStatDisplay` | lua/ui_actionbar_display.lua | 238 |
 | `removeVisualTokens` | lua/helpers.lua | 229 |
 | `reshowSetupStep` | lua/ui_setup.lua | 71 |
-| `resolveCharlieAttack` | lua/combat_resolve.lua | 400 |
-| `resolveCombat` | lua/combat_resolve.lua | 324 |
-| `resolveNightAtLocation` | lua/night.lua | 150 |
-| `resolvePersistentTick` | lua/threat_persistent.lua | 308 |
-| `resolveSleep` | lua/night.lua | 507 |
-| `resolveSoftThreat` | lua/threat_effects.lua | 177 |
-| `resolveStorytelling` | lua/night.lua | 480 |
+| `resolveCharlieAttack` | lua/combat_resolve.lua | 441 |
+| `resolveCombat` | lua/combat_resolve.lua | 365 |
+| `resolveHardThreatDefeat` | lua/threat_hard.lua | 285 |
+| `resolveHardThreatDraw` | lua/threat_hard.lua | 172 |
+| `resolveHardThreatNight` | lua/threat_hard.lua | 315 |
+| `resolveNightAtLocation` | lua/night.lua | 157 |
+| `resolvePersistentTick` | lua/threat_persistent.lua | 326 |
+| `resolveSleep` | lua/night.lua | 514 |
+| `resolveSoftThreat` | lua/threat_effects.lua | 192 |
+| `resolveStorytelling` | lua/night.lua | 487 |
 | `resolveTick` | lua/tick_victory.lua | 8 |
 | `resolveWrongness` | lua/effects/dawn_effects_phase2.lua | 86 |
 | `revealDawnCard` | lua/day_loop.lua | 338 |
@@ -1412,7 +1436,7 @@
 | `revealFirstDawn` | lua/day_loop.lua | 325 |
 | `revealLastDawn` | lua/day_loop.lua | 281 |
 | `revealTrophy` | lua/combat.lua | 300 |
-| `reviveCharacter` | lua/tick_victory.lua | 251 |
+| `reviveCharacter` | lua/tick_victory.lua | 266 |
 | `rollAttackDice` | lua/combat.lua | 10 |
 | `rulebookText` | lua/ui_help_pages.lua | 101 |
 | `runSelfTest` | lua/selftest.lua | 139 |
@@ -1455,7 +1479,10 @@
 | `syncThreatHP` | lua/combat.lua | 144 |
 | `takeClueFromMarketDeck` | lua/clues.lua | 156 |
 | `takeResourceFromPlayer` | lua/helpers.lua | 270 |
-| `threatStatsForCard` | lua/actions_combat.lua | 36 |
+| `threatCardsAt` | lua/threat_persistent.lua | 135 |
+| `threatCardsByTile` | lua/threat_persistent.lua | 168 |
+| `threatIdOf` | lua/threat_effects.lua | 31 |
+| `threatStatsForCard` | lua/actions_combat.lua | 40 |
 | `toggleDuskReady` | lua/turns.lua | 328 |
 | `totalAchievementCount` | lua/achievements.lua | 47 |
 | `treeguardDefeated` | lua/treeguard.lua | 63 |

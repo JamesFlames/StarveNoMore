@@ -43,7 +43,7 @@ For each occupied tile, least-populated first:
 - Draw threats per the location's threat rate (modified by Doom thresholds).
 - Resolve combat or damage. Each drawn card is one of three kinds:
   - **Soft** — it does its printed thing once and is discarded. Nothing to fight.
-  - **Hard** — it must be fought or fled. Left standing, it festers at Dawn.
+  - **Hard** — it must be fought or fled. Left standing, it festers at Dawn. Read its Special: several charge Sanity for attacking them, hit the moment they arrive, tax the tile they stand on, or call in help when they die.
   - **Persistent** — it *stays on that tile* and its rule applies to everyone there until it is removed: Fight it if it has HP, Pry it if it is sealed, otherwise **Clear** it (2 actions + 1 Wood). It festers every Dawn it stands, so leaving one alone is a running Doom cost.
 - Charlie check: no light source = **2 Sanity + 1 Health**. Each consecutive night in darkness, +1 to both. A night with light resets her.
 - Storytelling: Comfort Items used here for shared Sanity gain.

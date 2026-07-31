@@ -177,6 +177,20 @@ local function collectActiveRules()
         end
     end
 
+    -- 2.8) Hard threats whose printed rider keeps applying while they stand
+    -- (the Shadow Stalker's Tick tax, the Scarecrow's Gather tax, the Glass
+    -- Child's nightly one). Only the standing kind: a rider that fires inside
+    -- a fight is announced by the fight.
+    local hardStanding = threatCardsByTile(HARD_THREAT_SPECIALS)
+    for _, locName in ipairs(LOCATION_ORDER) do
+        for _, t in ipairs(hardStanding[locName] or {}) do
+            if t.rule.tickSanityAtTile or t.rule.gatherSanityAtTile or t.rule.nightSanityAtTile then
+                table.insert(lines, t.name .. " at " .. locName .. ": " ..
+                    (t.rule.blurb or "It is still here.") .. " Kill it to stop it.")
+            end
+        end
+    end
+
     -- 3) Treeguard mini-boss (lua/treeguard.lua)
     local tg = gameState.treeguard
     if tg and tg.active then
