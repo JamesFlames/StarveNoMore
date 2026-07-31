@@ -169,6 +169,11 @@ function doMove(color, targetLocation)
     -- The Wrongness (batch 3): arriving where something is wrong resolves it.
     safecall(function() checkWrongnessEntry(color) end, "Wrongness")
 
+    -- The Antler Sled (Deerclops trophy): offer to pull one ally who was
+    -- standing where you just left. Offered after arrival so the destination
+    -- is settled and the table has one decision, not two.
+    safecall(function() offerAntlerSled(color, from, targetLocation) end, "AntlerSled")
+
     -- Rayman's perk: can move again for free (2 spaces per action)
     -- Loud constraint: any movement today means his Night location draws +1 Threat.
     if char.name == "Rayman" then
@@ -483,6 +488,47 @@ function doGather(color)
 
     -- Everyone else, everywhere else: an automatic random draw.
     gatherRandomResources(color, loc, 1 + extra)
+    resolveEchoes(color, loc)
+end
+
+-----------------------------------------------------------------------
+-- Echoes (Design §7.4) — the Basketball Court's special. "Each time a
+-- player gathers here, they roll a d6. On 6, draw a bonus item card. On
+-- 1-2, lose 1 Sanity."
+--
+-- Promised in the board tooltip AND the What-now hint, and implemented
+-- nowhere: the court was a plain gather with a scary description. It is the
+-- one place in the economy that is supposed to be a gamble, which is what
+-- pays for the court's -1 Sanity at sleep and its threat draw rate.
+--
+-- Rolled AFTER the haul, so a bad roll that puts the character Down still
+-- leaves them holding what they found (the same order the rain surcharge
+-- and the Scarecrow use).
+-----------------------------------------------------------------------
+function resolveEchoes(color, loc)
+    if loc ~= "BasketballCourt" then return end
+    local char = gameState.activeChars[color]
+    if not char then return end
+
+    local roll = gameRoll(1, 6)
+    if roll == 6 then
+        broadcastEvent("gain", char.name .. " rolls the Echoes: 6 — something useful was left in the bleachers.")
+        safecall(function()
+            local deck = getMarketDeck()
+            if deck and (deck.getQuantity and deck.getQuantity() or 0) > 0 then
+                deck.deal(1, color)
+            else
+                broadcastEvent("proc", "The Market deck is empty — no bonus Item to find.")
+            end
+        end, "EchoesBonus")
+    elseif roll <= 2 then
+        char.sanity = math.max(0, char.sanity - 1)
+        broadcastEvent("damage", char.name .. " rolls the Echoes: " .. roll ..
+            " — the court answers back. -1 Sanity. (Now " .. char.sanity .. ")")
+        checkDownState(color)
+    else
+        broadcastEvent("proc", char.name .. " rolls the Echoes: " .. roll .. " — only the wind.")
+    end
 end
 
 -----------------------------------------------------------------------
@@ -569,6 +615,15 @@ function doRest(color, choice)
     if home and char.location == home then
         char.health = math.min(char.maxHealth, char.health + 1)
         broadcastEvent("gain", char.name .. " rests at home: +1 Health. (Now " .. char.health .. ")")
+    elseif char.location == "RaymanHouse" then
+        -- The Garage (Design §7.2): "A Rest action HERE restores +1 Health" —
+        -- the place, not the person. The tooltip has always said "The Garage:
+        -- Rest +1 Health" with no owner qualifier, while the code gave it
+        -- only to Rayman, for whom it was already true as his own home. So
+        -- the one line that made the Garage worth walking to did nothing.
+        -- Non-stacking with the home bonus, exactly like Doom 25 below.
+        char.health = math.min(char.maxHealth, char.health + 1)
+        broadcastEvent("gain", char.name .. " rests in the Garage: +1 Health. (Now " .. char.health .. ")")
     elseif gameState.ongoingDawnEffects.doom25 then
         char.health = math.min(char.maxHealth, char.health + 1)
         broadcastEvent("gain", char.name .. " rests: +1 Health (Nothing Left to Lose). (Now " .. char.health .. ")")

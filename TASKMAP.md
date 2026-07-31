@@ -27,6 +27,8 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 | Add/adjust a Signature Move | `lua/signatures.lua` | `generate_symbol_index.py` |
 | Change crafting/cooking | `lua/crafting.lua`, `content/cards_recipes.csv` | `generate_recipe_data.py`, `generate_symbol_index.py` |
 | Change a boss arrival/beat | `lua/effects/dawn_effects*.lua`, `lua/combat.lua`, `lua/treeguard.lua` | `generate_symbol_index.py` |
+| Change a boss Trophy power | `lua/trophies.lua` + `content/cards_trophies.csv` | `generate_symbol_index.py` |
+| Change a location's special/yield/defence | `lua/global.lua` (`LOCATION_YIELDS`, `LOCATION_DEFENSE`) + the verb that reads it (`lua/actions.lua`, `lua/combat_resolve.lua`) + `content/locations.csv` | `generate_symbol_index.py` |
 | Add/change a sound | `sounds/...` | `generate_audio_manifest.py` |
 | Change setup/character assignment | `lua/setup.lua`, `lua/ui_setup.lua`, `xml/setup.xml` | `generate_symbol_index.py` |
 | Change turn order / action economy / idle nudge | `lua/turns.lua` | `generate_symbol_index.py` |

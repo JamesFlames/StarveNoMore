@@ -47,6 +47,7 @@ function beginDayPhase()
     -- Reset all players' actions and trade counters
     gameState.combatContext = nil   -- no fight carries across into a new Day
     gameState.tradesThisTurn = {}
+    gameState.sledUsedThisTurn = {}   -- Antler Sled: once per turn (trophies.lua)
 
     -- P3_LONG_NIGHT (reducedActions): the day is short — 2 actions, not 3.
     -- Read here rather than in spendAction because the budget is what the

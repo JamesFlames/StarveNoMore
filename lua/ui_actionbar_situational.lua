@@ -196,6 +196,37 @@ end
 -----------------------------------------------------------------------
 local DOWNED_SEATS = {"White", "Red", "Yellow", "Green", "Blue"}
 
+-- `seats` is the eligible seat list; the panel is otherwise identical for
+-- every verb that picks one ally, so the Antler Sled reuses it rather than
+-- adding a third five-button panel to the XML.
+local function showSeatTargets(color, kind, title, note, seats, extra)
+    local eligible = {}
+    for _, c in ipairs(seats) do eligible[c] = true end
+    for _, c in ipairs(DOWNED_SEATS) do
+        local btn = "downedBtn_" .. c
+        local ch = gameState.activeChars[c]
+        if eligible[c] and ch then
+            UI.setAttribute(btn, "active", "true")
+            setButtonLabel(btn, ch.name .. "  (at " .. (ch.location or "?") .. ")")
+        else
+            UI.setAttribute(btn, "active", "false")
+        end
+    end
+    UI.setAttribute("downedTitle", "text", title)
+    UI.setAttribute("downedNote", "text", note)
+    gameState.pendingAction = { type = kind, color = color }
+    if extra then
+        for k, v in pairs(extra) do gameState.pendingAction[k] = v end
+    end
+    UI.show("downedDialog")
+end
+
+-- The Antler Sled's ally pick (trophies.lua calls this once the mover has
+-- arrived, so only "who comes too" is left to decide).
+function showSledTargets(color, toLoc, candidates, title, note)
+    showSeatTargets(color, "sled", title, note, candidates, { toLoc = toLoc })
+end
+
 local function showDownedTargets(color, kind, title, note)
     local eligible = {}
     for _, c in ipairs(downedAlliesHere(color)) do eligible[c] = true end
@@ -244,10 +275,16 @@ function onDownedTargetClick(player, value, id)
     UI.hide("downedDialog")
     local pa = gameState.pendingAction
     if not (pa and pa.color == player.color) then return end
-    if pa.type ~= "revive" and pa.type ~= "stabilize" then return end
+    if pa.type ~= "revive" and pa.type ~= "stabilize" and pa.type ~= "sled" then return end
     gameState.pendingAction = nil
 
     local color = pa.color
+    if pa.type == "sled" then
+        safecall(function() bringAllyOnSled(color, value, pa.toLoc) end, "AntlerSled")
+        refreshPhaseBanner()
+        updateActivePlayerIndicator()
+        return
+    end
     if pa.type == "stabilize" then
         safecall(function() doStabilize(color, value) end, "Stabilize")
     else
@@ -265,7 +302,9 @@ end
 function onDownedCancel(player, value, id)
     UI.hide("downedDialog")
     local pa = gameState.pendingAction
-    if pa and (pa.type == "revive" or pa.type == "stabilize") then
+    if pa and (pa.type == "revive" or pa.type == "stabilize" or pa.type == "sled") then
+        -- Declining the Sled does NOT spend it: nobody came along, so the
+        -- once-per-turn window is still open for a later Move this turn.
         gameState.pendingAction = nil
     end
 end

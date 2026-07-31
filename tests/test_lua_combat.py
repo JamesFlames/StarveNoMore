@@ -393,7 +393,9 @@ class TestBossPlacement:
         env.execute('DAWN_EFFECTS["P2_DEERCLOPS_ARRIVES"].onReveal(TTS.makeObject({}))')
         add_char(env, "White", "James", location="BasketballCourt", hunger=6)
         standee = env.eval('findOneByTag("Boss:Deerclops")')
-        script_dice(env, [5, 3, 3, 3])  # one hit; counter (3 dice) misses
+        # One hit; the counter misses. The Basketball Court's defence is -1
+        # (open court, exposed), so the Deerclops swings 4 times, not 3.
+        script_dice(env, [5, 3, 3, 3, 3])
         env.globals().doFightTarget("White", standee, False)
         env.globals().finishCombat()
         assert env.eval("gameState.bossHP.deerclops") == 5  # 6 - 1, remembered

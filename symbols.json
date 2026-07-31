@@ -74,7 +74,7 @@
   "ACTIONS_PER_TURN": [
    {
     "file": "lua/global.lua",
-    "line": 117,
+    "line": 137,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -332,7 +332,7 @@
   "BROADCAST_COLORS": [
    {
     "file": "lua/global.lua",
-    "line": 292,
+    "line": 312,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -432,7 +432,7 @@
   "CLEANSE_COST": [
    {
     "file": "lua/global.lua",
-    "line": 139,
+    "line": 159,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -442,7 +442,7 @@
   "CLEANSE_REDUCTION": [
    {
     "file": "lua/global.lua",
-    "line": 140,
+    "line": 160,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -602,7 +602,7 @@
   "DIFFICULTY_PARAMS": [
    {
     "file": "lua/global.lua",
-    "line": 187,
+    "line": 207,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -612,7 +612,7 @@
   "DOOM_RATES": [
    {
     "file": "lua/global.lua",
-    "line": 246,
+    "line": 266,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -642,7 +642,7 @@
   "DOOM_THRESHOLDS": [
    {
     "file": "lua/global.lua",
-    "line": 124,
+    "line": 144,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -712,7 +712,7 @@
   "HEART_SUPPLY_MAX": [
    {
     "file": "lua/global.lua",
-    "line": 152,
+    "line": 172,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -807,6 +807,16 @@
     "params": null,
     "arity": null,
     "doc": ""
+   }
+  ],
+  "LOCATION_DEFENSE": [
+   {
+    "file": "lua/global.lua",
+    "line": 129,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "Per-location defence, Design §7.1-7.5 (\"Defense: +1 (the nets help)\", \"-1 (open court, exposed)\"). MIRRORS the `defense` column of content/locations.csv; tests…"
    }
   ],
   "LOCATION_ORDER": [
@@ -1082,7 +1092,7 @@
   "REVIVE_HEALTH_COST": [
    {
     "file": "lua/global.lua",
-    "line": 147,
+    "line": 167,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1162,7 +1172,7 @@
   "SITUATIONAL_ACTIONS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 409,
+    "line": 448,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1291,6 +1301,16 @@
     "doc": "Boss key → the Trophy it awards. MIRRORS the `boss` column of content/cards_trophies.csv (which holds the trophy NAMES, despite the column heading); tests/test…"
    }
   ],
+  "TROPHY_POWERS": [
+   {
+    "file": "lua/trophies.lua",
+    "line": 24,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
   "USE_ITEMS": [
    {
     "file": "lua/items.lua",
@@ -1304,7 +1324,7 @@
   "USE_ITEM_DIALOG_SLOTS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 314,
+    "line": 353,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1549,7 +1569,7 @@
   "_useItemDialogIds": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 315,
+    "line": 354,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1716,6 +1736,16 @@
     "doc": ""
    }
   ],
+  "activeTrophyRules": [
+   {
+    "file": "lua/trophies.lua",
+    "line": 148,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Rules-panel lines for the trophies the team is actually holding. collectActiveRules (ui_rules.lua) appends these."
+   }
+  ],
   "addMarketHelp": [
    {
     "file": "lua/crafting.lua",
@@ -1743,7 +1773,7 @@
   "advanceToNextPlayer": [
    {
     "file": "lua/turns.lua",
-    "line": 87,
+    "line": 88,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1779,7 +1809,7 @@
   "announceInventory": [
    {
     "file": "lua/actions.lua",
-    "line": 338,
+    "line": 343,
     "kind": "function",
     "params": [
      "color"
@@ -1935,7 +1965,7 @@
   "beginCombat": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 230,
+    "line": 265,
     "kind": "function",
     "params": [
      "colors",
@@ -1968,7 +1998,7 @@
   "beginNight": [
    {
     "file": "lua/day_loop.lua",
-    "line": 603,
+    "line": 608,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2031,10 +2061,24 @@
     "doc": ""
    }
   ],
+  "bringAllyOnSled": [
+   {
+    "file": "lua/trophies.lua",
+    "line": 77,
+    "kind": "function",
+    "params": [
+     "color",
+     "allyColor",
+     "toLoc"
+    ],
+    "arity": 3,
+    "doc": "Resolve the pick: the ally is dragged along to where the mover went."
+   }
+  ],
   "broadcastEvent": [
    {
     "file": "lua/global.lua",
-    "line": 300,
+    "line": 320,
     "kind": "function",
     "params": [
      "category",
@@ -2561,7 +2605,7 @@
   "countDuskReady": [
    {
     "file": "lua/turns.lua",
-    "line": 297,
+    "line": 298,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2623,7 +2667,7 @@
   "describeDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 273,
+    "line": 293,
     "kind": "function",
     "params": [
      "diff"
@@ -2746,7 +2790,7 @@
   "doDuskMove": [
    {
     "file": "lua/actions.lua",
-    "line": 236,
+    "line": 241,
     "kind": "function",
     "params": [
      "color",
@@ -2810,7 +2854,7 @@
   "doGather": [
    {
     "file": "lua/actions.lua",
-    "line": 392,
+    "line": 397,
     "kind": "function",
     "params": [
      "color"
@@ -2885,7 +2929,7 @@
   "doRaymanBonusMove": [
    {
     "file": "lua/actions.lua",
-    "line": 186,
+    "line": 191,
     "kind": "function",
     "params": [
      "color",
@@ -2898,7 +2942,7 @@
   "doRest": [
    {
     "file": "lua/actions.lua",
-    "line": 492,
+    "line": 538,
     "kind": "function",
     "params": [
      "color",
@@ -3047,7 +3091,7 @@
   "endPlayerTurn": [
    {
     "file": "lua/turns.lua",
-    "line": 155,
+    "line": 156,
     "kind": "function",
     "params": [
      "color"
@@ -3171,7 +3215,7 @@
   "finishCombat": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 427,
+    "line": 462,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3236,7 +3280,7 @@
   "gatherRandomResources": [
    {
     "file": "lua/actions.lua",
-    "line": 364,
+    "line": 369,
     "kind": "function",
     "params": [
      "color",
@@ -3317,7 +3361,7 @@
   "getDifficulty": [
    {
     "file": "lua/global.lua",
-    "line": 205,
+    "line": 225,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3327,7 +3371,7 @@
   "getDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 257,
+    "line": 277,
     "kind": "function",
     "params": [
      "phase"
@@ -3339,7 +3383,7 @@
   "getDoomLimit": [
    {
     "file": "lua/global.lua",
-    "line": 210,
+    "line": 230,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3359,7 +3403,7 @@
   "getDoomRate": [
    {
     "file": "lua/global.lua",
-    "line": 263,
+    "line": 283,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3497,7 +3541,7 @@
   "getPhaseForDay": [
    {
     "file": "lua/global.lua",
-    "line": 228,
+    "line": 248,
     "kind": "function",
     "params": [
      "day"
@@ -3568,7 +3612,7 @@
   "getSourceMaxHP": [
    {
     "file": "lua/global.lua",
-    "line": 215,
+    "line": 235,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3578,7 +3622,7 @@
   "getSourceSplitHP": [
    {
     "file": "lua/global.lua",
-    "line": 223,
+    "line": 243,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3598,7 +3642,7 @@
   "getTotalDays": [
    {
     "file": "lua/global.lua",
-    "line": 209,
+    "line": 229,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3920,7 +3964,7 @@
   "maybeJamesReroll": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 200,
+    "line": 235,
     "kind": "function",
     "params": [
      "participants",
@@ -3933,7 +3977,7 @@
   "migrateGameState": [
    {
     "file": "lua/global.lua",
-    "line": 317,
+    "line": 337,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4009,6 +4053,20 @@
     "params": [],
     "arity": 0,
     "doc": "Focus on the Doom marker when crossing a threshold"
+   }
+  ],
+  "offerAntlerSled": [
+   {
+    "file": "lua/trophies.lua",
+    "line": 63,
+    "kind": "function",
+    "params": [
+     "color",
+     "fromLoc",
+     "toLoc"
+    ],
+    "arity": 3,
+    "doc": "Called from doMove once the move has landed. Returns true if the offer was put to the table (the caller does nothing else with it — the dialog owns the rest of…"
    }
   ],
   "offerOpeningSuggestion": [
@@ -4110,7 +4168,7 @@
   "onActAppease": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 390,
+    "line": 429,
     "kind": "function",
     "params": [
      "player",
@@ -4124,7 +4182,7 @@
   "onActBarricade": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 386,
+    "line": 425,
     "kind": "function",
     "params": [
      "player",
@@ -4152,7 +4210,7 @@
   "onActClear": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 397,
+    "line": 436,
     "kind": "function",
     "params": [
      "player",
@@ -4194,7 +4252,7 @@
   "onActDefend": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 295,
+    "line": 334,
     "kind": "function",
     "params": [
      "player",
@@ -4208,7 +4266,7 @@
   "onActEatRaw": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 304,
+    "line": 343,
     "kind": "function",
     "params": [
      "player",
@@ -4222,7 +4280,7 @@
   "onActEnergyDrink": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 299,
+    "line": 338,
     "kind": "function",
     "params": [
      "player",
@@ -4250,7 +4308,7 @@
   "onActFlee": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 361,
+    "line": 400,
     "kind": "function",
     "params": [
      "player",
@@ -4362,7 +4420,7 @@
   "onActRevive": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 218,
+    "line": 249,
     "kind": "function",
     "params": [
      "player",
@@ -4390,7 +4448,7 @@
   "onActStabilize": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 231,
+    "line": 262,
     "kind": "function",
     "params": [
      "player",
@@ -4432,7 +4490,7 @@
   "onActUseItem": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 317,
+    "line": 356,
     "kind": "function",
     "params": [
      "player",
@@ -4584,7 +4642,7 @@
   "onDawnStepClick": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 368,
+    "line": 374,
     "kind": "function",
     "params": [
      "player",
@@ -4598,7 +4656,7 @@
   "onDownedCancel": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 265,
+    "line": 302,
     "kind": "function",
     "params": [
      "player",
@@ -4612,7 +4670,7 @@
   "onDownedTargetClick": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 243,
+    "line": 274,
     "kind": "function",
     "params": [
      "player",
@@ -4836,7 +4894,7 @@
   "onLoad": [
    {
     "file": "lua/global.lua",
-    "line": 384,
+    "line": 405,
     "kind": "function",
     "params": [
      "savedState"
@@ -5113,7 +5171,7 @@
   "onRulesToggle": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 321,
+    "line": 327,
     "kind": "function",
     "params": [
      "player",
@@ -5127,7 +5185,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 444,
+    "line": 465,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5291,7 +5349,7 @@
   "onUseItemCancel": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 355,
+    "line": 394,
     "kind": "function",
     "params": [
      "player",
@@ -5305,7 +5363,7 @@
   "onUseItemOptionClick": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 345,
+    "line": 384,
     "kind": "function",
     "params": [
      "player",
@@ -5560,7 +5618,7 @@
   "playerHasBackpack": [
    {
     "file": "lua/actions.lua",
-    "line": 352,
+    "line": 357,
     "kind": "function",
     "params": [
      "color"
@@ -5616,7 +5674,7 @@
   "pressAttack": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 375,
+    "line": 410,
     "kind": "function",
     "params": [
      "color",
@@ -5901,7 +5959,7 @@
   "refreshCycleStrip": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 390,
+    "line": 396,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5911,7 +5969,7 @@
   "refreshDawnChecklist": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 334,
+    "line": 340,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5921,7 +5979,7 @@
   "refreshDuskReadyLabel": [
    {
     "file": "lua/turns.lua",
-    "line": 315,
+    "line": 316,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6003,7 +6061,7 @@
   "refreshRulesPanel": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 271,
+    "line": 277,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6013,7 +6071,7 @@
   "refreshSituationalButtons": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 443,
+    "line": 482,
     "kind": "function",
     "params": [
      "color"
@@ -6069,7 +6127,7 @@
   "resolveCharlieAttack": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 441,
+    "line": 476,
     "kind": "function",
     "params": [
      "color"
@@ -6081,7 +6139,7 @@
   "resolveCombat": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 365,
+    "line": 400,
     "kind": "function",
     "params": [
      "color",
@@ -6089,6 +6147,19 @@
     ],
     "arity": 2,
     "doc": "Single-fighter shorthand for beginCombat, which takes a colour LIST. Game code does not call this and should not: the real fight path (doFight, actions_combat.…"
+   }
+  ],
+  "resolveEchoes": [
+   {
+    "file": "lua/actions.lua",
+    "line": 508,
+    "kind": "function",
+    "params": [
+     "color",
+     "loc"
+    ],
+    "arity": 2,
+    "doc": "Echoes (Design §7.4) — the Basketball Court's special. \"Each time a player gathers here, they roll a d6. On 6, draw a bonus item card. On 1-2, lose 1 Sanity.\" …"
    }
   ],
   "resolveHardThreatDefeat": [
@@ -6197,6 +6268,16 @@
     "doc": "F.6 — TICK (end-of-day decay) Design §11.5: Every character loses 1 Hunger and 1 Sanity."
    }
   ],
+  "resolveWatchingJar": [
+   {
+    "file": "lua/trophies.lua",
+    "line": 117,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "The Watching Jar (TR_EYE_OF_TERROR). Read at Dusk, which is exactly when it is worth something: the scramble window is open, so knowing what tonight holds chan…"
+   }
+  ],
   "resolveWrongness": [
    {
     "file": "lua/effects/dawn_effects_phase2.lua",
@@ -6222,7 +6303,7 @@
   "revealDuskCommitments": [
    {
     "file": "lua/turns.lua",
-    "line": 239,
+    "line": 240,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6521,6 +6602,22 @@
     "doc": ""
    }
   ],
+  "showSledTargets": [
+   {
+    "file": "lua/ui_actionbar_situational.lua",
+    "line": 226,
+    "kind": "function",
+    "params": [
+     "color",
+     "toLoc",
+     "candidates",
+     "title",
+     "note"
+    ],
+    "arity": 5,
+    "doc": "The Antler Sled's ally pick (trophies.lua calls this once the mover has arrived, so only \"who comes too\" is left to decide)."
+   }
+  ],
   "showWeekInReview": [
    {
     "file": "lua/ui_week_review.lua",
@@ -6539,6 +6636,19 @@
     "params": [],
     "arity": 0,
     "doc": "H.6 — Welcome sequence on first load"
+   }
+  ],
+  "sledCandidates": [
+   {
+    "file": "lua/trophies.lua",
+    "line": 51,
+    "kind": "function",
+    "params": [
+     "color",
+     "fromLoc"
+    ],
+    "arity": 2,
+    "doc": "Standing allies who were at `fromLoc` when the mover left it."
    }
   ],
   "snapshotForUndo": [
@@ -6592,7 +6702,7 @@
   "spendAction": [
    {
     "file": "lua/turns.lua",
-    "line": 182,
+    "line": 183,
     "kind": "function",
     "params": [
      "color",
@@ -6784,6 +6894,18 @@
     "doc": "Best-effort discard: remove up to qty of resType from a player's held count (gameState), returning how many were actually taken — 0 is fine (dawn cards say \"di…"
    }
   ],
+  "teamHasTrophy": [
+   {
+    "file": "lua/trophies.lua",
+    "line": 38,
+    "kind": "function",
+    "params": [
+     "key"
+    ],
+    "arity": 1,
+    "doc": "Has the team earned this trophy? (markBossDefeated, combat.lua.)"
+   }
+  ],
   "threatCardsAt": [
    {
     "file": "lua/threat_persistent.lua",
@@ -6836,7 +6958,7 @@
   "toggleDuskReady": [
    {
     "file": "lua/turns.lua",
-    "line": 328,
+    "line": 329,
     "kind": "function",
     "params": [
      "color"

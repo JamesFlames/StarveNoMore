@@ -35,6 +35,7 @@ StarveNoMore/
 │   ├── actions_combat.lua      # Combat verbs: threat/boss statlines, fight, flee
 │   ├── actions_social.lua      # Trade, energy drink, eat-raw, pass, barricade, defend, peek, rally, pry, stabilize
 │   ├── treeguard.lua           # Phase 2.5 mini-boss (wakes Dusk D4; fight/appease/defeat)
+│   ├── trophies.lua            # Boss Trophy powers: the Antler Sled (tow an ally on a Move), the Watching Jar (Dusk look at the Threat deck)
 │   ├── signatures.lua          # Signature Moves (§6.7) — once-per-game per-character actions + button/dialog UX
 │   ├── telemetry.lua           # Session log (batch 4 W0): chronicle setup/turns/beats, exportSessionLog, Copy Session Log
 │   ├── ui_banner.lua           # Phase Banner + recommendNext + CTA pulse + active-player indicator

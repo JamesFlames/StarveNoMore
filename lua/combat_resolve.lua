@@ -152,11 +152,42 @@ function applyCounterAttack()
     -- Multi-attack (the Spider Thing): the card rolls more dice than its
     -- printed Attack column, so the rider overrides rather than adds.
     if ctx.threat.counterDice then threatAtk = ctx.threat.counterDice end
+
+    -- Where the fight is decides how well you can cover (Design §7.1-7.5).
+    -- A negative defence is extra dice for the threat — being caught on an
+    -- open court is the same rule pointed the other way — so it is folded in
+    -- before the "does it even swing" check.
+    local here = ctx.colors[1] and gameState.activeChars[ctx.colors[1]]
+        and gameState.activeChars[ctx.colors[1]].location
+    local defence = LOCATION_DEFENSE[here or ""] or 0
+    if defence < 0 and threatAtk > 0 then
+        threatAtk = threatAtk - defence
+        broadcastEvent("warn", "No cover at " .. here .. " — it swings " ..
+            (-defence) .. " extra time(s).")
+    end
+
     if threatAtk <= 0 then return end
     local tName = ctx.threat.name or "Threat"
     broadcastEvent("proc", tName .. " counter-attacks with " .. threatAtk .. " dice...")
     local defResult = rollAttackDice(threatAtk)
     broadcastEvent("proc", "Enemy: " .. formatRolls(defResult.rolls))
+
+    -- The Net (§7.5): the team rolls its defence dice and each 5-6 turns one
+    -- incoming hit aside. Rolled only when something actually landed, so a
+    -- missed counter doesn't spend the table's attention on a pointless roll.
+    local blockedAll = false
+    if defence > 0 and defResult.hits > 0 then
+        local block = rollAttackDice(defence)
+        broadcastEvent("proc", "Defending at " .. here .. ": " .. formatRolls(block.rolls))
+        local blocked = math.min(block.hits, defResult.hits)
+        if blocked > 0 then
+            defResult.hits = defResult.hits - blocked
+            blockedAll = (defResult.hits == 0)
+            broadcastEvent("gain", "The cover at " .. here .. " turns " .. blocked ..
+                " hit(s) aside.")
+        end
+    end
+
     if defResult.hits > 0 then
         -- Backboard Block (§6.3): while Rayman Defends, every counter hit
         -- lands on him instead of whoever it targeted — as long as he is
@@ -186,6 +217,10 @@ function applyCounterAttack()
             end
         end
         for _, color in ipairs(ctx.colors) do checkDownState(color) end
+    elseif blockedAll then
+        -- It connected and the cover ate it — saying "misses" here would
+        -- credit the dice with what the Net actually did.
+        broadcastEvent("gain", tName .. " gets through nothing — every hit turned aside.")
     else
         broadcastEvent("proc", tName .. " misses!")
     end

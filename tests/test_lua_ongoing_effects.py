@@ -15,6 +15,7 @@ from conftest import (
     broadcasts,
     lua52,
     py_to_lua,
+    script_dice,
 )
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
@@ -208,6 +209,10 @@ class TestRain:
     def test_gather_in_the_rain_costs_sanity_at_a_court(self, env):
         add_char(env, "Green", "Ellie", location="BasketballCourt", sanity=8)
         set_effect(env, "rainSanityCost")
+        # Scripted, not left to real randomness: a Gather at the Basketball
+        # Court also rolls the Echoes d6 (§7.4), which costs a further Sanity
+        # on a 1-2. Rolls are [resource pick, Echoes] — a 3 is "only the wind".
+        script_dice(env, [1, 3])
         env.globals().doGather("Green")
         assert env.eval("gameState.activeChars.Green.sanity") == 7
 

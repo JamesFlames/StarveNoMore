@@ -647,3 +647,29 @@ def test_trophy_names_mirror_the_trophies_csv():
     assert not missing, (
         f"TROPHY_BY_BOSS names {missing} are not in cards_trophies.csv — the "
         "utilization report would score them as never earned")
+
+
+def test_location_defense_mirrors_the_locations_csv():
+    """LOCATION_DEFENSE (lua/global.lua) is the live rule — applyCounterAttack
+    rolls the Net's blocking dice off it, and adds the Basketball Court's
+    exposure as extra swings for the threat. content/locations.csv's `defense`
+    column is where the design writes it down (§7.1-7.5). Drift here changes
+    combat maths silently, in the direction nobody would notice: a lost block
+    just looks like bad luck."""
+    src = read_text(os.path.join(LUA_DIR, "global.lua"))
+    body = re.search(r"LOCATION_DEFENSE\s*=\s*\{(.*?)\n\}", src, re.S)
+    assert body, "LOCATION_DEFENSE not found in lua/global.lua"
+    lua_def = {k: int(v) for k, v in
+               re.findall(r"(\w+)\s*=\s*(-?\d+)", body.group(1))}
+
+    csv_key = {
+        "L_JAMES": "JamesHouse", "L_RAYMAN": "RaymanHouse",
+        "L_ELLIE_LUCA": "EllieLucaHouse", "L_BASKETBALL": "BasketballCourt",
+        "L_BADMINTON": "BadmintonCourt",
+    }
+    csv_def = {csv_key[r["id"]]: int(r["defense"])
+               for r in read_csv_rows("locations.csv") if r["id"] in csv_key}
+    assert lua_def == csv_def, (
+        f"defence drift: lua={lua_def} csv={csv_def} — LOCATION_DEFENSE "
+        "(global.lua) and the `defense` column of content/locations.csv "
+        "must agree.")

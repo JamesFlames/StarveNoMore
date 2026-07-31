@@ -208,7 +208,9 @@ class TestNothingLeftToLose:
         assert env.globals().getAttackDice("Yellow") == 3  # base 1 + Rayman + doom25
 
     def test_rest_heals_health_anywhere_only_at_doom25(self, env):
-        add_char(env, "White", "James", health=5, location="RaymanHouse")
+        # EllieLucaHouse, not RaymanHouse: the Garage (§7.2) heals +1 Health
+        # for anyone resting there, which would mask the Doom-25 rule.
+        add_char(env, "White", "James", health=5, location="EllieLucaHouse")
         env.globals().doRest("White", "sanity")
         assert env.eval("gameState.activeChars.White.health") == 5  # away from home, no buff
         env.execute("gameState.ongoingDawnEffects.doom25 = true")

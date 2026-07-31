@@ -114,6 +114,26 @@ LOCATION_YIELDS = {
     BadmintonCourt  = {"Cloth", "Wood", "Metal"},
 }
 
+-----------------------------------------------------------------------
+-- Per-location defence, Design §7.1-7.5 ("Defense: +1 (the nets help)",
+-- "-1 (open court, exposed)"). MIRRORS the `defense` column of
+-- content/locations.csv; tests/test_cross_refs.py guards the mirror.
+--
+-- Read by applyCounterAttack (combat_resolve.lua): a positive value is that
+-- many dice the defenders roll to block incoming counter hits (The Net's
+-- "+1 die when defending"), a negative one is that many EXTRA dice the
+-- threat rolls, because being caught in the open is the same rule pointed
+-- the other way. Two UI strings — the Badminton Court's board tooltip and
+-- its What-now hint — have promised this since before it existed.
+-----------------------------------------------------------------------
+LOCATION_DEFENSE = {
+    JamesHouse      = 0,
+    RaymanHouse     = 1,   -- the Garage: lots of cover
+    EllieLucaHouse  = 0,
+    BasketballCourt = -1,  -- open court, exposed
+    BadmintonCourt  = 1,   -- The Net: the nets entangle attackers
+}
+
 ACTIONS_PER_TURN = 3
 
 -----------------------------------------------------------------------
@@ -358,6 +378,7 @@ function migrateGameState()
     gs.openingOffered       = gs.openingOffered or {}        -- Day-1 opening suggestion, once per player (§15.9)
     gs.duskPending          = gs.duskPending or {}           -- banked secret Dusk moves (§11.3 variant)
     gs.driftedThisRound     = gs.driftedThisRound or {}      -- ghost drift, once per round (§16.4)
+    gs.sledUsedThisTurn     = gs.sledUsedThisTurn or {}      -- Antler Sled trophy, once per turn (trophies.lua)
     gs.missingAlly          = gs.missingAlly or nil          -- P3_ALLY_MISSING: who gets today's +1 action
     if gs.duskSecret == nil then gs.duskSecret = false end   -- §11.3 A/B variant
     if gs.solo == nil then gs.solo = false end               -- §20.3 solo mode

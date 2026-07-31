@@ -68,11 +68,11 @@ DAWN
 DAY
 Each player has 3 actions, taken as one turn (default) — or, with the Rotation turns variant, you take 1 action and play passes to the next player, circling the table until everyone has used all 3 (pass after acting = keep the rest for your next go; pass without acting = forfeit them). Choose any:
 - Move (1) — adjacent tile. Costs 1 Hunger. Rayman moves 2 spaces.
-- Gather (1) — take 1 resource at this tile; it's delivered to your board automatically.
+- Gather (1) — take 1 resource at this tile; it's delivered to your board automatically. At the Basketball Court you also roll the Echoes d6: 6 = a bonus Item, 1–2 = lose 1 Sanity.
 - Craft (1) — buy an Item from the Market.
 - Cook (1) — at a Crockpot, prepare a Recipe.
 - Fight (1) — attack a Threat at this tile.
-- Rest (1) — +1 Hunger or +2 Sanity. Own house: also +1 Health.
+- Rest (1) — +1 Hunger or +2 Sanity. Own house: also +1 Health — and so does Rayman's House for anyone (the Garage).
 - Pry (free) — with a Crowbar, Lockpick, or Pry Bar: open a sealed thing at your tile for its printed reward (sealed Threat cards; the Sealed Basement at Ellie & Luca's House).
 - Clear (2) — pay 2 actions + 1 Wood to remove a Persistent threat that can be neither fought (0 HP) nor pried open. Its rule stops, and so does its +1 Doom every Dawn.
 - Cleanse (1) — pay 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink → Doom -2.
@@ -312,6 +312,10 @@ ACTIONS
 - Last Nerve — while any of your stats is below 3: Flee costs 0 Sanity, and Rest restores 1 extra. Ends when you recover. It is the personal version of Doom 25's Nothing Left to Lose: the game stops kicking you once you're nearly out.
 - Press the Attack — after landing a hit in combat, pay 1 Sanity to roll one bonus die (5–6 = 1 more damage, press again; 1–4 = streak ends, enemy counters). Press dice never fumble. Pressing can drop you to 0 Sanity — you go Lost mid-fight.
 - Boss rewards — killing a phase boss rebates Doom (Deerclops −2, Eye −3), spills 3 resources at its tile, and awards its Trophy (a unique team power).
+- Trophy powers — live from the moment the Trophy flips face-up, and listed in the Rules panel for as long as you hold them. The Antler Sled (Deerclops): once per turn, a character who Moves may bring one ally who was standing with them — the ally pays 1 Hunger and no action. The Watching Jar (Eye of Terror): at each Dusk the team is shown the top 2 cards of the Threat deck, and may swap them, before deciding where to stand for the night.
+- Echoes — the Basketball Court's special. Every Gather there rolls a d6: on a 6 you find a bonus Item from the Market deck, on a 1–2 the court answers back and costs you 1 Sanity. It is the one place in the economy that is a gamble.
+- Cover (location defence) — where a fight happens changes how well you can shelter. At the Badminton Court the Net rolls 1 extra die against the enemy's counter-attack, and each 5–6 turns one hit aside; at Rayman's House the Garage's clutter does the same. On the Basketball Court you are in the open and the threat swings one extra time.
+- The Garage — Rest at Rayman's House restores +1 Health for *anyone*, not just Rayman. It does not stack with your own home's +1.
 - Signature Move — every character's once-per-game named move (Signature button): James's All-Nighter, Coco's Touch of Hope, Rayman's Posterize, Ellie's Feast, Luca's Speech. Each pays an off-stat cost.
 - Dare — an *optional* hook on some early-week Dawn cards: a temptation the team may take or decline (extra loot for extra risk). Never mandatory; the card and the Rules panel state the terms.
 - Pry — a free action with a Crowbar, Lockpick, or Pry Bar: open a sealed thing at your tile for its printed reward. Sealed Threat cards and the Sealed Basement (at Ellie & Luca's House from setup) all open this way.

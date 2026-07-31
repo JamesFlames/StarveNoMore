@@ -39,6 +39,7 @@
     "actions_haunted.lua",
     "items.lua",
     "treeguard.lua",
+    "trophies.lua",
     "signatures.lua",
     "telemetry.lua",
     "achievement_data.lua",

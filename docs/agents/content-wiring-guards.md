@@ -1,0 +1,24 @@
+# Printed-Rule Wiring Guards
+
+**Is the rule on the card a rule something enforces?** The bug class this
+repo keeps finding is not a crash: it is a rule that is *written down* — on a
+card face, in a tooltip, in a broadcast — and wired to nothing, so it fails
+silently forever while the UI goes on describing it. These five modules each
+pin one content family's answer, and each demands that a rule with no code is
+*declared* as such with a reason rather than left blank. Silence is what made
+every one of these invisible.
+
+Split out of [test-guards.md](test-guards.md), which holds the structural and
+static guards.
+
+*Part of the [agent reference](README.md); the index and the documentation map live in [`agents.md`](../../agents.md).*
+
+- **`test_market_wiring.py`** — **every Market card is either wired or listed with a reason.** 33 of 49 were wired to nothing, and players had no way to apply one by hand (no Use Item verb before `items.lua`, no stat editor, stats in `gameState`) — so they did nothing at all while looking exactly like cards deliberately left to the table. Not every card must be scripted; the split must be written down. `UNWIRED` carries a reason each, a companion check ejects a card once the Lua reads it, and a third pins `USE_ITEMS` to the printed numbers.
+
+- **`test_soft_threats.py`** — **a Soft threat resolves, and then it leaves.** `drawThreatsAt` announced "resolves and discards" and did neither. The second half was the expensive one: `hp = 0` is filtered out of `fightTargetsAt` (unfightable), nothing removed the card, and `countFesteringThreats` counts every Threat card near a tile — so each became **+1 Doom every Dawn all week, with no counterplay at any price**. Fails on a Soft card in neither `SOFT_THREAT_EFFECTS` nor `MANUAL_SOFT`, on either table naming a Hard/Persistent card, and on a card in both. One test asserts an *unresolved* card still festers, pinning the mechanism the rest relies on.
+
+- **`test_persistent_threats.py`** — **a Persistent threat applies its rule, and can always be got rid of.** Two bugs, the first hiding the second. `identifyThreatType` read only `ThreatType:*` tags and GMNotes, and the save had neither (cards carry `["ThreatCard", "<CSV id>"]`; GMNotes is `""` everywhere) — so **every drawn card classified as "Hard"**, which made the Soft branch above dead code in the shipped mod. Underneath: the thirteen printed Persistent rules had no code, and of the seven with `hp = 0` only four are Sealed, so six cards had **no removal path at any price** while festering +1 Doom every Dawn. Fails on a Persistent card with no `PERSISTENT_THREAT_RULES` row, a row naming a non-Persistent card, a `fought`/`sealed` flag disagreeing with the card's hp/`pry_reward` (it would advertise a verb that refuses), or a built save missing a `ThreatType:` tag. One test asserts an *uncleared* card still festers, pinning the mechanism the rest relies on.
+
+- **`test_hard_threats.py`** — **the special printed on a Hard card is a rule something enforces.** Eighteen Hard cards print one; `COMBAT_SPECIALS` held exactly one row and seventeen had no code anywhere. Two of those were more than inert: **The Grue has hp 0**, so like the Soft cards and the hp-less Persistents it could never be fought, was never discarded, and festered +1 Doom every Dawn while its printed attack never landed; and the Roommate's per-die Sanity cost applied only when `#participants == 1`, so **Fight Together switched it off**. Fails on a Hard special with no `HARD_THREAT_SPECIALS` row, a row naming a non-Hard card, a row that is neither scripted nor `manual` nor `inert` (silence is what made these invisible), and a scripted key this module has never heard of.
+
+- **`test_places_and_trophies.py`** — **rules the UI states as fact.** Five of them existed only as text. The boss-kill broadcast says "its Trophy flips face-up — **its power is live**" and `revealTrophy` turned a card over and highlighted it: neither the Antler Sled's tow nor the Watching Jar's Dusk look had any code, so the whole reward for the game's hardest content was a picture. The Basketball Court's tooltip *and* its What-now hint promised the Echoes d6 (§7.4); nothing rolled it. The Badminton Court's tooltip *and* hint promised "+1 defense die"; there was no defence roll anywhere, and `locations.csv` carried a `defense` column nothing read. The Garage's tooltip promised "Rest +1 Health" with no owner qualifier, but the code gave it only at your own home — so it did nothing for anyone but Rayman, for whom it was already true. Companion mirror in `test_cross_refs.py`: `LOCATION_DEFENSE` must match the CSV, because drifted combat maths just looks like bad luck.

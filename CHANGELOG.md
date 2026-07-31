@@ -2,6 +2,61 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Five rules the interface stated as fact (2026-07)
+
+Not cards this time — the places you stand and the bosses you kill. Every one
+of these was asserted to the player somewhere in the UI, and none of them
+existed.
+
+**"Its power is live."** The boss-kill broadcast says exactly that, twice,
+about the Trophy it has just flipped face-up. `revealTrophy` turned a card over
+and highlighted it in yellow; that was the entire implementation. The Trophy is
+the whole reward for the hardest content in the game — §14.1's "a boss kill
+should visibly rescue the week, not just remove a penalty" — and it was a
+picture of a reward.
+
+- **The Antler Sled** (Deerclops) now tows: once per turn, a character who
+  Moves may bring one ally who was standing where they left. The offer comes
+  up *after* the move lands, so the table has one decision (who comes) instead
+  of two, and it reuses the Revive/Stabilize picker rather than adding a third
+  five-button panel. The ally pays 1 Hunger and no action. Declining does not
+  spend the once-per-turn window.
+- **The Watching Jar** (Eye of Terror) now opens at Dusk — deliberately then,
+  because the scramble window is open and knowing what tonight holds is only
+  worth something while you can still move. The top 2 Threat cards are read out
+  to everyone; the swap is announced as a one-drag table step rather than
+  scripted, because reordering a live TTS deck through the API is the
+  take-then-put dance `docs/tts-interface.md` exists to warn about.
+
+**"Echoes: d6 on gather (6 = bonus, 1-2 = Sanity loss)"** — the Basketball
+Court's board tooltip, and its What-now hint says it too, and Design §7.4
+specifies it. No d6 was ever rolled. The court was a plain Gather wearing a
+gamble's description, which is precisely what its −1 Sanity at sleep and its
+threat draw rate are supposed to be the price of. It rolls now, after the haul
+lands, so a bad roll that puts you Down still leaves you holding what you found.
+
+**"The Net gives +1 defense die in combat"** — the Badminton Court's What-now
+hint and its tooltip. There was no defence roll anywhere in the mod, and
+`content/locations.csv` carried a `defense` column that nothing read. Location
+defence is live: a positive value is dice the team rolls against an incoming
+counter-attack (each 5-6 turns one hit aside), a negative one is extra swings
+for the threat, because being caught on an open court is the same rule pointed
+the other way. So the Net and Rayman's Garage shelter you, and the Basketball
+Court costs you. `LOCATION_DEFENSE` mirrors the CSV under a cross-ref test —
+drifted combat maths is invisible, since a lost block just looks like bad luck.
+
+**"The Garage: Rest +1 Health"** — Rayman's House's tooltip, with no owner
+qualifier, because §7.2 puts the bonus on the *place*. The code gave +1 Health
+only at your own home, so the Garage did nothing for anybody except Rayman, for
+whom it was already true. The one line that made it worth walking to was inert.
+Non-stacking with the home bonus, exactly like Doom 25's.
+
+Guarded by `tests/test_places_and_trophies.py`. One of these also flushed out a
+flaky test: the rain-Gather test asserted an exact Sanity value after a
+Basketball Court gather and had been relying on real randomness, which the
+Echoes d6 turned into a one-in-three failure. Its dice are scripted now, as
+this suite's own conventions require.
+
 ## Hard threats: seventeen printed specials that no code had ever read (2026-07)
 
 The third and last threat kind to have its card text wired to anything.

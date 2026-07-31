@@ -23,11 +23,11 @@ This is the in-game reference. The full design intent is in `StarveNoMoreDesignC
 ### Day
 Each player has **3 actions**, taken as one turn (default) — or, with the **Rotation turns variant**, you take 1 action and play passes to the next player, circling the table until everyone has used all 3 (pass after acting = keep the rest for your next go; pass without acting = forfeit them). Choose any:
 - **Move (1)** — adjacent tile. Costs 1 Hunger. Rayman moves 2 spaces.
-- **Gather (1)** — take 1 resource at this tile; it's delivered to your board automatically.
+- **Gather (1)** — take 1 resource at this tile; it's delivered to your board automatically. At the Basketball Court you also roll the **Echoes** d6: 6 = a bonus Item, 1–2 = lose 1 Sanity.
 - **Craft (1)** — buy an Item from the Market.
 - **Cook (1)** — at a Crockpot, prepare a Recipe.
 - **Fight (1)** — attack a Threat at this tile.
-- **Rest (1)** — +1 Hunger or +2 Sanity. Own house: also +1 Health.
+- **Rest (1)** — +1 Hunger or +2 Sanity. Own house: also +1 Health — and so does Rayman's House for anyone (the Garage).
 - **Pry (free)** — with a Crowbar, Lockpick, or Pry Bar: open a sealed thing at your tile for its printed reward (sealed Threat cards; the Sealed Basement at Ellie & Luca's House).
 - **Clear (2)** — pay 2 actions + 1 Wood to remove a **Persistent** threat that can be neither fought (0 HP) nor pried open. Its rule stops, and so does its +1 Doom every Dawn.
 - **Cleanse (1)** — pay 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink → Doom -2.

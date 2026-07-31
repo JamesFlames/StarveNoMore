@@ -472,6 +472,11 @@ function beginDusk()
         safecall(function() wakeTreeguard() end, "Treeguard")
     end
 
+    -- The Watching Jar (Eye of Terror trophy): the team reads the top of the
+    -- Threat deck now, while the scramble window is open and the information
+    -- can still change where people stand.
+    safecall(function() resolveWatchingJar() end, "WatchingJar")
+
     gameState.duskPending = {}
     refreshPhaseBanner()
     if gameState.duskSecret then

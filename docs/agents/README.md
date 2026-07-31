@@ -13,6 +13,7 @@ split at its natural seams. Open the topic, not this index.
 | [economy-and-session.md](economy-and-session.md) | 1.0k | change the resource economy, Dusk/difficulty/telemetry, or an A/B variant |
 | [test-suite.md](test-suite.md) | 1.5k | know which module runs what gameplay, or run the release checklist |
 | [test-guards.md](test-guards.md) | 2.2k | find the static guard that just failed, or add one |
+| [content-wiring-guards.md](content-wiring-guards.md) | 1.2k | does each card / location / trophy actually do what it prints? |
 | [regression-guards.md](regression-guards.md) | 0.7k | the eight recurring bug classes `test_regression_guards.py` pins |
 | [balance-simulation.md](balance-simulation.md) | 1.7k | re-run the Monte Carlo after a rules change |
 | [ux-affordances.md](ux-affordances.md) | 2.1k | keep "the next legal action is always visible" true |

@@ -191,6 +191,12 @@ local function collectActiveRules()
         end
     end
 
+    -- 2.9) Trophy powers the team has actually earned (lua/trophies.lua).
+    -- The kill broadcast says "its power is live" and then scrolls away; a
+    -- build-around reward nobody can see the terms of is one nobody builds
+    -- around.
+    for _, line in ipairs(activeTrophyRules()) do table.insert(lines, line) end
+
     -- 3) Treeguard mini-boss (lua/treeguard.lua)
     local tg = gameState.treeguard
     if tg and tg.active then
