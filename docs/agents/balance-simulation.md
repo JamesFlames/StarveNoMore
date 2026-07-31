@@ -50,13 +50,37 @@ Standard error at 3000 sims is ~0.9 points, so only the court_camper row is comf
 
 The `--no-defence` column is the control for batch 5's location-defence rule; the probe that reads it apart is [balance-location-defence.md](balance-location-defence.md).
 
+### Knobs measured for the overshoot (none taken — a menu, not a decision)
+
+§5 names the tuning path for the valve: *"free Flee alone may be enough, and the Rest bonus is the half to drop first."* **Measured, that order is backwards** (3000 sims/cell, 4p): free Flee carries the whole effect and the Rest bonus is worth nothing.
+
+| valve variant | turtle | spread | balanced | court_camper |
+|---|---|---|---|---|
+| off | 42.0% | 42.6% | 14.4% | 11.8% |
+| Rest bonus only | 42.7% | 42.7% | 15.3% | 12.6% |
+| free Flee only | 50.7% | 52.5% | 17.0% | 14.5% |
+| both (shipped) | 50.4% | 52.5% | 18.1% | 14.8% |
+
+Dropping the Rest half costs the §25 agency fix and buys back ~0 points: the valve's magnitude *is* free Flee, and cutting that is cutting the rule.
+
+§20.1's other sanctioned lever — *"if diligent teams cruise, raise Phase 3–4 rates by +1 before touching festering"* — lands the band on its smallest setting. Phase **4** alone, `DOOM_RATES[4]` `[1,1,1,2] → [1,1,1,3]`:
+
+| rates | turtle | spread | balanced | court_camper |
+|---|---|---|---|---|
+| shipped `[1,1,1,2]` | 50.4% | 52.5% | 18.0% | 14.7% |
+| **phase 4 +1 `[1,1,1,3]`** | **40.3%** | **42.0%** | 16.3% | 13.6% |
+| phase 3+4 +1 `[1,1,2,3]` | 24.7% | 21.6% | 14.7% | 12.1% |
+| phase 3 +1 `[1,1,2,2]` | 38.7% | 35.3% | 15.7% | 12.9% |
+
+Losses stay ~100% on Days 6–7 in every row, so the gate holds throughout. Taking both phases overshoots well below the band; phase 3 alone undershoots it. Across counts the same +1 is worth −10 points at 4p and 5p and **nothing at 3p** (99.3 → 99.4) — at three players the game ends before the Doom clock is the binding constraint, which is §20.1's standing "3p is not fixed by tuning" result, now with a number on it. 5-player spread stays at 62% either way; it was out of band before this knob and is not what this knob is for.
+
+Recommendation if the band matters: **one number, `DOOM_RATES[4][4]` 2 → 3**, valve kept whole. Not applied — taking a knob is a design decision §20.1 records with its rationale.
+
 **3-player sweep after the W2 reliefs** (`--sweep3`): the cliff is gone but over-corrected in the sim — Rayman trios now top the turtle table (99–100%) because Loud is his only modeled cost against his fully-modeled combat value. Floor gate passes (worst trio 48% under its best policy; nothing near 0). Treat the sim's Rayman numbers as a bracket, not a measurement: the real tuning verdict belongs to the W2 table A/B.
 
 ## 3-character composition sweep (2026-07, `--sweep3`)
 
-The policies are **composition-aware** (strike pair, weapon carriers, and night pairing adapt to whoever is on the roster; `FIGHTER_PRIORITY` resolves to Rayman+James on the full roster, so 4p/5p baselines are unaffected). `--sweep3` runs every 3-character team; results at 2000 sims (win% under `balanced` / under `turtle`):
-
-Re-measured at batch 5 (2000 sims, ±1.1; location defence changes no team's rank — every delta ≤3 points):
+The policies are **composition-aware** (strike pair, weapon carriers, and night pairing adapt to whoever is on the roster; `FIGHTER_PRIORITY` resolves to Rayman+James on the full roster, so 4p/5p baselines are unaffected). `--sweep3` runs every 3-character team. Re-measured at batch 5, 2000 sims, ±1.1 — location defence changes no team's rank (every delta ≤3 points):
 
 | team | balanced | turtle |
 |---|---|---|
