@@ -380,14 +380,14 @@
 | 12 | table | `LOCATION_THREAT_RATE` |
 | 25 | function | `raymanLoudTonight` |
 | 36 | function | `ResolveNight` |
-| 89 | function | `drawThreatsAt` |
-| 157 | function | `resolveNightAtLocation` |
-| 325 | table | `LIGHT_SOURCES` |
-| 335 | function | `payLightFuel` |
-| 365 | function | `checkPlayerHasLight` |
-| 468 | function | `identifyThreatType` |
-| 510 | function | `resolveStorytelling` |
-| 537 | function | `resolveSleep` |
+| 97 | function | `drawThreatsAt` |
+| 165 | function | `resolveNightAtLocation` |
+| 333 | table | `LIGHT_SOURCES` |
+| 343 | function | `payLightFuel` |
+| 373 | function | `checkPlayerHasLight` |
+| 476 | function | `identifyThreatType` |
+| 518 | function | `resolveStorytelling` |
+| 545 | function | `resolveSleep` |
 
 ## lua/tick_victory.lua (9 symbols)
 
@@ -816,16 +816,16 @@
 | 172 | function | `onHelpPagePrev` |
 | 177 | function | `onHelpPageNext` |
 | 182 | function | `refreshHelpPanel` |
-| 243 | function | `onWhatNowClick` |
-| 380 | function | `onWhatNowClose` |
-| 384 | function | `substitutePlaceholders` |
-| 401 | function | `refreshActionButtonReasons` |
-| 449 | function | `setActionTooltip` |
-| 473 | function | `quickStartTextForVariant` |
-| 496 | value | `QUICKSTART_CARD_BUDGET` |
-| 498 | function | `quickStartCardText` |
-| 514 | function | `refreshQuickStartCard` |
-| 520 | function | `populateNotebook` |
+| 311 | function | `onWhatNowClick` |
+| 528 | function | `onWhatNowClose` |
+| 532 | function | `substitutePlaceholders` |
+| 554 | function | `refreshActionButtonReasons` |
+| 602 | function | `setActionTooltip` |
+| 626 | function | `quickStartTextForVariant` |
+| 649 | value | `QUICKSTART_CARD_BUDGET` |
+| 651 | function | `quickStartCardText` |
+| 667 | function | `refreshQuickStartCard` |
+| 673 | function | `populateNotebook` |
 
 ## lua/ui_help_pages.lua (4 symbols)
 
@@ -988,7 +988,7 @@
 | `HIGHLIGHT_DURATION` | lua/ui_actionbar_core.lua | 112 |
 | `LAST_NERVE_THRESHOLD` | lua/helpers.lua | 428 |
 | `LIGHTING_PRESETS` | lua/ui_mood.lua | 13 |
-| `LIGHT_SOURCES` | lua/night.lua | 325 |
+| `LIGHT_SOURCES` | lua/night.lua | 333 |
 | `LOCATION_ADJACENCY` | lua/ui_actionbar_core.lua | 54 |
 | `LOCATION_DEFENSE` | lua/global.lua | 129 |
 | `LOCATION_ORDER` | lua/global.lua | 105 |
@@ -1012,7 +1012,7 @@
 | `PERSISTENT_THREAT_RULES` | lua/threat_persistent.lua | 62 |
 | `PHASE_NAMES` | lua/ui_banner.lua | 6 |
 | `PRY_TOOLS` | lua/actions_social.lua | 333 |
-| `QUICKSTART_CARD_BUDGET` | lua/ui_help.lua | 496 |
+| `QUICKSTART_CARD_BUDGET` | lua/ui_help.lua | 649 |
 | `REACTION_SLOTS` | lua/ui_reactions.lua | 33 |
 | `RECIPE_DATA` | lua/recipe_data.lua | 10 |
 | `RESOURCE_LABELS` | lua/ui_actionbar_core.lua | 141 |
@@ -1137,7 +1137,7 @@
 | `checkDefeat` | lua/tick_victory.lua | 382 |
 | `checkDoomThresholds` | lua/day_loop.lua | 248 |
 | `checkDownState` | lua/tick_victory.lua | 215 |
-| `checkPlayerHasLight` | lua/night.lua | 365 |
+| `checkPlayerHasLight` | lua/night.lua | 373 |
 | `checkSourcePhase` | lua/combat.lua | 152 |
 | `checkVictory` | lua/tick_victory.lua | 412 |
 | `checkWrongnessEntry` | lua/effects/dawn_effects_phase2.lua | 123 |
@@ -1191,7 +1191,7 @@
 | `doWitness` | lua/actions_haunted.lua | 59 |
 | `doomStepWorld` | lua/setup.lua | 256 |
 | `downedAlliesHere` | lua/ui_actionbar_situational.lua | 39 |
-| `drawThreatsAt` | lua/night.lua | 89 |
+| `drawThreatsAt` | lua/night.lua | 97 |
 | `dropBossLoot` | lua/combat.lua | 54 |
 | `dumpSetupState` | lua/ui_setup.lua | 385 |
 | `endPlayerTurn` | lua/turns.lua | 156 |
@@ -1257,7 +1257,7 @@
 | `hasLastNerve` | lua/helpers.lua | 430 |
 | `helpTabContent` | lua/ui_help.lua | 153 |
 | `highlightCTA` | lua/ui_banner.lua | 435 |
-| `identifyThreatType` | lua/night.lua | 468 |
+| `identifyThreatType` | lua/night.lua | 476 |
 | `importAchievementCode` | lua/achievements.lua | 136 |
 | `isAchievementUnlocked` | lua/achievements.lua | 37 |
 | `isAdjacent` | lua/helpers.lua | 497 |
@@ -1376,10 +1376,10 @@
 | `onUseItemOptionClick` | lua/ui_actionbar_situational.lua | 384 |
 | `onVariantsContinue` | lua/ui_setup.lua | 271 |
 | `onWeekReviewClose` | lua/ui_week_review.lua | 301 |
-| `onWhatNowClick` | lua/ui_help.lua | 243 |
-| `onWhatNowClose` | lua/ui_help.lua | 380 |
+| `onWhatNowClick` | lua/ui_help.lua | 311 |
+| `onWhatNowClose` | lua/ui_help.lua | 528 |
 | `paginateHelpText` | lua/ui_help_pages.lua | 52 |
-| `payLightFuel` | lua/night.lua | 335 |
+| `payLightFuel` | lua/night.lua | 343 |
 | `persistentBlocksBarricade` | lua/threat_persistent.lua | 308 |
 | `persistentBlocksRest` | lua/threat_persistent.lua | 303 |
 | `persistentBlocksTrade` | lua/threat_persistent.lua | 313 |
@@ -1397,11 +1397,11 @@
 | `playerPryTool` | lua/actions_social.lua | 358 |
 | `poolBossStandee` | lua/effects/dawn_effects.lua | 104 |
 | `popAchievementToast` | lua/ui_achievements.lua | 159 |
-| `populateNotebook` | lua/ui_help.lua | 520 |
+| `populateNotebook` | lua/ui_help.lua | 673 |
 | `pressAttack` | lua/combat_resolve.lua | 410 |
 | `pulseHandZone` | lua/ui_banner.lua | 503 |
-| `quickStartCardText` | lua/ui_help.lua | 498 |
-| `quickStartTextForVariant` | lua/ui_help.lua | 473 |
+| `quickStartCardText` | lua/ui_help.lua | 651 |
+| `quickStartTextForVariant` | lua/ui_help.lua | 626 |
 | `rallyTargets` | lua/actions_social.lua | 287 |
 | `raymanLoudTonight` | lua/night.lua | 25 |
 | `recipeIngredientCost` | lua/crafting.lua | 228 |
@@ -1419,7 +1419,7 @@
 | `refillMarketSlot` | lua/crafting.lua | 150 |
 | `refreshAchievementPanel` | lua/ui_achievements.lua | 43 |
 | `refreshActionBar` | lua/ui_actionbar_display.lua | 54 |
-| `refreshActionButtonReasons` | lua/ui_help.lua | 401 |
+| `refreshActionButtonReasons` | lua/ui_help.lua | 554 |
 | `refreshActionButtonStates` | lua/ui_actionbar_display.lua | 98 |
 | `refreshCharRoster` | lua/ui_banner.lua | 193 |
 | `refreshCombatPanel` | lua/ui_actionbar_handlers.lua | 279 |
@@ -1431,7 +1431,7 @@
 | `refreshHostControls` | lua/ui_controls.lua | 157 |
 | `refreshMsgLog` | lua/ui_msglog.lua | 38 |
 | `refreshPhaseBanner` | lua/ui_banner.lua | 98 |
-| `refreshQuickStartCard` | lua/ui_help.lua | 514 |
+| `refreshQuickStartCard` | lua/ui_help.lua | 667 |
 | `refreshReactionsPanel` | lua/ui_reactions.lua | 141 |
 | `refreshRulesPanel` | lua/ui_rules.lua | 277 |
 | `refreshSituationalButtons` | lua/ui_actionbar_situational.lua | 482 |
@@ -1445,11 +1445,11 @@
 | `resolveHardThreatDefeat` | lua/threat_hard.lua | 285 |
 | `resolveHardThreatDraw` | lua/threat_hard.lua | 172 |
 | `resolveHardThreatNight` | lua/threat_hard.lua | 315 |
-| `resolveNightAtLocation` | lua/night.lua | 157 |
+| `resolveNightAtLocation` | lua/night.lua | 165 |
 | `resolvePersistentTick` | lua/threat_persistent.lua | 326 |
-| `resolveSleep` | lua/night.lua | 537 |
+| `resolveSleep` | lua/night.lua | 545 |
 | `resolveSoftThreat` | lua/threat_effects.lua | 192 |
-| `resolveStorytelling` | lua/night.lua | 510 |
+| `resolveStorytelling` | lua/night.lua | 518 |
 | `resolveTick` | lua/tick_victory.lua | 8 |
 | `resolveWatchingJar` | lua/trophies.lua | 117 |
 | `resolveWrongness` | lua/effects/dawn_effects_phase2.lua | 86 |
@@ -1467,7 +1467,7 @@
 | `safecall` | lua/helpers.lua | 587 |
 | `setActionCubes` | lua/ui_actionbar_display.lua | 84 |
 | `setActionEnabled` | lua/ui_actionbar_display.lua | 206 |
-| `setActionTooltip` | lua/ui_help.lua | 449 |
+| `setActionTooltip` | lua/ui_help.lua | 602 |
 | `setButtonLabel` | lua/helpers.lua | 72 |
 | `setNightOmen` | lua/ui_banner.lua | 88 |
 | `setPhaseMood` | lua/ui_mood.lua | 45 |
@@ -1496,7 +1496,7 @@
 | `stopStandeeBob` | lua/ui_banner.lua | 395 |
 | `stringToColorTint` | lua/ui_banner.lua | 355 |
 | `stripMarketHelp` | lua/crafting.lua | 39 |
-| `substitutePlaceholders` | lua/ui_help.lua | 384 |
+| `substitutePlaceholders` | lua/ui_help.lua | 532 |
 | `suggestedOpening` | lua/ui_banner.lua | 49 |
 | `syncBossHP` | lua/combat.lua | 128 |
 | `syncSourceHP` | lua/combat.lua | 118 |

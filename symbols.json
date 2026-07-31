@@ -792,7 +792,7 @@
   "LIGHT_SOURCES": [
    {
     "file": "lua/night.lua",
-    "line": 325,
+    "line": 333,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1032,7 +1032,7 @@
   "QUICKSTART_CARD_BUDGET": [
    {
     "file": "lua/ui_help.lua",
-    "line": 496,
+    "line": 649,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -2406,7 +2406,7 @@
   "checkPlayerHasLight": [
    {
     "file": "lua/night.lua",
-    "line": 365,
+    "line": 373,
     "kind": "function",
     "params": [
      "color"
@@ -3056,7 +3056,7 @@
   "drawThreatsAt": [
    {
     "file": "lua/night.lua",
-    "line": 89,
+    "line": 97,
     "kind": "function",
     "params": [
      "location",
@@ -3800,7 +3800,7 @@
   "identifyThreatType": [
    {
     "file": "lua/night.lua",
-    "line": 468,
+    "line": 476,
     "kind": "function",
     "params": [
      "card"
@@ -5405,7 +5405,7 @@
   "onWhatNowClick": [
    {
     "file": "lua/ui_help.lua",
-    "line": 243,
+    "line": 311,
     "kind": "function",
     "params": [
      "player",
@@ -5419,7 +5419,7 @@
   "onWhatNowClose": [
    {
     "file": "lua/ui_help.lua",
-    "line": 380,
+    "line": 528,
     "kind": "function",
     "params": [
      "player",
@@ -5446,7 +5446,7 @@
   "payLightFuel": [
    {
     "file": "lua/night.lua",
-    "line": 335,
+    "line": 343,
     "kind": "function",
     "params": [
      "color",
@@ -5664,7 +5664,7 @@
   "populateNotebook": [
    {
     "file": "lua/ui_help.lua",
-    "line": 520,
+    "line": 673,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5699,7 +5699,7 @@
   "quickStartCardText": [
    {
     "file": "lua/ui_help.lua",
-    "line": 498,
+    "line": 651,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5709,7 +5709,7 @@
   "quickStartTextForVariant": [
    {
     "file": "lua/ui_help.lua",
-    "line": 473,
+    "line": 626,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5915,7 +5915,7 @@
   "refreshActionButtonReasons": [
    {
     "file": "lua/ui_help.lua",
-    "line": 401,
+    "line": 554,
     "kind": "function",
     "params": [
      "color"
@@ -6041,7 +6041,7 @@
   "refreshQuickStartCard": [
    {
     "file": "lua/ui_help.lua",
-    "line": 514,
+    "line": 667,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6203,7 +6203,7 @@
   "resolveNightAtLocation": [
    {
     "file": "lua/night.lua",
-    "line": 157,
+    "line": 165,
     "kind": "function",
     "params": [
      "location",
@@ -6226,7 +6226,7 @@
   "resolveSleep": [
    {
     "file": "lua/night.lua",
-    "line": 537,
+    "line": 545,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6251,7 +6251,7 @@
   "resolveStorytelling": [
    {
     "file": "lua/night.lua",
-    "line": 510,
+    "line": 518,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6453,7 +6453,7 @@
   "setActionTooltip": [
    {
     "file": "lua/ui_help.lua",
-    "line": 449,
+    "line": 602,
     "kind": "function",
     "params": [
      "buttonId",
@@ -6806,7 +6806,7 @@
   "substitutePlaceholders": [
    {
     "file": "lua/ui_help.lua",
-    "line": 384,
+    "line": 532,
     "kind": "function",
     "params": [
      "text",

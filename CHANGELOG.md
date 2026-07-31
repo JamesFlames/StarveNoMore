@@ -2,6 +2,53 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Fifteen "What now?" hints nobody could ever be shown (2026-07)
+
+`content/help/whatnow_hints.md` is authored prose — the game's entire answer to
+a player who does not know what to do next. It is generated into the bundle and
+selected by state in `onWhatNowClick`. **Fifteen of the forty-nine hints had no
+condition that could ever reach them.**
+
+    Dawn      ongoing_effect
+    Day       all_passed
+    Stats     critical_any
+    Strategic enemy_at_location, market_good_item, no_light_source
+    Dusk      alone_sport_court, coco_alone_warning, no_light_warning
+    Night     charlie_incoming, combat_active, sleep_phase, storytelling
+    Tick      someone_down
+    Ellie     ellie_no_food
+
+Four are named in the **dispatcher's own header comment** as hints it
+dispatches — "Stats (low_hunger / sanity / health / *critical_any*)",
+"Strategic (doom_high / ally_down / *no_light_source* / *market_good_item* /
+*enemy_at_location*)". The comment described the dispatch that was intended;
+the code under it implemented two of the five. The comment has been corrected
+and now points at the test instead of describing it.
+
+Two of the fifteen were unreachable *by construction*: the Night runs threat
+draws, storytelling, sleep and the Tick under the single sub-phase name
+`"Night"`, so the authored `storytelling` and `sleep_phase` hints had no state
+to key off at all. `gameState.nightStage` names the step now, and a live fight
+outranks either — it is the thing actually waiting on a click.
+
+The rest are ordinary conditions that were simply never written: everyone has
+passed, more than one stat is critical, something fightable is standing on your
+tile, you can afford something on the Market row, you have no light (in the Day,
+while it can still be fixed; at Dusk, as a last warning; at Night, as an
+announcement — and never to Coco, who is immune), you are about to sleep alone
+on a court, and Ellie's larder is empty, which is a worse problem for her than
+for anyone because Particular Eater bars the universal fallback.
+
+`{dawnTitle}` was also added to `substitutePlaceholders`: the Dawn hint names
+the card still in force, and without it the panel would have rendered the
+literal placeholder — which the regression guards treat as a bug in its own
+right.
+
+Guarded by `tests/test_whatnow_hints.py`, which fails on an authored hint the
+dispatch never mentions, a dispatched name the markdown no longer has, and an
+`endGame` cause with no matching PostGame hint (which would fall back to the
+generic line without saying so).
+
 ## Two Scenarios did nothing at all, and four more were half-inert (2026-07)
 
 `gameState.scenarioFlags` is the twin of `ongoingDawnEffects`.

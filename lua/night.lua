@@ -63,21 +63,29 @@ function ResolveNight()
     end
 
     -- After all locations resolved, proceed to storytelling + sleep + tick
+    -- gameState.nightStage names the step the Night is currently on. The
+    -- Night is four steps long and the sub-phase is "Night" for all of them,
+    -- so a player asking "what now?" mid-Night could only ever be told what
+    -- the whole phase does — which is why the authored `storytelling` and
+    -- `sleep_phase` hints had no condition that could reach them.
     Wait.time(function()
         -- Hard threats that take their toll nightly rather than in a fight
         -- (the Glass Child). After every tile's draws and combat have
         -- settled, so a card drawn tonight bills from tonight.
         safecall(function() resolveHardThreatNight() end, "HardNight")
+        gameState.nightStage = "storytelling"
         resolveStorytelling()
     end, delay + 1.0)
 
     Wait.time(function()
+        gameState.nightStage = "sleep"
         resolveSleep()
     end, delay + 3.0)
 
     Wait.time(function()
         -- Clear barricades (single-use per night)
         gameState.barricades = {}
+        gameState.nightStage = nil
         resolveTick()
     end, delay + 5.0)
 end

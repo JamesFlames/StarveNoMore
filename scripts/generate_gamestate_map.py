@@ -58,7 +58,12 @@ TRANSIENT_FIELDS = {
             "Reset at Dawn (BeginDay) — once-per-day flags and the day's opening "
             "snapshot. Lazily re-created at their read sites."
         ),
-        ["raymanMovedToday", "raymanFoughtToday", "raymanBonusMove",
+        # nightStage: which of the Night's four steps is running. Absent
+        # outside the Night, which is exactly the question its readers ask —
+        # a declared default would make every other phase look like a Night
+        # step. Set and cleared by ResolveNight.
+        ["nightStage",
+         "raymanMovedToday", "raymanFoughtToday", "raymanBonusMove",
          "raymanDefending", "jamesEnergyDrinkUsed", "jamesPeekUsed",
          "jamesRerollUsed", "lucaRallyUsed", "dayStartStats", "dawnChecklist",
          "nightOmen", "usedRecipes"],

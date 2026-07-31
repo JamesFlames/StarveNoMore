@@ -20,6 +20,7 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 | Add/change an achievement | `content/achievements.csv` + `lua/achievement_rules.lua` (read [`docs/achievements.md`](docs/achievements.md)) | `generate_achievement_data.py`, `generate_achievement_icons.py`, `generate_symbol_index.py` |
 | Regenerate the achievement art | [`docs/comfyui-achievement-icons.md`](docs/comfyui-achievement-icons.md) | `generate_achievement_icons.py` |
 | Change in-game rules text | `content/notebook/*.md` + `content/help/*.md` | `generate_notebook.py`, `generate_player_rules.py` |
+| Add/change a What-now hint | `content/help/whatnow_hints.md` **and** its condition in `onWhatNowClick` (`lua/ui_help.lua`) — an unreached hint fails `test_whatnow_hints.py` | `generate_whatnow_hints.py`, `generate_symbol_index.py` |
 | Change the in-game Rulebook tab / Help paging | `lua/ui_help_pages.lua` + `lua/ui_help.lua` + `xml/dialogs.xml` | `generate_symbol_index.py` |
 | Add an off-turn (reaction) action | `lua/ui_reactions.lua` + `xml/hud.xml` | `generate_symbol_index.py` |
 | Change a UI panel | matching `lua/ui_*.lua` + `xml/*.xml` | `generate_symbol_index.py` |

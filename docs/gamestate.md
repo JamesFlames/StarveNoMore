@@ -4,7 +4,7 @@
 
 Every field of `gameState`, where its default comes from, and which files touch it. `gameState` is the game's single source of truth and is persisted whole by `onSave`, so "who clears this?" and "what is this when a save is restored?" are the two questions that come up constantly.
 
-**75 fields** across **47 files**. 38 have a declared default in `migrateGameState()` (`lua/global.lua`); 37 are deliberately transient (see the table's *lifetime* column).
+**76 fields** across **47 files**. 38 have a declared default in `migrateGameState()` (`lua/global.lua`); 38 are deliberately transient (see the table's *lifetime* column).
 
 ## Persistence
 
@@ -31,7 +31,7 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 | `clueCount` | `0` | declared | `clues.lua`, `setup.lua`, `ui_setup.lua` | `achievement_rules.lua`, `clues.lua`, `crafting.lua`, `effects/dawn_effects_phase4.lua`, `tick_victory.lua`, `ui_rules.lua` |
 | `cluesFound` | `{}` | declared | `clues.lua`, `setup.lua`, `ui_setup.lua` | `clues.lua` |
 | `cluesSurfaced` | `0` | declared | `clues.lua`, `setup.lua`, `ui_setup.lua` | `clues.lua` |
-| `combatContext` | — | nil is the default | `combat_resolve.lua`, `setup.lua`, `turns.lua`, `ui_setup.lua` | `combat_resolve.lua`, `ui_actionbar_handlers.lua` |
+| `combatContext` | — | nil is the default | `combat_resolve.lua`, `setup.lua`, `turns.lua`, `ui_setup.lua` | `combat_resolve.lua`, `ui_actionbar_handlers.lua`, `ui_help.lua` |
 | `dailyAlerts` | `{}` | declared | `day_loop.lua`, `selftest.lua`, `setup.lua`, `tick_victory.lua`, `ui_setup.lua` | `day_loop.lua`, `tick_victory.lua` |
 | `dawnChecklist` | — | per-day | `day_loop.lua`, `effects/dawn_effects_dispatch.lua` | `effects/dawn_effects_dispatch.lua`, `ui_rules.lua` |
 | `day` | `1` | declared | `effects/dawn_effects_phase3.lua`, `selftest.lua`, `setup.lua`, `tick_victory.lua`, `ui_setup.lua` | `achievement_rules.lua`, `achievements.lua`, `clues.lua`, `crafting.lua`, `day_loop.lua`, `effects/dawn_effects_phase2.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `global.lua`, `night.lua`, `selftest.lua`, `telemetry.lua`, `tick_victory.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_msglog.lua`, `ui_week_review.lua` |
@@ -62,6 +62,7 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 | `missingAlly` | `nil` | declared | `effects/dawn_effects_phase3.lua` | `turns.lua` |
 | `msgLogHidden` | — | ui-local | `ui_msglog.lua` | `ui_msglog.lua` |
 | `nightOmen` | — | per-day | `ui_banner.lua` | `ui_banner.lua` |
+| `nightStage` | — | per-day | `night.lua` | `night.lua`, `ui_help.lua` |
 | `ongoingDawnEffects` | `{}` | declared | `selftest.lua` | `achievement_rules.lua`, `actions.lua`, `combat.lua`, `combat_resolve.lua`, `crafting.lua`, `day_loop.lua`, `effects/dawn_effects_dispatch.lua`, `effects/dawn_effects_phase1.lua`, `effects/dawn_effects_phase2.lua`, `effects/dawn_effects_phase3.lua`, `effects/dawn_effects_phase4.lua`, `helpers.lua`, `night.lua`, `setup.lua`, `threat_effects.lua`, `tick_victory.lua`, `turns.lua`, `ui_actionbar_core.lua`, `ui_help.lua`, `ui_rules.lua` |
 | `openingOffered` | `{}` | declared | `setup.lua`, `ui_banner.lua`, `ui_setup.lua` | `ui_banner.lua` |
 | `pathVariant` | — | nil is the default | `ui_actionbar_core.lua` | `telemetry.lua`, `ui_setup.lua` |
@@ -105,7 +106,7 @@ Why each group is allowed to have no declared default:
 - **nil is the default** — Absent means 'none right now'. migrateGameState() lists these explicitly as deliberately undeclared.
   `activeColor`, `activeDawn`, `combatContext`, `pathVariant`, `scenario`
 - **per-day** — Reset at Dawn (BeginDay) — once-per-day flags and the day's opening snapshot. Lazily re-created at their read sites.
-  `dawnChecklist`, `dayStartStats`, `jamesEnergyDrinkUsed`, `jamesPeekUsed`, `jamesRerollUsed`, `lucaRallyUsed`, `nightOmen`, `raymanBonusMove`, `raymanDefending`, `raymanFoughtToday`, `raymanMovedToday`, `usedRecipes`
+  `dawnChecklist`, `dayStartStats`, `jamesEnergyDrinkUsed`, `jamesPeekUsed`, `jamesRerollUsed`, `lucaRallyUsed`, `nightOmen`, `nightStage`, `raymanBonusMove`, `raymanDefending`, `raymanFoughtToday`, `raymanMovedToday`, `usedRecipes`
 - **per-turn** — Created when a turn needs them, dropped when it ends. A stale value surviving into the next turn would be the bug.
   `duskMoves`, `duskReady`, `lastActiveColor`, `pendingAction`, `tradesThisTurn`, `turnStartedAt`, `undoSnapshot`
 - **ui-local** — Panel visibility that rides gameState only because onSave/onLoad is the only store a TTS mod has.

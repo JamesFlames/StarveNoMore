@@ -231,6 +231,13 @@ end
 --   James | Coco | Rayman | Ellie | Luca               (per-character)
 --   Location                                           (at_own_house / at_kitchen_not_ellie / at_basketball_court / at_badminton_court)
 --   Strategic                                          (doom_high / ally_down / no_light_source / market_good_item / enemy_at_location)
+--
+-- This comment used to be a description of the INTENDED dispatch rather than
+-- the real one: it named critical_any and three of the five Strategic hints
+-- that nothing below selected. Fifteen authored hints were unreachable in
+-- total. tests/test_whatnow_hints.py now fails on any hint in
+-- content/help/whatnow_hints.md that no condition here can reach, so the
+-- comment and the code cannot drift apart again.
 -----------------------------------------------------------------------
 
 local function _appendHint(hint, line, char)
@@ -238,6 +245,67 @@ local function _appendHint(hint, line, char)
     local rendered = substitutePlaceholders(line, char)
     if hint == "" then return rendered end
     return hint .. "\n" .. rendered
+end
+
+-- Conditions the dispatch below asks about. Named rather than inlined so the
+-- dispatch reads as a list of "when does this hint apply", which is the thing
+-- that was wrong with it: fifteen authored hints had no condition at all.
+local function _everyonePassed()
+    local any = false
+    for _, ch in pairs(gameState.activeChars) do
+        if not ch.down then
+            if (ch.actionsLeft or 0) > 0 then return false end
+            any = true
+        end
+    end
+    return any
+end
+
+local function _anyoneDown()
+    for _, ch in pairs(gameState.activeChars) do
+        if ch.down then return true end
+    end
+    return false
+end
+
+local function _alliesAt(color, loc)
+    local n = 0
+    for c2, ch2 in pairs(gameState.activeChars) do
+        if c2 ~= color and not ch2.down and ch2.location == loc then n = n + 1 end
+    end
+    return n
+end
+
+-- Can this player afford anything currently on the Market row? The hint is
+-- "there is something here you could buy", so affordability is the whole
+-- question — an item they cannot pay for is not a nudge, it is a tease.
+local function _canAffordSomethingInMarket(color)
+    local ok = false
+    safecall(function()
+        local held = getPlayerResources(color) or {}
+        for _, slot in ipairs(findAllByTag("MarketSlot")) do
+            local p = slot.getPosition()
+            for _, obj in ipairs(findAllByTag("MarketCard")) do
+                if obj.type == "Card" then
+                    local q = obj.getPosition()
+                    local dx, dz = q.x - p.x, q.z - p.z
+                    if (dx * dx + dz * dz) <= 4 then
+                        for _, tag in ipairs(obj.getTags() or {}) do
+                            local cost = MARKET_COSTS and MARKET_COSTS[tag]
+                            if cost then
+                                local affordable = true
+                                for r, n in pairs(cost) do
+                                    if (held[r] or 0) < n then affordable = false break end
+                                end
+                                if affordable then ok = true return end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end, "MarketHint")
+    return ok
 end
 
 function onWhatNowClick(player, value, id)
@@ -265,13 +333,42 @@ function onWhatNowClick(player, value, id)
     if sp == "Day" and char and (char.actionsLeft or 0) <= 0 then
         base = phaseHints.no_actions or base
     end
+    -- ...and if EVERYONE is spent, the table is waiting on the host, which is
+    -- a different answer to "what now?" than "click End Turn".
+    if sp == "Day" and _everyonePassed() then
+        base = phaseHints.all_passed or base
+    end
     -- Between-days override
     if sp == "PreDawn" then
         base = phaseHints.between_days or base
     end
+    -- Night runs four steps under one sub-phase name; nightStage says which.
+    if sp == "Night" then
+        if gameState.nightStage == "storytelling" then
+            base = phaseHints.storytelling or base
+        elseif gameState.nightStage == "sleep" then
+            base = phaseHints.sleep_phase or base
+        end
+        -- A live fight outranks either: it is the thing waiting on a click.
+        if gameState.combatContext then
+            base = phaseHints.combat_active or base
+        end
+    end
+    -- Tick: someone went down in the decay that just ran.
+    if sp == "Tick" and _anyoneDown() then
+        base = phaseHints.someone_down or base
+    end
 
     local hint = ""
     hint = _appendHint(hint, base, char)
+
+    -- Dawn: a card with an ongoing clause is still shaping the day after its
+    -- reveal has scrolled past. Named, because "an effect is active" is not
+    -- something a player can act on.
+    if groupKey == "Dawn" and gameState.activeDawn and gameState.activeDawn.ongoing
+        and gameState.activeDawn.ongoing ~= "" then
+        hint = _appendHint(hint, phaseHints.ongoing_effect, char)
+    end
 
     if char then
         -- 2) Character-specific Day hints
@@ -304,6 +401,12 @@ function onWhatNowClick(player, value, id)
             if char.name == "Ellie" and char.location == "EllieLucaHouse" then
                 hint = _appendHint(hint, charHints.ellie_at_kitchen, char)
             end
+            -- Particular Eater makes an empty larder worse for her than for
+            -- anyone else: Eat Raw is the universal fallback and she cannot
+            -- use it, so "you have no Food" is a different problem.
+            if char.name == "Ellie" and ((getPlayerResources(color) or {}).Food or 0) == 0 then
+                hint = _appendHint(hint, charHints.ellie_no_food, char)
+            end
 
             -- Coco / Luca alone check
             if char.name == "Coco" or char.name == "Luca" then
@@ -325,6 +428,17 @@ function onWhatNowClick(player, value, id)
 
         -- 3) Stat warnings (Stats group)
         local stats = WHATNOW_HINTS.Stats or {}
+        local low = 0
+        if char.hunger > 0 and char.hunger < 3 then low = low + 1 end
+        if char.sanity > 0 and char.sanity < 3 then low = low + 1 end
+        if char.health > 0 and char.health < 3 then low = low + 1 end
+        if low > 1 then
+            -- More than one stat is down: the per-stat advice below is still
+            -- printed, but it opens with "recovery comes first", because
+            -- following any one of those lines in isolation is how a
+            -- two-stat hole becomes a Down character.
+            hint = _appendHint(hint, stats.critical_any, char)
+        end
         if char.hunger > 0 and char.hunger < 3 then
             hint = _appendHint(hint, stats.low_hunger, char)
         end
@@ -345,6 +459,40 @@ function onWhatNowClick(player, value, id)
                 hint = _appendHint(hint, strat.ally_down, char)
                 break
             end
+        end
+        -- The three Strategic hints the header comment above has always
+        -- listed and the dispatch never reached.
+        if sp == "Day" or sp == "Dusk" then
+            if #fightTargetsAt(char.location or "") > 0 then
+                hint = _appendHint(hint, strat.enemy_at_location, char)
+            end
+            if not checkPlayerHasLight(color) then
+                hint = _appendHint(hint, strat.no_light_source, char)
+            end
+        end
+        if sp == "Day" and _canAffordSomethingInMarket(color) then
+            hint = _appendHint(hint, strat.market_good_item, char)
+        end
+
+        -- 4.5) Dusk: the scramble window is the last chance to fix any of
+        -- this, so its warnings are about where you are ABOUT to sleep.
+        if sp == "Dusk" then
+            local duskHints = WHATNOW_HINTS.Dusk or {}
+            local alone = _alliesAt(color, char.location or "") == 0
+            if alone and isSportCourt(char.location or "") then
+                hint = _appendHint(hint, duskHints.alone_sport_court, char)
+            end
+            if char.name == "Coco" and alone and isSportCourt(char.location or "") then
+                hint = _appendHint(hint, duskHints.coco_alone_warning, char)
+            end
+            if not checkPlayerHasLight(color) then
+                hint = _appendHint(hint, duskHints.no_light_warning, char)
+            end
+        end
+
+        -- 4.6) Night: the same light check, but now it is not a warning.
+        if sp == "Night" and char.name ~= "Coco" and not checkPlayerHasLight(color) then
+            hint = _appendHint(hint, (WHATNOW_HINTS.Night or {}).charlie_incoming, char)
         end
 
         -- 5) Location (only during Day; Dusk/Night have their own bases)
@@ -392,6 +540,11 @@ function substitutePlaceholders(text, char)
     end
     text = text:gsub("{doom}", tostring(gameState.doom or 0))
     text = text:gsub("{day}", tostring(gameState.day or 1))
+    -- The Dawn hint names the card that is still in force. Without this the
+    -- hint renders the literal "{dawnTitle}", which the regression guards
+    -- treat as a bug in its own right.
+    text = text:gsub("{dawnTitle}",
+        tostring((gameState.activeDawn and gameState.activeDawn.title) or "today's card"))
     return text
 end
 
