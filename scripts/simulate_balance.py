@@ -12,6 +12,7 @@ Usage:
   python scripts/simulate_balance.py --rules old         # pre-2026-07 ruleset
   python scripts/simulate_balance.py --players 5 --policy turtle
   python scripts/simulate_balance.py --sweep3            # all ten 3-char teams
+  python scripts/simulate_balance.py --no-defence        # location defence off
 
 Rule sets:
   new — current design: deterministic escalating Charlie (2/1 +1 per
@@ -42,9 +43,12 @@ Rule sets:
         (the W3 calibration knob that put the best line in the 40-50%
         band), and the 3-player reliefs (§20.1): Big Appetite costs 2
         Hunger only on days Rayman fought or moved 2+ tiles, and Loud
-        needs 3+ tiles moved (both playerCount == 3 only). Trophies
-        remain unmodeled (reward side is still understated — the
-        rebate/loot carry it).
+        needs 3+ tiles moved (both playerCount == 3 only). Batch 5:
+        per-location defence (§7.1-7.5) on the counter-attack — the
+        Garage and the Badminton Court roll a blocking die, the
+        Basketball Court hands the threat an extra swing; --no-defence
+        is the control group. Trophies remain unmodeled (reward side is
+        still understated — the rebate/loot carry it).
   old — previous design: Charlie d8 Sanity + d6 Health, ghost Sanity
         drain, Doom = phase rate only, fumble per natural 1, no salvage,
         no bed limit, no Treeguard, Doom 15 slows market (no craft effect).
@@ -107,6 +111,20 @@ YIELDS = {
     "EllieLucaHouse":  ["food", "food", "cloth"],
     "BasketballCourt": ["wood", "metal", "cloth"],
     "BadmintonCourt":  ["cloth", "wood", "metal"],
+}
+
+# Per-location defence (Design §7.1-7.5). MIRRORS LOCATION_DEFENSE in
+# lua/global.lua and the `defense` column of content/locations.csv;
+# tests/test_sim.py enforces the mirror. Positive = dice the defenders roll
+# to turn counter-attack hits aside (The Net); negative = extra dice the
+# threat swings, because being caught on an open court is the same rule
+# pointed the other way. Read by group_fight's counter-attack, new rules only.
+LOCATION_DEFENSE = {
+    "JamesHouse":      0,
+    "RaymanHouse":     1,
+    "EllieLucaHouse":  0,
+    "BasketballCourt": -1,
+    "BadmintonCourt":  1,
 }
 
 DOOM_RATES = {3: [1, 1, 1, 1], 4: [1, 1, 1, 2], 5: [1, 1, 2, 2]}
@@ -200,10 +218,14 @@ class Threat:
 
 
 class Game:
-    def __init__(self, policy, players, rules, rng, roster=None, difficulty="standard"):
+    def __init__(self, policy, players, rules, rng, roster=None, difficulty="standard",
+                 location_defence=True):
         self.policy = policy
         self.rules = rules          # "new" | "old"
         self.rng = rng
+        # Location defence is a NEW-rules mechanic; --no-defence turns it off
+        # to reproduce the pre-d886c81 counter-attack for before/after diffs.
+        self.location_defence = location_defence and rules == "new"
         # Difficulty is read once into plain attributes so the day loop never
         # has to know which dial a number came from.
         d = DIFFICULTIES[difficulty]
@@ -242,10 +264,24 @@ class Game:
         # is Cleanse ever a rational spend?
         self.action_counts = Counter()
         self.night_locations = Counter()
+        # Location-defence telemetry: how often the rule actually bites.
+        self.def_blocked = 0        # counter hits turned aside by cover
+        self.def_extra_dice = 0     # extra swings granted by open ground
+        # Boss kills by name. The Deerclops is the one the defence rule can
+        # reach — it always spawns on the Basketball Court, the game's only
+        # negative-defence tile — so its kill rate is the sharpest read on
+        # whether exposure suppresses the boss-kill line the rebates reward.
+        self.boss_kills = Counter()
 
     # ---------------- helpers ----------------
     def alive(self):
         return [c for c in self.chars if not c.down]
+
+    def defence_at(self, loc):
+        """Mirrors LOCATION_DEFENSE[here] in applyCounterAttack."""
+        if not self.location_defence:
+            return 0
+        return LOCATION_DEFENSE.get(loc, 0)
 
     def at(self, loc):
         return [c for c in self.alive() if c.location == loc]
@@ -335,6 +371,8 @@ class Game:
                     f.gain("sanity", 1)
                 # Boss rewards (new rules, design_batch1.md §2): the kill
                 # visibly rescues the week — Doom rebate + loot shower.
+                if threat.boss:
+                    self.boss_kills[threat.name] += 1
                 if self.rules == "new" and threat.boss:
                     rebate = {"Deerclops": 2, "EyeOfTerror": 3}.get(threat.name, 0)
                     if rebate:
@@ -342,13 +380,27 @@ class Game:
                     for _ in range(3):
                         self.pool[self.rng.choice(["wood", "metal", "cloth", "food"])] += 1
                 return True
-            # counter-attack
-            for _ in range(threat.atk):
-                if self.rng.randint(1, 6) >= 5:
-                    tank = max((f for f in group if not f.down), key=lambda f: f.health, default=None)
-                    if tank:
-                        tank.lose("health", 1)
-                        self.check_down(tank)
+            # counter-attack. Where the fight is decides how well the group
+            # can cover (§7.1-7.5, new rules) — mirrors applyCounterAttack in
+            # lua/combat_resolve.lua: a negative defence is folded in as extra
+            # dice BEFORE the swing, a positive one is a block roll made only
+            # when something actually landed.
+            atk = threat.atk
+            defence = self.defence_at(group[0].location)
+            if defence < 0 and atk > 0:
+                atk -= defence
+                self.def_extra_dice += -defence
+            hits = sum(1 for _ in range(atk) if self.rng.randint(1, 6) >= 5)
+            if defence > 0 and hits > 0:
+                blocked = min(hits, sum(1 for _ in range(defence)
+                                        if self.rng.randint(1, 6) >= 5))
+                hits -= blocked
+                self.def_blocked += blocked
+            for _ in range(hits):
+                tank = max((f for f in group if not f.down), key=lambda f: f.health, default=None)
+                if tank:
+                    tank.lose("health", 1)
+                    self.check_down(tank)
             # flee check: outmatched group bails
             group_alive = [f for f in group if not f.down]
             if group_alive and min(f.health for f in group_alive) <= 2:
@@ -964,22 +1016,47 @@ class CourtCamper(Balanced):
         return b
 
 
-POLICIES = {p.name: p for p in (Turtle(), Spread(), Balanced(), CourtCamper())}
+class NetCamper(CourtCamper):
+    """court_camper with one tile changed: the salvage camp is the BADMINTON
+    Court, not the Basketball Court.
+
+    This policy exists to answer the §20.2 item-8 question the sim could not
+    previously reach — every other policy hardcodes COURTS[0], so the
+    Badminton Court had never been stood on in a simulated game. It is the
+    controlled A/B for location defence (§7.1-7.5): identical play, one
+    berth moved, and the tile differs in exactly the three things that
+    should decide it — defence (+1 vs -1), night threat rate (2 vs 1), and
+    Rayman's Court Master (+1 attack die at Basketball only). If the Net is
+    worth its threat rate, this policy beats court_camper; if it loses, the
+    Net is a consolation prize on a tile nobody should sleep on."""
+    name = "net_camper"
+
+    def berths(self, g):
+        b = super().berths(g)
+        if b.get("Rayman") == COURTS[0]:
+            b["Rayman"] = COURTS[1]
+        return b
+
+
+POLICIES = {p.name: p for p in (Turtle(), Spread(), Balanced(), CourtCamper(),
+                                NetCamper())}
 
 
 # ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
 
-def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="standard"):
+def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="standard",
+             location_defence=True):
     rng = random.Random(seed)
     wins = 0
     losses = Counter()
     dooms, downs, festers, loss_days = [], [], [], []
-    actions_total, nights_total = Counter(), Counter()
+    blocked, extra_dice = [], []
+    actions_total, nights_total, kills_total = Counter(), Counter(), Counter()
     for _ in range(sims):
         g = Game(POLICIES[policy_name], players, rules, random.Random(rng.random()),
-                 roster=roster, difficulty=difficulty)
+                 roster=roster, difficulty=difficulty, location_defence=location_defence)
         won = g.run()
         wins += won
         if not won:
@@ -988,8 +1065,11 @@ def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="s
         dooms.append(g.doom)
         downs.append(g.downs)
         festers.append(statistics.mean(g.fester_log) if g.fester_log else 0)
+        blocked.append(g.def_blocked)
+        extra_dice.append(g.def_extra_dice)
         actions_total.update(g.action_counts)
         nights_total.update(g.night_locations)
+        kills_total.update(g.boss_kills)
     return dict(
         win=wins / sims,
         loss_doom=losses["doom"] / sims,
@@ -998,6 +1078,11 @@ def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="s
         doom=statistics.mean(dooms),
         downs=statistics.mean(downs),
         fester=statistics.mean(festers),
+        # Location defence (§7.1-7.5): counter hits cover turned aside, and
+        # extra swings open ground handed out, per game.
+        def_blocked=statistics.mean(blocked),
+        def_extra_dice=statistics.mean(extra_dice),
+        boss_kills={k: v / sims for k, v in kills_total.items()},
         # W3 calibration gate: losses should cluster on Days 6-7 (a
         # near-miss finish, not a mid-week strangle).
         late_loss=(sum(1 for d in loss_days if d >= 6) / len(loss_days)) if loss_days else 0.0,
@@ -1037,7 +1122,13 @@ def main():
                     help="run every mode and print them together — the check "
                          "that the difficulty ORDERING is monotonic. Per §26, "
                          "trust this ordering and playtest the magnitude.")
+    ap.add_argument("--no-defence", dest="defence", action="store_false",
+                    help="switch off the per-location defence roll (§7.1-7.5) — "
+                         "the control group for it, reproducing the flat "
+                         "counter-attack the sim modeled before the rule "
+                         "existed. Run both and diff.")
     args = ap.parse_args()
+    defence = args.defence
 
     if args.utilization:
         names = [args.policy] if args.policy else list(POLICIES)
@@ -1045,7 +1136,7 @@ def main():
               f"mode={args.difficulty}\n")
         for name in names:
             r = simulate(name, args.players, args.rules, args.sims, args.seed,
-                         difficulty=args.difficulty)
+                         difficulty=args.difficulty, location_defence=defence)
             print(f"[{name}]  win {r['win']*100:.1f}%")
             acts = r["actions_per_game"]
             total = sum(acts.values()) or 1
@@ -1054,22 +1145,29 @@ def main():
                 print(f"    {act:<12} {n:>6.2f}  ({100*n/total:>4.1f}%)")
             nights = r["nights_per_game"]
             nt = sum(nights.values()) or 1
-            print("  character-nights per location:")
+            print("  character-nights per location (defence in brackets):")
             for loc, n in sorted(nights.items(), key=lambda kv: kv[1]):
-                print(f"    {loc:<18} {n:>6.2f}  ({100*n/nt:>4.1f}%)")
+                d = LOCATION_DEFENSE.get(loc, 0)
+                tag = f"{d:+d}" if d else " 0"
+                print(f"    {loc:<18} {tag}  {n:>6.2f}  ({100*n/nt:>4.1f}%)")
+            kills = ", ".join(f"{k} {v:.2f}" for k, v in sorted(r["boss_kills"].items()))
+            print(f"  boss kills per game: {kills or 'none'}")
+            print(f"  location defence: {r['def_blocked']:.2f} hits blocked, "
+                  f"{r['def_extra_dice']:.2f} extra swings taken per game")
             print()
         print("Reading this (§20.2 item 8):\n"
               "  * CLEANSE — testable here, and the answer is stark: it is ~1.5% of\n"
               "    actions at best and 0.00 for two policies. A 4-resource bundle plus\n"
               "    an action for Doom -2 competes badly against boss rebates of -2/-3\n"
               "    that also pay spoils and a Trophy.\n"
-              "  * BADMINTON COURT — NOT testable here, and the zero above is an\n"
-              "    artifact, not a finding. Every policy's berths() hardcodes\n"
-              "    COURTS[0] (Basketball, for Rayman's Court Master), so no policy can\n"
-              "    ever choose Badminton. The simulator encodes the very assumption\n"
-              "    the prediction was meant to test. Answering it needs either a\n"
-              "    court-choosing policy or real table data — do not cite these rows\n"
-              "    as evidence that the Badminton Court is dead content.\n"
+              "  * BADMINTON COURT — the four original policies all hardcode\n"
+              "    COURTS[0] (Basketball, for Rayman's Court Master), so their zero\n"
+              "    is an artifact of the policy set, not a finding. net_camper is the\n"
+              "    control that moves exactly that one berth: read its win% against\n"
+              "    court_camper's, not these night counts. Its answer so far is that\n"
+              "    the Net does not pay for the tile's threat rate — but a bot that\n"
+              "    cannot value 'fight where you are covered' is the weakest kind of\n"
+              "    witness, so this stays a table question.\n"
               "Item-, recipe- and Visitor-level utilization needs real session logs:\n"
               "  python scripts/analyze_sessions.py")
         return
@@ -1087,7 +1185,7 @@ def main():
             cells = []
             for name in names:
                 r = simulate(name, args.players, args.rules, args.sims, args.seed,
-                             difficulty=mode)
+                             difficulty=mode, location_defence=defence)
                 cells.append(f"{r['win']*100:>15.1f}%")
             print(f"{mode:<12}{d['days']:>6}{d['doom_limit']:>6}{d['source_hp']:>7}  "
                   + "".join(cells))
@@ -1103,7 +1201,7 @@ def main():
         rows = []
         for combo in combinations(CHARACTERS, 3):
             r = simulate(policy, 3, args.rules, args.sims, args.seed, roster=list(combo),
-                         difficulty=args.difficulty)
+                         difficulty=args.difficulty, location_defence=defence)
             rows.append((combo, r))
         rows.sort(key=lambda cr: -cr[1]["win"])
         for combo, r in rows:
@@ -1115,7 +1213,8 @@ def main():
 
     if args.trace:
         g = Game(POLICIES[args.policy or "balanced"], args.players, args.rules,
-                 random.Random(args.seed), difficulty=args.difficulty)
+                 random.Random(args.seed), difficulty=args.difficulty,
+                 location_defence=defence)
         g.trace = True
         won = g.run()
         print("RESULT:", "WIN" if won else f"LOSS ({g.loss})")
@@ -1123,15 +1222,22 @@ def main():
 
     names = [args.policy] if args.policy else list(POLICIES)
     print(f"Starve No More balance sim — {args.sims} games/policy, "
-          f"{args.players} players, rules={args.rules}, mode={args.difficulty}\n")
+          f"{args.players} players, rules={args.rules}, mode={args.difficulty}, "
+          f"defence={'on' if defence else 'OFF'}\n")
     print(f"{'policy':<14}{'win%':>7}{'loss:doom':>11}{'loss:down':>11}{'loss:source':>13}"
-          f"{'avg doom':>10}{'avg downs':>11}{'fester/dawn':>13}{'late-loss%':>12}")
+          f"{'avg doom':>10}{'avg downs':>11}{'fester/dawn':>13}{'late-loss%':>12}"
+          f"{'blocked':>9}{'exposed':>9}")
     for name in names:
         r = simulate(name, args.players, args.rules, args.sims, args.seed,
-                     difficulty=args.difficulty)
+                     difficulty=args.difficulty, location_defence=defence)
         print(f"{name:<14}{r['win']*100:>6.1f}%{r['loss_doom']*100:>10.1f}%"
               f"{r['loss_all_down']*100:>10.1f}%{r['loss_source']*100:>12.1f}%{r['doom']:>10.1f}"
-              f"{r['downs']:>11.2f}{r['fester']:>13.2f}{r['late_loss']*100:>11.1f}%")
+              f"{r['downs']:>11.2f}{r['fester']:>13.2f}{r['late_loss']*100:>11.1f}%"
+              f"{r['def_blocked']:>9.2f}{r['def_extra_dice']:>9.2f}")
+    if defence:
+        print("\nblocked = counter hits cover turned aside per game; exposed = extra "
+              "swings\nopen ground handed the threats per game (§7.1-7.5). "
+              "Diff against --no-defence.")
 
 
 if __name__ == "__main__":

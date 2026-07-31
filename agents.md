@@ -36,6 +36,7 @@ not the index.
 | [Printed-Rule Wiring Guards](docs/agents/content-wiring-guards.md) | does each card / location / trophy actually do what it prints? |
 | [Regression Guards](docs/agents/regression-guards.md) | the eight recurring bug classes `test_regression_guards.py` pins |
 | [Balance Simulation](docs/agents/balance-simulation.md) | re-run the Monte Carlo after a rules change |
+| [Location Defence](docs/agents/balance-location-defence.md) | the batch-5 verdict on the §7.1-7.5 defence roll |
 | [UX Affordances](docs/agents/ux-affordances.md) | keep "the next legal action is always visible" true |
 | [Audio](docs/agents/audio.md) | add or change a sound |
 | [ComfyUI Workflow](docs/agents/comfyui.md) | regenerate card or board art |
@@ -53,7 +54,7 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 - [TASKMAP.md](TASKMAP.md) — the "job → files to open" routing table. Start here for "where do I change X?"; use `SYMBOLS.md` for "where is function X?".
 - [StarveNoMoreDesignConcept.md](StarveNoMoreDesignConcept.md) — **the canonical design doc**, now a thin index (Document Purpose + a Section → file jump table). The 20 numbered sections live one-topic-per-file under [docs/design/](docs/design/README.md): pitch/pillars, components/characters, locations/economy, decks, stats/turns, combat/crafting, week-arc/doom, victory/setup, TTS implementation, rationale/balancing. Open the specific `docs/design/*.md` for any rules or design question — prose cross-refs like "§6.7" map to files via the index table.
 - [README.md](README.md) — short orientation for the GitHub landing page, dev quickstart, and the script-by-script build table.
-- [CHANGELOG.md](CHANGELOG.md) — the rule-change history, one entry per design batch. The retired planning docs (improvements.md, design_batch1–4.md, frameworkimprovements.md, possible-design-improvements-to-snm.md) live on as these entries + git history. The 2026-07 design review in particular — 17 findings against `Archive/PrinciplesOfGoodBoardGames.md`, all shipped — is now the "Design review pass" entry below; read it for *why* a rule looks the way it does, never as the rule itself.
+- [CHANGELOG.md](CHANGELOG.md) — the rule-change history, one entry per design batch. The retired planning docs (improvements.md, design_batch1–4.md, and the rest) live on as these entries + git history. The 2026-07 design review in particular — 17 findings against `Archive/PrinciplesOfGoodBoardGames.md`, all shipped — is now the "Design review pass" entry below; read it for *why* a rule looks the way it does, never as the rule itself.
 - [SYMBOLS.md](SYMBOLS.md) — AUTO-GENERATED index of every Lua global (function/constant → file:line) **and every XML UI id** (id → file:line + onClick handler). Regenerate with `scripts/generate_symbol_index.py`.
 - [docs/tts-interface.md](docs/tts-interface.md) — how the mod talks to TTS: save format (Lua bundle + XML + ObjectStates), the Lua API surface rule (only call what exists), object-handle lifetime, the XML UI layer, and how to measure a running game. Read before calling an unfamiliar TTS API or debugging a runtime error.
 - [docs/tts-runtime.md](docs/tts-runtime.md) — the TTS physical contract: surface heights (`TABLE_SURFACE_Y`), mesh extents vs. artwork, rotation conventions, hiding objects. Read before placing or rotating anything.

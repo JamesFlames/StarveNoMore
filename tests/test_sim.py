@@ -99,6 +99,42 @@ def test_location_yields_match(lua_globals):
             "LOCATION_YIELDS (global.lua) drifted from simulate_balance.py YIELDS")
 
 
+def test_location_defence_matches(lua_globals):
+    """The counter-attack maths differs at three of five tiles (§7.1-7.5), and
+    a drifted defence table is invisible at the table — a lost block looks
+    like bad luck. The sim's copy has to track lua's."""
+    for loc, value in sim.LOCATION_DEFENSE.items():
+        lua_value = lua_globals.eval(f"LOCATION_DEFENSE.{loc}")
+        assert lua_value is not None, f"{loc} missing from LOCATION_DEFENSE in global.lua"
+        assert value == lua_value, (
+            f"LOCATION_DEFENSE.{loc}: sim={value} lua={lua_value} — "
+            "simulate_balance.py has drifted from global.lua")
+    n_lua = lua_globals.eval("(function() local n=0 "
+                             "for _ in pairs(LOCATION_DEFENSE) do n=n+1 end return n end)()")
+    assert n_lua == len(sim.LOCATION_DEFENSE), (
+        f"LOCATION_DEFENSE has {n_lua} tiles in lua, {len(sim.LOCATION_DEFENSE)} in the sim")
+
+
+def test_defence_off_switch_is_a_true_control():
+    """--no-defence must reproduce the pre-rule counter-attack exactly: no
+    blocks rolled, no extra swings — otherwise the before/after diff in
+    docs/agents/balance-simulation.md is measuring two changes at once."""
+    r = sim.simulate("court_camper", players=4, rules="new", sims=200, seed=SEED,
+                     location_defence=False)
+    assert r["def_blocked"] == 0 and r["def_extra_dice"] == 0
+    on = sim.simulate("court_camper", players=4, rules="new", sims=200, seed=SEED)
+    assert on["def_extra_dice"] > 0, (
+        "defence is on but no extra swings were handed out — court_camper "
+        "sleeps at the Basketball Court (defence -1), so the rule must bite")
+
+
+def test_old_rules_have_no_location_defence():
+    """Location defence is a new-rules mechanic; the frozen control group must
+    not silently acquire it."""
+    r = sim.simulate("court_camper", players=4, rules="old", sims=200, seed=SEED)
+    assert r["def_blocked"] == 0 and r["def_extra_dice"] == 0
+
+
 # ---------------------------------------------------------------------------
 # Boss statlines: sim BOSSES <-> build_save.py standees <-> lua constants.
 # build_save.py executes its whole build on import, so it is parsed, not
@@ -218,19 +254,22 @@ def test_roster_override_sweep_smoke(policy):
 # ---------------------------------------------------------------------------
 # Win-rate regression bands
 #
-# Baselines (docs/agents/balance-simulation.md, 2026-07 batch 4 calibration — batches 1-3 plus the
-# Source retuned HP 10 -> 8 (the W3 knob that landed the 40-50% target)
-# and the 3-player reliefs; new rules, 4 players, 3000 sims): turtle 42%,
-# spread 42%, balanced 15%, court_camper 14%, with ~100% of losses on
-# Days 6-7. Bands are generous — a failure means a rule constant changed
-# materially, not noise.
+# Baselines (docs/agents/balance-simulation.md, 2026-07 batch 5 — batch 4 plus
+# the Last Nerve valve and per-location defence; new rules, 4 players, 3000
+# sims): turtle 50%, spread 53%, balanced 18%, court_camper 15%,
+# net_camper 10%, with ~100% of losses on Days 6-7. The batch-4 row that
+# these bands were first drawn around (turtle/spread 42%, balanced 15%,
+# court_camper 14%) is the Last Nerve valve's ~9 points lower — hence the
+# raised ceiling on the two camping policies. Bands are generous — a failure
+# means a rule constant changed materially, not noise.
 # ---------------------------------------------------------------------------
 
 WIN_BANDS = {
-    "turtle": (0.28, 0.55),
-    "spread": (0.28, 0.55),
+    "turtle": (0.28, 0.60),
+    "spread": (0.28, 0.60),
     "balanced": (0.05, 0.28),
     "court_camper": (0.05, 0.28),
+    "net_camper": (0.02, 0.22),
 }
 
 
