@@ -34,8 +34,8 @@ Every character has one **Signature** — a once-per-game named move, fired from
 - **Crockpot Master:** Recipes need 1 fewer ingredient (min 1).
 - **Comfort Food:** when Ellie shares cooked food, eaters gain +1 extra Hunger and +1 extra Sanity.
 - **Knows the Pantry:** at her own house, pick the exact resources you want (no random draw) — the picker delivers them to your board.
-- **The Feast (Signature, 1×):** at a Crockpot, cook any number of recipes in a single action (ingredients still required); consumes ALL your held Food.
-- **Particular Eater (constraint):** cannot eat raw food.
+- **The Feast (Signature, 1×):** at a Crockpot, cook any number of recipes in a single action (ingredients still required); consumes ALL your held Provisions.
+- **Particular Eater (constraint):** cannot eat uncooked food.
 - Starting hand: Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.
 
 ## Luca — The Orator

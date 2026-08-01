@@ -127,7 +127,7 @@ DEATH AND REVIVAL
 - Health 0 = Down. Sanity 0 = Lost (also Down).
 - Going Down feeds the dark: Doom +1.
 - Flip standee to ghost. Cannot act. Drifts 1 tile per round. May whisper one word per round.
-- To revive: a Telltale Heart token (cooked at the Crockpot for 1 Cloth + 1 Battery + 1 Food + 2 Health from the cook).
+- To revive: a Telltale Heart token (cooked at the Crockpot for 1 Cloth + 1 Battery + 1 Provisions + 2 Health from the cook).
 - Revived character returns at half maximums.
 
 DOOM
@@ -198,8 +198,8 @@ ELLIE — THE COOK
 - Crockpot Master: Recipes need 1 fewer ingredient (min 1).
 - Comfort Food: when Ellie shares cooked food, eaters gain +1 extra Hunger and +1 extra Sanity.
 - Knows the Pantry: at her own house, pick the exact resources you want (no random draw) — the picker delivers them to your board.
-- The Feast (Signature, 1×): at a Crockpot, cook any number of recipes in a single action (ingredients still required); consumes ALL your held Food.
-- Particular Eater (constraint): cannot eat raw food.
+- The Feast (Signature, 1×): at a Crockpot, cook any number of recipes in a single action (ingredients still required); consumes ALL your held Provisions.
+- Particular Eater (constraint): cannot eat uncooked food.
 - Starting hand: Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.
 
 LUCA — THE ORATOR
@@ -264,7 +264,7 @@ STAT THRESHOLDS
   - Low Sanity: Haunted — each Dawn, draw 1 Threat at your tile. Only you may fight or flee it — unless an ally at your tile pays 1 Sanity to Witness it, after which they can fight it with you. Discard when resolved; it never festers.
 
 RESOURCES
-- Wood, Metal, Cloth, Food, Energy Drink, Battery — see Resource bag tooltips.
+- Wood, Metal, Cloth, Provisions, Energy Drink, Battery — see Resource bag tooltips.
 - Hand limit: 5 Items + 8 Resources. Excess is dropped at your tile.
 
 LIGHT SOURCES
@@ -321,7 +321,7 @@ ACTIONS
 - Pry — a free action with a Crowbar, Lockpick, or Pry Bar: open a sealed thing at your tile for its printed reward. Sealed Threat cards and the Sealed Basement (at Ellie & Luca's House from setup) all open this way.
 - Special (on a Threat card) — the printed rider under the statline, and it is live. Some are paid inside the fight (Your Roommate charges 1 Sanity per attack die you roll; A Child's Shadow charges a flat 1 for swinging at all; the Spider Thing counters with 2 dice; the Doppelganger makes you roll Sanity d8 before you can bring yourself to attack). Some fire on arrival (the Hollow Spectator's entry cost, the Wall Crawler's free first hit). Some tax the tile while the card stands (the Shadow Stalker at Tick, the Scarecrow on Gather, the Glass Child every Night). One calls for help when it dies (the Black Dog hunts in pairs). A few ask the table for a judgement and say so in chat.
 - The Grue — the one Threat card that is not a fight at all: it takes its bite (1d8 Sanity, 1d6 Health, and Coco's Night Vision spares her) and its card is discarded immediately. It never festers, because it is never left standing.
-- Persistent threat — a Threat card that stays on its tile instead of resolving or being fought off, applying its printed rule to everyone there (no Food gathered here, Rest restores nothing, +1 Hunger to leave, an extra Threat drawn here each Night…). It festers +1 Doom every Dawn it stands. Three ways off the tile: Fight it if it has HP, Pry it if it is sealed, or Clear it — 2 actions + 1 Wood, at that tile.
+- Persistent threat — a Threat card that stays on its tile instead of resolving or being fought off, applying its printed rule to everyone there (no Provisions gathered here, Rest restores nothing, +1 Hunger to leave, an extra Threat drawn here each Night…). It festers +1 Doom every Dawn it stands. Three ways off the tile: Fight it if it has HP, Pry it if it is sealed, or Clear it — 2 actions + 1 Wood, at that tile.
 - Clear (2 actions + 1 Wood) — the removal path for a Persistent threat that has no HP to fight and no seal to pry. The card leaves, its rule stops, and it stops charging Doom every Dawn.
 - The Wrongness — a face-down, unresolved Threat placed at a tile by a Dawn card. Someone can go look (it resolves on entering the tile) — or it resolves at the next Dawn, where it stands. It doesn't fester while face-down.
 - Witness (free, 1 Sanity) — an ally standing with a Haunted character may pay 1 Sanity to see their threat too, and then fight it alongside them. Use the Reactions panel; it works on their turn, not just yours.
@@ -336,7 +336,7 @@ DOWN STATE
 - Revive: spend a Telltale Heart at your tile. Reviver pays 2 Health. Revived returns at half max.
 
 TELLTALE HEART
-- A Recipe (not a Market Item). Cook 1 Cloth + 1 Battery + 1 Food + 2 cook Health → 1 Heart token.
+- A Recipe (not a Market Item). Cook 1 Cloth + 1 Battery + 1 Provisions + 2 cook Health → 1 Heart token.
 - 5 Hearts max in supply. Used Hearts return to the supply pool.
 
 REACTIONS (THINGS YOU CAN DO OFF-TURN)

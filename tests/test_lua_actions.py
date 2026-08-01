@@ -25,7 +25,7 @@ class TestPry:
         add_char(env, "White", "James", location="JamesHouse")
         add = env.eval("TTS.addObject")
         add(py_to_lua(env, {"tags": ["Location:JamesHouse"], "position": [0, 1, 0]}))
-        for res in ["Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"]:
+        for res in ["Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"]:
             add(py_to_lua(env, {"tags": [f"ResourceBag:{res}"], "position": [60, 1, 60],
                                 "contained": [{"nickname": res}] * 8}))
         add(py_to_lua(env, {"tags": ["MarketCardDeck"], "position": [55, 1, 55],
@@ -144,17 +144,17 @@ class TestSignatures:
         add_char(env, "Green", "Ellie", location="EllieLucaHouse")
         add = env.eval("TTS.addObject")
         add(py_to_lua(env, {"tags": ["PlayerBoard:Ellie"], "position": [20, 1, 20]}))
-        add(py_to_lua(env, {"tags": ["ResourceBag:Food"], "position": [40, 1, 40]}))
+        add(py_to_lua(env, {"tags": ["ResourceBag:Provisions"], "position": [40, 1, 40]}))
         # Held resources are authoritative in gameState — grant them the same
         # way the game does (giveResource), not by placing physical tokens.
-        env.globals().giveResource("Green", "Food", food)
+        env.globals().giveResource("Green", "Provisions", food)
 
     def test_feast_spends_one_action_zeroes_food_frees_cooking(self, env):
         self._ellie_with_food(env, food=3)
         assert env.globals().doSignature("Green") is True
         assert env.eval("gameState.activeChars.Green.actionsLeft") == 2   # the single action
         assert env.eval("gameState.activeChars.Green.feastActive") is True
-        assert lua_to_py(env.globals().getPlayerResources("Green"))["Food"] == 0
+        assert lua_to_py(env.globals().getPlayerResources("Green"))["Provisions"] == 0
         # cooking now costs no actions
         env.globals().doCook("Green", "R_PORRIDGE")
         env.globals().doCook("Green", "R_LEFTOVERS")
@@ -286,11 +286,11 @@ class TestPerks:
 
     def test_particular_eater_blocks_raw_food(self, env):
         add_char(env, "Green", "Ellie", hunger=4, sanity=8)
-        env.globals().doEatRaw("Green")
+        env.globals().doEatUncooked("Green")
         assert env.eval("gameState.activeChars.Green.hunger") == 4  # refused
         assert env.eval("gameState.activeChars.Green.sanity") == 8
         add_char(env, "White", "James", hunger=4)
-        env.globals().doEatRaw("White")
+        env.globals().doEatUncooked("White")
         assert env.eval("gameState.activeChars.White.hunger") == 5  # others may
 
     def test_court_master_extra_die_at_basketball_court(self, env):
@@ -374,7 +374,7 @@ class TestGatherAutomation:
         add = env.eval("TTS.addObject")
         add(py_to_lua(env, {"tags": [f"Location:{loc}"], "position": [0, 1, 0]}))
         add(py_to_lua(env, {"tags": [f"PlayerBoard:{name}"], "position": [20, 1, 20]}))
-        for res in ["Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"]:
+        for res in ["Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"]:
             add(py_to_lua(env, {
                 "tags": [f"ResourceBag:{res}"], "position": [60, 1, 60],
                 "contained": [{"nickname": res, "tags": ["Resource", f"Resource:{res}"]}] * 8}))
@@ -387,9 +387,9 @@ class TestGatherAutomation:
         env.globals().doGather("Green")
         held = self._held(env, "Green")
         assert sum(held.values()) == 1
-        # Rayman's House yields only Metal / Battery / Food — never Wood or Cloth.
+        # Rayman's House yields only Metal / Battery / Provisions — never Wood or Cloth.
         assert held["Wood"] == 0 and held["Cloth"] == 0
-        assert held["Metal"] + held["Battery"] + held["Food"] == 1
+        assert held["Metal"] + held["Battery"] + held["Provisions"] == 1
 
     def test_gather_spends_one_action(self, env):
         self._world(env, "Green", "Rayman", "RaymanHouse")
@@ -456,7 +456,7 @@ class TestCookIngredients:
         add = env.eval("TTS.addObject")
         add(py_to_lua(env, {"tags": ["Location:EllieLucaHouse"], "position": [0, 1, 0]}))
         add(py_to_lua(env, {"tags": [f"PlayerBoard:{name}"], "position": [20, 1, 20]}))
-        for res in ["Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"]:
+        for res in ["Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"]:
             add(py_to_lua(env, {
                 "tags": [f"ResourceBag:{res}"], "position": [60, 1, 60],
                 "contained": [{"nickname": res, "tags": ["Resource", f"Resource:{res}"]}] * 8}))
@@ -466,30 +466,30 @@ class TestCookIngredients:
 
     def test_cook_pays_ingredients_from_held(self, env):
         self._cook_world(env, "Rayman")   # non-Ellie: full cost
-        env.globals().giveResource("Green", "Food", 2)
+        env.globals().giveResource("Green", "Provisions", 2)
         env.globals().giveResource("Green", "Wood", 1)
-        env.globals().doCook("Green", "R_HOT_STEW")   # costs 2 Food + 1 Wood
+        env.globals().doCook("Green", "R_HOT_STEW")   # costs 2 Provisions + 1 Wood
         held = self._held(env)
-        assert held["Food"] == 0 and held["Wood"] == 0
+        assert held["Provisions"] == 0 and held["Wood"] == 0
         assert env.eval("gameState.activeChars.Green.hunger") >= 4   # effect applied
 
     def test_cook_refused_and_refunded_when_short(self, env):
         self._cook_world(env, "Rayman")
-        env.globals().giveResource("Green", "Food", 1)   # need 2 Food + 1 Wood
+        env.globals().giveResource("Green", "Provisions", 1)   # need 2 Provisions + 1 Wood
         start_hunger = env.eval("gameState.activeChars.Green.hunger")
         env.globals().doCook("Green", "R_HOT_STEW")
         assert env.eval("gameState.activeChars.Green.actionsLeft") == 3   # action refunded
         assert env.eval("gameState.activeChars.Green.hunger") == start_hunger  # no effect
-        assert self._held(env)["Food"] == 1   # nothing spent
+        assert self._held(env)["Provisions"] == 1   # nothing spent
 
     def test_ellie_crockpot_master_pays_one_fewer(self, env):
         self._cook_world(env, "Ellie")
-        env.globals().giveResource("Green", "Food", 2)   # 2 Food + 1 Wood, minus 1 = 1 Food + 1 Wood
+        env.globals().giveResource("Green", "Provisions", 2)   # 2 Provisions + 1 Wood, minus 1 = 1 Provisions + 1 Wood
         env.globals().giveResource("Green", "Wood", 1)
         env.globals().doCook("Green", "R_HOT_STEW")
         held = self._held(env)
-        # Ellie shaves one Food (the largest ingredient); 1 Food is left over.
-        assert held["Food"] == 1 and held["Wood"] == 0
+        # Ellie shaves one Provisions (the largest ingredient); 1 Provisions is left over.
+        assert held["Provisions"] == 1 and held["Wood"] == 0
 
     def test_full_heart_supply_refuses_before_charging_the_cook(self, env):
         """The Telltale Heart is the one recipe whose penalty (2 Health) is
@@ -497,7 +497,7 @@ class TestCookIngredients:
         so a cook against a full supply cost 2 Health, three resources and an
         action, and produced nothing."""
         self._cook_world(env, "Rayman")
-        for res in ("Battery", "Cloth", "Food"):
+        for res in ("Battery", "Cloth", "Provisions"):
             env.globals().giveResource("Green", res, 1)
         env.execute("gameState.heartCount = HEART_SUPPLY_MAX")
         start_health = env.eval("gameState.activeChars.Green.health")
@@ -512,7 +512,7 @@ class TestCookIngredients:
         spend that action inside the loop and then bail."""
         self._cook_world(env, "Rayman")
         env.execute("gameState.activeChars.Green.actionsLeft = 1")
-        for res in ("Cloth", "EnergyDrink", "Food"):
+        for res in ("Cloth", "EnergyDrink", "Provisions"):
             env.globals().giveResource("Green", res, 3)
         env.globals().doCook("Green", "R_BIRTHDAY_CAKE")
         assert env.eval("gameState.activeChars.Green.actionsLeft") == 1
@@ -520,7 +520,7 @@ class TestCookIngredients:
 
     def test_a_two_action_recipe_cooks_with_the_budget_for_it(self, env):
         self._cook_world(env, "Rayman")
-        for res in ("Cloth", "EnergyDrink", "Food"):
+        for res in ("Cloth", "EnergyDrink", "Provisions"):
             env.globals().giveResource("Green", res, 3)
         env.globals().doCook("Green", "R_BIRTHDAY_CAKE")
         assert env.eval("gameState.activeChars.Green.actionsLeft") == 1   # 3 - 2
@@ -531,7 +531,7 @@ class TestCookIngredients:
         generated into RECIPE_DATA and read by nothing."""
         self._cook_world(env, "Rayman")
         env.execute("gameState.activeChars.Green.location = 'BasketballCourt'")
-        for res in ("Food", "Wood", "Cloth"):
+        for res in ("Provisions", "Wood", "Cloth"):
             env.globals().giveResource("Green", res, 3)
         env.globals().doCook("Green", "R_GUMBO")
         assert env.eval("gameState.activeChars.Green.actionsLeft") == 3
@@ -548,7 +548,7 @@ class TestCookIngredients:
         assert env.globals().crockpotAt("BasketballCourt") is False
         env.execute('TTS.setHand("Green", { TTS.makeObject({tags={"M_PORTABLE_CROCKPOT"}}) })')
         assert env.globals().crockpotAt("BasketballCourt") is True
-        for res in ("Food", "Wood", "Cloth"):
+        for res in ("Provisions", "Wood", "Cloth"):
             env.globals().giveResource("Green", res, 3)
         env.globals().doCook("Green", "R_GUMBO")
         assert env.eval("gameState.activeChars.Green.actionsLeft") == 2   # it cooked
@@ -571,7 +571,7 @@ class TestResourceModelRobustness:
         add = env.eval("TTS.addObject")
         add(py_to_lua(env, {"tags": ["Location:RaymanHouse"], "position": [0, 1, 0]}))
         board = add(py_to_lua(env, {"tags": [f"PlayerBoard:{name}"], "position": [20, 1, 20]}))
-        for res in ["Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"]:
+        for res in ["Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"]:
             add(py_to_lua(env, {"tags": [f"ResourceBag:{res}"], "position": [60, 1, 60],
                                 "contained": [{"nickname": res, "tags": ["Resource", f"Resource:{res}"]}] * 8}))
         return board

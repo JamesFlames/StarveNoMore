@@ -161,7 +161,7 @@ DAWN_EFFECTS["P4_GROUND_SPLITS"] = {
 
 DAWN_EFFECTS["P4_LAST_MEAL"] = {
     onReveal = function(card)
-        broadcastEvent("warn", "The last meal. All Food at every location is destroyed.")
+        broadcastEvent("warn", "The last meal. All Provisions at every location are destroyed.")
         gameState.ongoingDawnEffects.recipeBonusHunger = true
         broadcastEvent("gain", "Recipes cooked today restore +2 extra Hunger.")
     end,

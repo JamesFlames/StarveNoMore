@@ -1,5 +1,5 @@
 -- actions_social.lua — the remaining action verbs: trade, energy drink,
--- eat-raw, pass, barricade, defend, peek, rally, pry, and stabilize.
+-- eat-uncooked, pass, barricade, defend, peek, rally, pry, and stabilize.
 -- Part of actions (see actions.lua for move/gather/rest + undo).
 
 -----------------------------------------------------------------------
@@ -78,27 +78,27 @@ function doEnergyDrink(color)
 end
 
 -----------------------------------------------------------------------
--- EAT RAW FOOD (free action) — Design §8.4
+-- EAT UNCOOKED PROVISIONS (free action) — Design §8.4
 -- +1 Hunger, -1 Sanity (mismatched currency)
 -----------------------------------------------------------------------
-function doEatRaw(color)
+function doEatUncooked(color)
     local char = gameState.activeChars[color]
     if not char or char.down then return end
 
-    -- Particular Eater (§6.4): Ellie cannot eat raw food, ever.
+    -- Particular Eater (§6.4): Ellie cannot eat uncooked food, ever.
     if char.name == "Ellie" then
-        broadcastToColor("Ellie can't eat raw food (Particular Eater). Cook it first — Crockpot Master makes recipes cheaper.",
+        broadcastToColor("Ellie can't eat uncooked food (Particular Eater). Cook it first — Crockpot Master makes recipes cheaper.",
             color, BROADCAST_COLORS.damage)
         return
     end
 
-    -- Contaminated Water (Persistent): raw food costs 2 Sanity at its tile.
-    local sanityCost, spoiler = persistentRawFoodSanityCost(char.location)
+    -- Contaminated Water (Persistent): uncooked food costs 2 Sanity at its tile.
+    local sanityCost, spoiler = persistentUncookedSanityCost(char.location)
 
     char.hunger = math.min(char.maxHunger, char.hunger + 1)
     char.sanity = math.max(0, char.sanity - sanityCost)
 
-    broadcastEvent("proc", char.name .. " eats raw food. +1 Hunger, -" .. sanityCost .. " Sanity." ..
+    broadcastEvent("proc", char.name .. " eats uncooked food. +1 Hunger, -" .. sanityCost .. " Sanity." ..
         (spoiler and (" (" .. spoiler .. " — everything here tastes of it.)") or ""))
     checkDownState(color)
 end
@@ -347,8 +347,8 @@ PRY_TOOLS = {
 -- early becomes a real strategy with a named payoff instead of a rounding
 -- error. Everything else about the Truth Run can still miss; this cannot.
 SEALED_REWARDS.BASEMENT = {
-    market = 1, clue = 1, resources = { Food = 2, Wood = 1, Battery = 1 },
-    line = "The basement cache, hoarded before the week began: a free Market Item, one of the three CLUES, plus 2 Food + 1 Wood + 1 Battery.",
+    market = 1, clue = 1, resources = { Provisions = 2, Wood = 1, Battery = 1 },
+    line = "The basement cache, hoarded before the week began: a free Market Item, one of the three CLUES, plus 2 Provisions + 1 Wood + 1 Battery.",
 }
 
 local PRY_RADIUS = 7   -- same "at this tile" radius as festering / signatures

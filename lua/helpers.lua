@@ -133,7 +133,7 @@ end
 -- / verifyAndPayResources all read and write the gameState counts, so the
 -- economy is correct no matter where a token or board ends up.
 -----------------------------------------------------------------------
-RESOURCE_TYPES_LIST = {"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}
+RESOURCE_TYPES_LIST = {"Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"}
 
 -- The per-colour count table, created on first use (and after setup wipes).
 function ensurePlayerResources(color)

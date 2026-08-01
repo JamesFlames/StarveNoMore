@@ -9,23 +9,23 @@
 
 RECIPE_DATA = {}
 
-RECIPE_DATA.R_HOT_STEW = { name = "Hot Stew", ingredients = { Food = 2, Wood = 1 }, allAtTile = { hunger = 4, sanity = 2 } }
-RECIPE_DATA.R_ENERGY_COCKTAIL = { name = "Energy Drink Cocktail", ingredients = { EnergyDrink = 2, Food = 1 }, allAtTile = { hunger = 2, sanity = 5 } }
-RECIPE_DATA.R_COMFORT_SOUP = { name = "Comfort Soup", ingredients = { Cloth = 1, Food = 3 }, allAtTile = { hunger = 3, sanity = 3 } }
-RECIPE_DATA.R_BATTERY_ACID_SOUP = { name = "Battery Acid Soup", ingredients = { Battery = 1, Food = 2 }, allAtTile = { hunger = 6 }, cookPenalty = { health = 2 } }
-RECIPE_DATA.R_BREAKFAST_BURRITO = { name = "Breakfast Burrito", ingredients = { Cloth = 1, Food = 1, Wood = 1 }, cookOnly = { hunger = 5 } }
-RECIPE_DATA.R_GRILLED_CHEESE = { name = "Grilled Cheese", ingredients = { Food = 1, Wood = 1 }, cookOnly = { hunger = 3 }, oneAlly = { hunger = 1 } }
-RECIPE_DATA.R_PORRIDGE = { name = "Porridge", ingredients = { Food = 2 }, allAtTile = { hunger = 3 } }
-RECIPE_DATA.R_CASSEROLE = { name = "Casserole", ingredients = { Cloth = 1, Food = 3, Wood = 1 }, allAtTile = { health = 1, hunger = 5, sanity = 2 } }
-RECIPE_DATA.R_TELLTALE_HEART = { name = "Telltale Heart", ingredients = { Battery = 1, Cloth = 1, Food = 1 }, cookPenalty = { health = 2 }, special = "heart" }
-RECIPE_DATA.R_ICE_TEA = { name = "Iced Tea", ingredients = { Cloth = 1, Food = 1 }, cookOnly = { sanity = 1 }, adjacentAllies = { sanity = 1 } }
-RECIPE_DATA.R_BIRTHDAY_CAKE = { name = "Birthday Cake", ingredients = { Cloth = 2, EnergyDrink = 1, Food = 3 }, allAtTile = { hunger = 4, sanity = 4 }, actionCost = 2, oncePerGame = true }
-RECIPE_DATA.R_LEFTOVERS = { name = "Leftovers", ingredients = { Food = 1 }, cookOnly = { hunger = 2 } }
-RECIPE_DATA.R_HOT_CHOCOLATE = { name = "Hot Chocolate", ingredients = { Food = 1, Wood = 1 }, cookOnly = { hunger = 1, sanity = 2 } }
-RECIPE_DATA.R_FAILED_RECIPE = { name = "Burnt Mess", ingredients = { Food = 2, Wood = 1 }, cookOnly = { hunger = 1 }, cookPenalty = { sanity = 1 } }
-RECIPE_DATA.R_VEGETABLE_STIR_FRY = { name = "Vegetable Stir-Fry", ingredients = { Cloth = 1, Food = 3 }, allAtTile = { hunger = 4, sanity = 1 } }
-RECIPE_DATA.R_SOUL_FOOD = { name = "Soul Food", ingredients = { EnergyDrink = 1, Food = 3 }, allAtTile = { sanity = 5 }, cookOnly = { sanity = 2 } }
-RECIPE_DATA.R_GRANDMAS_RECIPE = { name = "Grandma's Recipe", ingredients = { Cloth = 1, Food = 2, Wood = 1 }, allAtTile = { hunger = 4, sanity = 3 }, oncePerGame = true }
-RECIPE_DATA.R_MIDNIGHT_SNACK = { name = "Midnight Snack", ingredients = { EnergyDrink = 1, Food = 1 }, cookOnly = { hunger = 2, sanity = 2 }, canCookAtNight = true }
-RECIPE_DATA.R_TRAIL_MIX = { name = "Trail Mix", ingredients = { Food = 2 }, special = "trailmix" }
-RECIPE_DATA.R_GUMBO = { name = "Gumbo", ingredients = { Cloth = 1, Food = 3, Wood = 1 }, allAtTile = { hunger = 5, sanity = 3 }, requiresCrockpot = true }
+RECIPE_DATA.R_HOT_STEW = { name = "Hot Stew", ingredients = { Provisions = 2, Wood = 1 }, allAtTile = { hunger = 4, sanity = 2 } }
+RECIPE_DATA.R_ENERGY_COCKTAIL = { name = "Energy Drink Cocktail", ingredients = { EnergyDrink = 2, Provisions = 1 }, allAtTile = { hunger = 2, sanity = 5 } }
+RECIPE_DATA.R_COMFORT_SOUP = { name = "Comfort Soup", ingredients = { Cloth = 1, Provisions = 3 }, allAtTile = { hunger = 3, sanity = 3 } }
+RECIPE_DATA.R_BATTERY_ACID_SOUP = { name = "Battery Acid Soup", ingredients = { Battery = 1, Provisions = 2 }, allAtTile = { hunger = 6 }, cookPenalty = { health = 2 } }
+RECIPE_DATA.R_BREAKFAST_BURRITO = { name = "Breakfast Burrito", ingredients = { Cloth = 1, Provisions = 1, Wood = 1 }, cookOnly = { hunger = 5 } }
+RECIPE_DATA.R_GRILLED_CHEESE = { name = "Grilled Cheese", ingredients = { Provisions = 1, Wood = 1 }, cookOnly = { hunger = 3 }, oneAlly = { hunger = 1 } }
+RECIPE_DATA.R_PORRIDGE = { name = "Porridge", ingredients = { Provisions = 2 }, allAtTile = { hunger = 3 } }
+RECIPE_DATA.R_CASSEROLE = { name = "Casserole", ingredients = { Cloth = 1, Provisions = 3, Wood = 1 }, allAtTile = { health = 1, hunger = 5, sanity = 2 } }
+RECIPE_DATA.R_TELLTALE_HEART = { name = "Telltale Heart", ingredients = { Battery = 1, Cloth = 1, Provisions = 1 }, cookPenalty = { health = 2 }, special = "heart" }
+RECIPE_DATA.R_ICE_TEA = { name = "Iced Tea", ingredients = { Cloth = 1, Provisions = 1 }, cookOnly = { sanity = 1 }, adjacentAllies = { sanity = 1 } }
+RECIPE_DATA.R_BIRTHDAY_CAKE = { name = "Birthday Cake", ingredients = { Cloth = 2, EnergyDrink = 1, Provisions = 3 }, allAtTile = { hunger = 4, sanity = 4 }, actionCost = 2, oncePerGame = true }
+RECIPE_DATA.R_LEFTOVERS = { name = "Leftovers", ingredients = { Provisions = 1 }, cookOnly = { hunger = 2 } }
+RECIPE_DATA.R_HOT_CHOCOLATE = { name = "Hot Chocolate", ingredients = { Provisions = 1, Wood = 1 }, cookOnly = { hunger = 1, sanity = 2 } }
+RECIPE_DATA.R_FAILED_RECIPE = { name = "Burnt Mess", ingredients = { Provisions = 2, Wood = 1 }, cookOnly = { hunger = 1 }, cookPenalty = { sanity = 1 } }
+RECIPE_DATA.R_VEGETABLE_STIR_FRY = { name = "Vegetable Stir-Fry", ingredients = { Cloth = 1, Provisions = 3 }, allAtTile = { hunger = 4, sanity = 1 } }
+RECIPE_DATA.R_SOUL_FOOD = { name = "Soul Food", ingredients = { EnergyDrink = 1, Provisions = 3 }, allAtTile = { sanity = 5 }, cookOnly = { sanity = 2 } }
+RECIPE_DATA.R_GRANDMAS_RECIPE = { name = "Grandma's Recipe", ingredients = { Cloth = 1, Provisions = 2, Wood = 1 }, allAtTile = { hunger = 4, sanity = 3 }, oncePerGame = true }
+RECIPE_DATA.R_MIDNIGHT_SNACK = { name = "Midnight Snack", ingredients = { EnergyDrink = 1, Provisions = 1 }, cookOnly = { hunger = 2, sanity = 2 }, canCookAtNight = true }
+RECIPE_DATA.R_TRAIL_MIX = { name = "Trail Mix", ingredients = { Provisions = 2 }, special = "trailmix" }
+RECIPE_DATA.R_GUMBO = { name = "Gumbo", ingredients = { Cloth = 1, Provisions = 3, Wood = 1 }, allAtTile = { hunger = 5, sanity = 3 }, requiresCrockpot = true }

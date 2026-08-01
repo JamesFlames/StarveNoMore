@@ -143,7 +143,7 @@ function confirmLastHeart(reviverName, targetName, onConfirm)
             "Use the last Telltale Heart?",
             reviverName .. " will revive " .. targetName .. ", but this is the LAST heart.\n"
             .. "If another character goes Down, there won't be a way to revive them.\n"
-            .. "Cook another heart when you can (1 Cloth + 1 Battery + 1 Food + 2 HP).",
+            .. "Cook another heart when you can (1 Cloth + 1 Battery + 1 Provisions + 2 HP).",
             onConfirm
         )
     else

@@ -1,7 +1,7 @@
 id,title,severity,immediate,ongoing,art_notes
 P2_PORCH_LIGHT,The Porch Light Flickers,2,All players lose 1 Sanity.,Until next Dawn: Charlie checks ignore Flashlights — only Fire counts as a light source. DARE: the first player to Gather at a house today may take 3 resources instead of 1 — and lose 2 Sanity from what they see through the window.,Porches with blacked-out bulbs
 P2_SHADOWS_MOVE,Shadows Move Without Bodies,3,Each player rolls the Sanity d8 and loses Sanity equal to half (round up).,,Burton-style ink shadow
-P2_FOOD_SPOILS,Food Goes Bad,3,Each player discards 1 Food from their resources.,DARE: eat it anyway — keep your spoiled Food and eat it now: +2 Hunger and -1 Health.,Mold creeping over an apple
+P2_FOOD_SPOILS,Food Goes Bad,3,Each player discards 1 Provisions from their resources.,DARE: eat it anyway — keep your spoiled Provisions and eat it now: +2 Hunger and -1 Health.,Mold creeping over an apple
 P2_BASKETBALL_BOUNCE,A Basketball Bounces in the Dark,2,Something is wrong at the School. The top Threat card is placed FACE-DOWN at the Basketball Court. It resolves when someone goes to look — or at the next Dawn where it stands.,,A ball bouncing in a moonlit empty court
 P2_HUNGRY,Everyone's Hungrier Than They Should Be,2,Each player loses 1 Hunger.,Until next Dawn: Rest restores no Hunger.,Empty plate with a bite-mark
 P2_DEERCLOPS_NEAR,The Deerclops Approaches,3,Pre-warning. The Deerclops boss arrives next Dawn at the Basketball Court.,,Massive antlered silhouette in fog

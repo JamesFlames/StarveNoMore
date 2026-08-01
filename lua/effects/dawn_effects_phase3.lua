@@ -256,23 +256,23 @@ DAWN_EFFECTS["P3_ALLY_MISSING"] = {
 
 DAWN_EFFECTS["P3_OFFERING"] = {
     onReveal = function(card)
-        broadcastEvent("proc", "An offering at the door. CHOOSE: sacrifice 3 Food (taken from the team's boards) for Doom -2, OR ignore it and everyone loses 1 Sanity.")
+        broadcastEvent("proc", "An offering at the door. CHOOSE: sacrifice 3 Provisions (taken from the team's boards) for Doom -2, OR ignore it and everyone loses 1 Sanity.")
         showConfirm("The Offering",
-            "Sacrifice 3 Food (taken automatically from the team's boards) to reduce Doom by 2?\n\nCancel: refuse — every player loses 1 Sanity.",
+            "Sacrifice 3 Provisions (taken automatically from the team's boards) to reduce Doom by 2?\n\nCancel: refuse — every player loses 1 Sanity.",
             function()
                 -- Pool the payment across the whole team, in turn order.
                 local need = 3
                 for _, c in ipairs(gameState.turnOrder or {}) do
                     if need <= 0 then break end
-                    need = need - takeResourceFromPlayer(c, "Food", need)
+                    need = need - takeResourceFromPlayer(c, "Provisions", need)
                 end
                 if need > 0 then
-                    broadcastEvent("damage", "The team can't scrape 3 Food together — the offering is refused. Everyone loses 1 Sanity.")
+                    broadcastEvent("damage", "The team can't scrape 3 Provisions together — the offering is refused. Everyone loses 1 Sanity.")
                     allPlayersLose("sanity", 1)
                 else
                     gameState.doom = math.max(0, gameState.doom - 2)
                     moveDoomMarker(gameState.doom)
-                    broadcastEvent("gain", "The offering is accepted: 3 Food given, Doom -2 (now " ..
+                    broadcastEvent("gain", "The offering is accepted: 3 Provisions given, Doom -2 (now " ..
                         gameState.doom .. " / " .. getDoomLimit() .. ").")
                 end
                 refreshPhaseBanner()

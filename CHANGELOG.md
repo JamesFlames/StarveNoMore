@@ -2,6 +2,36 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## Food is now Provisions, and Eat Raw is Eat Uncooked (2026-08)
+
+**Naming only — no rule, cost, or number moved.** The Food token is renamed
+**Provisions** and the free action that eats one is renamed **Eat Uncooked**.
+
+"Food" read as though the token were specifically *raw* food, which it never
+was: §7 has always said it is Junk Food at James's House, a Sports Drink at the
+courts, and pantry ingredients at the kitchen — an apple on the token, and the
+ingredient slot in all 20 recipes including Iced Tea, Hot Chocolate and the
+Birthday Cake. "Provisions" says edible-stock-you-scavenged without implying
+the Crockpot is mandatory, and it does not collide with Wood/Metal/Cloth/
+Battery/Energy Drink the way "Supplies" would have.
+
+"Eat Raw" carried the same false implication onto the verb. **Eat Uncooked**
+puts the word on the *method* — where it belongs, since the −1 Sanity is the
+DST raw-food penalty (§8.4) and not food poisoning. Ellie's Particular Eater
+constraint is unchanged: she still cannot do it.
+
+Two knock-on renames keep the vocabulary clean: the Market's **Food** card
+category is now **Consumable** (Energy Bar, Protein Bar, Hot Cocoa, Sports
+Drink, Case of Energy Drinks), so the one word no longer names both a resource
+and a card class; and Contaminated Water's rule now reads "eating uncooked
+here costs 2 Sanity".
+
+Names that only *contain* the word are untouched: Ellie's **Comfort Food**
+perk, the **Soul Food** recipe, the **Food Goes Bad** and **Food Gone Wrong**
+cards, and the Junk Food flavour line at James's House. Card ids and art
+filenames (`R_FOOD`, `resource_food.png`) are unchanged — they name the
+artwork, not the game term.
+
 ## The Doom clock closes on the last day (2026-07)
 
 **Rule change: at 4 players, Phase 4 now advances Doom +3 per Dawn, not +2**

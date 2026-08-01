@@ -205,7 +205,7 @@
           <Text fontSize="11" color="#33302A" alignment="UpperCenter"
                 text="Crockpot Master&#10;Comfort Food" preferredHeight="34" />
           <Text fontSize="11" color="#8A3A2A" alignment="UpperCenter"
-                text="Can't eat raw food" preferredHeight="30" />
+                text="Can't eat uncooked food" preferredHeight="30" />
         </VerticalLayout>
         <Button id="pickEllie" onClick="onPickChar"
                 color="#00000000" textColor="#00000000" text="" tooltip=""

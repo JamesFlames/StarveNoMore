@@ -137,7 +137,7 @@ def _fuzz_verbs(env, rng):
         lambda c: g.doMove(c, rng.choice(LOCATIONS)),
         lambda c: g.doGather(c),
         lambda c: g.doRest(c, rng.choice(["hunger", "sanity"])),
-        lambda c: g.doEatRaw(c),
+        lambda c: g.doEatUncooked(c),
         lambda c: g.doEnergyDrink(c),
         lambda c: g.doFlee(c, rng.choice(LOCATIONS)),
         lambda c: g.doBarricade(c),

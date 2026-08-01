@@ -1,21 +1,21 @@
 id,name,ingredients,cost,effect,art_notes,script
-R_HOT_STEW,Hot Stew,2 Food + 1 Wood,1 Action,All at this tile +4 Hunger and +2 Sanity.,Bowl of stew with steam,allAtTile=hunger:4+sanity:2
-R_ENERGY_COCKTAIL,Energy Drink Cocktail,2 Energy Drink + 1 Food,1 Action,All at this tile +5 Sanity and +2 Hunger.,Bright bubbling glass,allAtTile=sanity:5+hunger:2
-R_COMFORT_SOUP,Comfort Soup,3 Food + 1 Cloth,1 Action,All at this tile +3 Hunger and +3 Sanity.,Soup with napkin,allAtTile=hunger:3+sanity:3
-R_BATTERY_ACID_SOUP,Battery Acid Soup,1 Battery + 2 Food,1 Action,All at this tile +6 Hunger but lose 2 Health.,Glowing green broth,allAtTile=hunger:6|cookPenalty=health:2
-R_BREAKFAST_BURRITO,Breakfast Burrito,1 Food + 1 Cloth + 1 Wood,1 Action,Cook +5 Hunger to themselves only.,Foil-wrapped burrito,cookOnly=hunger:5
-R_GRILLED_CHEESE,Grilled Cheese,1 Food + 1 Wood,1 Action,Cook +3 Hunger to themselves; +1 Hunger to one ally at the tile.,Two triangle halves,cookOnly=hunger:3|oneAlly=hunger:1
-R_PORRIDGE,Porridge,2 Food,1 Action,All at tile +3 Hunger.,Bowl with single berry,allAtTile=hunger:3
-R_CASSEROLE,Casserole,3 Food + 1 Wood + 1 Cloth,1 Action,All at tile +5 Hunger and +2 Sanity. Restore 1 Health.,Casserole dish,allAtTile=hunger:5+sanity:2+health:1
-R_TELLTALE_HEART,Telltale Heart,1 Cloth + 1 Battery + 1 Food,1 Action; cook pays 2 Health,Yields 1 Telltale Heart token (max 5 in supply). Used to revive a Down character.,Glowing red heart-shape,special=heart|cookPenalty=health:2
-R_ICE_TEA,Iced Tea,1 Food + 1 Cloth,1 Action,Cook +1 Sanity. Adjacent allies +1 Sanity.,Iced glass with lemon,cookOnly=sanity:1|adjacentAllies=sanity:1
-R_BIRTHDAY_CAKE,Birthday Cake,3 Food + 2 Cloth + 1 Energy Drink,2 Actions,All at tile +4 Hunger AND +4 Sanity. (Once per game.),Slice with candles,allAtTile=hunger:4+sanity:4|actionCost=2|oncePerGame
-R_LEFTOVERS,Leftovers,1 Food,1 Action,Cook +2 Hunger.,Tupperware,cookOnly=hunger:2
-R_HOT_CHOCOLATE,Hot Chocolate,1 Food + 1 Wood,1 Action,Cook +1 Hunger and +2 Sanity.,Mug with marshmallows,cookOnly=hunger:1+sanity:2
-R_FAILED_RECIPE,Burnt Mess,2 Food + 1 Wood,1 Action,Cook +1 Hunger. Cook loses 1 Sanity. (Use only when desperate.),Charred pan,cookOnly=hunger:1|cookPenalty=sanity:1
-R_VEGETABLE_STIR_FRY,Vegetable Stir-Fry,3 Food + 1 Cloth,1 Action,All at tile +4 Hunger and +1 Sanity.,Wok with vegetables,allAtTile=hunger:4+sanity:1
-R_SOUL_FOOD,Soul Food,3 Food + 1 Energy Drink,1 Action,All at tile +5 Sanity. Cook +2 Sanity.,Hearty plate,allAtTile=sanity:5|cookOnly=sanity:2
-R_GRANDMAS_RECIPE,Grandma's Recipe,2 Food + 1 Cloth + 1 Wood,1 Action,All at tile +4 Hunger and +3 Sanity. (Once per game.),Recipe card on counter,allAtTile=hunger:4+sanity:3|oncePerGame
-R_MIDNIGHT_SNACK,Midnight Snack,1 Food + 1 Energy Drink,1 Action,Cook +2 Hunger and +2 Sanity. (Can be cooked at Night.),Sandwich on a plate,cookOnly=hunger:2+sanity:2|canCookAtNight
-R_TRAIL_MIX,Trail Mix,2 Food,1 Action,Yields 2 Energy Bar Items (placed at cook's hand).,Bowl of nuts and dried fruit,special=trailmix
-R_GUMBO,Gumbo,3 Food + 1 Wood + 1 Cloth,1 Action,All at tile +5 Hunger and +3 Sanity. (Requires non-empty Crockpot tile.),Cajun stew,allAtTile=hunger:5+sanity:3|requiresCrockpot
+R_HOT_STEW,Hot Stew,2 Provisions + 1 Wood,1 Action,All at this tile +4 Hunger and +2 Sanity.,Bowl of stew with steam,allAtTile=hunger:4+sanity:2
+R_ENERGY_COCKTAIL,Energy Drink Cocktail,2 Energy Drink + 1 Provisions,1 Action,All at this tile +5 Sanity and +2 Hunger.,Bright bubbling glass,allAtTile=sanity:5+hunger:2
+R_COMFORT_SOUP,Comfort Soup,3 Provisions + 1 Cloth,1 Action,All at this tile +3 Hunger and +3 Sanity.,Soup with napkin,allAtTile=hunger:3+sanity:3
+R_BATTERY_ACID_SOUP,Battery Acid Soup,1 Battery + 2 Provisions,1 Action,All at this tile +6 Hunger but lose 2 Health.,Glowing green broth,allAtTile=hunger:6|cookPenalty=health:2
+R_BREAKFAST_BURRITO,Breakfast Burrito,1 Provisions + 1 Cloth + 1 Wood,1 Action,Cook +5 Hunger to themselves only.,Foil-wrapped burrito,cookOnly=hunger:5
+R_GRILLED_CHEESE,Grilled Cheese,1 Provisions + 1 Wood,1 Action,Cook +3 Hunger to themselves; +1 Hunger to one ally at the tile.,Two triangle halves,cookOnly=hunger:3|oneAlly=hunger:1
+R_PORRIDGE,Porridge,2 Provisions,1 Action,All at tile +3 Hunger.,Bowl with single berry,allAtTile=hunger:3
+R_CASSEROLE,Casserole,3 Provisions + 1 Wood + 1 Cloth,1 Action,All at tile +5 Hunger and +2 Sanity. Restore 1 Health.,Casserole dish,allAtTile=hunger:5+sanity:2+health:1
+R_TELLTALE_HEART,Telltale Heart,1 Cloth + 1 Battery + 1 Provisions,1 Action; cook pays 2 Health,Yields 1 Telltale Heart token (max 5 in supply). Used to revive a Down character.,Glowing red heart-shape,special=heart|cookPenalty=health:2
+R_ICE_TEA,Iced Tea,1 Provisions + 1 Cloth,1 Action,Cook +1 Sanity. Adjacent allies +1 Sanity.,Iced glass with lemon,cookOnly=sanity:1|adjacentAllies=sanity:1
+R_BIRTHDAY_CAKE,Birthday Cake,3 Provisions + 2 Cloth + 1 Energy Drink,2 Actions,All at tile +4 Hunger AND +4 Sanity. (Once per game.),Slice with candles,allAtTile=hunger:4+sanity:4|actionCost=2|oncePerGame
+R_LEFTOVERS,Leftovers,1 Provisions,1 Action,Cook +2 Hunger.,Tupperware,cookOnly=hunger:2
+R_HOT_CHOCOLATE,Hot Chocolate,1 Provisions + 1 Wood,1 Action,Cook +1 Hunger and +2 Sanity.,Mug with marshmallows,cookOnly=hunger:1+sanity:2
+R_FAILED_RECIPE,Burnt Mess,2 Provisions + 1 Wood,1 Action,Cook +1 Hunger. Cook loses 1 Sanity. (Use only when desperate.),Charred pan,cookOnly=hunger:1|cookPenalty=sanity:1
+R_VEGETABLE_STIR_FRY,Vegetable Stir-Fry,3 Provisions + 1 Cloth,1 Action,All at tile +4 Hunger and +1 Sanity.,Wok with vegetables,allAtTile=hunger:4+sanity:1
+R_SOUL_FOOD,Soul Food,3 Provisions + 1 Energy Drink,1 Action,All at tile +5 Sanity. Cook +2 Sanity.,Hearty plate,allAtTile=sanity:5|cookOnly=sanity:2
+R_GRANDMAS_RECIPE,Grandma's Recipe,2 Provisions + 1 Cloth + 1 Wood,1 Action,All at tile +4 Hunger and +3 Sanity. (Once per game.),Recipe card on counter,allAtTile=hunger:4+sanity:3|oncePerGame
+R_MIDNIGHT_SNACK,Midnight Snack,1 Provisions + 1 Energy Drink,1 Action,Cook +2 Hunger and +2 Sanity. (Can be cooked at Night.),Sandwich on a plate,cookOnly=hunger:2+sanity:2|canCookAtNight
+R_TRAIL_MIX,Trail Mix,2 Provisions,1 Action,Yields 2 Energy Bar Items (placed at cook's hand).,Bowl of nuts and dried fruit,special=trailmix
+R_GUMBO,Gumbo,3 Provisions + 1 Wood + 1 Cloth,1 Action,All at tile +5 Hunger and +3 Sanity. (Requires non-empty Crockpot tile.),Cajun stew,allAtTile=hunger:5+sanity:3|requiresCrockpot

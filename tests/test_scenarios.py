@@ -59,11 +59,11 @@ class TestLongWinter:
     def test_the_ground_keeps_its_food(self, env):
         add_char(env, "White", "James", location="EllieLucaHouse")
         scenario(env, ["foodGatherPenalty"])
-        # EllieLucaHouse yields {Food, Food, Cloth}: pick Food twice, Cloth once.
+        # EllieLucaHouse yields {Provisions, Provisions, Cloth}: pick Provisions twice, Cloth once.
         script_dice(env, [1, 2, 3])
         env.globals().gatherRandomResources("White", "EllieLucaHouse", 3)
         held = env.eval("gameState.resources.White")
-        assert held["Food"] == 0
+        assert held["Provisions"] == 0
         assert held["Cloth"] == 1
         assert any("frozen scrap" in b for b in broadcasts(env))
 
@@ -78,7 +78,7 @@ class TestLongWinter:
         add_char(env, "White", "James", location="EllieLucaHouse")
         script_dice(env, [1])
         env.globals().gatherRandomResources("White", "EllieLucaHouse", 1)
-        assert env.eval("gameState.resources.White.Food") == 1
+        assert env.eval("gameState.resources.White.Provisions") == 1
 
 
 # ---------------------------------------------------------------------------
@@ -113,7 +113,7 @@ class TestScorchingSummer:
         env.globals().doGather("Green")
         total = sum(v for v in
                     [env.eval(f"gameState.resources.Green.{r}")
-                     for r in ("Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery")]
+                     for r in ("Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery")]
                     if v)
         assert total == 1
 
@@ -128,21 +128,21 @@ class TestRottingAutumn:
         add_char(env, "White", "James", location="JamesHouse")
         add_char(env, "Green", "Ellie", location="JamesHouse")
         add_char(env, "Red", "Luca", location="RaymanHouse")
-        env.execute("gameState.resources = {White = {Food = 2}, "
-                    "Green = {Food = 5}, Red = {Food = 3}}")
+        env.execute("gameState.resources = {White = {Provisions = 2}, "
+                    "Green = {Provisions = 5}, Red = {Provisions = 3}}")
         scenario(env, ["foodSpoilsAtDawn"])
         env.execute("gameState.started = true; gameState.day = 2")
         env.globals().BeginDay()
         # JamesHouse loses one, from the fullest larder there; RaymanHouse
         # loses one; nobody loses two.
-        assert env.eval("gameState.resources.Green.Food") == 4
-        assert env.eval("gameState.resources.White.Food") == 2
-        assert env.eval("gameState.resources.Red.Food") == 2
+        assert env.eval("gameState.resources.Green.Provisions") == 4
+        assert env.eval("gameState.resources.White.Provisions") == 2
+        assert env.eval("gameState.resources.Red.Provisions") == 2
 
     def test_recipes_go_further(self, env):
         add_char(env, "White", "James", hunger=1)
         scenario(env, ["recipeBonus"])
-        env.execute("gameState.resources = {White = {Food = 5, Wood = 5, "
+        env.execute("gameState.resources = {White = {Provisions = 5, Wood = 5, "
                     "Cloth = 5, Metal = 5, Battery = 5, EnergyDrink = 5}}")
         base = env.eval("RECIPE_DATA.R_HOT_STEW.allAtTile.hunger")
         env.globals().doCook("White", "R_HOT_STEW")
@@ -153,7 +153,7 @@ class TestRottingAutumn:
         which is what easier means when the draw is a uniform pick."""
         add_char(env, "White", "James", location="JamesHouse")
         scenario(env, ["clothBonus"])
-        # JamesHouse yields {EnergyDrink, Battery, Food}; Cloth is appended.
+        # JamesHouse yields {EnergyDrink, Battery, Provisions}; Cloth is appended.
         script_dice(env, [4])
         env.globals().gatherRandomResources("White", "JamesHouse", 1)
         assert env.eval("gameState.resources.White.Cloth") == 1
@@ -168,12 +168,12 @@ class TestTotalBlackout:
     def test_no_battery_comes_out_of_the_ground(self, env):
         add_char(env, "White", "James", location="JamesHouse")
         scenario(env, ["noBatteries"])
-        # JamesHouse normally yields {EnergyDrink, Battery, Food}; with
-        # Battery gone the table is {EnergyDrink, Food} and index 2 is Food.
+        # JamesHouse normally yields {EnergyDrink, Battery, Provisions}; with
+        # Battery gone the table is {EnergyDrink, Provisions} and index 2 is Provisions.
         script_dice(env, [2])
         env.globals().gatherRandomResources("White", "JamesHouse", 1)
         assert env.eval("gameState.resources.White.Battery") == 0
-        assert env.eval("gameState.resources.White.Food") == 1
+        assert env.eval("gameState.resources.White.Provisions") == 1
 
     def test_the_scenario_rule_survives_a_dawn_card_cleanup(self, env):
         """The bug this fixes: Total Blackout put its only working rule in

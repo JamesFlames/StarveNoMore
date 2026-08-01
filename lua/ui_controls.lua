@@ -361,7 +361,7 @@ TOOLTIP_DATA = {
     ["Resource:Wood"]        = "Wood — found at Basketball/Badminton Courts. Used in crafting and as fuel.",
     ["Resource:Metal"]       = "Metal — found at Basketball Court and Rayman's House. Used in weapons and tools.",
     ["Resource:Cloth"]       = "Cloth — found at all locations. Used in bandages, insulation, bedrolls.",
-    ["Resource:Food"]        = "Food — found at all locations (esp. Ellie & Luca's). Restores Hunger; cook for greater effect.",
+    ["Resource:Provisions"]        = "Provisions — found at all locations (esp. Ellie & Luca's). Restores Hunger; cook for greater effect.",
     ["Resource:EnergyDrink"] = "Energy Drink — found at James's House only. Restores 2 Sanity. James's addiction.",
     ["Resource:Battery"]     = "Battery — found at James's/Rayman's. Powers Flashlights, Radios, electronics.",
     -- Markers
@@ -374,13 +374,13 @@ TOOLTIP_DATA = {
     ["ThreatCardDeck"]       = "Threat Deck. Drawn at Night. Soft threats resolve instantly; Hard ones must be fought; Persistent ones stay on the tile applying their rule until you Fight, Pry or Clear them. Threats left on the map fester at Dawn: +1 Doom each (max +3); bosses +2 each, no cap.",
     ["VisitorCardDeck"]      = "Visitor Deck. Absent characters may arrive via Dawn cards.",
     -- Supply
-    ["TelltaleHeartSupply"]  = "Telltale Hearts (5 max). Cook: 1 Cloth + 1 Battery + 1 Food + 2 Health. Use to revive a Down character.",
+    ["TelltaleHeartSupply"]  = "Telltale Hearts (5 max). Cook: 1 Cloth + 1 Battery + 1 Provisions + 2 Health. Use to revive a Down character.",
     ["ResourceBag"]          = "Resource supply bag (kept under the table). Fully automated — your held counts are tracked for you; Gather adds, Craft/Cleanse spend, no tokens to move.",
     ["PathVariant"]          = "Decorative path tiles for an alternate map layout. Safe to ignore during play.",
     -- Locations
     ["Location:JamesHouse"]       = "James's House. Yields: Energy Drink, Battery, Junk Food. The Den: free trade once/day.",
     ["Location:RaymanHouse"]      = "Rayman's House. Yields: Sports Equipment, Sports Drink. The Garage: Rest +1 Health.",
-    ["Location:EllieLucaHouse"]   = "Ellie & Luca's House. Yields: Food, Cloth, Pantry. The Kitchen: permanent Crockpot.",
+    ["Location:EllieLucaHouse"]   = "Ellie & Luca's House. Yields: Provisions, Cloth, Pantry. The Kitchen: permanent Crockpot.",
     ["Location:BasketballCourt"]  = "Basketball Court. Yields: Wood, Metal, Cloth. Echoes: d6 on gather (6=bonus, 1-2=Sanity loss). Moonlit Salvage: survive a night here, gather 2 at Dawn.",
     ["Location:BadmintonCourt"]   = "Badminton Court. Yields: Cloth, Wood, Metal. The Net: +1 die defending. Moonlit Salvage: survive a night here, gather 2 at Dawn.",
     -- Severity Legend

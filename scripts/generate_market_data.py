@@ -39,7 +39,7 @@ LUA_PATH   = os.path.join(REPO_ROOT, "lua", "market_data.lua")
 ATTACK_DIE_RE = re.compile(r"\+(\d+)\s+Attack\s+(?:die|dice)", re.I)
 
 # Canonical token tag suffixes used by build_save.py (Resource:<Type>).
-RESOURCE_KEYS = {"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}
+RESOURCE_KEYS = {"Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"}
 
 
 def canon(name):

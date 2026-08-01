@@ -82,8 +82,8 @@ function BeginDay()
         safecall(function() resolveWrongness("dawn") end, "Wrongness")
     end
 
-    -- The Rotting Autumn (foodSpoilsAtDawn): "1 Food spoils per location at
-    -- Dawn." Held Food is per-player, so "per location" resolves to the
+    -- The Rotting Autumn (foodSpoilsAtDawn): "1 Provisions token spoils per location at
+    -- Dawn." Held Provisions are per-player, so "per location" resolves to the
     -- fullest larder at each occupied tile — one spoiled ration per place,
     -- not per person, and taken from whoever can most afford it.
     if (gameState.scenarioFlags or {}).foodSpoilsAtDawn then
@@ -91,14 +91,14 @@ function BeginDay()
             local bestColor, bestFood = nil, 0
             for color, ch in pairs(gameState.activeChars) do
                 if not ch.down and ch.location == locName then
-                    local held = (getPlayerResources(color) or {}).Food or 0
+                    local held = (getPlayerResources(color) or {}).Provisions or 0
                     if held > bestFood then bestColor, bestFood = color, held end
                 end
             end
             if bestColor then
-                takeResourceFromPlayer(bestColor, "Food", 1)
+                takeResourceFromPlayer(bestColor, "Provisions", 1)
                 broadcastEvent("damage", gameState.activeChars[bestColor].name ..
-                    " loses 1 Food at " .. locName .. " — it turned overnight (The Rotting Autumn).")
+                    " loses 1 Provisions at " .. locName .. " — it turned overnight (The Rotting Autumn).")
             end
         end
     end

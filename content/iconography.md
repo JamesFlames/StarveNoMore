@@ -17,7 +17,7 @@ Visual vocabulary used across cards, board, sliders, and UI panels. Each icon mu
 | Wood | log silhouette with rings | `icon_wood.png` | Brown. |
 | Metal | gear | `icon_metal.png` | Grey. |
 | Cloth | folded bolt | `icon_cloth.png` | Off-white. |
-| Food | apple | `icon_food.png` | Red. |
+| Provisions | apple | `icon_food.png` | Red. |
 | Energy Drink | can with bolt | `icon_energy.png` | Yellow. |
 | Battery | AA-shape | `icon_battery.png` | Blue. |
 

@@ -291,7 +291,7 @@ function _spawnCraftButtons()
     return n
 end
 
--- "2 Food + 1 Wood" from a { Food = 2, Wood = 1 } cost table (for tooltips).
+-- "2 Provisions + 1 Wood" from a { Provisions = 2, Wood = 1 } cost table (for tooltips).
 --
 -- Global, not local, because ui_actionbar_handlers.lua uses it too. It worked
 -- as a file-local only because the bundle is one concatenated chunk and this
@@ -301,7 +301,7 @@ end
 -- globals; there is no require().
 function formatIngredientCost(cost)
     local parts = {}
-    for _, r in ipairs({"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}) do
+    for _, r in ipairs({"Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"}) do
         if (cost[r] or 0) > 0 then
             parts[#parts + 1] = cost[r] .. " " .. (r == "EnergyDrink" and "Energy Drink" or r)
         end
@@ -488,8 +488,8 @@ function _highlightCraftTargets(color)
     end
     if color then
         local res = getPlayerResources(color)
-        local resStr = string.format("Wood %d / Metal %d / Cloth %d / Food %d / Energy %d / Battery %d",
-            res.Wood or 0, res.Metal or 0, res.Cloth or 0, res.Food or 0,
+        local resStr = string.format("Wood %d / Metal %d / Cloth %d / Provisions %d / Energy %d / Battery %d",
+            res.Wood or 0, res.Metal or 0, res.Cloth or 0, res.Provisions or 0,
             res.EnergyDrink or 0, res.Battery or 0)
         printToColor("Affordable Market cards highlighted Green (" .. affordableCount .. "). Your bag: " .. resStr,
                      color, {0.7, 1.0, 0.7})

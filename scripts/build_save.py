@@ -581,7 +581,7 @@ loc_data = {
 tooltips = {
     "JamesHouse": "Yields: Energy Drink, Battery, Junk Food. Special: The Den — free trade once/day. James +1 Sanity at night.",
     "RaymanHouse": "Yields: Sports Equipment, Sports Drink, Athletic Tape. Special: The Garage — Rest +1 Health. Rayman +1 Health at night. Defense +1.",
-    "EllieLucaHouse": "Yields: Food, Cloth, Pantry items. Special: The Kitchen — permanent Crockpot. Ellie/Luca +1 Sanity at night. Sanity mod +1.",
+    "EllieLucaHouse": "Yields: Provisions, Cloth, Pantry items. Special: The Kitchen — permanent Crockpot. Ellie/Luca +1 Sanity at night. Sanity mod +1.",
     "BasketballCourt": "Yields: Wood, Metal, Cloth. Special: Echoes — roll d6 on gather (6=bonus item, 1-2=lose 1 Sanity). Rayman +1 attack die. Sanity -1. Defense -1.",
     "BadmintonCourt": "Yields: Cloth, Wood, Metal. Special: The Net — +1 die defending. Highest threat draw. Sanity -1. Defense +1.",
 }
@@ -1006,7 +1006,7 @@ resources = [
     ("Wood",         ph("token_wood"),    "Brown", SUPPLY_SHELF_X, LIBRARY_Y,  0),
     ("Metal",        ph("token_metal"),   "Grey",  SUPPLY_SHELF_X, LIBRARY_Y,  2.5),
     ("Cloth",        ph("token_cloth"),   "White", SUPPLY_SHELF_X, LIBRARY_Y,  5),
-    ("Food",         ph("token_food"),    "Red",   SUPPLY_SHELF_X, LIBRARY_Y,  7.5),
+    ("Provisions",         ph("token_food"),    "Red",   SUPPLY_SHELF_X, LIBRARY_Y,  7.5),
     ("EnergyDrink",  ph("token_energy"),  "Yellow",SUPPLY_SHELF_X, LIBRARY_Y, 10),
     ("Battery",      ph("token_battery"), "Blue",  SUPPLY_SHELF_X, LIBRARY_Y, 11.0),
 ]
@@ -1300,7 +1300,7 @@ basement = base_obj("BlockSquare",
                     tf(_elh["x"] - 3.0, round(BOARD_SURFACE_Y + BASEMENT_H / 2, 3), _elh["z"],
                        sx=1.4, sy=BASEMENT_SCALE_Y, sz=1.4),
                     nickname="The Sealed Basement",
-                    desc="A padlocked hatch under Ellie & Luca's House. Someone stocked it before the week began.\n\nPry (free action + Crowbar / Lockpick / Pry Bar): a free Market Item, plus 2 Food + 1 Wood + 1 Battery.",
+                    desc="A padlocked hatch under Ellie & Luca's House. Someone stocked it before the week began.\n\nPry (free action + Crowbar / Lockpick / Pry Bar): a free Market Item, plus 2 Provisions + 1 Wood + 1 Battery.",
                     tags=["SealedBasement"],
                     locked=True)
 basement["ColorDiffuse"] = {"r": 0.28, "g": 0.22, "b": 0.15}

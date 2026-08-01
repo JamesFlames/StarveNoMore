@@ -10,7 +10,7 @@ P4_THE_TRUTH,The Truth Is Worse Than You Imagined,4,If the team has all 3 Clue c
 P4_ALL_TOGETHER,All Together,2,Move all standees to the same tile (player vote).,Until next Dawn: All players gain +1 Sanity at Tick if at the same tile as another player.,Five silhouettes huddled around one chair
 P4_DAWN_BREAKS,Dawn Breaks,2,Doom does not advance this Dawn.,If this is Day 7: continue to the final Tick. Survival check.,Faint pink light over rooftops
 P4_GROUND_SPLITS,The Ground Splits Open,4,A random location tile is destroyed (removed from the map). Players there must flee to adjacent tiles. Resources there are lost.,,A suburban street cracking apart with light pouring from below
-P4_LAST_MEAL,The Last Meal,3,All Food at every location is destroyed. Recipes cooked this day restore +2 extra Hunger.,,An empty pantry with the door hanging off its hinges
+P4_LAST_MEAL,The Last Meal,3,All Provisions at every location are destroyed. Recipes cooked this day restore +2 extra Hunger.,,An empty pantry with the door hanging off its hinges
 P4_VOICES_RETURN,The Voices Come Back,4,Every player rolls Sanity d8. Lose that much Sanity. Players at the same tile as an ally halve the result (round down).,,Dozens of mouths opening in the sky
 P4_BARGAIN,The Source Offers a Bargain,5,Choose one player to negotiate: they roll d6. On 4+: Doom -3. On 1-3: that player goes Down immediately.,,A tendril of darkness extending a hand with too many joints
 P4_MEMORY_FLOOD,A Flood of Memories,3,Each player gains +2 Sanity. Then each player loses 1 Health. (The memories are sharp.),Until next Dawn: players at their own home gain +2 Sanity at sleep instead of +1.,A wave of polaroids and journal pages washing down a hallway

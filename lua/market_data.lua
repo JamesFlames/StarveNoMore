@@ -24,21 +24,21 @@ MARKET_COSTS.M_SHARPENED_SPOON = { Metal = 1 }
 MARKET_COSTS.M_SLINGSHOT = { Cloth = 1, Wood = 1 }
 -- M_TOY_BOW (Toy Bow): 1 Wood + 2 Cloth
 MARKET_COSTS.M_TOY_BOW = { Cloth = 2, Wood = 1 }
--- M_STUFFED_ANIMAL (Stuffed Animal): 1 Cloth + 1 Food
-MARKET_COSTS.M_STUFFED_ANIMAL = { Cloth = 1, Food = 1 }
+-- M_STUFFED_ANIMAL (Stuffed Animal): 1 Cloth + 1 Provisions
+MARKET_COSTS.M_STUFFED_ANIMAL = { Cloth = 1, Provisions = 1 }
 -- M_PHOTO_ALBUM (Photo Album): 2 Cloth
 MARKET_COSTS.M_PHOTO_ALBUM = { Cloth = 2 }
 -- M_MUSIC_PLAYER (Music Player): 1 Metal + 1 Battery
 MARKET_COSTS.M_MUSIC_PLAYER = { Battery = 1, Metal = 1 }
 -- M_WARM_BLANKET (Warm Blanket): 2 Cloth
 MARKET_COSTS.M_WARM_BLANKET = { Cloth = 2 }
--- M_ENERGY_BAR (Energy Bar): 1 Food
-MARKET_COSTS.M_ENERGY_BAR = { Food = 1 }
--- M_HOT_COCOA (Hot Cocoa): 1 Food + 1 Wood
-MARKET_COSTS.M_HOT_COCOA = { Food = 1, Wood = 1 }
+-- M_ENERGY_BAR (Energy Bar): 1 Provisions
+MARKET_COSTS.M_ENERGY_BAR = { Provisions = 1 }
+-- M_HOT_COCOA (Hot Cocoa): 1 Provisions + 1 Wood
+MARKET_COSTS.M_HOT_COCOA = { Provisions = 1, Wood = 1 }
 -- M_BACKPACK (Backpack): 2 Cloth + 1 Metal
 MARKET_COSTS.M_BACKPACK = { Cloth = 2, Metal = 1 }
--- M_CIRCLE_OF_SALT (Circle of Salt): 1 Food (salt) + 1 Cloth
+-- M_CIRCLE_OF_SALT (Circle of Salt): 1 Provisions (salt) + 1 Cloth
 MARKET_COSTS.M_CIRCLE_OF_SALT = { Cloth = 1 }
 -- M_CLUE_TAPE (Clue: A Cassette): 1 Battery
 MARKET_COSTS.M_CLUE_TAPE = { Battery = 1 }
@@ -62,8 +62,8 @@ MARKET_COSTS.M_TOOLBOX = { Metal = 2, Wood = 1 }
 MARKET_COSTS.M_DUCT_TAPE = { Cloth = 1 }
 -- M_SPORTS_DRINK (Sports Drink): 1 Energy Drink
 MARKET_COSTS.M_SPORTS_DRINK = { EnergyDrink = 1 }
--- M_PROTEIN_BAR (Protein Bar): 2 Food
-MARKET_COSTS.M_PROTEIN_BAR = { Food = 2 }
+-- M_PROTEIN_BAR (Protein Bar): 2 Provisions
+MARKET_COSTS.M_PROTEIN_BAR = { Provisions = 2 }
 -- M_PORTABLE_CROCKPOT (Portable Crockpot): 2 Metal + 2 Wood + 1 Cloth
 MARKET_COSTS.M_PORTABLE_CROCKPOT = { Cloth = 1, Metal = 2, Wood = 2 }
 -- M_WHISTLE (Whistle): 1 Metal
@@ -88,8 +88,8 @@ MARKET_COSTS.M_BARRICADE = { Metal = 1, Wood = 2 }
 MARKET_COSTS.M_CAMPFIRE = { Cloth = 1, Wood = 2 }
 -- M_WATCHTOWER (Watchtower): 3 Wood + 2 Metal
 MARKET_COSTS.M_WATCHTOWER = { Metal = 2, Wood = 3 }
--- M_RABBIT_FOOT (Rabbit's Foot): 1 Cloth + 1 Food
-MARKET_COSTS.M_RABBIT_FOOT = { Cloth = 1, Food = 1 }
+-- M_RABBIT_FOOT (Rabbit's Foot): 1 Cloth + 1 Provisions
+MARKET_COSTS.M_RABBIT_FOOT = { Cloth = 1, Provisions = 1 }
 -- M_THERMOS (Thermos): 1 Metal + 1 Cloth
 MARKET_COSTS.M_THERMOS = { Cloth = 1, Metal = 1 }
 -- M_ENERGY_DRINK_CASE (Case of Energy Drinks): 2 Energy Drink + 1 Cloth

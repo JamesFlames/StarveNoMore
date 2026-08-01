@@ -98,7 +98,7 @@ INFORMATION_ACTIONS = {
 # are prompts, which is what a broadcast is for.
 EFFECT_ACTIONS = {
     "doUndo", "doMove", "doRaymanBonusMove", "doDuskMove", "doGather", "doRest",
-    "doFightTarget", "doFlee", "doTrade", "doEnergyDrink", "doEatRaw", "doPass",
+    "doFightTarget", "doFlee", "doTrade", "doEnergyDrink", "doEatUncooked", "doPass",
     "doBarricade", "doDefend", "doRally", "doPry", "doStabilize", "doCraft",
     "doCook", "doSignature", "doCleanse", "doAppeaseTreeguard",
     # Clear (threat_persistent.lua): 2 actions + 1 Wood take a Persistent

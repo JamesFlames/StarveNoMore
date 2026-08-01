@@ -565,8 +565,8 @@
               fontSize="14" color="#2C2C2CE6" textColor="#EEEEEE" text="Cloth" />
     </HorizontalLayout>
     <HorizontalLayout spacing="6" childForceExpandWidth="true" preferredHeight="34">
-      <Button id="resPickFood" onClick="onResourcePickClick(Food)"
-              fontSize="14" color="#3A1818E6" textColor="#FFAAAA" text="Food" />
+      <Button id="resPickFood" onClick="onResourcePickClick(Provisions)"
+              fontSize="14" color="#3A1818E6" textColor="#FFAAAA" text="Provisions" />
       <Button id="resPickEnergy" onClick="onResourcePickClick(EnergyDrink)"
               fontSize="14" color="#3A3A18E6" textColor="#FFFF99" text="Energy Drink" />
       <Button id="resPickBattery" onClick="onResourcePickClick(Battery)"

@@ -29,13 +29,13 @@ Rule sets:
         Signature Moves (once per game: All-Nighter +3 actions on Day 6+
         with a -3 Sanity crash, Touch of Hope +4 Health emergency heal,
         Posterize deletes one non-boss threat but echoes +1 draw,
-        The Feast mass-cook consuming all Food, The Speech +2 Sanity to
+        The Feast mass-cook consuming all Provisions, The Speech +2 Sanity to
         all when someone is Down/below 3 Sanity), the Source splitting
         into two Terror Beaks (2/2) at <=5 HP, and the fixed Last Dawn
         (Day 7 has no Dawn-card effect). Batch 3 models only its two
         balance-touching pieces: the Sealed Basement (a one-time
         tool-gated cache at the kitchen from Day 2 — pay 1 Metal for the
-        Pry Bar, gain 2 Food + 1 Wood + 1 Battery + 1 random) and the
+        Pry Bar, gain 2 Provisions + 1 Wood + 1 Battery + 1 random) and the
         Wrongness token (one deferred threat lands at the Basketball
         Court at the Day-4 Dawn). Night Sounds, Dawn Dares, and the rest
         of batch 3 are PLAYTEST-ONLY: opt-in texture the sim cannot
@@ -526,7 +526,7 @@ class Game:
                     c.gain("sanity", 2)
                 self.sig_used.add("Luca")
         # The Feast: at the crockpot, team hungry, pantry stocked — mass cook,
-        # then the pantry is empty (all Food consumed).
+        # then the pantry is empty (all Provisions consumed).
         ellie = next((c for c in self.alive() if c.name == "Ellie"), None)
         if ellie and "Ellie" not in self.sig_used and ellie.location == CENTER:
             hungry = sum(1 for c in self.alive() if c.hunger <= c.max["hunger"] - 4)
@@ -565,7 +565,7 @@ class Game:
                 c.location = target
                 if c.name == "Rayman":
                     self.rayman_tiles += hops
-            # free: eat raw to stay functional (not Ellie)
+            # free: eat uncooked to stay functional (not Ellie)
             while c.name != "Ellie" and c.hunger < 4 and self.pool["food"] > 0:
                 self.pool["food"] -= 1
                 c.gain("hunger", 1)

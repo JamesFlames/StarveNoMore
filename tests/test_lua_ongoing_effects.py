@@ -315,7 +315,7 @@ class TestRecipeEffects:
     def test_iced_tea_reaches_an_adjacent_ally(self, env):
         add_char(env, "Green", "Ellie", location="EllieLucaHouse", sanity=4)
         add_char(env, "White", "James", location="JamesHouse", sanity=4)
-        self._stock(env, "Green", Food=1, Cloth=1)
+        self._stock(env, "Green", Provisions=1, Cloth=1)
         env.globals().doCook("Green", "R_ICE_TEA")
         # cookOnly for the cook, adjacentAllies for the neighbour (the Ring
         # default connects EllieLucaHouse and JamesHouse).
@@ -325,7 +325,7 @@ class TestRecipeEffects:
     def test_iced_tea_does_not_reach_two_tiles_away(self, env):
         add_char(env, "Green", "Ellie", location="JamesHouse", sanity=4)
         add_char(env, "Yellow", "Rayman", location="RaymanHouse", sanity=4)
-        self._stock(env, "Green", Food=1, Cloth=1)
+        self._stock(env, "Green", Provisions=1, Cloth=1)
         # Star: JamesHouse and RaymanHouse are both leaves off EllieLucaHouse.
         env.execute("LOCATION_ADJACENCY = buildAdjacency('Star')")
         env.globals().doCook("Green", "R_ICE_TEA")
@@ -333,20 +333,20 @@ class TestRecipeEffects:
 
     def test_last_meal_makes_recipes_go_further(self, env):
         add_char(env, "White", "James", location="EllieLucaHouse", hunger=1)
-        self._stock(env, "White", Food=1)
+        self._stock(env, "White", Provisions=1)
         set_effect(env, "recipeBonusHunger")
         env.globals().doCook("White", "R_LEFTOVERS")   # cookOnly hunger 2
         assert env.eval("gameState.activeChars.White.hunger") == 5  # 1 + 2 + 2
 
     def test_recipes_are_ordinary_without_the_card(self, env):
         add_char(env, "White", "James", location="EllieLucaHouse", hunger=1)
-        self._stock(env, "White", Food=1)
+        self._stock(env, "White", Provisions=1)
         env.globals().doCook("White", "R_LEFTOVERS")
         assert env.eval("gameState.activeChars.White.hunger") == 3  # 1 + 2
 
     def test_the_bonus_touches_hunger_only(self, env):
         add_char(env, "White", "James", location="EllieLucaHouse", hunger=1, sanity=1)
-        self._stock(env, "White", Food=1, Wood=1)
+        self._stock(env, "White", Provisions=1, Wood=1)
         set_effect(env, "recipeBonusHunger")
         env.globals().doCook("White", "R_HOT_CHOCOLATE")  # hunger 1, sanity 2
         assert env.eval("gameState.activeChars.White.hunger") == 4  # 1 + 1 + 2

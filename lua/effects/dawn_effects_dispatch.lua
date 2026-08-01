@@ -74,7 +74,7 @@ DAWN_MANUAL_STEPS = {
     P3_ALLY_MISSING     = { "Player with fewest items: discard all items, move their standee to a random tile." },
     P4_SACRIFICE_OPTION = { "Optional: one player may go Down to reduce Doom by 5." },
     P4_GROUND_SPLITS    = { "Destroy a random location tile; players there flee; its resources are lost." },
-    P4_LAST_MEAL        = { "Remove all Food tokens from every location." },
+    P4_LAST_MEAL        = { "Remove all Provisions tokens from every location." },
     P4_ALL_TOGETHER     = { "Vote on a tile; move all standees there." },
     P4_BARGAIN          = { "Choose a negotiator: roll d6 — 4+: Doom -3; 1-3: they go Down." },
 }

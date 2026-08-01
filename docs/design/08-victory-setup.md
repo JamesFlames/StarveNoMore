@@ -178,7 +178,7 @@ The eight Scenarios (authored in `content/cards_scenarios.csv`; rules applied by
 |---|---|
 | **The Long Winter** | Hunger decay doubled; food gathering -1; houses give +1 Sanity at sleep (everyone huddles). |
 | **The Scorching Summer** | Everyone starts -2 max Hunger; Energy Drinks +1 Sanity; courts yield +1 resource. |
-| **The Rotting Autumn** | 1 Food spoils per location at Dawn; recipes yield +1 Hunger; Cloth easier to find. |
+| **The Rotting Autumn** | 1 Provisions token spoils per location at Dawn; recipes yield +1 Hunger; Cloth easier to find. |
 | **The False Spring** | Days 1–3: no Charlie at all. Day 4+: Charlie hunts everywhere, every night. |
 | **Total Blackout** | No Batteries in the game; Flashlights uncraftable; Fire is the only light. |
 | **Strict Rationing** | Market restocks 1 card per 2 days; recipes cost 1 fewer ingredient. |

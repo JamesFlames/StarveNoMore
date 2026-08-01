@@ -82,7 +82,7 @@ At Dusk of Day 4 — every game — a Treeguard (HP 5, Atk 2) wakes at a random 
 - Health 0 = Down. Sanity 0 = Lost (also Down).
 - Going Down feeds the dark: **Doom +1**.
 - Flip standee to ghost. Cannot act. Drifts 1 tile per round. May whisper one word per round.
-- To revive: a Telltale Heart token (cooked at the Crockpot for 1 Cloth + 1 Battery + 1 Food + 2 Health from the cook).
+- To revive: a Telltale Heart token (cooked at the Crockpot for 1 Cloth + 1 Battery + 1 Provisions + 2 Health from the cook).
 - Revived character returns at half maximums.
 
 ## Doom

@@ -85,7 +85,7 @@ Telltale Hearts are not Market items and are not part of any starting hand. They
 
 Recipe — **Telltale Heart**:
 - Cook at: Crockpot.
-- Ingredients: 1 Cloth + 1 Battery + 1 Food.
+- Ingredients: 1 Cloth + 1 Battery + 1 Provisions.
 - Cost: the cook pays 2 Health from their own track (the heart is *literally* part of them — the DST sacrifice mechanic, [DontStarveVideoGamePrinciples.md §7](../../Archive/DontStarveVideoGamePrinciples.md)).
 - Yield: 1 Telltale Heart token, placed at the cook's location.
 
@@ -96,7 +96,7 @@ Telltale Hearts are the only way to revive a Down character (see §16.4). Carryi
 **Pry** is a **free action**: a character holding a **Crowbar, Lockpick, or Pry Bar** may open a sealed thing at their tile and take its printed reward — guaranteed, no roll. Sealed things come in two forms:
 
 - **Sealed Threat cards** (§9.4): drawn like any threat, but they don't fight — they wait. Each is a payoff for the team that invested in a tool.
-- **The Sealed Basement** — a fixed object placed under Ellie & Luca's House **at setup, visible from turn one**. Behind it: a free Market Item plus a resource cache (2 Food + 1 Wood + 1 Battery). Because it is placed, not drawn, every game has it — the map's reliable early destination ("we need to get into the basement"), which makes crafting a Pry tool early a genuine plan instead of a rounding error. It is tuned to be worth a detour, never mandatory: a team can win ignoring it.
+- **The Sealed Basement** — a fixed object placed under Ellie & Luca's House **at setup, visible from turn one**. Behind it: a free Market Item plus a resource cache (2 Provisions + 1 Wood + 1 Battery). Because it is placed, not drawn, every game has it — the map's reliable early destination ("we need to get into the basement"), which makes crafting a Pry tool early a genuine plan instead of a rounding error. It is tuned to be worth a detour, never mandatory: a team can win ignoring it.
 
 A guaranteed reward behind a tool gate is the cleanest excitement in the game: no randomness, a clear goal, a reason to specialise (clever desperation), and a shared objective the table organises around (storied collaboration). In the TTS build the verb is coded (`doPry`); the Pry button lights only when a sealed thing is co-located and the player holds a tool.
 

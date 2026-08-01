@@ -402,9 +402,9 @@ function onWhatNowClick(player, value, id)
                 hint = _appendHint(hint, charHints.ellie_at_kitchen, char)
             end
             -- Particular Eater makes an empty larder worse for her than for
-            -- anyone else: Eat Raw is the universal fallback and she cannot
-            -- use it, so "you have no Food" is a different problem.
-            if char.name == "Ellie" and ((getPlayerResources(color) or {}).Food or 0) == 0 then
+            -- anyone else: Eat Uncooked is the universal fallback and she cannot
+            -- use it, so "you have no Provisions" is a different problem.
+            if char.name == "Ellie" and ((getPlayerResources(color) or {}).Provisions or 0) == 0 then
                 hint = _appendHint(hint, charHints.ellie_no_food, char)
             end
 

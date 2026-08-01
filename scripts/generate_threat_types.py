@@ -39,7 +39,7 @@ def lua_str(s):
     return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-RESOURCE_KEYS = {"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}
+RESOURCE_KEYS = {"Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"}
 
 
 def parse_pry_reward(spec, ctx):

@@ -18,7 +18,7 @@ A 2026-07 audit found eight of them at once:
   * `doDefend` — Rayman's Backboard Block, printed in PlayerRules.md and in
     his own stat-box perk line. `combat_resolve` redirects damage when
     `raymanDefending` is set; nothing set it.
-  * `doBarricade`, `doEatRaw`, `doStabilize`, `doAppeaseTreeguard`,
+  * `doBarricade`, `doEatUncooked`, `doStabilize`, `doAppeaseTreeguard`,
     `ghostDrift` — same shape, each with live consumers.
 
 Load order is this codebase's dependency graph and there is no `require`, no

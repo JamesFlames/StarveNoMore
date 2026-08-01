@@ -312,7 +312,7 @@ function auditFirstLoad()
     end
 
     -- 7. Resource bags (6)
-    local resources = {"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}
+    local resources = {"Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"}
     for _, res in ipairs(resources) do
         if getResourceBag(res) then
             pass = pass + 1

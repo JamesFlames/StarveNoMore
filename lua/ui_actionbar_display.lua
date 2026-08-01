@@ -181,7 +181,7 @@ function refreshActionButtonStates(color)
     end
 
     -- The situational verbs (Revive, Stabilize, Defend, Energy Drink, Eat
-    -- Raw, Barricade, Appease) — each hidden until its precondition holds.
+    -- Uncooked, Barricade, Appease) — each hidden until its precondition holds.
     safecall(function() refreshSituationalButtons(color) end, "SituationalActions")
 
     -- Undo: only when a snapshot of your own last action exists
@@ -231,7 +231,7 @@ CHAR_TRAIT_LINES = {
     James  = "Perks: peek a deck, reroll dice.\nSignature: All-Nighter (1×).\nWired: drink 1 Energy Drink/day or −2 Sanity at Tick.",
     Coco   = "Perks: −1 Sanity losses nearby, Charlie-immune.\nSignature: Touch of Hope (1×).\nNo Home: alone at a non-house at night = −3 Sanity.",
     Rayman = "Perks: 2-tile Move, +1 die at B-ball Court, Defend.\nSignature: Posterize (1×).\nBig Appetite: −2 Hunger/Tick. Loud: moving today = +1 Threat at his night tile.",
-    Ellie  = "Perks: cook with −1 ingredient, Comfort Food +1 to allies.\nSignature: The Feast (1×).\nParticular Eater: can't eat raw food.",
+    Ellie  = "Perks: cook with −1 ingredient, Comfort Food +1 to allies.\nSignature: The Feast (1×).\nParticular Eater: can't eat uncooked food.",
     Luca   = "Perks: Rally (ally free action), Calm Words, Storyteller.\nSignature: The Speech (1×).\nNeeds Audience: no solo Sanity regen.",
 }
 
@@ -304,7 +304,7 @@ function refreshStatDisplay()
         UI.setAttribute("statResources", "text", string.format(
             "Holding: Wood %d · Metal %d · Cloth %d\nFood %d · Energy %d · Battery %d",
             res.Wood or 0, res.Metal or 0, res.Cloth or 0,
-            res.Food or 0, res.EnergyDrink or 0, res.Battery or 0))
+            res.Provisions or 0, res.EnergyDrink or 0, res.Battery or 0))
     end, "StatResources")
 
     -- Perks + constraint reminder

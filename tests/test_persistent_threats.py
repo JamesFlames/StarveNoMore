@@ -13,7 +13,7 @@ eleven of them cannot be fought at all.
 
 **Persistent cards did nothing, and six could not be removed at any price.**
 The printed rules ("Move actions out of this tile cost 1 extra Hunger", "No
-Food can be gathered at this tile", "each Tick eats 1 Food at this tile") had
+Provisions can be gathered at this tile", "each Tick eats 1 Provisions at this tile") had
 no code behind them. Meanwhile `countFesteringThreats` counts every Threat card
 near a tile, so each one charged +1 Doom at every Dawn, for ever: hp 0 means
 `fightTargetsAt` filters it out, and only four of the seven hp-0 Persistents
@@ -260,17 +260,17 @@ class TestPersistentRules:
     def test_contaminated_water_keeps_food_off_the_tile(self, env):
         add_char(env, "White", "James", location="EllieLucaHouse")
         self._world(env, "T_CONTAMINATED", loc="EllieLucaHouse")
-        # EllieLucaHouse yields {Food, Food, Cloth}; only the Cloth survives.
+        # EllieLucaHouse yields {Provisions, Provisions, Cloth}; only the Cloth survives.
         for _ in range(6):
             env.globals().gatherRandomResources("White", "EllieLucaHouse", 1)
         held = env.eval("gameState.resources.White")
-        assert held["Food"] == 0
+        assert held["Provisions"] == 0
         assert held["Cloth"] == 6
 
     def test_contaminated_water_doubles_the_cost_of_eating_raw(self, env):
         add_char(env, "White", "James", location="JamesHouse", sanity=10)
         self._world(env, "T_CONTAMINATED")
-        env.globals().doEatRaw("White")
+        env.globals().doEatUncooked("White")
         assert env.eval("gameState.activeChars.White.sanity") == 8
 
     def test_roots_make_rest_restore_nothing(self, env):
@@ -312,21 +312,21 @@ class TestPersistentRules:
     def test_the_hungry_dog_eats_at_tick(self, env):
         add_char(env, "White", "James", location="JamesHouse")
         add_char(env, "Green", "Ellie", location="JamesHouse")
-        env.execute('gameState.resources = {White = {Food = 1}, Green = {Food = 4}}')
+        env.execute('gameState.resources = {White = {Provisions = 1}, Green = {Provisions = 4}}')
         self._world(env, "T_HUNGRY_DOG")
         env.globals().resolvePersistentTick()
         # It takes from whoever has the most, not from whoever pairs() found first.
-        assert env.eval("gameState.resources.Green.Food") == 3
-        assert env.eval("gameState.resources.White.Food") == 1
+        assert env.eval("gameState.resources.Green.Provisions") == 3
+        assert env.eval("gameState.resources.White.Provisions") == 1
 
     def test_the_hungry_dog_eats_only_at_its_own_tile(self, env):
         add_char(env, "White", "James", location="EllieLucaHouse")
-        env.execute('gameState.resources = {White = {Food = 4}}')
+        env.execute('gameState.resources = {White = {Provisions = 4}}')
         self._world(env, "T_HUNGRY_DOG", loc="JamesHouse")
         env.eval("TTS.addObject")(py_to_lua(env, {
             "tags": ["Location:EllieLucaHouse"], "position": [30, 1, 30]}))
         env.globals().resolvePersistentTick()
-        assert env.eval("gameState.resources.White.Food") == 4
+        assert env.eval("gameState.resources.White.Provisions") == 4
 
 
 # ---------------------------------------------------------------------------

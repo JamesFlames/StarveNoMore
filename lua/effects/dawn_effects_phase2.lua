@@ -37,10 +37,10 @@ DAWN_EFFECTS["P2_SHADOWS_MOVE"] = {
 
 DAWN_EFFECTS["P2_FOOD_SPOILS"] = {
     onReveal = function(card)
-        broadcastEvent("proc", "Food goes bad. Each player loses 1 Food (if held) — taken automatically.")
+        broadcastEvent("proc", "Provisions go bad. Each player loses 1 Provisions (if held) — taken automatically.")
         for color, char in pairs(gameState.activeChars) do
-            if not char.down and takeResourceFromPlayer(color, "Food", 1) > 0 then
-                broadcastEvent("damage", char.name .. " loses 1 Food to rot.")
+            if not char.down and takeResourceFromPlayer(color, "Provisions", 1) > 0 then
+                broadcastEvent("damage", char.name .. " loses 1 Provisions to rot.")
             end
         end
     end,

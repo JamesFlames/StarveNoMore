@@ -37,7 +37,7 @@ STATS = {"hunger", "sanity", "health"}
 # Canonical resource token suffixes (Resource:<Type>), matching build_save.py
 # and generate_market_data.py. The `ingredients` column is auto-paid by
 # doCook, so its names must resolve to these.
-RESOURCE_KEYS = {"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}
+RESOURCE_KEYS = {"Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"}
 
 
 def canon_resource(name):
@@ -48,7 +48,7 @@ def canon_resource(name):
 
 
 def parse_ingredients(spec, ctx):
-    """'2 Food + 1 Wood' -> {'Food': 2, 'Wood': 1}. Errors on an unknown
+    """'2 Provisions + 1 Wood' -> {'Provisions': 2, 'Wood': 1}. Errors on an unknown
     resource so a typo can't silently make a recipe free."""
     out = {}
     for term in (spec or "").split("+"):

@@ -36,7 +36,7 @@ gameState = {
 
     -- Authoritative held resources per seat colour (ensurePlayerResources,
     -- helpers.lua). Physical tokens are decoration; THIS is the count the
-    -- economy reads. [color] = {Wood, Metal, Cloth, Food, EnergyDrink, Battery}
+    -- economy reads. [color] = {Wood, Metal, Cloth, Provisions, EnergyDrink, Battery}
     resources = {},
 
     -- One-fire-per-day flags so urgent auto-broadcasts (Down, stat-below-3,
@@ -93,7 +93,7 @@ CHARACTER_HOMES = {
 
 -----------------------------------------------------------------------
 -- Gather yields per location (Design §7-8). A Gather draws one resource
--- picked uniformly from this list, so Food comes up twice as often at
+-- picked uniformly from this list, so Provisions come up twice as often at
 -- Ellie & Luca's House. These are the six canonical resource types
 -- (the token/bag tags), so giveResource can pull straight from a bag.
 -- Mirrors scripts/simulate_balance.py's YIELDS (lower-cased there);
@@ -107,9 +107,9 @@ LOCATION_ORDER = {
 }
 
 LOCATION_YIELDS = {
-    JamesHouse      = {"EnergyDrink", "Battery", "Food"},
-    RaymanHouse     = {"Metal", "Battery", "Food"},
-    EllieLucaHouse  = {"Food", "Food", "Cloth"},
+    JamesHouse      = {"EnergyDrink", "Battery", "Provisions"},
+    RaymanHouse     = {"Metal", "Battery", "Provisions"},
+    EllieLucaHouse  = {"Provisions", "Provisions", "Cloth"},
     BasketballCourt = {"Wood", "Metal", "Cloth"},
     BadmintonCourt  = {"Cloth", "Wood", "Metal"},
 }

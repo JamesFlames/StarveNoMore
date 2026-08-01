@@ -39,7 +39,7 @@ Context-aware hint strings for the "What now?" button (Design §18.17). Each hin
 ## Day (character-specific situations)
 
 ### Low stats
-- **low_hunger:** "{name}, your Hunger is at {hunger} — below 3 means you can't Fight (you can still Flee: 1 tile, 1 Sanity). Eat something, Rest, or ask an ally to trade you Food."
+- **low_hunger:** "{name}, your Hunger is at {hunger} — below 3 means you can't Fight (you can still Flee: 1 tile, 1 Sanity). Eat something, Rest, or ask an ally to trade you Provisions."
 - **low_sanity:** "{name}, your Sanity is at {sanity} — below 3 you're Haunted: at Dawn you draw a personal Threat that allies can't help with. Use a Comfort item, Rest for +2 Sanity, or get near Coco or Luca."
 - **low_health:** "{name}, your Health is at {health} — below 3 means movement costs +1 action. Use a Bandage, rest at your own house, or ask for help."
 - **critical_any:** "{name}, one of your stats is dangerously low. Prioritize recovery this turn — Rest, eat, or use an item. Survival comes first."
@@ -60,8 +60,8 @@ Context-aware hint strings for the "What now?" button (Design §18.17). Each hin
 
 ### Ellie-specific
 - **ellie_at_kitchen:** "Ellie, you're at the Kitchen. You can Cook with 1 fewer ingredient than anyone else. Check your resources — a Hot Stew feeds everyone here."
-- **ellie_no_food:** "Ellie, you have no Food. You can't eat raw food (Particular Eater). Gather at your own house (Knows the Pantry) or trade with an ally."
-- **signature_unused:** "Ellie, The Feast is still available (once per game): at a Crockpot, cook any number of recipes in one action — it consumes ALL your Food. Fire it when the pantry is full and the team is empty."
+- **ellie_no_food:** "Ellie, you have no Provisions. You can't eat uncooked food (Particular Eater). Gather at your own house (Knows the Pantry) or trade with an ally."
+- **signature_unused:** "Ellie, The Feast is still available (once per game): at a Crockpot, cook any number of recipes in one action — it consumes ALL your Provisions. Fire it when the pantry is full and the team is empty."
 
 ### Luca-specific
 - **luca_alone:** "Luca, you're alone. Your Sanity won't regenerate without company (Needs an Audience). Move toward an ally."
@@ -83,7 +83,7 @@ Context-aware hint strings for the "What now?" button (Design §18.17). Each hin
 
 - **doom_high:** "Doom is at {doom}. Consider spending an action on Cleanse (1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink → Doom -2) if you have the resources. Clearing threats off the map also stops Doom festering at Dawn."
 - **market_good_item:** "There's a useful item in the Market. Check if you can afford to Craft it — items are your long-term power."
-- **ally_down:** "A teammate is Down. You need a Telltale Heart to revive them (cook 1 Cloth + 1 Battery + 1 Food + 2 Health at a Crockpot). Prioritize this — every Down character also fed the Doom track."
+- **ally_down:** "A teammate is Down. You need a Telltale Heart to revive them (cook 1 Cloth + 1 Battery + 1 Provisions + 2 Health at a Crockpot). Prioritize this — every Down character also fed the Doom track."
 - **no_light_source:** "{name}, you don't have a light source. If Night comes without a Flashlight (Battery), Lantern, or Fire, Charlie will attack — and she hits harder every consecutive dark night. Get a light."
 - **enemy_at_location:** "There's an active Threat at {location}. Fight it (1 action) or move away — but it'll still be here at Night, and every threat left on the map feeds Doom +1 at Dawn."
 

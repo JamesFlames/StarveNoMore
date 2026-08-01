@@ -103,11 +103,11 @@ The kitchen is your domain. You feed the team.
 - Knows the Pantry: at your house, pick a specific resource.
 
 **Constraint**
-- Particular Eater: cannot eat raw food. Must cook first.
+- Particular Eater: cannot eat uncooked food. Must cook first.
 
 **Starting hand:** Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.
 
-**First move:** Gather Food with Knows the Pantry, then cook Hot Stew for the team.
+**First move:** Gather Provisions with Knows the Pantry, then cook Hot Stew for the team.
 
 ---
 

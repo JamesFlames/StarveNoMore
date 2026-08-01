@@ -3,8 +3,8 @@
 -- location until cleared").
 --
 -- Thirteen cards, and until now not one of them did anything. The printed
--- rule ("Move actions out of this tile cost 1 extra Hunger", "No Food can be
--- gathered at this tile", "each Tick eats 1 Food at this tile") was text on a
+-- rule ("Move actions out of this tile cost 1 extra Hunger", "No Provisions can be
+-- gathered at this tile", "each Tick eats 1 Provisions at this tile") was text on a
 -- card face that no code read. Worse, seven of them have hp 0, so
 -- `fightTargetsAt` filters them out — unfightable — and only four of those
 -- seven are Sealed, i.e. removable by Pry. The remaining six had NO removal
@@ -68,7 +68,7 @@ PERSISTENT_THREAT_RULES = {
     T_HUNGRY_DOG = {
         fought = true,
         eatsFoodAtTick = 1,
-        blurb = "Each Tick it eats 1 Food from someone at this tile.",
+        blurb = "Each Tick it eats 1 Provisions from someone at this tile.",
     },
 
     -- Terrain. No hp, no seal — these are what the Clear action exists for.
@@ -85,8 +85,8 @@ PERSISTENT_THREAT_RULES = {
         blurb = "Every Night this tile draws 1 extra Threat.",
     },
     T_CONTAMINATED = {
-        noFoodGather = true, rawFoodSanity = 2,
-        blurb = "No Food can be gathered here, and eating raw here costs 2 Sanity.",
+        noProvisionsGather = true, uncookedSanity = 2,
+        blurb = "No Provisions can be gathered here, and eating uncooked here costs 2 Sanity.",
     },
     T_ROOTS = {
         noBarricade = true, restRestoresNothing = true,
@@ -277,25 +277,25 @@ function persistentMoveSurcharge(fromLoc)
     return acts, actNames, hunger, hungerNames
 end
 
--- Gather (gatherRandomResources, actions.lua): Contaminated Water takes Food
--- off this tile's yield table. If Food is ALL the tile yields the gather
+-- Gather (gatherRandomResources, actions.lua): Contaminated Water takes Provisions
+-- off this tile's yield table. If Provisions are ALL the tile yields the gather
 -- fails rather than silently handing out something else.
 function persistentFilterYields(locName, yields)
-    local holder = persistentRuleHolder(locName, "noFoodGather")
+    local holder = persistentRuleHolder(locName, "noProvisionsGather")
     if not holder then return yields, nil end
     local kept = {}
     for _, r in ipairs(yields) do
-        if r ~= "Food" then kept[#kept + 1] = r end
+        if r ~= "Provisions" then kept[#kept + 1] = r end
     end
     if #kept == 0 then return nil, holder.name end
     return kept, holder.name
 end
 
--- Eat Raw (doEatRaw, actions_social.lua): Contaminated Water makes it worse.
-function persistentRawFoodSanityCost(locName)
-    local holder = persistentRuleHolder(locName, "rawFoodSanity")
+-- Eat Uncooked (doEatUncooked, actions_social.lua): Contaminated Water makes it worse.
+function persistentUncookedSanityCost(locName)
+    local holder = persistentRuleHolder(locName, "uncookedSanity")
     if not holder then return 1, nil end
-    return holder.rule.rawFoodSanity or 1, holder.name
+    return holder.rule.uncookedSanity or 1, holder.name
 end
 
 -- Rest (doRest, actions.lua) and Barricade (canBarricade/doBarricade,
@@ -321,7 +321,7 @@ function persistentNightThreatBonus(locName)
 end
 
 -- Tick (resolveTick, tick_victory.lua): the Hungry Dog eats. It takes from
--- whoever at its tile has the most Food, so the loss is real rather than
+-- whoever at its tile has the most Provisions, so the loss is real rather than
 -- landing on whichever colour pairs() happened to hand back first.
 function resolvePersistentTick()
     for locName, list in pairs(persistentThreatsEverywhere()) do
@@ -331,14 +331,14 @@ function resolvePersistentTick()
             local bestColor, bestFood = nil, 0
             for color, ch in pairs(gameState.activeChars) do
                 if not ch.down and ch.location == locName then
-                    local held = (getPlayerResources(color) or {}).Food or 0
+                    local held = (getPlayerResources(color) or {}).Provisions or 0
                     if held > bestFood then bestColor, bestFood = color, held end
                 end
             end
             if bestColor then
-                takeResourceFromPlayer(bestColor, "Food", 1)
+                takeResourceFromPlayer(bestColor, "Provisions", 1)
                 broadcastEvent("damage", gameState.activeChars[bestColor].name ..
-                    " loses 1 Food at " .. locName .. " — something is eating at this tile.")
+                    " loses 1 Provisions at " .. locName .. " — something is eating at this tile.")
             end
         end
     end

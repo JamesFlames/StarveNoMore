@@ -103,7 +103,7 @@ def test_no_authored_hint_is_orphaned_prose():
     # Only the names the dispatch reads off a hints table: the named locals it
     # binds each group to, plus the inline `(WHATNOW_HINTS.X or {}).key` form.
     # A bare `}).key` would also match ordinary code like
-    # `(getPlayerResources(color) or {}).Food`, so the inline form is anchored
+    # `(getPlayerResources(color) or {}).Provisions`, so the inline form is anchored
     # on WHATNOW_HINTS.
     named = set(re.findall(
         r"(?:phaseHints|charHints|stats|strat|locHints|duskHints)\.(\w+)", dispatch))
@@ -235,10 +235,10 @@ class TestNewlyReachableHints:
     def test_ellie_is_told_when_her_larder_is_empty(self, env):
         add_char(env, "White", "Ellie", location="RaymanHouse")
         env.execute('gameState.subPhase = "Day"')
-        assert "you have no Food" in _ask(env)
+        assert "you have no Provisions" in _ask(env)
 
     def test_ellie_with_food_is_not(self, env):
         add_char(env, "White", "Ellie", location="RaymanHouse")
-        env.execute("gameState.resources = {White = {Food = 2}}")
+        env.execute("gameState.resources = {White = {Provisions = 2}}")
         env.execute('gameState.subPhase = "Day"')
-        assert "you have no Food" not in _ask(env)
+        assert "you have no Provisions" not in _ask(env)

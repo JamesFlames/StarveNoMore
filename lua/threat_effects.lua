@@ -150,10 +150,10 @@ SOFT_THREAT_EFFECTS = {
 
     T_FOOD_GONE_WRONG = function(loc)
         for _, color in ipairs(_atTile(loc)) do
-            local took = takeResourceFromPlayer(color, "Food", 1)
+            local took = takeResourceFromPlayer(color, "Provisions", 1)
             if took > 0 then
                 broadcastEvent("damage", gameState.activeChars[color].name ..
-                    " loses 1 Food — it had turned.")
+                    " loses 1 Provisions — it had turned.")
             end
         end
     end,
@@ -161,8 +161,8 @@ SOFT_THREAT_EFFECTS = {
     T_ROACHES = function()
         for color, ch in pairs(gameState.activeChars) do
             if not ch.down and ch.location == "EllieLucaHouse" then
-                if takeResourceFromPlayer(color, "Food", 1) > 0 then
-                    broadcastEvent("damage", ch.name .. " loses 1 Food to the roaches.")
+                if takeResourceFromPlayer(color, "Provisions", 1) > 0 then
+                    broadcastEvent("damage", ch.name .. " loses 1 Provisions to the roaches.")
                 end
             end
         end

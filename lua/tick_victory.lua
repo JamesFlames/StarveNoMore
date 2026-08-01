@@ -141,8 +141,8 @@ function resolveTick()
     end
 
     -- Persistent threats that feed at Tick (the Hungry Dog). After the decay
-    -- loop, so the Food it takes is Food you no longer get to eat tomorrow
-    -- rather than Food you never had.
+    -- loop, so the Provisions it takes is Provisions you no longer get to eat tomorrow
+    -- rather than Provisions you never had.
     safecall(function() resolvePersistentTick() end, "PersistentTick")
 
     -- Charlie streak: a night without an attack resets her interest.
@@ -254,7 +254,7 @@ function checkDownState(color)
         gameState.dailyAlerts[color] = gameState.dailyAlerts[color] or {}
         if not gameState.dailyAlerts[color].downHint then
             gameState.dailyAlerts[color].downHint = true
-            broadcastEvent("warn", "To revive " .. char.name .. ": cook a Telltale Heart at a Crockpot (1 Cloth + 1 Battery + 1 Food + 2 cook Health), then use it at " .. char.name .. "'s tile.")
+            broadcastEvent("warn", "To revive " .. char.name .. ": cook a Telltale Heart at a Crockpot (1 Cloth + 1 Battery + 1 Provisions + 2 cook Health), then use it at " .. char.name .. "'s tile.")
         end
         checkDefeat()
     end

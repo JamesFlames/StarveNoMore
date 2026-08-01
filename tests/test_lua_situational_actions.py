@@ -102,7 +102,7 @@ class TestEnergyDrink:
 
 
 # ---------------------------------------------------------------------------
-# Eat Raw (§3, §8.4) — and Ellie's Particular Eater constraint, which was
+# Eat Uncooked (§3, §8.4) — and Ellie's Particular Eater constraint, which was
 # printed in the rulebook and impossible to bump into.
 # ---------------------------------------------------------------------------
 
@@ -111,25 +111,25 @@ class TestEatRaw:
     def test_trades_sanity_for_hunger(self, env):
         add_char(env, "White", "James", hunger=3, sanity=8)
         start_day(env)
-        give(env, "White", "Food", 1)
+        give(env, "White", "Provisions", 1)
 
-        click(env, "onActEatRaw", "White")
+        click(env, "onActEatUncooked", "White")
         assert env.eval("gameState.activeChars.White.hunger") == 4
         assert env.eval("gameState.activeChars.White.sanity") == 7
-        assert env.eval('getPlayerResources("White").Food') == 0
+        assert env.eval('getPlayerResources("White").Provisions') == 0
 
     def test_ellie_cannot_eat_raw(self, env):
         add_char(env, "Green", "Ellie", hunger=3, sanity=8)
         start_day(env, "Green")
-        give(env, "Green", "Food", 1)
+        give(env, "Green", "Provisions", 1)
 
-        ok, why = env.eval("canEatRaw")("Green")
+        ok, why = env.eval("canEatUncooked")("Green")
         assert ok is False
         assert "Particular Eater" in why
 
-        click(env, "onActEatRaw", "Green")
+        click(env, "onActEatUncooked", "Green")
         assert env.eval("gameState.activeChars.Green.hunger") == 3, "no Hunger gained"
-        assert env.eval('getPlayerResources("Green").Food') == 1, "and the Food is kept"
+        assert env.eval('getPlayerResources("Green").Provisions') == 1, "and the Provisions token is kept"
 
 
 # ---------------------------------------------------------------------------

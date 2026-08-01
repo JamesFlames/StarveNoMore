@@ -330,7 +330,7 @@ end
 local RES_LABELS = { EnergyDrink = "Energy Drink" }
 local function _resLabel(r) return RES_LABELS[r] or r end
 
--- One line summarising a gather: { Food = 2, Wood = 1 } -> "2 Food + 1 Wood".
+-- One line summarising a gather: { Provisions = 2, Wood = 1 } -> "2 Provisions + 1 Wood".
 local function _describeHaul(got)
     local parts = {}
     for r, n in pairs(got) do parts[#parts + 1] = n .. " " .. _resLabel(r) end
@@ -345,8 +345,8 @@ function announceInventory(color)
         safecall(function()
             local res = getPlayerResources(color)
             printToColor(string.format(
-                "You now hold: Wood %d · Metal %d · Cloth %d · Food %d · Energy Drink %d · Battery %d  (tokens sit beside your player board; the panel on the left tracks them live).",
-                res.Wood or 0, res.Metal or 0, res.Cloth or 0, res.Food or 0,
+                "You now hold: Wood %d · Metal %d · Cloth %d · Provisions %d · Energy Drink %d · Battery %d  (tokens sit beside your player board; the panel on the left tracks them live).",
+                res.Wood or 0, res.Metal or 0, res.Cloth or 0, res.Provisions or 0,
                 res.EnergyDrink or 0, res.Battery or 0), color, {0.7, 1.0, 0.7})
             refreshStatDisplay()
         end, "InvSummary")
@@ -369,7 +369,7 @@ end
 function gatherRandomResources(color, loc, n)
     local char = gameState.activeChars[color]
     if not char then return end
-    local yields = LOCATION_YIELDS[loc] or {"Food"}
+    local yields = LOCATION_YIELDS[loc] or {"Provisions"}
 
     -- Scenario reshaping of what a tile yields (§17.3). Each of these is a
     -- clause of a Scenario description the setup banner and the Rules panel
@@ -391,7 +391,7 @@ function gatherRandomResources(color, loc, n)
         if #reshaped > 0 then yields = reshaped end
     end
 
-    -- Contaminated Water (Persistent): no Food comes off this tile. If Food
+    -- Contaminated Water (Persistent): no Provisions come off this tile. If Provisions
     -- is all the tile yields there is nothing to draw, and saying so beats
     -- quietly substituting something the card did not offer.
     local kept, blocker = persistentFilterYields(loc, yields)
@@ -402,16 +402,16 @@ function gatherRandomResources(color, loc, n)
             return
         end
         yields = kept
-        broadcastEvent("warn", "No Food comes out of " .. loc .. " — " .. blocker .. ".")
+        broadcastEvent("warn", "No Provisions come out of " .. loc .. " — " .. blocker .. ".")
     end
     local got, frozen = {}, 0
     for _ = 1, (n or 1) do
         local resType = yields[gameRoll(#yields)]
         -- The Long Winter (foodGatherPenalty): "food gathering -1". The
-        -- ground is frozen — a draw that comes up Food comes up empty. The
-        -- roll is still made, so the scenario costs you the Food it found
+        -- ground is frozen — a draw that comes up Provisions comes up empty. The
+        -- roll is still made, so the scenario costs you the Provisions it found
         -- rather than quietly handing you something else instead.
-        if sFlags.foodGatherPenalty and resType == "Food" then
+        if sFlags.foodGatherPenalty and resType == "Provisions" then
             frozen = frozen + 1
         else
             giveResource(color, resType, 1)

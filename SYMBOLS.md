@@ -349,7 +349,7 @@
 | 237 | function | `announcePersistentThreat` |
 | 274 | function | `persistentMoveSurcharge` |
 | 283 | function | `persistentFilterYields` |
-| 295 | function | `persistentRawFoodSanityCost` |
+| 295 | function | `persistentUncookedSanityCost` |
 | 303 | function | `persistentBlocksRest` |
 | 308 | function | `persistentBlocksBarricade` |
 | 313 | function | `persistentBlocksTrade` |
@@ -437,7 +437,7 @@
 |---|---|---|
 | 8 | function | `doTrade` |
 | 57 | function | `doEnergyDrink` |
-| 84 | function | `doEatRaw` |
+| 84 | function | `doEatUncooked` |
 | 109 | function | `doPass` |
 | 122 | function | `doBarricade` |
 | 158 | function | `doDefend` |
@@ -673,7 +673,7 @@
 | 69 | function | `canStabilize` |
 | 83 | function | `canDefend` |
 | 93 | function | `canEnergyDrink` |
-| 107 | function | `canEatRaw` |
+| 107 | function | `canEatUncooked` |
 | 131 | function | `canFlee` |
 | 144 | function | `canBarricade` |
 | 161 | function | `canAppeaseTreeguard` |
@@ -685,7 +685,7 @@
 | 302 | function | `onDownedCancel` |
 | 334 | function | `onActDefend` |
 | 338 | function | `onActEnergyDrink` |
-| 343 | function | `onActEatRaw` |
+| 343 | function | `onActEatUncooked` |
 | 353 | value | `USE_ITEM_DIALOG_SLOTS` |
 | 354 | table | `_useItemDialogIds` |
 | 356 | function | `onActUseItem` |
@@ -1118,7 +1118,7 @@
 | `canClearPersistent` | lua/threat_persistent.lua | 363 |
 | `canDefend` | lua/ui_actionbar_situational.lua | 83 |
 | `canDrift` | lua/ui_actionbar_situational.lua | 179 |
-| `canEatRaw` | lua/ui_actionbar_situational.lua | 107 |
+| `canEatUncooked` | lua/ui_actionbar_situational.lua | 107 |
 | `canEnergyDrink` | lua/ui_actionbar_situational.lua | 93 |
 | `canFight` | lua/actions_combat.lua | 115 |
 | `canFlee` | lua/ui_actionbar_situational.lua | 131 |
@@ -1171,7 +1171,7 @@
 | `doCraft` | lua/crafting.lua | 48 |
 | `doDefend` | lua/actions_social.lua | 158 |
 | `doDuskMove` | lua/actions.lua | 241 |
-| `doEatRaw` | lua/actions_social.lua | 84 |
+| `doEatUncooked` | lua/actions_social.lua | 84 |
 | `doEnergyDrink` | lua/actions_social.lua | 57 |
 | `doFightTarget` | lua/actions_combat.lua | 132 |
 | `doFlee` | lua/actions_combat.lua | 217 |
@@ -1294,7 +1294,7 @@
 | `onActCook` | lua/ui_actionbar_handlers.lua | 61 |
 | `onActCraft` | lua/ui_actionbar_handlers.lua | 38 |
 | `onActDefend` | lua/ui_actionbar_situational.lua | 334 |
-| `onActEatRaw` | lua/ui_actionbar_situational.lua | 343 |
+| `onActEatUncooked` | lua/ui_actionbar_situational.lua | 343 |
 | `onActEnergyDrink` | lua/ui_actionbar_situational.lua | 338 |
 | `onActFight` | lua/ui_actionbar_handlers.lua | 169 |
 | `onActFlee` | lua/ui_actionbar_situational.lua | 400 |
@@ -1386,11 +1386,11 @@
 | `persistentFilterYields` | lua/threat_persistent.lua | 283 |
 | `persistentMoveSurcharge` | lua/threat_persistent.lua | 274 |
 | `persistentNightThreatBonus` | lua/threat_persistent.lua | 319 |
-| `persistentRawFoodSanityCost` | lua/threat_persistent.lua | 295 |
 | `persistentRuleHolder` | lua/threat_persistent.lua | 224 |
 | `persistentRuleTotal` | lua/threat_persistent.lua | 210 |
 | `persistentThreatsAt` | lua/threat_persistent.lua | 200 |
 | `persistentThreatsEverywhere` | lua/threat_persistent.lua | 204 |
+| `persistentUncookedSanityCost` | lua/threat_persistent.lua | 295 |
 | `placeBossStandee` | lua/effects/dawn_effects.lua | 70 |
 | `placeCharacterAtTile` | lua/helpers.lua | 298 |
 | `playerHasBackpack` | lua/actions.lua | 357 |
@@ -1589,7 +1589,7 @@
 | `actCook` | xml/hud.xml | 294 | Button | `onActCook` |
 | `actCraft` | xml/hud.xml | 289 | Button | `onActCraft` |
 | `actDefend` | xml/hud.xml | 359 | Button | `onActDefend` |
-| `actEatRaw` | xml/hud.xml | 371 | Button | `onActEatRaw` |
+| `actEatUncooked` | xml/hud.xml | 371 | Button | `onActEatUncooked` |
 | `actEnergy` | xml/hud.xml | 365 | Button | `onActEnergyDrink` |
 | `actFight` | xml/hud.xml | 299 | Button | `onActFight` |
 | `actFlee` | xml/hud.xml | 383 | Button | `onActFlee` |

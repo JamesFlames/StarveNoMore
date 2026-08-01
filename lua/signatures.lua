@@ -16,7 +16,7 @@ SIGNATURES = {
                cost = "The noise: +1 Threat draw at this tile tonight." },
     Ellie  = { name = "The Feast",
                desc = "Cook any number of recipes in a single action (ingredients still required).",
-               cost = "Consumes ALL the Food beside your player board." },
+               cost = "Consumes ALL the Provisions beside your player board." },
     Luca   = { name = "The Speech",
                desc = "Every character, anywhere, gains +2 Sanity.",
                cost = "Only speakable while an ally is Down or below 3 Sanity." },
@@ -142,13 +142,13 @@ function doSignature(color, arg)
 
     elseif char.name == "Ellie" then
         if not spendAction(color, "The Feast") then return false end
-        local food = (getPlayerResources(color) or {}).Food or 0
+        local food = (getPlayerResources(color) or {}).Provisions or 0
         if food > 0 then
-            verifyAndPayResources(color, { Food = food }, "The Feast")
+            verifyAndPayResources(color, { Provisions = food }, "The Feast")
         end
         char.feastActive = true
         broadcastEvent("gain", "THE FEAST: Ellie empties the pantry (" .. food ..
-            " Food consumed). Until her turn ends, cooking costs no actions — cook every recipe she has ingredients for.")
+            " Provisions consumed). Until her turn ends, cooking costs no actions — cook every recipe she has ingredients for.")
 
     elseif char.name == "Luca" then
         for _, ch in pairs(gameState.activeChars) do

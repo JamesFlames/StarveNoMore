@@ -311,7 +311,7 @@ def populate_full_world(env):
     for name in ["James", "Coco", "Rayman", "Ellie", "Luca"]:
         obj([f"Character:{name}"])
         obj([f"PlayerBoard:{name}"], position=[20, 1, 20])
-    for res in ["Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"]:
+    for res in ["Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"]:
         obj([f"ResourceBag:{res}"])
     for i in range(5):
         obj([f"MarketSlot:{i}"])

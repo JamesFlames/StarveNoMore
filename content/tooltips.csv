@@ -2,7 +2,7 @@ tag,tooltip
 Resource:Wood,Wood — found at the Basketball and Badminton Courts. Used in crafting and as Crockpot fuel.
 Resource:Metal,Metal — found at the Basketball Court and Rayman's House. Crafts weapons and repairs.
 Resource:Cloth,Cloth — found everywhere; abundant at Ellie & Luca's and Badminton. Bandages and comfort items.
-Resource:Food,Food — found everywhere; abundant at the kitchen and James's House. Eat raw or cook for more.
+Resource:Provisions,Provisions — found everywhere; abundant at the kitchen and James's House. Eat uncooked or cook for more.
 Resource:EnergyDrink,Energy Drink — only at James's House. +2 Sanity. James MUST drink one per day or lose Sanity.
 Resource:Battery,Battery — at James's and Rayman's Houses. Powers electronics; needed for Flashlights.
 DoomMarker,The Doom marker. Hover to see current step and the next threshold.
@@ -16,7 +16,7 @@ PhaseDeck:4,Phase 4 Dawn deck — Final Hours. Survival sprint. Doom races.
 MarketDeck,The Market deck. Spend resources to claim Items from the 5-card display.
 ThreatDeck,The Threat deck. Drawn at Night based on each location's threat rate.
 RecipeCard,A Recipe. Cook at the Crockpot to feed and revive the team.
-TelltaleHeartSupply,The Telltale Heart supply. Cooked from 1 Cloth + 1 Battery + 1 Food + 2 cook's Health. Used to revive a Down character.
+TelltaleHeartSupply,The Telltale Heart supply. Cooked from 1 Cloth + 1 Battery + 1 Provisions + 2 cook's Health. Used to revive a Down character.
 PlayerBoard,Your character's board. Stats on the left; perks in the middle; Action Bar at the bottom.
 Standee,A character standee. The active player's standee bobs gently.
 Boss,A boss. Larger than character standees. Disrupts rules while present.

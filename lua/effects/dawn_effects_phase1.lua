@@ -62,8 +62,8 @@ DAWN_EFFECTS["P1_SOMETHING_WATCHED"] = {
 
 DAWN_EFFECTS["P1_FRESH_FOOD"] = {
     onReveal = function(card)
-        broadcastEvent("gain", "Fresh food! 2 Food appear at Ellie & Luca's House.")
-        safecall(function() spawnResourceAtTile("EllieLucaHouse", "Food", 2) end, "FreshFood")
+        broadcastEvent("gain", "Fresh food! 2 Provisions appear at Ellie & Luca's House.")
+        safecall(function() spawnResourceAtTile("EllieLucaHouse", "Provisions", 2) end, "FreshFood")
     end,
 }
 
@@ -140,10 +140,10 @@ DAWN_EFFECTS["P1_BIKE_FOUND"] = {
 
 DAWN_EFFECTS["P1_GARDEN_GROWS"] = {
     onReveal = function(card)
-        broadcastEvent("gain", "The garden still grows. 1 Food appears at every house.")
+        broadcastEvent("gain", "The garden still grows. 1 Provisions token appears at every house.")
         safecall(function()
             for _, house in ipairs({"JamesHouse", "RaymanHouse", "EllieLucaHouse"}) do
-                spawnResourceAtTile(house, "Food", 1)
+                spawnResourceAtTile(house, "Provisions", 1)
             end
         end, "GardenGrows")
     end,

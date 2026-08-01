@@ -306,7 +306,7 @@ end
 SCENARIOS = {
     SC_WINTER = {
         name = "The Long Winter",
-        description = "Hunger decay doubled. Food gathering yields -1. Houses give +1 Sanity at sleep.",
+        description = "Hunger decay doubled. Provisions gathering yields -1. Houses give +1 Sanity at sleep.",
         onApply = function()
             gameState.scenario = "SC_WINTER"
             gameState.scenarioFlags = { hungerDecayX2 = true, foodGatherPenalty = true, housesSanityBonus = true }
@@ -328,11 +328,11 @@ SCENARIOS = {
     },
     SC_AUTUMN = {
         name = "The Rotting Autumn",
-        description = "1 Food spoils per location at Dawn. Recipes yield +1 Hunger. Cloth is easier to find.",
+        description = "1 Provisions token spoils per location at Dawn. Recipes yield +1 Hunger. Cloth is easier to find.",
         onApply = function()
             gameState.scenario = "SC_AUTUMN"
             gameState.scenarioFlags = { foodSpoilsAtDawn = true, recipeBonus = true, clothBonus = true }
-            broadcastEvent("warn", "SCENARIO: The Rotting Autumn. Food rots fast — cook it before you lose it.")
+            broadcastEvent("warn", "SCENARIO: The Rotting Autumn. Provisions rot fast — cook them before you lose them.")
         end,
     },
     SC_SPRING = {

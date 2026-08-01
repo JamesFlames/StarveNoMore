@@ -166,9 +166,9 @@ class TestSoftResolution:
 
     def test_food_gone_wrong_takes_food_at_the_tile(self, env):
         add_char(env, "White", "James", location="JamesHouse")
-        env.globals().giveResource("White", "Food", 2)
+        env.globals().giveResource("White", "Provisions", 2)
         env.globals().resolveSoftThreat("T_FOOD_GONE_WRONG", "JamesHouse", "Food Gone Wrong", None)
-        assert env.eval('getPlayerResources("White").Food') == 1
+        assert env.eval('getPlayerResources("White").Provisions') == 1
 
     def test_clock_stops_shortens_tomorrow(self, env):
         add_char(env, "White", "James")

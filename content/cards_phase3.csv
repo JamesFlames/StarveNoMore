@@ -13,5 +13,5 @@ P3_GRAVITY_WRONG,Gravity Feels Wrong,3,All players lose 1 Health. Movement costs
 P3_TIME_SKIP,You Lost a Day,4,Day counter advances by 1 (skip a day). Doom +1. All players lose 1 Hunger.,,A calendar with a page torn out
 P3_WALLS_CLOSE,The Walls Are Closer,3,Each house tile loses 1 character capacity (max 4 instead of 5). Excess players must move at Dawn.,Until next Dawn: houses feel smaller.,A hallway that narrows into nothing
 P3_ALLY_MISSING,One of You Was Gone This Morning,3,The player with the fewest items loses all items in hand. They reappear at a random tile.,Until next Dawn: that player gets +1 action (adrenaline).,An empty sleeping bag and a trail of footprints
-P3_OFFERING,An Offering at the Door,3,Choose: sacrifice 3 Food to reduce Doom by 2 OR ignore it and all players lose 1 Sanity.,,A circle of salt and bone fragments on a welcome mat
+P3_OFFERING,An Offering at the Door,3,Choose: sacrifice 3 Provisions to reduce Doom by 2 OR ignore it and all players lose 1 Sanity.,,A circle of salt and bone fragments on a welcome mat
 P3_HUNTS_THE_HERD,It Hunts the Herd,3,Each character at the most-populated location loses 1 Sanity.,Tonight the most-populated location draws +1 Threat.,A single enormous eye counting small figures huddled around a kitchen table

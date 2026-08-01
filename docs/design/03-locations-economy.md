@@ -20,7 +20,7 @@ Ellie & Luca's House is the central node (their kitchen feeds the team). The two
 
 ### 7.1 James's House
 
-- **Yield.** Energy Drink ×1 per gather, Battery ×1 per two gathers, Junk Food (Food) ×1.
+- **Yield.** Energy Drink ×1 per gather, Battery ×1 per two gathers, Junk Food (Provisions) ×1.
 - **Special: The Den.** Players in this location may freely trade cards with each other once per day (no action cost).
 - **Special: The Stash.** A Gather action here may take **2 Energy Drinks** instead of the normal random draw. This exists so James's Wired constraint is a logistics problem (stock up every other day), not a daily ritual that eats a third of his action budget.
 - **Sanity modifier:** 0 (familiar but cluttered).
@@ -29,7 +29,7 @@ Ellie & Luca's House is the central node (their kitchen feeds the team). The two
 
 ### 7.2 Rayman's House
 
-- **Yield.** Sports Equipment (improvised weapons; see §13), Sports Drink (Food), Athletic Tape (crafting).
+- **Yield.** Sports Equipment (improvised weapons; see §13), Sports Drink (Provisions), Athletic Tape (crafting).
 - **Special: The Garage.** A Rest action here restores +1 Health (instead of +0).
 - **Sanity modifier:** 0.
 - **Defense:** +1 (lots of cover).
@@ -37,7 +37,7 @@ Ellie & Luca's House is the central node (their kitchen feeds the team). The two
 
 ### 7.3 Ellie & Luca's House
 
-- **Yield.** Cooking Ingredients (Food), Cloth, Pantry items.
+- **Yield.** Cooking Ingredients (Provisions), Cloth, Pantry items.
 - **Special: The Kitchen.** This location has a permanent Crockpot. Any player here may cook recipes; Ellie's perk applies if she's present.
 - **Sanity modifier:** +1 (homey, warm).
 - **Defense:** +0.
@@ -76,7 +76,7 @@ Six resource types. Each has multiple uses; each is gathered from particular loc
 | **Wood** | Brown plank icon | Basketball Court, Badminton Court | Crafting weapons, structures, fuel for Crockpot |
 | **Metal** | Grey gear icon | Basketball Court (hoops), Rayman's House (tools) | Weapon upgrades, Repair, advanced crafting |
 | **Cloth** | White-thread icon | All locations (esp. Ellie & Luca's, Badminton Court) | Bandages, Insulation, Bedrolls |
-| **Food** | Red apple icon | All locations (esp. Ellie & Luca's, James's House) | Restore Hunger; cook into recipes for greater effect |
+| **Provisions** | Red apple icon | All locations (esp. Ellie & Luca's, James's House) | Restore Hunger; cook into recipes for greater effect |
 | **Energy Drink** | Yellow can icon | James's House only | Restore 2 Sanity; James's daily addiction |
 | **Battery** | Blue battery icon | James's House, Rayman's House | Powers Flashlights, Radios, electronic items |
 
@@ -100,7 +100,7 @@ Pillar 2 — *every action pays in a different currency than the one it fills* �
 
 | Action | Restores | Pays in (the cross-currency) |
 |---|---|---|
-| **Eat raw food** | Hunger (1) | Sanity (−1) — DST raw-food penalty. |
+| **Eat uncooked food** | Hunger (1) | Sanity (−1) — DST raw-food penalty. |
 | **Cook at the Crockpot** | Hunger + Sanity (large) | Action + 1 Wood (fuel) + ingredients. |
 | **Battery Acid Soup** | Hunger (6) | Health (−2). High risk recipe. |
 | **Rest at home** | Hunger or Sanity, +1 Health if own house | Action (no resource gain that turn). |
@@ -137,7 +137,7 @@ The pattern is intentional and total: there is no action in this game that lets 
 | Rest (1 action) | +2 Sanity **or** +1 Hunger; +1 Health at your own house |
 | Sleeping in your own bed (free) | +1 Sanity, +1 Hunger, +1 Health |
 | Sleeping in someone else's bed with company (free) | +1 Sanity |
-| Eat raw food (free-ish) | +1 Hunger, −1 Sanity |
+| Eat uncooked food (free-ish) | +1 Hunger, −1 Sanity |
 | A cooked recipe (1 action, shared) | +3 to +6 Hunger and +1 to +2 Sanity, **per character at the tile** |
 
 **The resulting tax.** For a character solving their own upkeep alone, in their own bed: the bed covers the Tick's Sanity and Hunger exactly, and every Move, scramble, court night or dark night is unfunded. Once you actually play the map — one Move a day is the minimum for a team that isn't turtling — the ledger runs roughly:
@@ -147,7 +147,7 @@ The pattern is intentional and total: there is no action in this game that lets 
 
 **Target: a ~50% maintenance tax on a 3-action budget** for the self-sufficient player. That is the design's stated intent, and it is what makes the game a spending problem rather than an execution problem.
 
-**The cooperation dividend, stated.** Recompute for a co-located team that cooks. Cooking is multiplicative (§13.2 — one player cooks, many benefit), so one action spent at the Crockpot pays a recipe's Hunger and Sanity to *everyone at the tile*. At four co-located characters, a single Hot Stew is ~4 Hunger and ~2 Sanity × 4 bodies for one action and 2 Food + 1 Wood — the Hunger side of the tax collapses from ~1.0 actions/character/day to well under 0.3, and Ellie's Crockpot Master and Comfort Food perks push it lower still.
+**The cooperation dividend, stated.** Recompute for a co-located team that cooks. Cooking is multiplicative (§13.2 — one player cooks, many benefit), so one action spent at the Crockpot pays a recipe's Hunger and Sanity to *everyone at the tile*. At four co-located characters, a single Hot Stew is ~4 Hunger and ~2 Sanity × 4 bodies for one action and 2 Provisions + 1 Wood — the Hunger side of the tax collapses from ~1.0 actions/character/day to well under 0.3, and Ellie's Crockpot Master and Comfort Food perks push it lower still.
 
 That is the whole economic argument for cooperating, and it deserves to be stated rather than discovered: **the Crockpot is not merely a social magnet, it is the tax-reduction engine.** The incentive to gather at Ellie & Luca's kitchen is arithmetic, not thematic — which is exactly the property a co-op economy needs, because a purely thematic incentive is one an optimizing table will ignore.
 

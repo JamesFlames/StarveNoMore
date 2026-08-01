@@ -41,10 +41,10 @@ Each item has a craft cost (resources), a use effect, and notes whether it's sin
 
 Permanent reference cards (not a draw deck) showing what can be cooked at a Crockpot. Examples:
 
-- **Hot Stew** — 2 Food + 1 Wood. Restores 4 Hunger + 2 Sanity to all eaters.
-- **Energy Drink Cocktail** — 2 Energy Drink + 1 Food. Restores 5 Sanity, 2 Hunger.
-- **Comfort Soup** — 3 Food + 1 Cloth (for napkins). Restores 3 Hunger + 3 Sanity.
-- **Battery Acid Soup** (don't) — 1 Battery + 2 Food. Restores 6 Hunger but loses 2 Health.
+- **Hot Stew** — 2 Provisions + 1 Wood. Restores 4 Hunger + 2 Sanity to all eaters.
+- **Energy Drink Cocktail** — 2 Energy Drink + 1 Provisions. Restores 5 Sanity, 2 Hunger.
+- **Comfort Soup** — 3 Provisions + 1 Cloth (for napkins). Restores 3 Hunger + 3 Sanity.
+- **Battery Acid Soup** (don't) — 1 Battery + 2 Provisions. Restores 6 Hunger but loses 2 Health.
 
 Recipes embody the **mismatched-currency** principle: cooking costs raw ingredients to produce more potent restoration than raw eating, but always with some trade-off (an action spent, a wood burned, a chance of bad outcomes for risky recipes).
 
@@ -126,7 +126,7 @@ The five-pip **severity dot** is the Catan-probability-dots pattern (Interesting
 │ HOT STEW                                     │
 │ ─────────────────────────────                │
 │ Cook at: Crockpot.                           │
-│ Ingredients: 2 Food + 1 Wood (fuel).         │
+│ Ingredients: 2 Provisions + 1 Wood (fuel).         │
 │ Action cost: 1.                              │
 │                                              │
 │ Effect: All characters at this location      │

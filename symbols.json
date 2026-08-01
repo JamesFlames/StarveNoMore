@@ -826,7 +826,7 @@
     "kind": "table",
     "params": null,
     "arity": null,
-    "doc": "Gather yields per location (Design §7-8). A Gather draws one resource picked uniformly from this list, so Food comes up twice as often at Ellie & Luca's House.…"
+    "doc": "Gather yields per location (Design §7-8). A Gather draws one resource picked uniformly from this list, so Provisions come up twice as often at Ellie & Luca's H…"
    }
   ],
   "LOCATION_THREAT_RATE": [
@@ -2183,7 +2183,7 @@
     "doc": "Ghost drift (§16.4): a Down character moves one tile per round, free. It is the only decision a ghost still has — design §05 calls a Down player with no decisi…"
    }
   ],
-  "canEatRaw": [
+  "canEatUncooked": [
    {
     "file": "lua/ui_actionbar_situational.lua",
     "line": 107,
@@ -2800,7 +2800,7 @@
     "doc": "DUSK SCRAMBLE (Design §11.3) — during Dusk each character may make one 1-tile move, paying 1 Hunger. No action cost (all actions are spent by Dusk anyway). Thi…"
    }
   ],
-  "doEatRaw": [
+  "doEatUncooked": [
    {
     "file": "lua/actions_social.lua",
     "line": 84,
@@ -2809,7 +2809,7 @@
      "color"
     ],
     "arity": 1,
-    "doc": "EAT RAW FOOD (free action) — Design §8.4 +1 Hunger, -1 Sanity (mismatched currency)"
+    "doc": "EAT UNCOOKED PROVISIONS (free action) — Design §8.4 +1 Hunger, -1 Sanity (mismatched currency)"
    }
   ],
   "doEnergyDrink": [
@@ -3251,7 +3251,7 @@
      "cost"
     ],
     "arity": 1,
-    "doc": "\"2 Food + 1 Wood\" from a { Food = 2, Wood = 1 } cost table (for tooltips). Global, not local, because ui_actionbar_handlers.lua uses it too. It worked as a fil…"
+    "doc": "\"2 Provisions + 1 Wood\" from a { Provisions = 2, Wood = 1 } cost table (for tooltips). Global, not local, because ui_actionbar_handlers.lua uses it too. It wor…"
    }
   ],
   "gameRoll": [
@@ -4263,7 +4263,7 @@
     "doc": ""
    }
   ],
-  "onActEatRaw": [
+  "onActEatUncooked": [
    {
     "file": "lua/ui_actionbar_situational.lua",
     "line": 343,
@@ -5502,7 +5502,7 @@
      "yields"
     ],
     "arity": 2,
-    "doc": "Gather (gatherRandomResources, actions.lua): Contaminated Water takes Food off this tile's yield table. If Food is ALL the tile yields the gather fails rather …"
+    "doc": "Gather (gatherRandomResources, actions.lua): Contaminated Water takes Provisions off this tile's yield table. If Provisions are ALL the tile yields the gather …"
    }
   ],
   "persistentMoveSurcharge": [
@@ -5527,18 +5527,6 @@
     ],
     "arity": 1,
     "doc": "Night draw (resolveNightAtLocation, night.lua): The Nest."
-   }
-  ],
-  "persistentRawFoodSanityCost": [
-   {
-    "file": "lua/threat_persistent.lua",
-    "line": 295,
-    "kind": "function",
-    "params": [
-     "locName"
-    ],
-    "arity": 1,
-    "doc": "Eat Raw (doEatRaw, actions_social.lua): Contaminated Water makes it worse."
    }
   ],
   "persistentRuleHolder": [
@@ -5587,6 +5575,18 @@
     "params": [],
     "arity": 0,
     "doc": ""
+   }
+  ],
+  "persistentUncookedSanityCost": [
+   {
+    "file": "lua/threat_persistent.lua",
+    "line": 295,
+    "kind": "function",
+    "params": [
+     "locName"
+    ],
+    "arity": 1,
+    "doc": "Eat Uncooked (doEatUncooked, actions_social.lua): Contaminated Water makes it worse."
    }
   ],
   "placeBossStandee": [
@@ -6220,7 +6220,7 @@
     "kind": "function",
     "params": [],
     "arity": 0,
-    "doc": "Tick (resolveTick, tick_victory.lua): the Hungry Dog eats. It takes from whoever at its tile has the most Food, so the loss is real rather than landing on whic…"
+    "doc": "Tick (resolveTick, tick_victory.lua): the Hungry Dog eats. It takes from whoever at its tile has the most Provisions, so the loss is real rather than landing o…"
    }
   ],
   "resolveSleep": [
@@ -7468,11 +7468,11 @@
    "element": "Button",
    "onClick": "onActDefend"
   },
-  "actEatRaw": {
+  "actEatUncooked": {
    "file": "xml/hud.xml",
    "line": 371,
    "element": "Button",
-   "onClick": "onActEatRaw"
+   "onClick": "onActEatUncooked"
   },
   "actEnergy": {
    "file": "xml/hud.xml",

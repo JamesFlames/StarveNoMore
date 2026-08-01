@@ -48,7 +48,7 @@ TROPHY_BY_BOSS = {
     eye       = "The Watching Jar",
     source    = "The Source Defeated",
 }
-local BOSS_LOOT_RESOURCES = { "Wood", "Metal", "Cloth", "Food" }
+local BOSS_LOOT_RESOURCES = { "Wood", "Metal", "Cloth", "Provisions" }
 
 -- Resource shower + a nod to the Trophy at the fallen boss's tile.
 function dropBossLoot(bossKey)

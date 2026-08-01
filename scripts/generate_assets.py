@@ -157,7 +157,7 @@ RESOURCE_LABELS = {
     "wood": "WOOD",
     "metal": "METAL",
     "cloth": "CLOTH",
-    "food": "FOOD",
+    "food": "PROVISIONS",
     "energy": "ENERGY\nDRINK",
     "battery": "BATTERY",
 }
@@ -450,7 +450,7 @@ CHARACTER_DATA = {
                "perks": ["Crockpot Master: -1 ingredient (min 1)",
                          "Comfort Food: shared meal +1 Hu/Sa",
                          "Knows the Pantry: pick resource at home"],
-               "flaw": "Particular Eater: can't eat raw food",
+               "flaw": "Particular Eater: can't eat uncooked food",
                "hand": "Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron"},
     "Luca":   {"hp": 7, "hu": 8, "sa": 10, "seat": "Red",
                "perks": ["Rally: free ally action/turn",
@@ -637,9 +637,9 @@ def generate_main_board(variant=None, doom_limit=None):
     info_off = int((path_layouts.LOCATION_RING_R - 0.10) * PX_PER_UNIT)  # yields, just inside the ring
 
     yield_info = {
-        "JamesHouse":      "Energy, Battery, Food",
-        "EllieLucaHouse":  "Food, Food, Cloth + Crockpot",
-        "RaymanHouse":     "Metal, Battery, Food",
+        "JamesHouse":      "Energy, Battery, Provisions",
+        "EllieLucaHouse":  "Provisions, Provisions, Cloth + Crockpot",
+        "RaymanHouse":     "Metal, Battery, Provisions",
         "BasketballCourt": "Wood, Metal, Cloth",
         "BadmintonCourt":  "Cloth, Wood, Metal",
     }

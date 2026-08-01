@@ -1,5 +1,5 @@
 id,name,yields,special,sanity_modifier,defense,threat_rate,house_owner
-L_JAMES,James's House,Energy Drink|Battery|Food,The Den: free trade once per day at this tile.,0,0,0,James (+1 Sanity sleep)
+L_JAMES,James's House,Energy Drink|Battery|Provisions,The Den: free trade once per day at this tile.,0,0,0,James (+1 Sanity sleep)
 L_RAYMAN,Rayman's House,Sports Equipment|Sports Drink|Athletic Tape,The Garage: Rest here also +1 Health.,0,1,0,Rayman (+1 Health sleep)
 L_ELLIE_LUCA,Ellie & Luca's House,Cooking Ingredients|Cloth|Pantry items,The Kitchen: permanent Crockpot here.,1,0,0,Ellie + Luca (+1 Sanity sleep)
 L_BASKETBALL,The School's Basketball Court,Wood|Metal|Cloth,Echoes: each gather rolls a d6 — 6 gain bonus Item; 1-2 lose 1 Sanity.,-1,-1,1,

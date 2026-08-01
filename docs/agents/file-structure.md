@@ -42,7 +42,7 @@ StarveNoMore/
 │   ├── ui_actionbar_core.lua      # Resource helpers (getPlayerResources, verifyAndPayResources, canAfford) + Move adjacency + highlight duration
 │   ├── ui_actionbar_targets.lua   # Target-button plumbing + move/craft/cook/fight target spawns, click handlers, highlights
 │   ├── ui_actionbar_handlers.lua  # onActX action-bar handlers, Press-the-Attack panel, trade/peek/rally/undo/dusk handlers
-│   ├── ui_actionbar_situational.lua # Situational verbs: Revive, Stabilize, Defend, Energy Drink, Eat Raw, Barricade, Appease, Clear (+ canX preconditions); Ghost Drift rides ui_reactions
+│   ├── ui_actionbar_situational.lua # Situational verbs: Revive, Stabilize, Defend, Energy Drink, Eat Uncooked, Barricade, Appease, Clear (+ canX preconditions); Ghost Drift rides ui_reactions
 │   ├── ui_actionbar_display.lua   # Validate, action-bar refresh + cubes, per-button enable/reasons, stat display, action tooltips
 │   ├── ui_controls.lua         # Host controls (contextual — only valid buttons show), confirm dialogs, tooltips
 │   ├── ui_setup.lua            # Guided setup walkthrough (path → variants → characters → briefing) + welcome

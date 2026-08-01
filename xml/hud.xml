@@ -368,12 +368,12 @@
               fontSize="14" color="#E8D66AFF" textColor="#12180F"
               active="false"
               text="Energy Drink" />
-      <Button id="actEatRaw"
-              onClick="onActEatRaw"
+      <Button id="actEatUncooked"
+              onClick="onActEatUncooked"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
               fontSize="14" color="#D2B48CFF" textColor="#12180F"
               active="false"
-              text="Eat Raw" />
+              text="Eat Uncooked" />
       <Button id="actUseItem"
               onClick="onActUseItem"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"

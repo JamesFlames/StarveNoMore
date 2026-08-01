@@ -117,7 +117,7 @@ HIGHLIGHT_DURATION = 30  -- seconds; matches TARGET_TIMEOUT so the glow
 -- and compare against the per-card costs in MARKET_COSTS (auto-loaded
 -- from content/cards_market.csv via scripts/generate_market_data.py).
 -----------------------------------------------------------------------
-local RESOURCE_TYPES = {"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}
+local RESOURCE_TYPES = {"Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"}
 
 -- Authoritative held-resource count, read from gameState (NOT from token
 -- positions — see the note in helpers.lua). Returns a fresh table with all

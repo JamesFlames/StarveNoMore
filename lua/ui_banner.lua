@@ -42,7 +42,7 @@ OPENING_MOVES = {
     James  = "Gather at The Stash (2 Energy Drinks — that's today's Wired sorted), Gather again, then Peek the Threat deck (free) and tell the table.",
     Coco   = "Move toward whoever will be alone tonight, Gather, Rest. You have no house — your job all week is being where somebody else is.",
     Rayman = "Move to the Basketball Court (you go 2 tiles), Gather Wood, Gather again. Eat before Tick — you lose 2 Hunger a night.",
-    Ellie  = "Gather with Knows the Pantry (pick Food), Gather again, then Cook for everyone standing in your kitchen. One action, the whole team fed.",
+    Ellie  = "Gather with Knows the Pantry (pick Provisions), Gather again, then Cook for everyone standing in your kitchen. One action, the whole team fed.",
     Luca   = "Rally Ellie so she can cook for free, Gather, Rest. Stay with someone — your Sanity doesn't come back alone.",
 }
 

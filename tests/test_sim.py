@@ -75,7 +75,7 @@ def test_doom_thresholds_match(lua_globals):
 
 # The sim's pool keys vs the lua resource-bag tags.
 _SIM_RESOURCE_NAMES = {"Wood": "wood", "Cloth": "cloth", "Battery": "battery",
-                       "EnergyDrink": "energy", "Metal": "metal", "Food": "food"}
+                       "EnergyDrink": "energy", "Metal": "metal", "Provisions": "food"}
 
 
 def test_cleanse_cost_and_reduction_match(lua_globals):
@@ -89,7 +89,7 @@ def test_cleanse_cost_and_reduction_match(lua_globals):
 def test_location_yields_match(lua_globals):
     # Gather now spawns tokens straight from LOCATION_YIELDS (global.lua); the
     # sim's YIELDS drives balance. Same distribution per location (order and
-    # duplicates included, so Food-doubled Ellie & Luca's stays doubled).
+    # duplicates included, so Provisions-doubled Ellie & Luca's stays doubled).
     lua_to_sim = _SIM_RESOURCE_NAMES
     for loc, sim_names in sim.YIELDS.items():
         n = lua_globals.eval(f"#LOCATION_YIELDS.{loc}")

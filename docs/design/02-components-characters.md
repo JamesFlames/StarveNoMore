@@ -18,7 +18,7 @@ Every component is sized, type-marked, and TTS-mappable. The "TTS Object" column
 | 8 | **Phase Decks (Dawn cards)** | 4 decks of ~12 cards each | `DeckCustom` | One deck per phase: Dusk-of-Week, Strange Days, Long Nights, Final Hours. |
 | 9 | **Item Cards (the Market)** | 49 unique cards | `DeckCustom` | The shared "Hogwarts Deck" of craftable items. |
 | 10 | **Recipe Cards** | ~20 unique cards | `DeckCustom` | Crockpot recipes; reference cards more than draw deck. |
-| 11 | **Resource Tokens** | ~120 in 6 types | `Custom_Token` (small) or `Infinite_Bag` | Wood, Metal, Cloth, Food, Energy Drink, Battery. |
+| 11 | **Resource Tokens** | ~120 in 6 types | `Custom_Token` (small) or `Infinite_Bag` | Wood, Metal, Cloth, Provisions, Energy Drink, Battery. |
 | 12 | **Threat Cards** | 51 cards | `DeckCustom` | Enemies and hazards drawn during night phase or by Dawn cards (incl. sealed things — §13.5). |
 | 13 | **Combat Dice (d6)** | 6 standard | `Die_6` | Rolled in handfuls during combat. |
 | 14 | **Sanity d8 (custom)** | 1 | `Custom_Dice` (8 faces) | For sanity-loss events with variable severity. |
@@ -79,9 +79,9 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Base Stats.** Health **8**, Hunger **10**, Sanity **8**.
 - **Perk: Crockpot Master.** Recipes Ellie cooks require 1 fewer ingredient (minimum 1).
 - **Perk: Comfort Food.** When Ellie shares cooked food with another character, that character gains +1 extra Hunger and +1 extra Sanity.
-- **Perk: Knows the Pantry.** When at Ellie & Luca's House, Ellie may search the resource bag for a specific Food or Cooking Ingredient (does not draw randomly).
-- **Signature: The Feast (once per game, §6.7).** Cook any number of recipes in a single action (ingredients still required, at a Crockpot); consumes **all** her held Food.
-- **Constraint: Particular Eater.** Ellie cannot eat raw food. (Other characters can spend a Food token raw for partial Hunger; Ellie cannot.)
+- **Perk: Knows the Pantry.** When at Ellie & Luca's House, Ellie may search the resource bag for a specific Provisions or Cooking Ingredient (does not draw randomly).
+- **Signature: The Feast (once per game, §6.7).** Cook any number of recipes in a single action (ingredients still required, at a Crockpot); consumes **all** her held Provisions.
+- **Constraint: Particular Eater.** Ellie cannot eat uncooked food. (Other characters can spend a Provisions token uncooked for partial Hunger; Ellie cannot.)
 - **Starting hand:** Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron (item).
 - **Plays best with:** Rayman (he eats a lot), Luca (housemate synergy).
 
@@ -121,7 +121,7 @@ Each character has one **Signature** — a once-per-game, named, board-printed m
 | James | **All-Nighter** — take 3 extra actions this turn | −3 Sanity at the next Tick |
 | Coco | **Touch of Hope** — heal any character on the map by 4 Health | Once per game; any distance |
 | Rayman | **Posterize** — instantly defeat one non-boss threat at his tile | The noise: +1 Threat draw here tonight |
-| Ellie | **The Feast** — cook any number of recipes in a single action | Consumes **all** her held Food |
+| Ellie | **The Feast** — cook any number of recipes in a single action | Consumes **all** her held Provisions |
 | Luca | **The Speech** — every character, anywhere, +2 Sanity | Only while an ally is Down or below 3 Sanity |
 
 *(Rayman's Speed and Luca's Rally both read as "once per turn" historically; Rally is now once per round and off-turn — §6.5.)*

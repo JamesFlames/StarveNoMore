@@ -12,7 +12,7 @@
 --   Stabilize     doStabilize (actions_social)      §12.3  the Bandage revive
 --   Defend        doDefend (actions_social)         Rayman; combat_resolve reads raymanDefending
 --   Energy Drink  doEnergyDrink (actions_social)    James; four files read jamesEnergyDrinkUsed
---   Eat Raw       doEatRaw (actions_social)         §8.4; Ellie's Particular Eater lived here
+--   Eat Uncooked  doEatUncooked (actions_social)    §8.4; Ellie's Particular Eater lived here
 --   Barricade     doBarricade (actions_social)      day_loop reads gameState.barricades
 --   Appease       doAppeaseTreeguard (treeguard)    the non-violent Treeguard resolution
 --   Ghost Drift   ghostDrift (tick_victory)         §16.4; a Down player's only decision
@@ -54,7 +54,7 @@ function canRevive(color)
     if not char then return false, "No character." end
     if char.down then return false, "You are Down." end
     if (gameState.heartCount or 0) < 1 then
-        return false, "No Telltale Heart. Cook one at the Crockpot (1 Cloth + 1 Battery + 1 Food + 2 Health)."
+        return false, "No Telltale Heart. Cook one at the Crockpot (1 Cloth + 1 Battery + 1 Provisions + 2 Health)."
     end
     if char.health <= REVIVE_HEALTH_COST then
         return false, "Reviving costs " .. REVIVE_HEALTH_COST .. " Health and you have " ..
@@ -104,16 +104,16 @@ function canEnergyDrink(color)
     return true
 end
 
-function canEatRaw(color)
+function canEatUncooked(color)
     local char = gameState.activeChars[color]
     if not char then return false, "No character." end
     if char.down then return false, "You are Down." end
-    -- Particular Eater (§6.4). Checked here as well as inside doEatRaw so the
+    -- Particular Eater (§6.4). Checked here as well as inside doEatUncooked so the
     -- button never appears for Ellie in the first place.
     if char.name == "Ellie" then
-        return false, "Ellie can't eat raw food (Particular Eater). Cook it first."
+        return false, "Ellie can't eat uncooked food (Particular Eater). Cook it first."
     end
-    if held(color, "Food") < 1 then return false, "No Food token to eat." end
+    if held(color, "Provisions") < 1 then return false, "No Provisions token to eat." end
     if char.hunger >= char.maxHunger then return false, "Hunger is already full." end
     return true
 end
@@ -340,8 +340,8 @@ function onActEnergyDrink(player, value, id)
                    { EnergyDrink = 1 })
 end
 
-function onActEatRaw(player, value, id)
-    runSituational(player, canEatRaw, doEatRaw, "raw Food", { Food = 1 })
+function onActEatUncooked(player, value, id)
+    runSituational(player, canEatUncooked, doEatUncooked, "uncooked Provisions", { Provisions = 1 })
 end
 
 -- Barricade and Appease pay their own resources inside the action (and refund
@@ -458,8 +458,8 @@ SITUATIONAL_ACTIONS = {
     { id = "actEnergy", can = canEnergyDrink,
       tip = "Drink an Energy Drink — free. +2 Sanity, and for James it " ..
             "satisfies Wired for today (no -2 Sanity at Tick)." },
-    { id = "actEatRaw", can = canEatRaw,
-      tip = "Eat a Food token raw — free. +1 Hunger, -1 Sanity." },
+    { id = "actEatUncooked", can = canEatUncooked,
+      tip = "Eat a Provisions token uncooked — free. +1 Hunger, -1 Sanity." },
     { id = "actUseItem", can = canUseItem,
       tip = "Use a single-use item you are carrying — free. The card is " ..
             "spent; healing items go to whoever at your tile needs them most." },

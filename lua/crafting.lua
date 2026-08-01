@@ -140,7 +140,7 @@ end
 function _pickScarcityResource(color, baseCost)
     local held = getPlayerResources(color)
     local best, bestN = nil, 0
-    for _, r in ipairs({"Wood", "Metal", "Cloth", "Food", "EnergyDrink", "Battery"}) do
+    for _, r in ipairs({"Wood", "Metal", "Cloth", "Provisions", "EnergyDrink", "Battery"}) do
         local spare = (held[r] or 0) - (baseCost[r] or 0)
         if spare > bestN then best, bestN = r, spare end
     end
@@ -301,7 +301,7 @@ function doCook(color, recipeId)
     end
 
     -- Ingredients are paid automatically from the held count (no dropping
-    -- tokens). The Feast already consumed all Food up front, so cooking is
+    -- tokens). The Feast already consumed all Provisions up front, so cooking is
     -- ingredient-free during it. Refund the action(s) if the cook is short.
     if not char.feastActive then
         local cost = recipeIngredientCost(color, recipe)
