@@ -177,9 +177,14 @@ LOC_LORA_STRENGTH = 1.0
 
 # Named because the failure has a signature worth excluding explicitly: a
 # single flat hue with no tonal range.
+#
+# The second group guards the opposite ditch: CREEPY_MOOD asks for a night
+# scene with high-contrast hatching, and pushing that on a distilled model at
+# cfg 1.0 drifts toward an unreadable near-black frame.
 LOC_NEGATIVE = NEGATIVE + (
     ", flat vector art, flat color fill, monochrome, single hue, "
-    "posterized, green tint, no linework, silhouette only"
+    "posterized, green tint, no linework, silhouette only, "
+    "pure black frame, underexposed, unreadable, blown highlights"
 )
 
 # Shared framing. The tile is mounted as a `CustomTile Type 2`, which is a
@@ -195,6 +200,24 @@ TILE_FRAMING = (
     "olive greens, dense ink crosshatch shading, even ambient light with no "
     "glare and no visible lamp glow, subject centred and filling the frame, "
     "nothing important in the corners, single coherent scene"
+)
+
+
+# Shared mood for the court tiles: Don't Starve horror, carried by CONTENT.
+#
+# Note what this does not say. "Creepy" naturally reaches for a dim security
+# light and long shadows, and that exact wording is what made Flux render the
+# lamp glow as the subject — the original badmintoncourt.png was a green radial
+# blob with a lamp in it. Bare clawed branches, a watching crow, shredded
+# netting and ground fog carry the mood instead, under the ambient no-visible-
+# lamp lighting TILE_FRAMING specifies.
+CREEPY_MOOD = (
+    "deep overcast night under a sunless bruised sky, thin ground fog curling "
+    "across the surface, gnarled leafless trees with clawlike spindly branches "
+    "leaning inward over the scene, everything crooked and slightly warped, "
+    "torn netting hanging in cobwebbed shreds, a single crow watching from a "
+    "post, scratchy high-contrast crosshatching, oppressive stillness, "
+    "wrongness, gothic and eerie"
 )
 
 
