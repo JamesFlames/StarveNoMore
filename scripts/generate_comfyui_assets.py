@@ -221,25 +221,23 @@ ASSETS = [
     # prompts here produced flat dark interiors that were replaced by hand.
     # If a regen is ever wanted, add the prompts back deliberately.
 
+    # Both courts: these exact prompts + LOC_* settings produced the tiles now
+    # in art/tiles/. The two are deliberately a matched pair — swapping the
+    # mood on one alone makes the board look inconsistent.
     ("snm_loc_basketballcourt", 1024, 1024,
      loc_prompt(
-         "abandoned outdoor basketball court, three-quarter view, cracked "
-         "concrete with faded painted lines, rusty hoop with a torn net, "
-         "overgrown weeds pushing through the cracks, chain-link fence, a "
-         "bench with peeling paint, scattered supplies and drink cans on the "
-         "ground, suburban rooflines and trees behind the fence, overcast "
-         "dusk sky")),
+         "an abandoned outdoor basketball court, three-quarter view, a rusted "
+         "hoop with a shredded net on a leaning pole, cracked concrete with "
+         "faded painted lines split by weeds, a bent chain-link fence, a "
+         "broken bench, a deflated ball left on the ground, " + CREEPY_MOOD)),
 
-    # This exact prompt + LOC_* settings produced the tile now in art/tiles/.
     ("snm_loc_badmintoncourt", 1024, 1024,
      loc_prompt(
-         "an overgrown public badminton court behind a rec centre, "
-         "three-quarter view, sagging net strung between two leaning rusty "
-         "poles, faded painted court lines on cracked asphalt, tall weeds "
-         "pushing through the cracks, a bent chain-link fence smothered in "
-         "ivy, a wooden bench with peeling paint, shuttlecocks scattered "
-         "across the ground, a forgotten racket leaning against a post, "
-         "overcast dusk sky")),
+         "an abandoned public badminton court, three-quarter view, a rotted "
+         "net sagging between two leaning poles, cracked asphalt with faded "
+         "court lines split by weeds, a bent chain-link fence, a broken "
+         "bench, shuttlecocks scattered like small bones across the ground, "
+         + CREEPY_MOOD)),
 
     # ---- Path decoration variants (1024x1024) ----
     ("snm_path_ring", 1024, 1024,

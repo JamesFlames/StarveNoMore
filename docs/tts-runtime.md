@@ -108,6 +108,17 @@ from a screenshot.
   `Table_Poker`, `Table_RPG`, `Table_Square` (read out of the game's own
   `resources.assets`). There is **no** "Kraken" table. `Table_RPG` is the
   large opaque one.
+- **Hidden is not untouchable — `setLock` does not stop the pointer.** TTS
+  raycasts the cursor straight through the board and the tabletop, so a
+  locked, invisible, under-table object still highlights (white outline)
+  and still answers the mouse: "it keeps highlighting cards that are
+  supposed to be under the table". **`obj.interactable = false`** is the
+  lever that stops it. It blocks the player's mouse only — `takeObject`,
+  `shuffle`, `setPosition` and every other scripted path keep working,
+  which is what makes it safe on the decks the game draws from.
+  `sealUnderTableObjects()` (audit.lua) sweeps everything below y=0 at
+  onLoad and at lockdown; `placeCharacterAtTile` sets it back to `true`
+  when a benched standee comes back up.
 - Guards: `test_under_table_objects_stay_within_the_board_footprint`,
   `test_the_table_is_not_see_through`.
 
