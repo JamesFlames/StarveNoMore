@@ -79,7 +79,7 @@ Run a stage on its own only when you are debugging *that stage*.
 appears in the game. TTS reshapes both families before the player sees them (a
 tile is cropped to a circle; a standee's whole image is multiplied by its
 `ColorDiffuse` tint) — full rationale in
-[`docs/agents/comfyui.md`](../docs/agents/comfyui.md#derived-art-tilepng-and-standeepng).
+[`docs/agents/derived-art.md`](../docs/agents/derived-art.md).
 
 ## Debug / deploy tools (not generators)
 

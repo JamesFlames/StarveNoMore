@@ -155,37 +155,91 @@ CARD_DECK_PREFIXES = {
 }
 
 # --------------------------------------------------------------------------
+# Location tiles. These need their own sampler settings, not the cards'.
+#
+# The bug (2026-08): both court tiles rendered as flat monochrome-green vector
+# scenes with no ink linework at all — badmintoncourt.png was a green radial
+# blob with a lamp in it. That is the SAME cfg 4.0 fault documented for the
+# achievement icons below: Flux Dev is guidance-distilled, so true CFG > 1
+# blows out and drifts off-prompt. Two seeds in a row failed identically, which
+# is the sampler, not seed variance. Moving location tiles onto the distilled
+# configuration (FluxGuidance + cfg 1.0) fixed it outright.
+#
+# Guidance is 6.0 rather than the icons' 3.5: at 3.5 the courts came back as
+# clean but generic digital background art. Guidance is the prompt-adherence
+# knob once cfg is pinned at 1.0, and this style needs it pushed. The LoRA goes
+# to full strength for the same reason — c4r1mj34 is what supplies the ink line.
+#
+# Cards still use cfg 4.0 deliberately: 200+ were rendered with it, and
+# changing that is an art-direction call, not a bug fix.
+LOC_FLUX_GUIDANCE = 6.0
+LOC_LORA_STRENGTH = 1.0
+
+# Named because the failure has a signature worth excluding explicitly: a
+# single flat hue with no tonal range.
+LOC_NEGATIVE = NEGATIVE + (
+    ", flat vector art, flat color fill, monochrome, single hue, "
+    "posterized, green tint, no linework, silhouette only"
+)
+
+# Shared framing. The tile is mounted as a `CustomTile Type 2`, which is a
+# CIRCLE — TTS crops a disc from the centre and throws away ~21% of the canvas,
+# so the subject must be centred and the corners must be expendable.
+#
+# Note what is NOT here: the old prompts asked for a "dim yellow security light
+# casting long shadows" / "eerie streetlight glow" and Flux made the light the
+# subject rather than the illumination. Describe light as falling on the scene,
+# never as a source in frame — same trap as ACHIEVEMENT_PREFIX below.
+TILE_FRAMING = (
+    "aged sepia parchment texture, warm umber and amber palette with muted "
+    "olive greens, dense ink crosshatch shading, even ambient light with no "
+    "glare and no visible lamp glow, subject centred and filling the frame, "
+    "nothing important in the corners, single coherent scene"
+)
+
+
+def loc_prompt(subject):
+    """Compose a location-tile prompt.
+
+    STYLE leads rather than trails: Flux weights early tokens more heavily, and
+    with STYLE sitting last behind ~60 tokens of scene description the courts
+    came back in a generic house style.
+    """
+    return ", ".join([STYLE, subject, TILE_FRAMING])
+
+
+# --------------------------------------------------------------------------
 # Asset definitions: (filename_prefix, width, height, prompt)
 # --------------------------------------------------------------------------
 ASSETS = [
     # ---- Location tiles (1024x1024 square scenes) ----
-    ("snm_loc_jameshome", 1024, 1024,
-     "interior of a teenage boy's messy bedroom, gaming PC with glowing monitor, "
-     "energy drink cans, posters on walls, dim desk lamp light, cozy clutter, "
-     "seen from above like a board game tile, " + STYLE),
-
-    ("snm_loc_raymanhome", 1024, 1024,
-     "interior of a sporty teenager's bedroom, basketball trophies on shelf, "
-     "sports posters, sneakers by the door, athletic tape on desk, "
-     "warm overhead light, seen from above like a board game tile, " + STYLE),
-
-    ("snm_loc_ellielucahome", 1024, 1024,
-     "interior of a shared sibling house, cozy kitchen with crockpot on counter, "
-     "bookshelf with notebooks, reading lamp, two beds visible in back room, "
-     "homey warm lighting, seen from above like a board game tile, " + STYLE),
+    # The three house tiles (snm_loc_jameshome / raymanhome / ellielucahome)
+    # are HERO ART, authored outside this pipeline — do NOT auto-generate them.
+    # art/tiles/*.png is authoritative; sync_comfyui_output.py skips these
+    # prefixes too. They are 1254x1254 sepia ink-on-parchment pieces, and this
+    # model + LoRA does not reach that look at any setting tried — the old
+    # prompts here produced flat dark interiors that were replaced by hand.
+    # If a regen is ever wanted, add the prompts back deliberately.
 
     ("snm_loc_basketballcourt", 1024, 1024,
-     "abandoned outdoor basketball court at dusk, cracked concrete, "
-     "rusty hoop with torn net, overgrown weeds at edges, fog rolling in, "
-     "a few scattered supplies on the ground, eerie streetlight glow, "
-     "seen from above like a board game tile, " + STYLE),
+     loc_prompt(
+         "abandoned outdoor basketball court, three-quarter view, cracked "
+         "concrete with faded painted lines, rusty hoop with a torn net, "
+         "overgrown weeds pushing through the cracks, chain-link fence, a "
+         "bench with peeling paint, scattered supplies and drink cans on the "
+         "ground, suburban rooflines and trees behind the fence, overcast "
+         "dusk sky")),
 
+    # This exact prompt + LOC_* settings produced the tile now in art/tiles/.
     ("snm_loc_badmintoncourt", 1024, 1024,
-     "abandoned outdoor badminton court at dusk, cracked pavement, "
-     "sagging net between rusty poles, overgrown weeds pushing through cracks, "
-     "scattered shuttlecocks on the ground, chain-link fence with ivy, "
-     "dim yellow security light casting long shadows, "
-     "seen from above like a board game tile, " + STYLE),
+     loc_prompt(
+         "an overgrown public badminton court behind a rec centre, "
+         "three-quarter view, sagging net strung between two leaning rusty "
+         "poles, faded painted court lines on cracked asphalt, tall weeds "
+         "pushing through the cracks, a bent chain-link fence smothered in "
+         "ivy, a wooden bench with peeling paint, shuttlecocks scattered "
+         "across the ground, a forgotten racket leaning against a post, "
+         "overcast dusk sky")),
 
     # ---- Path decoration variants (1024x1024) ----
     ("snm_path_ring", 1024, 1024,
@@ -551,7 +605,10 @@ def main():
 
     print(f"Starve No More — queueing {len(assets)} assets to ComfyUI at {COMFYUI_URL}")
     print("Style: Don't Starve Together aesthetic + modern urban (suburban) twist")
-    print("Model: Flux Dev Q8 + c4r1mj34 LoRA (0.85)")
+    print("Model: Flux Dev Q8 + c4r1mj34 LoRA "
+          f"(cards 0.85 @ cfg 4.0, locations {LOC_LORA_STRENGTH} @ guidance "
+          f"{LOC_FLUX_GUIDANCE}, icons {ICON_LORA_STRENGTH} @ guidance "
+          f"{ICON_FLUX_GUIDANCE})")
     print()
 
     success = 0
@@ -560,11 +617,23 @@ def main():
         # single-object composition and keeps painting a glowing lamp/orb as
         # the subject. Cards keep the full 0.85 the deck art was built with.
         is_icon = prefix.startswith("snm_ach_")
-        lora = ICON_LORA_STRENGTH if is_icon else 0.85
+        # Location tiles are on the distilled path too, at their own guidance
+        # and full LoRA — see the LOC_* block. Everything else keeps cfg 4.0.
+        is_loc = prefix.startswith("snm_loc_")
+        lora = 0.85
+        guidance = None
+        negative = NEGATIVE
+        if is_icon:
+            lora = ICON_LORA_STRENGTH
+            guidance = ICON_FLUX_GUIDANCE
+        elif is_loc:
+            lora = LOC_LORA_STRENGTH
+            guidance = LOC_FLUX_GUIDANCE
+            negative = LOC_NEGATIVE
         workflow = build_workflow(
-            prompt, NEGATIVE, w, h, prefix,
+            prompt, negative, w, h, prefix,
             lora_strength=lora,
-            flux_guidance=ICON_FLUX_GUIDANCE if is_icon else None,
+            flux_guidance=guidance,
         )
         try:
             result = queue_prompt(workflow)

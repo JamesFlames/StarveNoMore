@@ -41,9 +41,25 @@ CATEGORY_DIRS = {
     "snm_ach_":   os.path.join(REPO_ROOT, "art", "achievements", "src"),
 }
 
-# Character standees are hand-drawn — never overwrite art/characters/* from
-# ComfyUI output. Files matching this prefix are skipped with a note.
-SKIP_PREFIXES = ("snm_char_",)
+# Hero art — never overwritten from ComfyUI output. Files matching any of these
+# prefixes are skipped with a note.
+#
+# Character standees (snm_char_) are hand-drawn.
+#
+# The three house tiles are authored outside this pipeline too, and the repo
+# copies are the authoritative ones: art/tiles/jameshome.png is 1254x1254 and
+# byte-matches the external source, while ComfyUI's snm_loc_jameshome_00001_.png
+# is a different, worse 1024x1024 render that is still sitting in the output
+# directory. Only the mtime check stopped a sync from clobbering the good art,
+# and `--force` skips that check — so name them explicitly instead of trusting
+# file timestamps. The courts are NOT hero art: they are generated, and
+# art/tiles/basketballcourt.png is byte-identical to its ComfyUI original.
+SKIP_PREFIXES = (
+    "snm_char_",
+    "snm_loc_jameshome",
+    "snm_loc_raymanhome",
+    "snm_loc_ellielucahome",
+)
 
 # ComfyUI's SaveImage tail: "<prefix>_<5-digit>_.png"
 SUFFIX_RE = re.compile(r"_\d{5}_(?:\.png)$")
@@ -87,13 +103,13 @@ def main():
     copied = 0
     skipped_uptodate = 0
     skipped_unknown = 0
-    skipped_handdrawn = 0
+    skipped_hero = 0
     by_category = {}
 
     for src in sources:
         fname = os.path.basename(src)
         if any(fname.startswith(p) for p in SKIP_PREFIXES):
-            skipped_handdrawn += 1
+            skipped_hero += 1
             continue
         dest_dir, dest_name = categorize(fname)
         if dest_dir is None:
@@ -120,8 +136,8 @@ def main():
     print()
     print(f"Copied: {copied}")
     print(f"Skipped (up to date): {skipped_uptodate}")
-    if skipped_handdrawn:
-        print(f"Skipped (hand-drawn — characters): {skipped_handdrawn}")
+    if skipped_hero:
+        print(f"Skipped (hero art — never auto-generated): {skipped_hero}")
     if skipped_unknown:
         print(f"Skipped (unknown prefix): {skipped_unknown}")
     if by_category:

@@ -708,8 +708,7 @@ function finalizeGuidedSetup()
     -- Run the actual Setup logic with the picked characters
     broadcastEvent("phase", "Setting up Starve No More...")
 
-    -- 1. Path variant already set
-    broadcastEvent("proc", "Path layout: " .. (gameState.pathVariant or "Compact"))
+    -- 1. Path variant already set (announced with the rest, below)
 
     -- 2. Shuffle Phase decks
     for p = 1, 4 do
@@ -738,6 +737,7 @@ function finalizeGuidedSetup()
     gameState.turnOrder = seated
     gameState.turnIndex = 0
 
+    local roster = {}   -- one "who is who" line instead of one broadcast each
     for color, charName in pairs(setupState.charPicks) do
         local stats = CHARACTER_STATS[charName]
         local home = CHARACTER_HOMES[charName] or "EllieLucaHouse"
@@ -758,7 +758,7 @@ function finalizeGuidedSetup()
 
         placeCharacterAtTile(charName, home)
 
-        broadcastEvent("proc", charName .. " assigned to " .. color .. ".")
+        roster[#roster + 1] = charName .. " (" .. color .. ")"
     end
 
     -- Characters nobody picked leave the map for the bench.
@@ -810,7 +810,16 @@ function finalizeGuidedSetup()
     -- 7. Started
     gameState.started = true
 
-    broadcastEvent("phase", "Setup complete! Day 1 begins. Click 'Begin Day' to reveal the first Dawn card.")
+    -- Staged, one idea at a time — see stageBroadcasts (global.lua). The
+    -- guided path already named everyone as they picked, so the roster here
+    -- is a single reminder line rather than one broadcast per seat.
+    local queue = {
+        {"proc", "Playing today: " .. table.concat(roster, ", ") .. "."},
+        {"proc", "Path layout: " .. (gameState.pathVariant or "Compact") .. " (the lines printed on the board are the routes you can walk)."},
+    }
+    for _, m in ipairs(tableOrientationMessages()) do queue[#queue + 1] = m end
+    queue[#queue + 1] = {"phase", "Setup complete! Day 1 begins. Click 'Begin Day' to reveal the first Dawn card."}
+    stageBroadcasts(queue, 1.0)
 
     -- Refresh UI
     Wait.time(function()
@@ -832,14 +841,21 @@ function showWelcomeSequence()
     if gameState.started or gameState.welcomed then return end
 
     -- broadcastEvent (not broadcastToAll) so these land in the Message Log
-    -- panel too — new players need to re-read them after the fade.
-    broadcastEvent("warn", "Welcome to Starve No More.")
-    broadcastEvent("warn", "Sit at any colour for now — when you pick your character during Setup, your seat colour changes to match it (James=Blue, Coco=White, Rayman=Green, Ellie=Yellow, Luca=Red).")
-    broadcastEvent("warn", "Click 'Setup Game' on the Host Controls panel (top-left), or hover anything to see what it does.")
-    broadcastEvent("gain", "Press '?' anytime for help — its first tab, RULEBOOK, is the complete player rulebook, page by page, so nobody has to go looking for rules outside the game. Press 'What now?' if you're stuck. The Message Log (bottom right) keeps everything said — nothing is lost when a broadcast fades.")
-    -- Content note (§18.19 item 5): stated before characters are chosen, not
-    -- discovered mid-game.
-    broadcastEvent("proc", "Content note: cosmic horror. Darkness that hunts you, bodies that fail, and some grim writing when a character falls.")
+    -- panel too — new players need to re-read them after the fade. Staged,
+    -- because five paragraphs arriving together is the very first thing a new
+    -- table sees, and it reads as a wall rather than as an introduction. The
+    -- content note (§18.19 item 5) still lands before characters are chosen —
+    -- staging orders the messages, it does not defer them past the decision.
+    stageBroadcasts({
+        {"warn", "Welcome to Starve No More."},
+        {"warn", "Sit at any colour for now — when you pick your character during Setup, your seat colour changes to match it (James=Blue, Coco=White, Rayman=Green, Ellie=Yellow, Luca=Red)."},
+        {"proc", "Content note: cosmic horror. Darkness that hunts you, bodies that fail, and some grim writing when a character falls."},
+        -- RULEBOOK is the leftmost tab but currentHelpTab defaults to "quick"
+        -- (ui_help.lua), so '?' lands on Quick Start. Saying "its first tab is
+        -- the rulebook" sent players looking at a page they weren't on.
+        {"gain", "Press '?' anytime for help — it opens on QUICK START, and the RULEBOOK tab beside it is the complete player rulebook, page by page, so nobody has to go looking for rules outside the game. Press 'What now?' if you're stuck. The Message Log (bottom right) keeps everything said — nothing is lost when a broadcast fades."},
+        {"warn", "Click 'Setup Game' on the Host Controls panel (top-left), or hover anything to see what it does."},
+    })
 
     -- Camera tween to the main board for all players
     local board = getMainBoard()

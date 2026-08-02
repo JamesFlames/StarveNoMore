@@ -21,6 +21,17 @@ Output structure:
         S_BASKETBALL = 1,
         ...
     }
+    STARTING_ARRIVAL = {
+        ["Pocketknife"]         = 1,   -- face up at Setup
+        ["Spare Phone Battery"] = 2,   -- turns face up at Dawn on Day 2
+        ...
+    }
+
+STARTING_ARRIVAL is keyed by the card's printed NAME, not its id, because
+setup.lua reads it off the nickname of a card it just took out of the deck
+(a taken handle's tags are not reliable — see isClueCard in lua/clues.lua).
+Names are unique within a character's deck, which is the only scope that
+matters: each deck is dealt on its own.
 
 Run: python scripts/generate_market_data.py
 Output: lua/market_data.lua
@@ -97,6 +108,7 @@ def main():
             if m:
                 weapons.append((cid, row.get("name", ""), int(m.group(1))))
 
+    arrivals = []  # (name, day) from the starting CSV's arrives column
     if os.path.isfile(STARTING_CSV_PATH):
         with open(STARTING_CSV_PATH, "r", encoding="utf-8", newline="") as f:
             for row in csv.DictReader(f):
@@ -104,6 +116,9 @@ def main():
                 m = ATTACK_DIE_RE.search(row.get("effect") or "")
                 if cid and m:
                     weapons.append((cid, row.get("name", ""), int(m.group(1))))
+                name = (row.get("name") or "").strip()
+                if name:
+                    arrivals.append((name, int((row.get("arrives") or "1").strip() or 1)))
 
     L = []
     L.append("-- market_data.lua")
@@ -139,6 +154,18 @@ def main():
     L.append("")
     for cid, name, dice in sorted(weapons):
         L.append(f"WEAPON_DICE.{cid} = {dice}  -- {name}")
+
+    L.append("")
+    L.append("-- STARTING_ARRIVAL[card name] = the day that card turns face up.")
+    L.append("-- Day 1 items are dealt face up at Setup; the rest are laid face")
+    L.append("-- DOWN beside the board and revealed at Dawn on their day, so a new")
+    L.append("-- player reads three cards on turn one instead of five.")
+    L.append("-- Read by dealStartingHands / revealScheduledStartingItems (lua/setup.lua).")
+    L.append("")
+    L.append("STARTING_ARRIVAL = {}")
+    L.append("")
+    for name, day in sorted(arrivals):
+        L.append(f"STARTING_ARRIVAL[{lua_str(name)}] = {day}")
 
     L.append("")
 

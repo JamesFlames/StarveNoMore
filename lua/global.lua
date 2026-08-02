@@ -330,6 +330,31 @@ function broadcastEvent(category, message)
     if logMessage then pcall(function() logMessage(category, message) end) end
 end
 
+-- Setup used to fire a dozen broadcasts inside one frame. TTS stacks them and
+-- fades them together, so a new table reads the first two and loses the rest —
+-- everything arrives at once and none of it lands. stageBroadcasts spreads a
+-- list over time so each message gets the screen to itself.
+--   msgs[i] = { category, text }          -- public, through broadcastEvent
+--   msgs[i] = { category, text, color }   -- private, to one seat
+-- Returns the delay the next caller should start from.
+BROADCAST_STAGE_GAP = 3.0   -- seconds between staged messages
+
+function stageBroadcasts(msgs, startDelay)
+    local t = startDelay or 0
+    for _, m in ipairs(msgs or {}) do
+        local category, text, color = m[1], m[2], m[3]
+        Wait.time(function()
+            if color then
+                broadcastToColor(text, color, BROADCAST_COLORS[category] or {1, 1, 1})
+            else
+                broadcastEvent(category, text)
+            end
+        end, t)
+        t = t + BROADCAST_STAGE_GAP
+    end
+    return t
+end
+
 -----------------------------------------------------------------------
 -- Lifecycle (F.1 + F.14)
 -----------------------------------------------------------------------

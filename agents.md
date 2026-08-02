@@ -40,6 +40,7 @@ not the index.
 | [UX Affordances](docs/agents/ux-affordances.md) | keep "the next legal action is always visible" true |
 | [Audio](docs/agents/audio.md) | add or change a sound |
 | [ComfyUI Workflow](docs/agents/comfyui.md) | regenerate card or board art |
+| [Derived Art](docs/agents/derived-art.md) | new tile/standee art not showing |
 | [Working With This Project](docs/agents/working-with-this-project.md) | make any change, day to day |
 | [`gameState` schema map](docs/gamestate.md) | add, rename or trace a `gameState` field |
 
@@ -59,7 +60,7 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 - [docs/tts-interface.md](docs/tts-interface.md) — how the mod talks to TTS: save format (Lua bundle + XML + ObjectStates), the Lua API surface rule (only call what exists), object-handle lifetime, the XML UI layer, and how to measure a running game. Read before calling an unfamiliar TTS API or debugging a runtime error.
 - [docs/tts-runtime.md](docs/tts-runtime.md) — the TTS physical contract: surface heights (`TABLE_SURFACE_Y`), mesh extents vs. artwork, rotation conventions, hiding objects. Read before placing or rotating anything.
 - [docs/achievements.md](docs/achievements.md) — the 24 achievements: where the roster lives (`content/achievements.csv` → `lua/achievement_data.lua`), where the unlock predicates live (`lua/achievement_rules.lua`), the four checkpoints that evaluate them, how the cross-game vault survives Restart, and why a TTS Workshop mod can't set a real Steam achievement (it ships `steam/achievements.json` for a future appid instead).
-- [docs/comfyui-achievement-icons.md](docs/comfyui-achievement-icons.md) — the run book for regenerating the achievement art on a local ComfyUI, written to be handed to an agent verbatim: preflight checks, queue → sync → process → build → test, the thumbnail-legibility quality pass, and the failure table.
+- [docs/comfyui-achievement-icons.md](docs/comfyui-achievement-icons.md) — the run book for regenerating the achievement art on a local ComfyUI, written to be handed to an agent verbatim. Its own contents page lists the steps.
 - [docs/debugging.md](docs/debugging.md) — live-session forensics: what TTS autosaves contain, `scripts/inspect_save.py` usage (incl. `--error N` to decode `<Global:N>` lines), the diagnosis flow.
 - [docs/gamestate.md](docs/gamestate.md) — AUTO-GENERATED `gameState` schema map: every field with its declared default, the files that write it and the files that read it. Start here for "add a field" or "who clears X?". Regenerate with `scripts/generate_gamestate_map.py`; a test fails if any field is in neither `migrateGameState()` nor the reviewed transient list.
 - [.claude/README.md](.claude/README.md) — the committed agent config: the `SessionStart` dependency hook, the `PostToolUse` symbol-index hook, the permission allowlist, and the `/verify` + `/newtask` commands.

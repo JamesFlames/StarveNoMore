@@ -42,7 +42,7 @@ if this table and the real headers disagree, so it cannot rot.
 | `cards_phase4.csv` | `P4_` | **id**, **title**, **severity**, **immediate**, **ongoing**, art_notes | `build_save.py` (Dawn deck) |
 | `cards_recipes.csv` | `R_` | **id**, **name**, **ingredients**, **cost**, **effect**, art_notes, script | `generate_recipe_data.py` (reads `script`) |
 | `cards_scenarios.csv` | `SC_` | **id**, **name**, **season**, **effect**, **ongoing**, art_notes | `build_save.py` |
-| `cards_starting.csv` | `S_` | **id**, **character**, **name**, **count**, **effect**, art_notes | `generate_market_data.py`, `generate_card_atlases.py` |
+| `cards_starting.csv` | `S_` | **id**, **character**, **name**, **count**, **arrives**, **effect**, art_notes | `generate_market_data.py`, `generate_card_atlases.py` |
 | `cards_threats.csv` | `T_` | **id**, **name**, **type**, **hp**, **attack**, **severity**, **special**, art_notes, pry_reward | `generate_threat_types.py` (reads `type`, `pry_reward`) |
 | `cards_trophies.csv` | `TR_` | **id**, **boss**, **bonus**, art_notes | `build_save.py` |
 | `cards_visitors.csv` | `V_` | **id**, **character**, **trigger**, **immediate**, **departure** | `build_save.py` |

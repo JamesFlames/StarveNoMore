@@ -23,7 +23,7 @@ SCHEMAS = {
     "cards_scenarios.csv": (["id", "name", "season", "effect", "ongoing"], r"SC_[A-Z0-9_]+"),
     "locations.csv": (["id", "name", "yields", "special", "sanity_modifier", "defense", "threat_rate", "house_owner"], r"L_[A-Z0-9_]+"),
     "resources.csv": (["id", "name", "color", "icon", "tag", "sources", "uses"], r"R_[A-Z0-9_]+"),
-    "cards_starting.csv": (["id", "character", "name", "count", "effect"], r"S_[A-Z0-9_]+"),
+    "cards_starting.csv": (["id", "character", "name", "count", "arrives", "effect"], r"S_[A-Z0-9_]+"),
     "achievements.csv": (["id", "api_name", "name", "description", "hidden",
                           "category", "condition", "art_notes"], r"A_[A-Z0-9_]+"),
 }
@@ -125,6 +125,38 @@ def test_starting_items_characters_and_counts():
     for char in sorted(valid_chars):
         if per_char.get(char, 0) < 3:
             problems.append(f"{char}: only {per_char.get(char, 0)} starting cards (expected 3+)")
+    assert not problems, "\n".join(problems)
+
+
+def test_every_character_opens_on_exactly_three_cards():
+    """The `arrives` column is the turn-one reading budget. Setup lays out the
+    day-1 items face up and holds the rest face down (dealStartingHands,
+    lua/setup.lua), so this is literally how many rules texts a player must
+    read before their first action. Three was the number that fixed the
+    overload; a sixth card added to a character must pick a later day, or
+    displace one, rather than quietly land on Day 1.
+
+    Names must also be unique per character: STARTING_ARRIVAL is keyed by the
+    printed name, because setup.lua reads the arrival day off the nickname of
+    a card it has just taken out of the deck.
+    """
+    opening, names, problems = {}, {}, []
+    for r in read_csv_rows("cards_starting.csv"):
+        char = (r["character"] or "").strip()
+        arrives = (r["arrives"] or "").strip()
+        if not arrives.isdigit() or not (1 <= int(arrives) <= 7):
+            problems.append(f"{r['id']}: arrives {arrives!r} (expected a day 1..7)")
+            continue
+        count = int((r["count"] or "1").strip() or 1)
+        if int(arrives) == 1:
+            opening[char] = opening.get(char, 0) + count
+        key = (char, (r["name"] or "").strip())
+        if key in names:
+            problems.append(f"{r['id']}: {char} already has a card named {key[1]!r}")
+        names[key] = r["id"]
+    for char, n in sorted(opening.items()):
+        if n != 3:
+            problems.append(f"{char}: {n} cards face up at Setup (expected exactly 3)")
     assert not problems, "\n".join(problems)
 
 

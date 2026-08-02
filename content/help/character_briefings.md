@@ -21,7 +21,10 @@ Each character is one `##` section, and the parser is strict about the shape:
 - A plain paragraph of flavour.
 - `**Strengths**` or `**Constraint**` / `**Constraints**`, each followed by
   `- Name: text` bullets.
-- `**Starting hand:** ...`
+- `**Starting hand:** ...` — items with no day suffix are face up at Setup;
+  a `(Day N)` suffix is one that arrives face down and turns over that
+  morning. Keep these in step with the `arrives` column of
+  `content/cards_starting.csv`, which is what the game actually deals.
 - `**First move:** ...`
 
 The bold section labels are re-styled in the dialog by `formatBriefingBody`
@@ -64,7 +67,7 @@ You are calm when the world isn't. You're visiting — no house of your own.
 **Constraint**
 - No Home: alone at a non-house tile at night = -3 Sanity.
 
-**Starting hand:** First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery, Friendship Bracelet.
+**Starting hand:** First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery (Day 2), Friendship Bracelet (Day 3).
 
 **First move:** Keep moving — your Gift rewards travel. Stick with allies at night.
 
@@ -85,7 +88,7 @@ Fastest and toughest. You hit hard. You also eat a lot.
 - Big Appetite: lose 2 Hunger per Tick (others lose 1).
 - Loud: if you moved at all today, wherever you spend the Night draws +1 Threat. A quiet day keeps the dark away.
 
-**Starting hand:** Basketball, Sports Drink x2, Athletic Tape, Whistle.
+**Starting hand:** Basketball, Sports Drink x2, Athletic Tape (Day 2), Whistle (Day 3).
 
 **First move:** Head to the Basketball Court for Wood. Watch your Hunger.
 
@@ -105,7 +108,7 @@ The kitchen is your domain. You feed the team.
 **Constraint**
 - Particular Eater: cannot eat uncooked food. Must cook first.
 
-**Starting hand:** Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.
+**Starting hand:** Crockpot, Cooking Knife, Apron, Soup Recipe (Day 2), Pantry Key (Day 3).
 
 **First move:** Gather Provisions with Knows the Pantry, then cook Hot Stew for the team.
 
@@ -125,6 +128,6 @@ Your words hold Sanity together when everything else falls apart.
 **Constraint**
 - Needs an Audience: Sanity doesn't regen when alone.
 
-**Starting hand:** Notebook, Loud Whistle, Pep Talk, Reading Lamp, Toolbox.
+**Starting hand:** Notebook, Pep Talk, Reading Lamp, Toolbox (Day 2), Loud Whistle (Day 3).
 
 **First move:** Use Rally to give Ellie a free action. Stay with allies.

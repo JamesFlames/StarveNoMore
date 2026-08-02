@@ -68,7 +68,7 @@
 | 581 | function | `gameRoll` |
 | 587 | function | `safecall` |
 
-## lua/global.lua (30 symbols)
+## lua/global.lua (32 symbols)
 
 | line | kind | symbol |
 |---|---|---|
@@ -99,9 +99,11 @@
 | 297 | function | `describeDoomDelta` |
 | 316 | table | `BROADCAST_COLORS` |
 | 324 | function | `broadcastEvent` |
-| 341 | function | `migrateGameState` |
-| 411 | function | `onLoad` |
-| 471 | function | `onSave` |
+| 340 | value | `BROADCAST_STAGE_GAP` |
+| 342 | function | `stageBroadcasts` |
+| 366 | function | `migrateGameState` |
+| 436 | function | `onLoad` |
+| 496 | function | `onSave` |
 
 ## lua/audio_manifest.lua (1 symbols)
 
@@ -135,12 +137,13 @@
 |---|---|---|
 | 5 | table | `WHATNOW_HINTS` |
 
-## lua/market_data.lua (2 symbols)
+## lua/market_data.lua (3 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 9 | table | `MARKET_COSTS` |
 | 114 | table | `WEAPON_DICE` |
+| 132 | table | `STARTING_ARRIVAL` |
 
 ## lua/threat_types.lua (5 symbols)
 
@@ -165,8 +168,8 @@
 | 9 | value | `NOTEBOOK_QUICKSTART` |
 | 45 | value | `NOTEBOOK_FULL_RULES` |
 | 164 | value | `NOTEBOOK_CHARACTERS` |
-| 216 | value | `HELP_QUICKSTART` |
-| 252 | value | `HELP_GLOSSARY` |
+| 218 | value | `HELP_QUICKSTART` |
+| 254 | value | `HELP_GLOSSARY` |
 
 ## lua/character_briefings.lua (1 symbols)
 
@@ -174,38 +177,42 @@
 |---|---|---|
 | 9 | table | `CHAR_BRIEFINGS` |
 
-## lua/setup.lua (11 symbols)
+## lua/setup.lua (15 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 3 | function | `Setup` |
-| 147 | function | `dealStartingHands` |
-| 204 | function | `dealMarketDisplay` |
-| 245 | value | `DOOM_STEP0_X` |
-| 246 | value | `DOOM_STEP30_X` |
-| 247 | value | `DOOM_TRACK_Z` |
-| 256 | function | `doomStepWorld` |
-| 271 | function | `moveDoomMarker` |
-| 306 | table | `SCENARIOS` |
-| 387 | function | `applyRandomScenario` |
-| 401 | function | `applyScenario` |
+| 165 | value | `STARTING_ROW_DIST` |
+| 166 | value | `STARTING_RESERVE_DIST` |
+| 190 | function | `dealStartingHands` |
+| 288 | function | `revealScheduledStartingItems` |
+| 325 | function | `dealMarketDisplay` |
+| 363 | function | `tableOrientationMessages` |
+| 381 | value | `DOOM_STEP0_X` |
+| 382 | value | `DOOM_STEP30_X` |
+| 383 | value | `DOOM_TRACK_Z` |
+| 392 | function | `doomStepWorld` |
+| 407 | function | `moveDoomMarker` |
+| 442 | table | `SCENARIOS` |
+| 523 | function | `applyRandomScenario` |
+| 537 | function | `applyScenario` |
 
 ## lua/day_loop.lua (12 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 5 | function | `BeginDay` |
-| 211 | function | `isBossOnMap` |
-| 218 | function | `countFesteringThreats` |
-| 248 | function | `checkDoomThresholds` |
-| 302 | function | `revealLastDawn` |
-| 346 | function | `revealFirstDawn` |
-| 359 | function | `revealDawnCard` |
-| 417 | function | `_cardSnapshot` |
-| 433 | function | `_findCardAtDawnRevealSpot` |
-| 444 | function | `_dawnCardRevealed` |
-| 483 | function | `beginDusk` |
-| 629 | function | `beginNight` |
+| 216 | function | `isBossOnMap` |
+| 223 | function | `countFesteringThreats` |
+| 253 | function | `checkDoomThresholds` |
+| 307 | function | `revealLastDawn` |
+| 351 | function | `revealFirstDawn` |
+| 364 | function | `revealDawnCard` |
+| 422 | function | `_cardSnapshot` |
+| 438 | function | `_findCardAtDawnRevealSpot` |
+| 449 | function | `_dawnCardRevealed` |
+| 488 | function | `beginDusk` |
+| 634 | function | `beginNight` |
 
 ## lua/turns.lua (12 symbols)
 
@@ -799,8 +806,8 @@
 | 648 | function | `onBriefBack` |
 | 669 | function | `onBriefDismiss` |
 | 698 | function | `finalizeGuidedSetup` |
-| 831 | function | `showWelcomeSequence` |
-| 867 | function | `onHostSetupGuided` |
+| 840 | function | `showWelcomeSequence` |
+| 883 | function | `onHostSetupGuided` |
 
 ## lua/ui_help.lua (20 symbols)
 
@@ -943,6 +950,7 @@
 | `BOSS_BASE_STATS` | lua/actions_combat.lua | 24 |
 | `BOSS_KILL_NARRATIONS` | lua/combat.lua | 36 |
 | `BROADCAST_COLORS` | lua/global.lua | 316 |
+| `BROADCAST_STAGE_GAP` | lua/global.lua | 340 |
 | `BTN_DARK_PLATE` | lua/helpers.lua | 69 |
 | `BTN_ON_DARK` | lua/helpers.lua | 70 |
 | `BeginDay` | lua/day_loop.lua | 5 |
@@ -971,20 +979,20 @@
 | `DIFFICULTY_CYCLE` | lua/ui_setup.lua | 250 |
 | `DIFFICULTY_PARAMS` | lua/global.lua | 207 |
 | `DOOM_RATES` | lua/global.lua | 270 |
-| `DOOM_STEP0_X` | lua/setup.lua | 245 |
-| `DOOM_STEP30_X` | lua/setup.lua | 246 |
+| `DOOM_STEP0_X` | lua/setup.lua | 381 |
+| `DOOM_STEP30_X` | lua/setup.lua | 382 |
 | `DOOM_THRESHOLDS` | lua/global.lua | 144 |
 | `DOOM_THRESHOLD_RULES` | lua/ui_rules.lua | 25 |
-| `DOOM_TRACK_Z` | lua/setup.lua | 247 |
+| `DOOM_TRACK_Z` | lua/setup.lua | 383 |
 | `EFFECT_RULES` | lua/ui_rules.lua | 37 |
 | `EFFECT_RULE_ORDER` | lua/ui_rules.lua | 69 |
 | `ENABLED_ACTIONS` | lua/ui_actionbar_display.lua | 204 |
 | `HARD_THREAT_SPECIALS` | lua/threat_hard.lua | 36 |
 | `HEART_SUPPLY_MAX` | lua/global.lua | 172 |
-| `HELP_GLOSSARY` | lua/notebook_data.lua | 252 |
+| `HELP_GLOSSARY` | lua/notebook_data.lua | 254 |
 | `HELP_PAGE_LINES` | lua/ui_help_pages.lua | 29 |
 | `HELP_PAGE_LINE_CHARS` | lua/ui_help_pages.lua | 30 |
-| `HELP_QUICKSTART` | lua/notebook_data.lua | 216 |
+| `HELP_QUICKSTART` | lua/notebook_data.lua | 218 |
 | `HIGHLIGHT_DURATION` | lua/ui_actionbar_core.lua | 112 |
 | `LAST_NERVE_THRESHOLD` | lua/helpers.lua | 428 |
 | `LIGHTING_PRESETS` | lua/ui_mood.lua | 13 |
@@ -1020,7 +1028,7 @@
 | `RESOURCE_TYPES_LIST` | lua/helpers.lua | 136 |
 | `REVIVE_HEALTH_COST` | lua/global.lua | 167 |
 | `ResolveNight` | lua/night.lua | 36 |
-| `SCENARIOS` | lua/setup.lua | 306 |
+| `SCENARIOS` | lua/setup.lua | 442 |
 | `SCHEMA_VERSION` | lua/global.lua | 8 |
 | `SEALED_REWARDS` | lua/threat_types.lua | 185 |
 | `SELFTEST` | lua/selftest.lua | 19 |
@@ -1030,6 +1038,9 @@
 | `SOFT_THREAT_EFFECTS` | lua/threat_effects.lua | 60 |
 | `SOURCE_MAX_HP` | lua/combat.lua | 98 |
 | `SOURCE_SPLIT_HP` | lua/combat.lua | 99 |
+| `STARTING_ARRIVAL` | lua/market_data.lua | 132 |
+| `STARTING_RESERVE_DIST` | lua/setup.lua | 166 |
+| `STARTING_ROW_DIST` | lua/setup.lua | 165 |
 | `SUBPHASE_RULES` | lua/ui_rules.lua | 11 |
 | `Setup` | lua/setup.lua | 3 |
 | `THREAT_STATS` | lua/threat_types.lua | 124 |
@@ -1048,11 +1059,11 @@
 | `WITNESS_SANITY_COST` | lua/actions_haunted.lua | 24 |
 | `_armTargetTimeout` | lua/ui_actionbar_targets.lua | 74 |
 | `_cardIdFromTags` | lua/ui_actionbar_core.lua | 176 |
-| `_cardSnapshot` | lua/day_loop.lua | 417 |
+| `_cardSnapshot` | lua/day_loop.lua | 422 |
 | `_checkIdle` | lua/turns.lua | 18 |
 | `_cookDialogIds` | lua/ui_actionbar_handlers.lua | 102 |
-| `_dawnCardRevealed` | lua/day_loop.lua | 444 |
-| `_findCardAtDawnRevealSpot` | lua/day_loop.lua | 433 |
+| `_dawnCardRevealed` | lua/day_loop.lua | 449 |
+| `_findCardAtDawnRevealSpot` | lua/day_loop.lua | 438 |
 | `_handleStandeeDrop` | lua/ui_actionbar_targets.lua | 183 |
 | `_highlightCleanseTargets` | lua/ui_actionbar_targets.lua | 507 |
 | `_highlightCookTargets` | lua/ui_actionbar_targets.lua | 502 |
@@ -1089,8 +1100,8 @@
 | `announcePersistentThreat` | lua/threat_persistent.lua | 237 |
 | `applyCounterAttack` | lua/combat_resolve.lua | 148 |
 | `applyPathVariant` | lua/ui_actionbar_core.lua | 68 |
-| `applyRandomScenario` | lua/setup.lua | 387 |
-| `applyScenario` | lua/setup.lua | 401 |
+| `applyRandomScenario` | lua/setup.lua | 523 |
+| `applyScenario` | lua/setup.lua | 537 |
 | `applyThreatDefeat` | lua/combat_resolve.lua | 98 |
 | `applyTooltips` | lua/ui_controls.lua | 390 |
 | `auditBoardGeometry` | lua/audit.lua | 84 |
@@ -1101,8 +1112,8 @@
 | `auditTooltips` | lua/audit.lua | 137 |
 | `beginCombat` | lua/combat_resolve.lua | 265 |
 | `beginDayPhase` | lua/turns.lua | 40 |
-| `beginDusk` | lua/day_loop.lua | 483 |
-| `beginNight` | lua/day_loop.lua | 629 |
+| `beginDusk` | lua/day_loop.lua | 488 |
+| `beginNight` | lua/day_loop.lua | 634 |
 | `benchUnusedBoards` | lua/helpers.lua | 344 |
 | `benchUnusedCharacters` | lua/helpers.lua | 318 |
 | `boardArtUrl` | lua/ui_actionbar_core.lua | 62 |
@@ -1135,7 +1146,7 @@
 | `checkAchievements` | lua/achievements.lua | 88 |
 | `checkBonusVictories` | lua/tick_victory.lua | 442 |
 | `checkDefeat` | lua/tick_victory.lua | 382 |
-| `checkDoomThresholds` | lua/day_loop.lua | 248 |
+| `checkDoomThresholds` | lua/day_loop.lua | 253 |
 | `checkDownState` | lua/tick_victory.lua | 215 |
 | `checkPlayerHasLight` | lua/night.lua | 373 |
 | `checkSourcePhase` | lua/combat.lua | 152 |
@@ -1155,11 +1166,11 @@
 | `consumeCarriedItem` | lua/helpers.lua | 468 |
 | `cookTelltaleHeart` | lua/crafting.lua | 411 |
 | `countDuskReady` | lua/turns.lua | 298 |
-| `countFesteringThreats` | lua/day_loop.lua | 218 |
+| `countFesteringThreats` | lua/day_loop.lua | 223 |
 | `crockpotAt` | lua/helpers.lua | 512 |
 | `customUIHidden` | lua/ui_controls.lua | 106 |
-| `dealMarketDisplay` | lua/setup.lua | 204 |
-| `dealStartingHands` | lua/setup.lua | 147 |
+| `dealMarketDisplay` | lua/setup.lua | 325 |
+| `dealStartingHands` | lua/setup.lua | 190 |
 | `describeDoomDelta` | lua/global.lua | 297 |
 | `describeItemEffect` | lua/items.lua | 51 |
 | `dispatchDawnEffect` | lua/effects/dawn_effects_dispatch.lua | 85 |
@@ -1189,7 +1200,7 @@
 | `doUndo` | lua/actions.lua | 28 |
 | `doUseItem` | lua/items.lua | 119 |
 | `doWitness` | lua/actions_haunted.lua | 59 |
-| `doomStepWorld` | lua/setup.lua | 256 |
+| `doomStepWorld` | lua/setup.lua | 392 |
 | `downedAlliesHere` | lua/ui_actionbar_situational.lua | 39 |
 | `drawThreatsAt` | lua/night.lua | 97 |
 | `dropBossLoot` | lua/combat.lua | 54 |
@@ -1261,7 +1272,7 @@
 | `importAchievementCode` | lua/achievements.lua | 136 |
 | `isAchievementUnlocked` | lua/achievements.lua | 37 |
 | `isAdjacent` | lua/helpers.lua | 497 |
-| `isBossOnMap` | lua/day_loop.lua | 211 |
+| `isBossOnMap` | lua/day_loop.lua | 216 |
 | `isClueCard` | lua/clues.lua | 40 |
 | `isGuidedSetupRunning` | lua/ui_setup.lua | 19 |
 | `isLiveObject` | lua/helpers.lua | 36 |
@@ -1272,8 +1283,8 @@
 | `markBossDefeated` | lua/combat.lua | 231 |
 | `markTurnStart` | lua/telemetry.lua | 89 |
 | `maybeJamesReroll` | lua/combat_resolve.lua | 235 |
-| `migrateGameState` | lua/global.lua | 341 |
-| `moveDoomMarker` | lua/setup.lua | 271 |
+| `migrateGameState` | lua/global.lua | 366 |
+| `moveDoomMarker` | lua/setup.lua | 407 |
 | `noteInteraction` | lua/turns.lua | 14 |
 | `nudgeCameraAll` | lua/ui_mood.lua | 183 |
 | `nudgeCameraToBoss` | lua/ui_mood.lua | 201 |
@@ -1338,8 +1349,8 @@
 | `onHostEndTurn` | lua/ui_controls.lua | 216 |
 | `onHostResolveNight` | lua/ui_controls.lua | 203 |
 | `onHostRestart` | lua/ui_controls.lua | 233 |
-| `onHostSetupGuided` | lua/ui_setup.lua | 867 |
-| `onLoad` | lua/global.lua | 411 |
+| `onHostSetupGuided` | lua/ui_setup.lua | 883 |
+| `onLoad` | lua/global.lua | 436 |
 | `onMoveTargetClick` | lua/ui_actionbar_targets.lua | 360 |
 | `onMsgLogClear` | lua/ui_msglog.lua | 65 |
 | `onMsgLogHide` | lua/ui_msglog.lua | 70 |
@@ -1360,7 +1371,7 @@
 | `onRestHunger` | lua/ui_actionbar_handlers.lua | 205 |
 | `onRestSanity` | lua/ui_actionbar_handlers.lua | 216 |
 | `onRulesToggle` | lua/ui_rules.lua | 327 |
-| `onSave` | lua/global.lua | 471 |
+| `onSave` | lua/global.lua | 496 |
 | `onSignatureCancel` | lua/signatures.lua | 279 |
 | `onSignatureTargetClick` | lua/signatures.lua | 264 |
 | `onSummaryClose` | lua/ui_controls.lua | 351 |
@@ -1453,10 +1464,11 @@
 | `resolveTick` | lua/tick_victory.lua | 8 |
 | `resolveWatchingJar` | lua/trophies.lua | 117 |
 | `resolveWrongness` | lua/effects/dawn_effects_phase2.lua | 86 |
-| `revealDawnCard` | lua/day_loop.lua | 359 |
+| `revealDawnCard` | lua/day_loop.lua | 364 |
 | `revealDuskCommitments` | lua/turns.lua | 240 |
-| `revealFirstDawn` | lua/day_loop.lua | 346 |
-| `revealLastDawn` | lua/day_loop.lua | 302 |
+| `revealFirstDawn` | lua/day_loop.lua | 351 |
+| `revealLastDawn` | lua/day_loop.lua | 307 |
+| `revealScheduledStartingItems` | lua/setup.lua | 288 |
 | `revealTrophy` | lua/combat.lua | 300 |
 | `reviveCharacter` | lua/tick_victory.lua | 266 |
 | `rollAttackDice` | lua/combat.lua | 10 |
@@ -1481,7 +1493,7 @@
 | `showSignatureTargetDialog` | lua/signatures.lua | 243 |
 | `showSledTargets` | lua/ui_actionbar_situational.lua | 226 |
 | `showWeekInReview` | lua/ui_week_review.lua | 216 |
-| `showWelcomeSequence` | lua/ui_setup.lua | 831 |
+| `showWelcomeSequence` | lua/ui_setup.lua | 840 |
 | `sledCandidates` | lua/trophies.lua | 51 |
 | `snapshotForUndo` | lua/actions.lua | 7 |
 | `sourceSplitIntoBeaks` | lua/combat.lua | 176 |
@@ -1489,6 +1501,7 @@
 | `spawnResourceAtTile` | lua/helpers.lua | 243 |
 | `spendAction` | lua/turns.lua | 183 |
 | `sportCourtSurcharge` | lua/helpers.lua | 533 |
+| `stageBroadcasts` | lua/global.lua | 342 |
 | `startGuidedSetup` | lua/ui_setup.lua | 90 |
 | `startIdleWatcher` | lua/turns.lua | 32 |
 | `startStandeeBob` | lua/ui_banner.lua | 369 |
@@ -1501,6 +1514,7 @@
 | `syncBossHP` | lua/combat.lua | 128 |
 | `syncSourceHP` | lua/combat.lua | 118 |
 | `syncThreatHP` | lua/combat.lua | 144 |
+| `tableOrientationMessages` | lua/setup.lua | 363 |
 | `takeClueFromMarketDeck` | lua/clues.lua | 156 |
 | `takeResourceFromPlayer` | lua/helpers.lua | 270 |
 | `teamHasTrophy` | lua/trophies.lua | 38 |

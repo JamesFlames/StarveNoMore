@@ -166,6 +166,8 @@ CHARACTER REFERENCE
 
 Every character has one Signature — a once-per-game named move, fired from the Signature button. Save it for the moment it matters.
 
+Three of your starting items are laid face up beside your board at Setup; the rest lie face down behind them and turn over on their own day, marked below. You get the same kit either way — you just don't have to read all of it before your first turn.
+
 JAMES — THE GAMER
 - Stats: Health 8 / Hunger 6 / Sanity 10
 - Gaming Reflexes: once per turn reroll one of your own dice.
@@ -181,7 +183,7 @@ COCO — THE ANGEL
 - Light in the Dark: never triggers Charlie attacks.
 - Wanderer's Gift: +1 Sanity every time she Moves — any tile, including one she has already visited.
 - No Home (constraint): end Night alone in a non-house = -3 Sanity.
-- Starting hand: First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery, Friendship Bracelet.
+- Starting hand: First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery (Day 2), Friendship Bracelet (Day 3).
 
 RAYMAN — THE BASKETBALL PLAYER
 - Stats: Health 12 / Hunger 10 / Sanity 6
@@ -191,7 +193,7 @@ RAYMAN — THE BASKETBALL PLAYER
 - Posterize (Signature, 1×): instantly defeat one non-boss threat at your tile — no roll, no counter. The noise: your tile draws +1 Threat tonight.
 - Big Appetite: lose 2 Hunger per day.
 - Loud: if Rayman moved at all today, the location where he spends the Night draws +1 Threat (once — it doesn't stack).
-- Starting hand: Basketball, Sports Drink ×2, Athletic Tape, Whistle.
+- Starting hand: Basketball, Sports Drink ×2, Athletic Tape (Day 2), Whistle (Day 3).
 
 ELLIE — THE COOK
 - Stats: Health 8 / Hunger 10 / Sanity 8
@@ -200,7 +202,7 @@ ELLIE — THE COOK
 - Knows the Pantry: at her own house, pick the exact resources you want (no random draw) — the picker delivers them to your board.
 - The Feast (Signature, 1×): at a Crockpot, cook any number of recipes in a single action (ingredients still required); consumes ALL your held Provisions.
 - Particular Eater (constraint): cannot eat uncooked food.
-- Starting hand: Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron.
+- Starting hand: Crockpot, Cooking Knife, Apron, Soup Recipe (Day 2), Pantry Key (Day 3).
 
 LUCA — THE ORATOR
 - Stats: Health 7 / Hunger 8 / Sanity 10
@@ -209,7 +211,7 @@ LUCA — THE ORATOR
 - Storyteller: allies at his tile +1 Sanity at Night.
 - The Speech (Signature, 1×): every character, anywhere, +2 Sanity. Only usable while an ally is Down or below 3 Sanity.
 - Needs an Audience (constraint): alone, his Sanity does not regenerate.
-- Starting hand: Notebook, Loud Whistle, Pep Talk, Reading Lamp, Toolbox.]==]
+- Starting hand: Notebook, Pep Talk, Reading Lamp, Toolbox (Day 2), Loud Whistle (Day 3).]==]
 
 -- Help panel 'Quick Start' tab (refreshHelpPanel, ui_help.lua)
 -- from content/notebook/quickstart.md

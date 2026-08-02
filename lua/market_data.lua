@@ -122,3 +122,34 @@ WEAPON_DICE.M_TOY_BOW = 1  -- Toy Bow
 WEAPON_DICE.S_BASKETBALL = 1  -- Basketball
 WEAPON_DICE.S_COOKING_KNIFE = 1  -- Cooking Knife
 WEAPON_DICE.S_POCKETKNIFE = 1  -- Pocketknife
+
+-- STARTING_ARRIVAL[card name] = the day that card turns face up.
+-- Day 1 items are dealt face up at Setup; the rest are laid face
+-- DOWN beside the board and revealed at Dawn on their day, so a new
+-- player reads three cards on turn one instead of five.
+-- Read by dealStartingHands / revealScheduledStartingItems (lua/setup.lua).
+
+STARTING_ARRIVAL = {}
+
+STARTING_ARRIVAL["Apron"] = 1
+STARTING_ARRIVAL["Athletic Tape"] = 2
+STARTING_ARRIVAL["Basketball"] = 1
+STARTING_ARRIVAL["Comfort Blanket"] = 1
+STARTING_ARRIVAL["Cooking Knife"] = 1
+STARTING_ARRIVAL["Crockpot"] = 1
+STARTING_ARRIVAL["First Aid Kit"] = 1
+STARTING_ARRIVAL["Flashlight"] = 1
+STARTING_ARRIVAL["Friendship Bracelet"] = 3
+STARTING_ARRIVAL["Headphones"] = 1
+STARTING_ARRIVAL["Hopeful Tea"] = 1
+STARTING_ARRIVAL["Loud Whistle"] = 3
+STARTING_ARRIVAL["Notebook"] = 1
+STARTING_ARRIVAL["Pantry Key"] = 3
+STARTING_ARRIVAL["Pep Talk"] = 1
+STARTING_ARRIVAL["Pocketknife"] = 1
+STARTING_ARRIVAL["Reading Lamp"] = 1
+STARTING_ARRIVAL["Soup Recipe"] = 2
+STARTING_ARRIVAL["Spare Phone Battery"] = 2
+STARTING_ARRIVAL["Sports Drink"] = 1
+STARTING_ARRIVAL["Toolbox"] = 2
+STARTING_ARRIVAL["Whistle"] = 3

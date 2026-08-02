@@ -16,7 +16,6 @@ function Setup(hostColor)
     for name, _ in pairs(PATH_LAYOUTS) do table.insert(variants, name) end
     table.sort(variants)   -- gameRoll must index a stable list
     local pick = applyPathVariant(variants[gameRoll(#variants)])
-    broadcastEvent("proc", "Path layout: " .. pick .. " (the lines printed on the board are the routes you can walk).")
 
     -- 2. Shuffle each Phase deck
     for p = 1, 4 do
@@ -48,6 +47,7 @@ function Setup(hostColor)
     local defaultAssignment = {}
     for name, c in pairs(CHARACTER_COLORS) do defaultAssignment[c] = name end
 
+    local roster = {}   -- one "who is who" line instead of one broadcast each
     for _, color in ipairs(seated) do
         local charName = defaultAssignment[color]
         if charName then
@@ -71,7 +71,7 @@ function Setup(hostColor)
             -- Move standee to its per-character slot at the home tile
             placeCharacterAtTile(charName, home)
 
-            broadcastEvent("proc", charName .. " assigned to " .. color .. ".")
+            roster[#roster + 1] = charName .. " (" .. color .. ")"
         end
     end
 
@@ -119,7 +119,16 @@ function Setup(hostColor)
     -- 7. Mark started
     gameState.started = true
 
-    broadcastEvent("phase", "Setup complete! Day 1 begins. Click 'Begin Day' on the Host Controls panel to reveal the first Dawn card.")
+    -- One idea at a time. Everything below used to fire inside this frame,
+    -- on top of the market blurb and one line per seated character; the table
+    -- got a dozen overlapping broadcasts before anyone had touched a card.
+    local queue = {
+        {"proc", "Playing today: " .. table.concat(roster, ", ") .. "."},
+        {"proc", "Path layout: " .. pick .. " (the lines printed on the board are the routes you can walk)."},
+    }
+    for _, m in ipairs(tableOrientationMessages()) do queue[#queue + 1] = m end
+    queue[#queue + 1] = {"phase", "Setup complete! Day 1 begins. Click 'Begin Day' on the Host Controls panel to reveal the first Dawn card."}
+    stageBroadcasts(queue, 1.0)
 
     -- G.1/G.7: Refresh UI and apply tooltips
     Wait.time(function()
@@ -144,36 +153,121 @@ end
 -- in mid-air (measured at y 9.5 to 24.4, tumbling) and showed only their
 -- "STARTING" backs. They are now laid FACE UP in a neat row just outside the
 -- player's own board, where they read at a glance and cannot float away.
+--
+-- Only the items whose `arrives` day is 1 come up face up — three per
+-- character. The rest lie FACE DOWN in a second row behind them and turn over
+-- at Dawn on their day (revealScheduledStartingItems). Five unique rules texts
+-- per player, all landing before anyone has taken a single action, was the
+-- biggest source of turn-one overload at the table, and the held-back cards
+-- are the conditional single-use ones whose text means nothing until you know
+-- the rule it hooks into (Pantry Key, Whistle, Toolbox, Spare Battery). Same
+-- total power over the week, a third of the reading up front.
+STARTING_ROW_DIST     = 3.2   -- distance out from the board: today's items
+STARTING_RESERVE_DIST = 4.6   -- ...and the face-down "not yet" row behind them
+
+-- One slot in a row laid along the board's long edge, pushed OUTWARD (away
+-- from the map) so the cards never cover the board or the play area.
+local function _startingRowSpot(base, ox, oz, dist, idx, count)
+    local px_, pz_ = -oz, ox          -- perpendicular: the row direction
+    local offset = (idx - 1) - (count - 1) / 2
+    return {
+        base.x + ox * dist + px_ * offset * 1.3,
+        base.y + 0.6 + idx * 0.05,
+        base.z + oz * dist + pz_ * offset * 1.3,
+    }
+end
+
+-- "Day 2" / "Day 2 and Day 3" — for the message that tells a player the
+-- face-down row is not something they have to read yet.
+local function _dayPhrase(days)
+    table.sort(days)
+    local out = {}
+    for _, d in ipairs(days) do out[#out + 1] = "Day " .. tostring(d) end
+    if #out <= 1 then return out[1] or "" end
+    return table.concat(out, " and ", 1, #out - 1) .. " and " .. out[#out]
+end
+
 function dealStartingHands()
     for color, char in pairs(gameState.activeChars) do
         local deck = findOneByTag("StartingHand:" .. char.name)
         local board = getPlayerBoard(char.name)
         if deck and board then
-            local n = deck.getQuantity and deck.getQuantity() or 0
             local base = board.getPosition()
-            -- Lay them along the board's long edge, pushed OUTWARD (away from
-            -- the map) so they never cover the board or the play area.
             local outward = Vector(base.x, 0, base.z)
             local len = math.sqrt(outward.x * outward.x + outward.z * outward.z)
             if len < 0.01 then outward = Vector(0, 0, -1); len = 1 end
             local ox, oz = outward.x / len, outward.z / len
-            local px_, pz_ = -oz, ox          -- perpendicular: the row direction
-            for i = 1, n do
-                local offset = (i - 1) - (n - 1) / 2
+
+            -- Snapshot the whole deal off the deck handle while it is known
+            -- good (docs/tts-interface.md Rule 2), then take by guid. Sorted
+            -- so today's items are taken FIRST: if the final take ever loses
+            -- its handle to the deck collapsing, what strands is a card
+            -- nobody needed yet rather than a weapon.
+            local plan = {}
+            for i, entry in ipairs(deck.getObjects() or {}) do
+                local nick = entry.nickname or entry.name or ""
+                plan[#plan + 1] = {
+                    guid  = entry.guid,
+                    day   = (STARTING_ARRIVAL or {})[nick] or 1,
+                    order = i,
+                }
+            end
+            table.sort(plan, function(a, b)
+                if a.day ~= b.day then return a.day < b.day end
+                return a.order < b.order
+            end)
+
+            local today, later, laterDays = 0, 0, {}
+            for _, p in ipairs(plan) do
+                if p.day <= 1 then
+                    today = today + 1
+                else
+                    later = later + 1
+                    laterDays[p.day] = true
+                end
+            end
+
+            local ti, li = 0, 0
+            for _, p in ipairs(plan) do
+                local faceUp = (p.day <= 1)
+                local spot, reserveTag
+                if faceUp then
+                    ti = ti + 1
+                    spot = _startingRowSpot(base, ox, oz, STARTING_ROW_DIST, ti, today)
+                else
+                    li = li + 1
+                    spot = _startingRowSpot(base, ox, oz, STARTING_RESERVE_DIST, li, later)
+                    reserveTag = "StartingReserve:" .. color .. ":" .. tostring(p.day)
+                end
                 safecall(function()
+                    if not isLiveObject(deck) then return end
                     deck.takeObject({
-                        position = {
-                            base.x + ox * 3.2 + px_ * offset * 1.3,
-                            base.y + 0.6 + i * 0.05,
-                            base.z + oz * 3.2 + pz_ * offset * 1.3,
-                        },
-                        rotation = {0, 180, 0},   -- face up
+                        guid     = p.guid,
+                        position = spot,
+                        -- rz 0 = face up, 180 = face down. These cards carry
+                        -- HideWhenFaceDown, so a reserve card shows nothing
+                        -- but its "STARTING" back until its day comes.
+                        rotation = {0, 180, faceUp and 0 or 180},
                         smooth   = false,
+                        callback_function = function(c)
+                            -- pcall: the outer safecall wraps takeObject, not
+                            -- this callback, whose handle can already be dead.
+                            if reserveTag then
+                                pcall(function() c.addTag(reserveTag) end)
+                            end
+                        end,
                     })
                 end, "StartingItems")
             end
-            broadcastToColor(char.name .. "'s starting items are face up beside your player board — hover each card to see what it does.",
-                color, BROADCAST_COLORS.gain)
+
+            local msg = char.name .. "'s starting items are face up beside your player board — hover each card to see what it does."
+            if later > 0 then
+                local days = {}
+                for d in pairs(laterDays) do days[#days + 1] = d end
+                msg = msg .. " The " .. later .. " face-down cards behind them are the rest of your kit; they turn over on " ..
+                    _dayPhrase(days) .. ". Nothing to read there yet."
+            end
+            broadcastToColor(msg, color, BROADCAST_COLORS.gain)
         end
         if char.name == "James" then
             -- Through giveResource so the authoritative count is set, not
@@ -181,6 +275,33 @@ function dealStartingHands()
             giveResource(color, "EnergyDrink", 2)
             broadcastToColor("James starts with 2 Energy Drinks by his player board — Wired burns one per day.",
                 color, BROADCAST_COLORS.warn)
+        end
+    end
+end
+
+-----------------------------------------------------------------------
+-- Turn over the starting items Setup held back. Called from BeginDay once the
+-- day number has advanced, so a card marked `arrives = 2` is face up before
+-- that day's first action. A no-op on Day 1 (nothing is ever tagged for it)
+-- and on any day a character has nothing left in reserve.
+-----------------------------------------------------------------------
+function revealScheduledStartingItems(day)
+    for color, char in pairs(gameState.activeChars or {}) do
+        local tag = "StartingReserve:" .. color .. ":" .. tostring(day)
+        local names = {}
+        for _, card in ipairs(findAllByTag(tag)) do
+            names[#names + 1] = safeNickname(card)
+            safecall(function()
+                card.setRotationSmooth({0, 180, 0}, false, true)   -- face up
+                -- Untag as we go: the reveal is then idempotent if a day ever
+                -- begins twice (a reloaded save, a re-run BeginDay).
+                pcall(function() card.removeTag(tag) end)
+            end, "StartingReveal")
+        end
+        if #names > 0 then
+            broadcastToColor("The rest of " .. char.name .. "'s kit is face up now: " ..
+                table.concat(names, ", ") .. ". Hover each card to see what it does.",
+                color, BROADCAST_COLORS.gain)
         end
     end
 end
@@ -222,13 +343,28 @@ function dealMarketDisplay()
                 })
             end
         end
-        -- Playtest: "who do these cards belong to?" — say it out loud.
-        -- Only describe things that are ON the table. This used to point at
-        -- "the card row south of the map" for recipes; that row moved into
-        -- the hidden library when the board was decluttered, so players went
-        -- looking for a row that isn't there ("I don't see any card row").
-        broadcastEvent("proc", "The 5 face-up cards west of the map are the shared MARKET — they belong to nobody until someone buys one with the Craft action; hover one to see what it does. Recipes for the Cook action are listed in the action itself, the Notebook, and the ? panel.")
     end, 0.5)
+end
+
+-----------------------------------------------------------------------
+-- The orientation a new table needs, one idea per message, for whichever
+-- Setup path ran. Both callers hand these to stageBroadcasts rather than
+-- firing them here, because dealing the market is not the moment to talk.
+--
+-- Playtest: "who do these cards belong to?" — so say it out loud. Only
+-- describe things that are ON the table: this used to point at "the card row
+-- south of the map" for recipes, and that row moved into the hidden library
+-- when the board was decluttered, so players went looking for a row that
+-- isn't there ("I don't see any card row"). It was also one three-clause
+-- paragraph, which is how the ownership answer kept getting missed — it was
+-- in clause two, on screen for four seconds, under a stack of other
+-- broadcasts.
+-----------------------------------------------------------------------
+function tableOrientationMessages()
+    return {
+        {"proc", "The 5 face-up cards west of the map are the shared MARKET. They belong to nobody until someone buys one with the Craft action — hover one to see what it does."},
+        {"proc", "Recipes for the Cook action are listed in the action itself, in the Notebook, and in the ? panel. Nothing to memorise."},
+    }
 end
 
 -- Rest height of the locked Doom marker on the board top (mirrors the

@@ -339,6 +339,16 @@
     "doc": "Broadcast helpers (F.15 + G.8 prep)"
    }
   ],
+  "BROADCAST_STAGE_GAP": [
+   {
+    "file": "lua/global.lua",
+    "line": 340,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "Setup used to fire a dozen broadcasts inside one frame. TTS stacks them and fades them together, so a new table reads the first two and loses the rest — everyt…"
+   }
+  ],
   "BTN_DARK_PLATE": [
    {
     "file": "lua/helpers.lua",
@@ -622,7 +632,7 @@
   "DOOM_STEP0_X": [
    {
     "file": "lua/setup.lua",
-    "line": 245,
+    "line": 381,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -632,7 +642,7 @@
   "DOOM_STEP30_X": [
    {
     "file": "lua/setup.lua",
-    "line": 246,
+    "line": 382,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -662,7 +672,7 @@
   "DOOM_TRACK_Z": [
    {
     "file": "lua/setup.lua",
-    "line": 247,
+    "line": 383,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -722,7 +732,7 @@
   "HELP_GLOSSARY": [
    {
     "file": "lua/notebook_data.lua",
-    "line": 252,
+    "line": 254,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -752,7 +762,7 @@
   "HELP_QUICKSTART": [
    {
     "file": "lua/notebook_data.lua",
-    "line": 216,
+    "line": 218,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1112,7 +1122,7 @@
   "SCENARIOS": [
    {
     "file": "lua/setup.lua",
-    "line": 306,
+    "line": 442,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1207,6 +1217,36 @@
     "params": null,
     "arity": null,
     "doc": ""
+   }
+  ],
+  "STARTING_ARRIVAL": [
+   {
+    "file": "lua/market_data.lua",
+    "line": 132,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
+  "STARTING_RESERVE_DIST": [
+   {
+    "file": "lua/setup.lua",
+    "line": 166,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
+  "STARTING_ROW_DIST": [
+   {
+    "file": "lua/setup.lua",
+    "line": 165,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "Starting hands (design §6): each character's personal item deck is dealt into their player's hand. James's two Energy Drinks are resource tokens (his Wired eco…"
    }
   ],
   "SUBPHASE_RULES": [
@@ -1396,7 +1436,7 @@
   "_cardSnapshot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 417,
+    "line": 422,
     "kind": "function",
     "params": [
      "obj"
@@ -1428,7 +1468,7 @@
   "_dawnCardRevealed": [
    {
     "file": "lua/day_loop.lua",
-    "line": 444,
+    "line": 449,
     "kind": "function",
     "params": [
      "card",
@@ -1441,7 +1481,7 @@
   "_findCardAtDawnRevealSpot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 433,
+    "line": 438,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1857,7 +1897,7 @@
   "applyRandomScenario": [
    {
     "file": "lua/setup.lua",
-    "line": 387,
+    "line": 523,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1867,7 +1907,7 @@
   "applyScenario": [
    {
     "file": "lua/setup.lua",
-    "line": 401,
+    "line": 537,
     "kind": "function",
     "params": [
      "scenarioId"
@@ -1988,7 +2028,7 @@
   "beginDusk": [
    {
     "file": "lua/day_loop.lua",
-    "line": 483,
+    "line": 488,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1998,7 +2038,7 @@
   "beginNight": [
    {
     "file": "lua/day_loop.lua",
-    "line": 629,
+    "line": 634,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2384,7 +2424,7 @@
   "checkDoomThresholds": [
    {
     "file": "lua/day_loop.lua",
-    "line": 248,
+    "line": 253,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2615,7 +2655,7 @@
   "countFesteringThreats": [
    {
     "file": "lua/day_loop.lua",
-    "line": 218,
+    "line": 223,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2647,7 +2687,7 @@
   "dealMarketDisplay": [
    {
     "file": "lua/setup.lua",
-    "line": 204,
+    "line": 325,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2657,11 +2697,11 @@
   "dealStartingHands": [
    {
     "file": "lua/setup.lua",
-    "line": 147,
+    "line": 190,
     "kind": "function",
     "params": [],
     "arity": 0,
-    "doc": "Starting hands (design §6): each character's personal item deck is dealt into their player's hand. James's two Energy Drinks are resource tokens (his Wired eco…"
+    "doc": ""
    }
   ],
   "describeDoomDelta": [
@@ -3032,7 +3072,7 @@
   "doomStepWorld": [
    {
     "file": "lua/setup.lua",
-    "line": 256,
+    "line": 392,
     "kind": "function",
     "params": [
      "step"
@@ -3849,7 +3889,7 @@
   "isBossOnMap": [
    {
     "file": "lua/day_loop.lua",
-    "line": 211,
+    "line": 216,
     "kind": "function",
     "params": [
      "bossTag"
@@ -3977,7 +4017,7 @@
   "migrateGameState": [
    {
     "file": "lua/global.lua",
-    "line": 341,
+    "line": 366,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3987,7 +4027,7 @@
   "moveDoomMarker": [
    {
     "file": "lua/setup.lua",
-    "line": 271,
+    "line": 407,
     "kind": "function",
     "params": [
      "targetStep"
@@ -4880,7 +4920,7 @@
   "onHostSetupGuided": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 867,
+    "line": 883,
     "kind": "function",
     "params": [
      "player",
@@ -4894,7 +4934,7 @@
   "onLoad": [
    {
     "file": "lua/global.lua",
-    "line": 411,
+    "line": 436,
     "kind": "function",
     "params": [
      "savedState"
@@ -5185,7 +5225,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 471,
+    "line": 496,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6293,7 +6333,7 @@
   "revealDawnCard": [
    {
     "file": "lua/day_loop.lua",
-    "line": 359,
+    "line": 364,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6313,7 +6353,7 @@
   "revealFirstDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 346,
+    "line": 351,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6323,11 +6363,23 @@
   "revealLastDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 302,
+    "line": 307,
     "kind": "function",
     "params": [],
     "arity": 0,
     "doc": ""
+   }
+  ],
+  "revealScheduledStartingItems": [
+   {
+    "file": "lua/setup.lua",
+    "line": 288,
+    "kind": "function",
+    "params": [
+     "day"
+    ],
+    "arity": 1,
+    "doc": "Turn over the starting items Setup held back. Called from BeginDay once the day number has advanced, so a card marked `arrives = 2` is face up before that day'…"
    }
   ],
   "revealTrophy": [
@@ -6631,7 +6683,7 @@
   "showWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 831,
+    "line": 840,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6723,6 +6775,19 @@
     ],
     "arity": 2,
     "doc": "P2_STRANGER_WAVES (sportCourtHungerCost): every step that touches a sport court costs +1 Hunger until next Dawn. Shared by all four ways a character changes ti…"
+   }
+  ],
+  "stageBroadcasts": [
+   {
+    "file": "lua/global.lua",
+    "line": 342,
+    "kind": "function",
+    "params": [
+     "msgs",
+     "startDelay"
+    ],
+    "arity": 2,
+    "doc": ""
    }
   ],
   "startGuidedSetup": [
@@ -6865,6 +6930,16 @@
     ],
     "arity": 2,
     "doc": "Threat-card damage that survives between Fight actions (and saves): a 4 HP Shadow Stalker chipped for 2 today is a 2 HP fight tomorrow. Keyed by card GUID; cle…"
+   }
+  ],
+  "tableOrientationMessages": [
+   {
+    "file": "lua/setup.lua",
+    "line": 363,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "The orientation a new table needs, one idea per message, for whichever Setup path ran. Both callers hand these to stageBroadcasts rather than firing them here,…"
    }
   ],
   "takeClueFromMarketDeck": [

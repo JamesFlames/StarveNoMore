@@ -284,3 +284,93 @@ class TestDoomTrackLength:
     def test_overshoot_pins_to_the_last_cell_of_the_active_track(self, env):
         env.execute('gameState.difficulty = "weekend"')
         assert self._x(env, 40) == pytest.approx(self._x(env, 15), abs=0.001)
+
+
+# ---------------------------------------------------------------------------
+
+
+class TestStartingHandArrivals:
+    """Setup deals only the starting items marked `arrives = 1` face up; the
+    rest lie face down beside the board and turn over on their day. Five unique
+    rules texts landing before anyone has acted was the turn-one overload, and
+    the held-back cards are the conditional single-use ones whose text means
+    nothing until you know the rule they hook into.
+
+    Ellie is the useful case: her day-1 items are rows 1, 3 and 5 of her block
+    in cards_starting.csv, so a deal that just took the top three off the deck
+    would hand her the Soup Recipe and miss the Apron.
+    """
+
+    # (nickname, arrives) — mirrors Ellie's block of content/cards_starting.csv.
+    ELLIE_DECK = [("Crockpot", 1), ("Soup Recipe", 2), ("Cooking Knife", 1),
+                  ("Pantry Key", 3), ("Apron", 1)]
+
+    def _deal(self, env):
+        populate_full_world(env)
+        add_char(env, "Yellow", "Ellie")
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["StartingHandDeck", "StartingHand:Ellie"],
+            "position": [30, 1, 30],
+            # Explicit guids: dealStartingHands takes by guid, and the stub
+            # only falls back to positional ids, which shift as cards leave.
+            "contained": [{"nickname": n, "guid": f"ELLIE{i}",
+                           "tags": ["StartingItem"]}
+                          for i, (n, _) in enumerate(self.ELLIE_DECK)],
+        }))
+        env.globals().dealStartingHands()
+        flush(env)
+
+    def _tags(self, env):
+        """nickname -> its tags as one string, for every item now on the table."""
+        return lua_to_py(env.eval('''(function()
+            local out = {}
+            for _, o in ipairs(findAllByTag("StartingItem")) do
+                out[o.getNickname()] = table.concat(o.getTags(), " ")
+            end
+            return out
+        end)()'''))
+
+    def _rotation(self, env, nickname):
+        return lua_to_py(env.eval('''(function(want)
+            for _, o in ipairs(findAllByTag("StartingItem")) do
+                if o.getNickname() == want then
+                    local r = o.getRotation()
+                    return { r.x, r.y, r.z }
+                end
+            end
+        end)''')(nickname))
+
+    def test_three_items_open_face_up_and_the_rest_are_held_back(self, env):
+        self._deal(env)
+        tags = self._tags(env)
+        assert len(tags) == 5, f"every card should leave the deck: {sorted(tags)}"
+        open_now = sorted(n for n, t in tags.items() if "StartingReserve" not in t)
+        assert open_now == ["Apron", "Cooking Knife", "Crockpot"], (
+            "the arrives=1 items are what a player reads on turn one; got "
+            f"{open_now}")
+
+    def test_held_back_items_are_tagged_with_the_day_they_arrive(self, env):
+        self._deal(env)
+        tags = self._tags(env)
+        assert "StartingReserve:Yellow:2" in tags["Soup Recipe"]
+        assert "StartingReserve:Yellow:3" in tags["Pantry Key"]
+
+    def test_day_two_turns_over_only_that_days_card(self, env):
+        self._deal(env)
+        env.globals().revealScheduledStartingItems(2)
+        flush(env)
+        tags = self._tags(env)
+        assert "StartingReserve" not in tags["Soup Recipe"], (
+            "the day-2 card should be revealed and untagged")
+        assert self._rotation(env, "Soup Recipe") == [0, 180, 0], "not turned face up"
+        assert "StartingReserve:Yellow:3" in tags["Pantry Key"], (
+            "Day 2 must not spill the Day 3 card as well")
+
+    def test_day_one_reveals_nothing(self, env):
+        # BeginDay calls this every day including the first, where the whole
+        # point is that nothing extra arrives.
+        self._deal(env)
+        before = self._tags(env)
+        env.globals().revealScheduledStartingItems(1)
+        flush(env)
+        assert self._tags(env) == before

@@ -94,7 +94,7 @@ Both are computed from data the build already tracks; **nothing new is recorded 
 
 1. Place the **Main Board** in the center.
 2. Place the 5 **Location Tiles** on their snap points; insert path-edge cards between them per the chosen variant (Compact / Sprawl / Linear).
-3. Each player chooses a **Character**, takes the matching player board, standee, stat markers, and starting hand.
+3. Each player chooses a **Character**, takes the matching player board, standee, stat markers, and starting hand. Lay out only the **3 items marked `arrives = 1`** (`content/cards_starting.csv`) face up; the rest go face down beside them and turn over at Dawn on Day 2 and Day 3. Same kit over the week — three rules texts to read on turn one instead of five.
 4. Place each character standee at their own house. Coco starts at Ellie & Luca's House.
 5. Set Health/Hunger/Sanity sliders to each character's starting values.
 6. Shuffle each Phase deck separately. Stack them in order (Phase 1 on top).

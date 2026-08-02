@@ -32,7 +32,7 @@ Every component is sized, type-marked, and TTS-mappable. The "TTS Object" column
 
 ## 6. Characters
 
-Each character is a **mechanical hook + a constraint + a starting hand of 5 cards**. Asymmetry follows the Cthulhu Wars principle (different rules, not just different stats; see InterestingGames.md §3.3.1).
+Each character is a **mechanical hook + a constraint + a starting hand of 5 cards**, of which **3 are laid out face up at Setup** and the remaining ones arrive on Days 2 and 3 (§17.1). Asymmetry follows the Cthulhu Wars principle (different rules, not just different stats; see InterestingGames.md §3.3.1).
 
 ### 6.1 James — The Gamer
 
@@ -55,7 +55,7 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Signature: Touch of Hope (once per game, §6.7).** Heal any character on the map by 4 Health, regardless of distance.
 - **Perk: Light in the Dark.** Coco never triggers Charlie attacks (see §15.4).
 - **Constraint: No Home.** Coco does not have a house tile. Each night she must declare a location that contains another player; if she ends the night alone in a non-house tile she loses 3 Sanity.
-- **Starting hand:** First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery, Friendship Bracelet.
+- **Starting hand:** First Aid Kit, Comfort Blanket, Hopeful Tea, Spare Phone Battery (Day 2), Friendship Bracelet (Day 3).
 - **Plays best with:** Anyone — Coco is a glue character.
 
 ### 6.3 Rayman — The Basketball Player
@@ -69,7 +69,7 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Signature: Posterize (once per game, §6.7).** Instantly defeat one non-boss threat at his tile — no roll, no counter. The noise: his tile draws +1 Threat tonight.
 - **Constraint: Big Appetite.** Loses 2 Hunger per day Tick (other characters lose 1).
 - **Constraint: Loud.** If Rayman moved at all today (any Move, his Speed bonus step, or a Dusk scramble), the location where he spends the Night draws **1 extra Threat card**. It triggers at most once per night and follows him — the noise comes home with him. Tiles he merely passed through are unaffected. A day spent standing still is a quiet one, which makes "does Rayman move today?" a real team decision rather than a per-step tax.
-- **Starting hand:** Basketball (improvised weapon), Sports Drink ×2, Athletic Tape, Whistle.
+- **Starting hand:** Basketball (improvised weapon), Sports Drink ×2, Athletic Tape (Day 2), Whistle (Day 3).
 - **Plays best with:** Ellie (food management), Luca (Sanity).
 
 ### 6.4 Ellie — The Cook
@@ -82,7 +82,7 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Perk: Knows the Pantry.** When at Ellie & Luca's House, Ellie may search the resource bag for a specific Provisions or Cooking Ingredient (does not draw randomly).
 - **Signature: The Feast (once per game, §6.7).** Cook any number of recipes in a single action (ingredients still required, at a Crockpot); consumes **all** her held Provisions.
 - **Constraint: Particular Eater.** Ellie cannot eat uncooked food. (Other characters can spend a Provisions token uncooked for partial Hunger; Ellie cannot.)
-- **Starting hand:** Crockpot, Soup Recipe, Cooking Knife, Pantry Key, Apron (item).
+- **Starting hand:** Crockpot, Cooking Knife, Apron, Soup Recipe (Day 2), Pantry Key (Day 3).
 - **Plays best with:** Rayman (he eats a lot), Luca (housemate synergy).
 
 ### 6.5 Luca — The Orator
@@ -95,7 +95,7 @@ Each character is a **mechanical hook + a constraint + a starting hand of 5 card
 - **Perk: Storyteller.** During Night, players in Luca's location regain +1 Sanity.
 - **Signature: The Speech (once per game, §6.7).** Every character, anywhere, gains +2 Sanity. Only speakable while an ally is Down or below 3 Sanity — it has to *matter*.
 - **Constraint: Needs an Audience.** Luca regenerates Sanity only when at least one other player is in his location. Alone, his Sanity does not regenerate.
-- **Starting hand:** Notebook, Loud Whistle, Pep-Talk (single-use card), Reading Lamp, Toolbox.
+- **Starting hand:** Notebook, Pep-Talk (single-use card), Reading Lamp, Toolbox (Day 2), Loud Whistle (Day 3).
 - **Plays best with:** Anyone with low Sanity (he supports them).
 
 ### 6.6 Character Selection and Group Composition

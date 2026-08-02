@@ -40,6 +40,11 @@ function BeginDay()
 
     broadcastEvent("phase", "--- Day " .. gameState.day .. " of " .. getTotalDays() .. " --- Phase " .. gameState.phase .. " ---")
 
+    -- Setup deals only the starting items marked `arrives = 1`; the rest lie
+    -- face down beside each board so turn one is three cards to read, not
+    -- five. They turn over here, on their day, before anyone acts.
+    safecall(function() revealScheduledStartingItems(gameState.day) end, "StartingReveal")
+
     -- Phase 2.5 foreshadow: the Treeguard wakes at Dusk tonight (Design §14.2).
     if gameState.day == 4 and not gameState.treeguard then
         broadcastEvent("warn", "The trees remember every plank you took. Something in the courts is breathing slower than the wind...")

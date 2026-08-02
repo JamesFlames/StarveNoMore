@@ -19,7 +19,8 @@ split at its natural seams. Open the topic, not this index.
 | [balance-location-defence.md](balance-location-defence.md) | 1.3k | read the batch-5 verdict on the §7.1-7.5 defence roll |
 | [ux-affordances.md](ux-affordances.md) | 2.1k | keep "the next legal action is always visible" true |
 | [audio.md](audio.md) | 1.2k | add or change a sound |
-| [comfyui.md](comfyui.md) | 2.2k | regenerate card or board art |
+| [comfyui.md](comfyui.md) | 1.9k | regenerate card or board art |
+| [derived-art.md](derived-art.md) | 0.7k | new tile or standee art that isn't showing up in game |
 | [working-with-this-project.md](working-with-this-project.md) | 0.8k | make any change, day to day |
 
 ## What stayed in `agents.md`

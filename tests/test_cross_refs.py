@@ -4,6 +4,7 @@ This is where the drift bugs live (e.g. the threat-deck atlas overflow):
 one artifact changes and its mirror doesn't.
 """
 import glob
+import itertools
 import json as _json
 import os
 import re
@@ -466,6 +467,72 @@ def test_basketball_ring_clears_the_doom_track():
                 f"z={track_top:.2f}")
     assert not problems, (
         "printed location rings overlap the Doom track:\n  " + "\n  ".join(problems))
+
+
+def test_printed_location_labels_stay_readable():
+    """The location name and its yields line are the two things a player reads
+    off the board from table height, so they were enlarged (120/52pt to
+    160/76pt) until they no longer fit the annulus inside the printed ring and
+    had to stack outward from the tile edge instead. That put them in traffic:
+    at the old sizes both lines hid inside the ring and could not collide with
+    anything.
+
+    Four ways a bigger label goes wrong, all of which happened while sizing
+    this: it slides under its own location tile, it runs off the board edge,
+    it lands on the Doom track, or it collides with the neighbouring
+    location's label (Ellie & Luca and the Basketball Court are 6.8 units
+    apart, and the gap between their 5-unit tiles fits one label band, not
+    two). The layout comes from generate_assets.location_label_bands so this
+    guard and the drawing code cannot drift apart.
+    """
+    import sys
+
+    sys.path.insert(0, SCRIPTS)
+    import board_geometry as g
+    import generate_assets as ga
+    import path_layouts as pl
+    from PIL import Image, ImageDraw
+
+    draw = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    S = ga.BOARD_PX
+    doom_top = g.DOOM_TRACK_PX_Y - int(0.4 * ga.BOARD_PX_PER_UNIT) - 84  # track + its ribbons
+
+    bands = {}
+    for loc, side in ga.LOCATION_LABEL_SIDE.items():
+        wx, wz = pl.LOCATION_WORLD[loc]
+        cx, cy = g.world_to_px(wx), g.world_to_py(wz)
+        for which, (dy, half_h, half_w) in zip(("name", "yields"),
+                                               ga.location_label_bands(draw, loc, side)):
+            text = (pl.LOCATION_LABELS[loc] if which == "name"
+                    else ga.LOCATION_YIELD_TEXT[loc])
+            font = ga.FONT_BOARD_NAME if which == "name" else ga.FONT_BOARD_YIELD
+            tx = ga.clamped_center(draw, cx, text, font, S)
+            bands[f"{loc}.{which}"] = (loc, tx - half_w, tx + half_w,
+                                       cy + dy - half_h, cy + dy + half_h)
+
+    problems = []
+    for key, (loc, x0, x1, y0, y1) in bands.items():
+        if x0 < 0 or x1 > S or y0 < 0 or y1 > S:
+            problems.append(f"{key}: runs off the board (x {x0:.0f}..{x1:.0f}, y {y0:.0f}..{y1:.0f})")
+        if y1 > doom_top and x1 > g.world_to_px(-11) and x0 < g.world_to_px(11):
+            problems.append(f"{key}: reaches y={y1:.0f}, the Doom track starts at {doom_top:.0f}")
+        # Under any location's tile — including its own — means unreadable.
+        for other in ga.LOCATION_LABEL_SIDE:
+            ox = g.world_to_px(pl.LOCATION_WORLD[other][0])
+            oy = g.world_to_py(pl.LOCATION_WORLD[other][1])
+            if (max(x0, ox - ga.LABEL_TILE_EDGE) < min(x1, ox + ga.LABEL_TILE_EDGE)
+                    and max(y0, oy - ga.LABEL_TILE_EDGE) < min(y1, oy + ga.LABEL_TILE_EDGE)):
+                problems.append(f"{key}: sits under {other}'s tile")
+
+    for a, b in itertools.combinations(sorted(bands), 2):
+        loc_a, ax0, ax1, ay0, ay1 = bands[a]
+        loc_b, bx0, bx1, by0, by1 = bands[b]
+        if loc_a == loc_b:
+            continue
+        if max(ax0, bx0) < min(ax1, bx1) and max(ay0, by0) < min(ay1, by1):
+            problems.append(f"{a} overlaps {b}")
+
+    assert not problems, "printed board labels collide:\n  " + "\n  ".join(problems)
 
 
 def test_board_doom_thresholds_mirror_the_lua_table():

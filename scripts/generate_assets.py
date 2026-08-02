@@ -100,8 +100,8 @@ FONT_TINY  = load_font(9)
 
 # Board-specific fonts
 FONT_BOARD_TITLE = load_font(72, bold=True)
-FONT_BOARD_NAME  = load_font(120, bold=True)   # location names — readable from table height
-FONT_BOARD_YIELD = load_font(52)               # yields line under each name
+FONT_BOARD_NAME  = load_font(160, bold=True)   # location names — readable from table height
+FONT_BOARD_YIELD = load_font(76)               # yields line under each name
 FONT_BOARD_LOC   = load_font(40, bold=True)
 FONT_BOARD_LABEL = load_font(28)
 FONT_BOARD_SM    = load_font(22)
@@ -118,6 +118,96 @@ def centered_text(draw, cx, cy, text, font, fill):
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
     draw.text((cx - tw // 2, cy - th // 2), text, fill=fill, font=font)
+
+
+def text_height(draw, text, font):
+    """Rendered height of one line, matching what centered_text lays out."""
+    bbox = draw.textbbox((0, 0), text, font=font)
+    return bbox[3] - bbox[1]
+
+
+def clamped_center(draw, cx, text, font, board_px, margin=40):
+    """Centre x for a label, slid back inside the board if it would overhang.
+
+    "Rayman's House" is the long name on the easternmost node; centred under
+    its ring at the board font size it runs off the east edge.
+    """
+    w = draw.textbbox((0, 0), text, font=font)[2]
+    return min(max(cx, w // 2 + margin), board_px - w // 2 - margin)
+
+
+LOCATION_RING_COLOR = {
+    "JamesHouse":      "blue",
+    "EllieLucaHouse":  "orange",
+    "RaymanHouse":     "green",
+    "BasketballCourt": "grey",
+    "BadmintonCourt":  "teal",
+}
+
+# Which side of its ring each location prints its label on ("above" = north).
+# Ellie & Luca and the Basketball Court are 6.8 units apart with 5-unit tiles,
+# so the gap between them fits ONE label band, not two: Ellie's goes north
+# (toward Badminton, 8.0 units away — the roomiest gap on the board) and
+# Basketball keeps the south side. Put both in the middle and Ellie's yields
+# line runs straight through Basketball's ring.
+LOCATION_LABEL_SIDE = {
+    "JamesHouse":      "below",
+    "EllieLucaHouse":  "above",
+    "RaymanHouse":     "below",
+    "BasketballCourt": "below",
+    "BadmintonCourt":  "below",
+}
+
+# What each location yields, as printed under its name.
+LOCATION_YIELD_TEXT = {
+    "JamesHouse":      "Energy, Battery, Provisions",
+    "EllieLucaHouse":  "Provisions, Provisions, Cloth + Crockpot",
+    "RaymanHouse":     "Metal, Battery, Provisions",
+    "BasketballCourt": "Wood, Metal, Cloth",
+    "BadmintonCourt":  "Cloth, Wood, Metal",
+}
+
+# Label band geometry, in board pixels at BOARD_PX.
+BOARD_PX = 4096
+BOARD_PX_PER_UNIT = BOARD_PX / (2.0 * board_geometry.BOARD_WORLD_HALF)
+LABEL_TILE_EDGE = int(2.5 * BOARD_PX_PER_UNIT)  # tile is 5x5 units (build_save.py sx/sz=2.5)
+LABEL_MARGIN = 10       # px of daylight between the tile edge and the first line
+LABEL_GAP = 14          # px between the two lines
+LABEL_EDGE_MARGIN = 40  # px a label keeps clear of the board edge
+
+
+def location_label_bands(draw, loc_key, side):
+    """Where one location's two printed lines land, relative to its node.
+
+    Returns [(dy, half_h, half_w), ...] for the name then the yields line;
+    `dy` is signed board-pixel offset from the node centre (positive = south).
+
+    Both lines used to sit at fixed offsets INSIDE the printed ring, in the
+    0.8-unit annulus between the tile edge and the ring — which the old
+    120/52pt text already filled, so "make it bigger" had nowhere to go and
+    would have slid the text under the tile. They are now stacked outward
+    from the tile edge using the real glyph boxes: the name takes the
+    annulus, the yields line the open board just past the ring. The name
+    always reads first (further from the map's middle), so which line hugs
+    the tile flips with the side.
+
+    Shared with the guard test, so the layout and its check cannot drift.
+    """
+    label = path_layouts.LOCATION_LABELS[loc_key]
+    yields = LOCATION_YIELD_TEXT.get(loc_key, "")
+    h_name = text_height(draw, label, FONT_BOARD_NAME)
+    h_yield = text_height(draw, yields, FONT_BOARD_YIELD)
+    w_name = draw.textbbox((0, 0), label, font=FONT_BOARD_NAME)[2]
+    w_yield = draw.textbbox((0, 0), yields, font=FONT_BOARD_YIELD)[2]
+    if side == "above":
+        d_yield = LABEL_TILE_EDGE + LABEL_MARGIN + h_yield // 2
+        d_name = d_yield + h_yield // 2 + LABEL_GAP + h_name // 2
+        return [(-d_name, h_name // 2, w_name // 2),
+                (-d_yield, h_yield // 2, w_yield // 2)]
+    d_name = LABEL_TILE_EDGE + LABEL_MARGIN + h_name // 2
+    d_yield = d_name + h_name // 2 + LABEL_GAP + h_yield // 2
+    return [(d_name, h_name // 2, w_name // 2),
+            (d_yield, h_yield // 2, w_yield // 2)]
 
 def draw_circle(draw, cx, cy, r, fill, outline=None, width=1):
     draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=fill, outline=outline, width=width)
@@ -589,11 +679,7 @@ def generate_main_board(variant=None, doom_limit=None):
     # table (the tile itself is pure illustration).
     #   (world x, world z, ring colour, label side)
     _ring_colors = {
-        "JamesHouse":      (PAL["blue"],   "below"),
-        "EllieLucaHouse":  (PAL["orange"], "below"),
-        "RaymanHouse":     (PAL["green"],  "below"),
-        "BasketballCourt": (PAL["grey"],   "below"),   # was "above": it collided with Ellie & Luca's label
-        "BadmintonCourt":  (PAL["teal"],   "below"),
+        k: (PAL[c], LOCATION_LABEL_SIDE[k]) for k, c in LOCATION_RING_COLOR.items()
     }
     locations = {
         k: (path_layouts.LOCATION_WORLD[k][0], path_layouts.LOCATION_WORLD[k][1],
@@ -627,22 +713,11 @@ def generate_main_board(variant=None, doom_limit=None):
             py2 = int(ya + (yb - ya) * t2)
             draw.line([px1, py1, px2, py2], fill=(75, 68, 58), width=4)
 
-    # Draw location nodes. The tile (5x5 world units) covers the ring
-    # centre, so everything readable goes in the ring's annulus (between
-    # the 2.5-unit tile half-width and the 3.8-unit ring): the name sits
-    # on the arc nearest the open side, the yields line just outside it.
+    # Draw location nodes. The tile (5x5 world units) covers the ring centre,
+    # so everything readable stacks outward from the tile edge —
+    # location_label_bands owns that layout.
     PX_PER_UNIT = S / (2.0 * board_geometry.BOARD_WORLD_HALF)
     node_r = int(path_layouts.LOCATION_RING_R * PX_PER_UNIT)   # peeks out around the tile
-    name_off = int((path_layouts.LOCATION_RING_R - 0.50) * PX_PER_UNIT)  # name, in the annulus
-    info_off = int((path_layouts.LOCATION_RING_R - 0.10) * PX_PER_UNIT)  # yields, just inside the ring
-
-    yield_info = {
-        "JamesHouse":      "Energy, Battery, Provisions",
-        "EllieLucaHouse":  "Provisions, Provisions, Cloth + Crockpot",
-        "RaymanHouse":     "Metal, Battery, Provisions",
-        "BasketballCourt": "Wood, Metal, Cloth",
-        "BadmintonCourt":  "Cloth, Wood, Metal",
-    }
 
     for name, (wx, wz, color, side) in locations.items():
         cx, cy = node_px[name]
@@ -654,16 +729,14 @@ def generate_main_board(variant=None, doom_limit=None):
         # Inner ring
         draw_circle(draw, cx, cy, node_r - 34, fill=None, outline=(50, 48, 42), width=3)
 
-        # Name + yields on the open side ("above" = north, for the
-        # Basketball Court whose south side is the board edge). The name
-        # always reads first (higher on the table) with yields under it.
-        if side == "above":
-            ny, iy = cy - info_off, cy - name_off
-        else:
-            ny, iy = cy + name_off, cy + info_off
-        centered_text(draw, cx, ny, path_layouts.LOCATION_LABELS[name],
-                      FONT_BOARD_NAME, color)
-        centered_text(draw, cx, iy, yield_info.get(name, ""), FONT_BOARD_YIELD, PAL["text"])
+        # Name + yields on the open side ("above" = north).
+        label = path_layouts.LOCATION_LABELS[name]
+        yields = LOCATION_YIELD_TEXT.get(name, "")
+        (d_name, _, _), (d_yield, _, _) = location_label_bands(draw, name, side)
+        centered_text(draw, clamped_center(draw, cx, label, FONT_BOARD_NAME, S),
+                      cy + d_name, label, FONT_BOARD_NAME, color)
+        centered_text(draw, clamped_center(draw, cx, yields, FONT_BOARD_YIELD, S),
+                      cy + d_yield, yields, FONT_BOARD_YIELD, PAL["text"])
 
     # --- DOOM TRACK — horizontal strip along the SOUTH edge (the only band
     # clear of rings and labels). Pixel geometry comes from board_geometry
@@ -707,9 +780,12 @@ def generate_main_board(variant=None, doom_limit=None):
         # Number
         centered_text(draw, sx, doom_y, str(step), FONT_BOARD_NUM, PAL["text"])
 
-        # Threshold ribbons above their step
+        # Threshold ribbons above their step. Tucked close to the track: the
+        # Doom 15 ribbon sits directly under the Basketball Court, whose label
+        # band now reaches further south, and 96px of clearance put the two
+        # on top of each other.
         if step in thresholds:
-            ribbon_y = doom_y - cell_h - 96
+            ribbon_y = doom_y - cell_h - 58
             tw = draw.textbbox((0, 0), thresholds[step], font=FONT_BOARD_RIB)[2]
             draw.rounded_rectangle([sx - tw // 2 - 14, ribbon_y - 26, sx + tw // 2 + 14, ribbon_y + 26],
                                    radius=6, fill=(80, 25, 25), outline=PAL["red"], width=2)

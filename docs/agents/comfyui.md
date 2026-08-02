@@ -1,6 +1,7 @@
 # ComfyUI Workflow
 
-Generating and syncing card/board art, and the derived-art step that TTS depends on.
+Generating and syncing card/board art. The normalizer step that TTS depends on
+afterwards is its own topic: [`derived-art.md`](derived-art.md).
 
 *Part of the [agent reference](README.md); the index and the documentation map live in [`agents.md`](../../agents.md).*
 
@@ -18,6 +19,11 @@ not as photoreal interjections. This applies to every asset: cards, location
 tiles, character standees, bosses, path tiles. The canonical `STYLE` prompt
 prefix lives at the top of `scripts/generate_comfyui_assets.py` — keep that
 single source of truth in sync if the direction is ever revised.
+
+**Hero art is not generated here.** Character standees and the three house
+tiles are authored outside this pipeline at 1254×1254 — that size marks one
+against a 1024² render. This model does not reach their sepia-parchment look at
+any setting tried, so replace them with external art, never a prompt.
 
 ## Install
 
@@ -45,6 +51,10 @@ single source of truth in sync if the direction is ever revised.
   nothing is wrong; ask the running server instead (see below).
 - **Sampler (cards):** `euler`, 30 steps, CFG 4.0, scheduler `normal`,
   denoise 1.0.
+- **Sampler (location tiles):** as cards but `FluxGuidance` 6.0, **cfg 1.0**,
+  LoRA `1.0` (the `LOC_*` constants). At cfg 4.0 open-air scenes render as flat
+  monochrome-green vector with no linework — what both original court tiles
+  were, on two seeds running. Full rationale sits with the constants.
 - **Sampler (achievement icons):** the same, except a `FluxGuidance` node at
   `ICON_FLUX_GUIDANCE = 3.5` feeds the sampler and **cfg drops to 1.0**. This
   is the configuration Flux Dev is actually distilled for; the cards' true
@@ -69,7 +79,7 @@ the scripts:
 |---|---|---|
 | `snm_loc_<base>`  | Location tile scenes (1024×1024) | `art/tiles/<base>.png` |
 | `snm_path_<base>` | Path-edge variants (1024×1024)   | `art/board/<base>.png` |
-| `snm_char_<base>` | **Hand-drawn — never auto-generate.** | `art/characters/<base>.png` is authoritative and the generator and sync script both skip this prefix, so drop standee art in by hand. The build loads `<base>_standee.png` — run `normalize_standee_art.py` after. |
+| `snm_char_<base>`, `snm_loc_{james,rayman,ellieluca}home` | **Hero art — never auto-generate.** | The `art/` copy is authoritative; generator and sync both skip these prefixes, so drop art in by hand. The build loads the derived file, so run `normalize_standee_art.py` / `normalize_tile_art.py` after. |
 | `snm_boss_<base>` | Boss / creature standees (512×1024) | `art/bosses/<base>.png` |
 | `snm_card_<id>`   | Card illustrations (1024×1024)   | `art/decks/illustrations/<id>.png` |
 
@@ -109,6 +119,7 @@ the scripts:
    ```
    Skipping this is the classic "I added new art and nothing changed in the
    game" — `ASSET_MAP` points at the derived files, not what you dropped in.
+   Why they exist and how to frame art for them: [`derived-art.md`](derived-art.md).
 6. **Build card atlases:**
    ```bash
    python scripts/generate_card_atlases.py
@@ -118,37 +129,6 @@ the scripts:
    ```bash
    python scripts/build_save.py
    ```
-
-## Derived art: `_tile.png` and `_standee.png`
-
-Two asset families are **not** used as generated. The generator writes
-`<name>.png`; a normalizer derives `<name>_tile.png` / `<name>_standee.png`
-beside it, and `ASSET_MAP` loads the derived file. Sources are never modified,
-so both scripts are safe to re-run and safe to iterate against.
-
-They exist because TTS reshapes these two objects before you ever see them:
-
-| Family | What TTS does | What the normalizer fixes |
-|---|---|---|
-| **Location tiles** (`art/tiles/`) | `CustomTile Type 2` is a **circle** — TTS crops a disc from the centre of the square image | Generated art is not reliably centred (`jameshome.png` once had 945×645 of picture sitting 96px below centre between black bars, so the disc showed an off-centre letterboxed slice). Takes the largest square centred on the *content*. |
-| **Character standees** (`art/characters/`) | `ColorDiffuse` is applied as a **multiply over the whole image**, not just the holder | An opaque backdrop becomes a solid tinted rectangle — James's blue `(0.12, 0.53, 1.00)` over cream parchment lands on ≈`(29, 127, 220)`. Cuts the backdrop to transparent so the tint colours only the holder, and fits every figure to 512×1024 so characters are the same height. |
-
-**Background removal is opt-in**, via `CUT_BACKGROUND` in
-`normalize_standee_art.py`. Do not replace it with a "is the border a uniform
-colour?" test — that was tried and it fails, because the hand-drawn standees are
-designed *cards* (Rayman in a forest under the game title, Luca with a name
-banner) whose borders are uniform too, so the flood leaks inward and eats the
-artwork. It chewed the background out of `ellie_back` and both Luca faces while
-leaving `ellie_front` intact — breaking a matched front/back pair. Add a name to
-the list when their art is a figure on a plain backdrop; the decision is made
-per **character**, never per image, so front and back always match.
-
-Framing rules that follow, for anyone generating new art:
-
-- **Tiles:** keep the subject centred and nothing important in the corners —
-  the disc throws away ~21% of the canvas.
-- **Standees:** a plain, even backdrop is what makes a clean cutout possible.
-  Generate at 2:1 if you can; other aspects are re-fitted, not stretched.
 
 ## Iteration tip
 
