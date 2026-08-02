@@ -6,9 +6,12 @@
 <!-- G.1  PHASE BANNER — persistent top-of-screen status bar            -->
 <!-- Design §18.11: Day / Phase / Doom / Active player / Next action    -->
 <!-- ================================================================== -->
+<!-- offsetXY sets the CENTRE, so offsetY = -height/2 puts the top edge exactly
+     on y=0 — the bar is flush with the top of the screen, no margin above it.
+     Guard: test_xml_quality.py::test_phase_banner_is_flush_with_the_top. -->
 <Panel id="phaseBanner"
        rectAlignment="UpperCenter"
-       offsetXY="0 -42"
+       offsetXY="0 -32"
        width="1470" height="64"
        color="#000000BF"
        outline="#50B4DC66"

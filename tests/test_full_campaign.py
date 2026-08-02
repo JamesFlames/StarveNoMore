@@ -204,12 +204,16 @@ def test_reentrant_setup_is_refused():
 
 
 def test_guided_setup_reseats_players_to_character_colors():
-    """A player's colour is determined by the character they pick: the
-    guided walkthrough reseats each picker onto CHARACTER_COLORS' seat for
-    that character. Anyone parked on the target seat SWAPS onto the
-    picker's old seat — never a spare seat, because a player stranded off
-    the five character seats has no hand zone and TTS re-prompts them to
-    choose a colour mid-game."""
+    """A player's colour is determined by the character they pick, so setup
+    ends with everyone on CHARACTER_COLORS' seat for their character.
+
+    This is a straight SWAP — White takes James (Blue) while Blue takes Coco
+    (White) — which is a closed 2-cycle: neither can move until the other
+    does. applyCharacterSeating breaks it through a spare seat and must put
+    BOTH players back on character colours, because a player stranded off
+    the five seats has no hand zone and TTS re-prompts them to choose a
+    colour mid-game. The reseat happens once, at finalize; nobody changes
+    colour while the walkthrough is still on screen."""
     env = make_env()
     populate_full_world(env)
     env.globals().onLoad("")
@@ -220,14 +224,16 @@ def test_guided_setup_reseats_players_to_character_colors():
     env.execute('onVariantsContinue(Player["White"], "-1", "variantsContinue")')
     flush(env)
 
-    # White player picks James -> James plays Blue; the pending player
-    # parked on Blue swaps onto White (the picker's old seat).
     env.execute('onPickChar(Player["White"], "-1", "pickJames")')
-    env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
-    # The displaced player (now White) picks Coco -> Coco plays White,
-    # already their seat, so no further move happens.
-    env.execute('onPickChar(Player["White"], "-1", "pickCoco")')
     env.execute('onBriefDismiss(Player["White"], "-1", "briefDismiss")')
+    # Still White and Blue at this point — no colour has changed yet.
+    mid = lua_to_py(env.eval("TTS.seated"))
+    if isinstance(mid, dict):
+        mid = list(mid.values())
+    assert sorted(mid) == ["Blue", "White"], (
+        f"somebody was reseated while the walkthrough was still open: {mid}")
+    env.execute('onPickChar(Player["Blue"], "-1", "pickCoco")')
+    env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
     flush(env)
 
     assert env.eval("gameState.started") is True
@@ -250,12 +256,13 @@ def _run_guided_setup(env):
     env.execute('onPickPath(Player["White"], "-1", "pickCompact")')
     env.execute('onVariantsContinue(Player["White"], "-1", "variantsContinue")')
     flush(env)
-    # White picks James -> reseated onto Blue; the player parked there swaps
-    # onto White and picks next.
+    # Nobody changes colour during the walkthrough any more, so each player
+    # picks and dismisses from the seat they sat down in. The reseat onto
+    # character colours happens once, at finalize.
     env.execute('onPickChar(Player["White"], "-1", "pickJames")')
-    env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
-    env.execute('onPickChar(Player["White"], "-1", "pickCoco")')
     env.execute('onBriefDismiss(Player["White"], "-1", "briefDismiss")')
+    env.execute('onPickChar(Player["Blue"], "-1", "pickCoco")')
+    env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
     flush(env)
 
 

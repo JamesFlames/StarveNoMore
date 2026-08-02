@@ -171,25 +171,62 @@ def test_a_seat_change_between_steps_is_absorbed():
 
 
 def test_the_host_can_click_through_for_everyone():
-    """The hotseat path: one person at the keyboard, everyone else watching."""
+    """The hotseat path: one person at the keyboard, everyone else watching.
+
+    Picking for a seat that is NOT yours now takes two clicks. The queue only
+    ever holds seated colours, so the code cannot tell a hotseat from a real
+    second player who just hasn't clicked yet — and picking for the latter on
+    one click is exactly how a host ended up choosing a character for someone
+    who was sitting there with the panel open. First click warns, second click
+    commits; the host's own pick is unaffected.
+    """
     env = make_env()
     host = begin(env, ["Coco", "James", "Rayman"])
     assert host == "White"
 
-    # The host's own click picks for the host; every later host click picks
-    # for whoever is at the head of the queue. Each pick opens that seat's
-    # briefing (step 3), which has to be dismissed before the next pick —
-    # the host is at the keyboard, so the host dismisses.
-    for name in ("Coco", "James", "Rayman"):
+    # The host's own pick: one click, no confirm.
+    pick(env, "Coco", as_color=host)
+    assert visible(env, "charBriefing")
+    dismiss(env, host)
+
+    for name in ("James", "Rayman"):
         pick(env, name, as_color=host)
+        assert not visible(env, "charBriefing"), (
+            f"picking {name} for another seated player went through on the "
+            "first click — that seat's own player never got to choose")
+        pick(env, name, as_color=host)          # confirm
         assert visible(env, "charBriefing"), (
-            f"no briefing opened after the host picked {name} — the hotseat "
+            f"no briefing opened after the host confirmed {name} — the hotseat "
             "driver would silently stall on the next click")
         dismiss(env, host)
 
     assert env.eval("gameState.started") is True, (
         "the hotseat path did not finish — one person cannot set up the table")
     assert sorted(roster(env).values()) == ["Coco", "James", "Rayman"]
+
+
+def test_a_second_player_keeps_their_own_pick():
+    """The bug this all came from: the host picks his own character, clicks a
+    second card, and the game hands it to the next seat in the queue — a real
+    player who was sitting there with the pick panel open and had clicked
+    nothing. One click must not be able to spend somebody else's choice."""
+    env = make_env()
+    host = begin(env, ["James", "Rayman"])
+    pick(env, "James", as_color=host)
+    dismiss(env, host)
+
+    # Host clicks a second card. Green is seated and still waiting.
+    pick(env, "Rayman", as_color=host)
+    dump = env.eval("dumpSetupState()")
+    assert "Green=" in dump.split("waiting:")[1].split("|")[0], (
+        f"the host's single click spent Green's choice: {dump}")
+    assert env.eval("gameState.started") is not True
+
+    # Green makes their own choice: one click, no confirm needed.
+    pick(env, "Rayman", as_color="Green")
+    dismiss(env, "Green")
+    assert env.eval("gameState.started") is True
+    assert sorted(roster(env).values()) == ["James", "Rayman"]
 
 
 def test_clicking_a_closed_step_closes_it_instead_of_acting():

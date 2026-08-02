@@ -234,6 +234,17 @@ def test_top_anchored_panels_clear_the_phase_banner():
         + "\n  remember offsetXY sets the CENTRE — the top edge is offsetY + height/2 up.")
 
 
+def test_phase_banner_is_flush_with_the_top():
+    """The status bar sits ON the top edge of the screen, with no margin above
+    it. offsetXY sets the CENTRE, so this only holds while offsetY is exactly
+    -height/2 — nudge either number alone and a gap reappears."""
+    root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, "hud.xml")) + "</root>")
+    banner = _rect(_panels(root)["phaseBanner"])
+    assert banner[1] == 0, (
+        f"phase banner top edge is at y={banner[1]:.0f}, not 0 — it should be "
+        "flush with the top of the screen (set offsetY to -height/2)")
+
+
 def test_panel_heights_match_their_contents():
     """A panel taller than its content pushes its own top edge upward for no
     reason — which is how hostControls ended up under the banner."""

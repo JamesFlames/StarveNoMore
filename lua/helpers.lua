@@ -299,6 +299,10 @@ function placeCharacterAtTile(charName, locName)
     local standee = getCharacterStandee(charName)
     local tile = getLocationTile(locName)
     if standee and tile then
+        -- Coming back up from the bench: sealUnderTableObjects (audit.lua)
+        -- turned this standee's pointer interaction off while it was under
+        -- the table. On the board it has to answer the mouse again.
+        pcall(function() standee.interactable = true end)
         standee.setPositionSmooth(getCharSlotPosition(tile, charName))
         return true
     end

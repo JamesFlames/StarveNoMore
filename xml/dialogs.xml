@@ -659,3 +659,52 @@
             text="I'm settled — Ready for Night" />
   </VerticalLayout>
 </Panel>
+
+<!-- ================================================================== -->
+<!-- H.6  WELCOME — the first-load introduction, one page per click     -->
+<!-- ================================================================== -->
+<!-- These five pages used to be five staged broadcasts. A broadcast fades on
+     a timer nobody chose: the very first thing a new table sees scrolled away
+     while they were still reading page one, and the only way back was the
+     Message Log they had not been told about yet. Reading speed is the
+     player's business, so the sequence advances on a click instead — Back
+     re-reads, Skip is always available for a table that has played before.
+     Driven by WELCOME_PAGES / onWelcomeNext in ui_setup.lua. -->
+<Panel id="welcomePanel"
+       rectAlignment="MiddleCenter"
+       width="700" height="360"
+       color="#050A0FF7"
+       outline="#50B4DC80"
+       outlineSize="2"
+       active="false">
+  <VerticalLayout spacing="10" padding="18 18 16 16"
+                  childForceExpandHeight="false">
+    <Text id="welcomeTitle" fontSize="22" fontStyle="Bold" color="#88DDFF"
+          text="Welcome to Starve No More" preferredHeight="30" />
+    <Text id="welcomeBody" fontSize="16" color="#CFE0EE"
+          alignment="UpperLeft"
+          text=""
+          preferredHeight="200" />
+    <Text id="welcomeStep" fontSize="13" fontStyle="Italic" color="#8899AA"
+          text="" preferredHeight="20" />
+    <HorizontalLayout spacing="14" childForceExpandWidth="true"
+                      preferredHeight="42">
+      <Button id="welcomeBack"
+              onClick="onWelcomeBack"
+              fontSize="16" color="#DCDCDCE6" textColor="#1E1E1E"
+              tooltip="Read the previous page again."
+              text="◂ Back" />
+      <Button id="welcomeSkip"
+              onClick="onWelcomeSkip"
+              fontSize="16" color="#DCDCDCE6" textColor="#1E1E1E"
+              tooltip="Close the introduction. Every page stays in the Message Log (bottom right)."
+              text="Skip" />
+      <Button id="welcomeNext"
+              onClick="onWelcomeNext"
+              fontSize="16" fontStyle="Bold"
+              color="#CFE8CFF2" textColor="#12300F"
+              tooltip="Next page."
+              text="Next ▸" />
+    </HorizontalLayout>
+  </VerticalLayout>
+</Panel>

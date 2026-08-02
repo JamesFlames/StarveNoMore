@@ -282,7 +282,7 @@
   "BENCH_POSITION": [
    {
     "file": "lua/helpers.lua",
-    "line": 316,
+    "line": 320,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -302,7 +302,7 @@
   "BOARD_WORLD_SIZE": [
    {
     "file": "lua/audit.lua",
-    "line": 76,
+    "line": 114,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -522,7 +522,7 @@
   "CROCKPOT_HOME": [
    {
     "file": "lua/helpers.lua",
-    "line": 510,
+    "line": 514,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -592,7 +592,7 @@
   "DIFFICULTY_BLURBS": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 251,
+    "line": 256,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -602,7 +602,7 @@
   "DIFFICULTY_CYCLE": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 250,
+    "line": 255,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -782,7 +782,7 @@
   "LAST_NERVE_THRESHOLD": [
    {
     "file": "lua/helpers.lua",
-    "line": 428,
+    "line": 432,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -912,7 +912,7 @@
   "MEASURE_FOOTPRINTS": [
    {
     "file": "lua/audit.lua",
-    "line": 368,
+    "line": 406,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1271,6 +1271,16 @@
     "doc": ""
    }
   ],
+  "TABLETOP_Y": [
+   {
+    "file": "lua/audit.lua",
+    "line": 83,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "Everything parked under the table is meant to be invisible AND untouchable. Locking and hiding gets the first half only. TTS raycasts the pointer straight thro…"
+   }
+  ],
   "THREAT_STATS": [
    {
     "file": "lua/threat_types.lua",
@@ -1314,7 +1324,7 @@
   "TOOLTIP_DATA": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 359,
+    "line": 374,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1389,6 +1399,16 @@
     "params": null,
     "arity": null,
     "doc": ""
+   }
+  ],
+  "WELCOME_PAGES": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 983,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "H.6 — Welcome sequence on first load The introduction, one page per click. These were five staged broadcasts; a broadcast fades on a timer the reader did not c…"
    }
   ],
   "WHATNOW_HINTS": [
@@ -1801,7 +1821,7 @@
   "adjacentLocations": [
    {
     "file": "lua/helpers.lua",
-    "line": 480,
+    "line": 484,
     "kind": "function",
     "params": [
      "loc"
@@ -1932,7 +1952,7 @@
   "applyTooltips": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 390,
+    "line": 405,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1942,7 +1962,7 @@
   "auditBoardGeometry": [
    {
     "file": "lua/audit.lua",
-    "line": 84,
+    "line": 122,
     "kind": "function",
     "params": [
      "quiet",
@@ -1955,7 +1975,7 @@
   "auditFirstLoad": [
    {
     "file": "lua/audit.lua",
-    "line": 251,
+    "line": 289,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1965,7 +1985,7 @@
   "auditHintCoverage": [
    {
     "file": "lua/audit.lua",
-    "line": 179,
+    "line": 217,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1985,7 +2005,7 @@
   "auditObjectFootprints": [
    {
     "file": "lua/audit.lua",
-    "line": 370,
+    "line": 408,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1995,7 +2015,7 @@
   "auditTooltips": [
    {
     "file": "lua/audit.lua",
-    "line": 137,
+    "line": 175,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2048,7 +2068,7 @@
   "benchUnusedBoards": [
    {
     "file": "lua/helpers.lua",
-    "line": 344,
+    "line": 348,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2058,7 +2078,7 @@
   "benchUnusedCharacters": [
    {
     "file": "lua/helpers.lua",
-    "line": 318,
+    "line": 322,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2380,7 +2400,7 @@
   "charHasCompany": [
    {
     "file": "lua/helpers.lua",
-    "line": 540,
+    "line": 544,
     "kind": "function",
     "params": [
      "color"
@@ -2531,6 +2551,16 @@
     "doc": "The clearable persistents at this tile (not fought, not sealed)."
    }
   ],
+  "closeWelcomeSequence": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 1023,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": ""
+   }
+  ],
   "clueDueForRefill": [
    {
     "file": "lua/clues.lua",
@@ -2554,7 +2584,7 @@
   "colorToCharacter": [
    {
     "file": "lua/helpers.lua",
-    "line": 565,
+    "line": 569,
     "kind": "function",
     "params": [
      "color"
@@ -2621,7 +2651,7 @@
   "consumeCarriedItem": [
    {
     "file": "lua/helpers.lua",
-    "line": 468,
+    "line": 472,
     "kind": "function",
     "params": [
      "obj"
@@ -2665,7 +2695,7 @@
   "crockpotAt": [
    {
     "file": "lua/helpers.lua",
-    "line": 512,
+    "line": 516,
     "kind": "function",
     "params": [
      "loc"
@@ -3121,7 +3151,7 @@
   "dumpSetupState": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 385,
+    "line": 390,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3207,11 +3237,11 @@
   "finalizeGuidedSetup": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 698,
+    "line": 954,
     "kind": "function",
     "params": [],
     "arity": 0,
-    "doc": "Finalize setup after all players have picked and been briefed"
+    "doc": "Finalize setup — the wrapper that cannot strand the table. The body above touches a lot of physical objects, and one throw in the middle of it used to be termi…"
    }
   ],
   "findAllByTag": [
@@ -3229,7 +3259,7 @@
   "findCarriedItem": [
    {
     "file": "lua/helpers.lua",
-    "line": 450,
+    "line": 454,
     "kind": "function",
     "params": [
      "color",
@@ -3297,7 +3327,7 @@
   "gameRoll": [
    {
     "file": "lua/helpers.lua",
-    "line": 581,
+    "line": 585,
     "kind": "function",
     "params": [
      "a",
@@ -3334,7 +3364,7 @@
   "getActivePlayerColors": [
    {
     "file": "lua/helpers.lua",
-    "line": 552,
+    "line": 556,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3605,7 +3635,7 @@
   "getPlayerCarriedObjects": [
    {
     "file": "lua/helpers.lua",
-    "line": 369,
+    "line": 373,
     "kind": "function",
     "params": [
      "color",
@@ -3803,7 +3833,7 @@
   "hasLastNerve": [
    {
     "file": "lua/helpers.lua",
-    "line": 430,
+    "line": 434,
     "kind": "function",
     "params": [
      "color"
@@ -3876,7 +3906,7 @@
   "isAdjacent": [
    {
     "file": "lua/helpers.lua",
-    "line": 497,
+    "line": 501,
     "kind": "function",
     "params": [
      "from",
@@ -3935,7 +3965,7 @@
   "isSportCourt": [
    {
     "file": "lua/helpers.lua",
-    "line": 442,
+    "line": 446,
     "kind": "function",
     "params": [
      "loc"
@@ -4572,7 +4602,7 @@
   "onBriefBack": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 648,
+    "line": 732,
     "kind": "function",
     "params": [
      "player",
@@ -4586,7 +4616,7 @@
   "onBriefDismiss": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 669,
+    "line": 753,
     "kind": "function",
     "params": [
      "player",
@@ -4864,7 +4894,7 @@
   "onHostBeginDay": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 186,
+    "line": 201,
     "kind": "function",
     "params": [
      "player",
@@ -4878,7 +4908,7 @@
   "onHostEndTurn": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 216,
+    "line": 231,
     "kind": "function",
     "params": [
      "player",
@@ -4892,7 +4922,7 @@
   "onHostResolveNight": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 203,
+    "line": 218,
     "kind": "function",
     "params": [
      "player",
@@ -4906,7 +4936,7 @@
   "onHostRestart": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 233,
+    "line": 248,
     "kind": "function",
     "params": [
      "player",
@@ -4920,7 +4950,7 @@
   "onHostSetupGuided": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 883,
+    "line": 1087,
     "kind": "function",
     "params": [
      "player",
@@ -5057,7 +5087,7 @@
   "onPickChar": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 527,
+    "line": 585,
     "kind": "function",
     "params": [
      "player",
@@ -5071,7 +5101,7 @@
   "onPickPath": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 151,
+    "line": 156,
     "kind": "function",
     "params": [
      "player",
@@ -5225,7 +5255,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 496,
+    "line": 501,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5263,7 +5293,7 @@
   "onSummaryClose": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 351,
+    "line": 366,
     "kind": "function",
     "params": [
      "player",
@@ -5291,7 +5321,7 @@
   "onToggleDifficulty": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 258,
+    "line": 263,
     "kind": "function",
     "params": [
      "player",
@@ -5305,7 +5335,7 @@
   "onToggleDuskSecret": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 204,
+    "line": 209,
     "kind": "function",
     "params": [
      "player",
@@ -5319,7 +5349,7 @@
   "onToggleRotation": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 183,
+    "line": 188,
     "kind": "function",
     "params": [
      "player",
@@ -5333,7 +5363,7 @@
   "onToggleScenario": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 191,
+    "line": 196,
     "kind": "function",
     "params": [
      "player",
@@ -5347,7 +5377,7 @@
   "onToggleSolo": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 216,
+    "line": 221,
     "kind": "function",
     "params": [
      "player",
@@ -5417,7 +5447,7 @@
   "onVariantsContinue": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 271,
+    "line": 276,
     "kind": "function",
     "params": [
      "player",
@@ -5432,6 +5462,48 @@
    {
     "file": "lua/ui_week_review.lua",
     "line": 301,
+    "kind": "function",
+    "params": [
+     "player",
+     "value",
+     "id"
+    ],
+    "arity": 3,
+    "doc": ""
+   }
+  ],
+  "onWelcomeBack": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 1039,
+    "kind": "function",
+    "params": [
+     "player",
+     "value",
+     "id"
+    ],
+    "arity": 3,
+    "doc": ""
+   }
+  ],
+  "onWelcomeNext": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 1028,
+    "kind": "function",
+    "params": [
+     "player",
+     "value",
+     "id"
+    ],
+    "arity": 3,
+    "doc": ""
+   }
+  ],
+  "onWelcomeSkip": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 1045,
     "kind": "function",
     "params": [
      "player",
@@ -6029,7 +6101,7 @@
   "refreshDynamicTooltips": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 412,
+    "line": 427,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6467,7 +6539,7 @@
   "safecall": [
    {
     "file": "lua/helpers.lua",
-    "line": 587,
+    "line": 591,
     "kind": "function",
     "params": [
      "fn",
@@ -6475,6 +6547,16 @@
     ],
     "arity": 2,
     "doc": "Safe pcall wrapper (F.15)"
+   }
+  ],
+  "sealUnderTableObjects": [
+   {
+    "file": "lua/audit.lua",
+    "line": 85,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": ""
    }
   ],
   "setActionCubes": [
@@ -6569,7 +6651,7 @@
   "showCharBriefing": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 636,
+    "line": 704,
     "kind": "function",
     "params": [
      "color",
@@ -6582,7 +6664,7 @@
   "showCharPickForNextPlayer": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 407,
+    "line": 412,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6607,7 +6689,7 @@
   "showEndOfDaySummary": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 285,
+    "line": 300,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6683,11 +6765,11 @@
   "showWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 840,
+    "line": 1049,
     "kind": "function",
     "params": [],
     "arity": 0,
-    "doc": "H.6 — Welcome sequence on first load"
+    "doc": ""
    }
   ],
   "sledCandidates": [
@@ -6767,7 +6849,7 @@
   "sportCourtSurcharge": [
    {
     "file": "lua/helpers.lua",
-    "line": 533,
+    "line": 537,
     "kind": "function",
     "params": [
      "from",
@@ -7503,199 +7585,199 @@
   },
   "actAppease": {
    "file": "xml/hud.xml",
-   "line": 395,
+   "line": 398,
    "element": "Button",
    "onClick": "onActAppease"
   },
   "actBarricade": {
    "file": "xml/hud.xml",
-   "line": 389,
+   "line": 392,
    "element": "Button",
    "onClick": "onActBarricade"
   },
   "actCleanse": {
    "file": "xml/hud.xml",
-   "line": 309,
+   "line": 312,
    "element": "Button",
    "onClick": "onActCleanse"
   },
   "actClear": {
    "file": "xml/hud.xml",
-   "line": 401,
+   "line": 404,
    "element": "Button",
    "onClick": "onActClear"
   },
   "actCook": {
    "file": "xml/hud.xml",
-   "line": 294,
+   "line": 297,
    "element": "Button",
    "onClick": "onActCook"
   },
   "actCraft": {
    "file": "xml/hud.xml",
-   "line": 289,
+   "line": 292,
    "element": "Button",
    "onClick": "onActCraft"
   },
   "actDefend": {
    "file": "xml/hud.xml",
-   "line": 359,
+   "line": 362,
    "element": "Button",
    "onClick": "onActDefend"
   },
   "actEatUncooked": {
    "file": "xml/hud.xml",
-   "line": 371,
+   "line": 374,
    "element": "Button",
    "onClick": "onActEatUncooked"
   },
   "actEnergy": {
    "file": "xml/hud.xml",
-   "line": 365,
+   "line": 368,
    "element": "Button",
    "onClick": "onActEnergyDrink"
   },
   "actFight": {
    "file": "xml/hud.xml",
-   "line": 299,
+   "line": 302,
    "element": "Button",
    "onClick": "onActFight"
   },
   "actFlee": {
    "file": "xml/hud.xml",
-   "line": 383,
+   "line": 386,
    "element": "Button",
    "onClick": "onActFlee"
   },
   "actGather": {
    "file": "xml/hud.xml",
-   "line": 284,
+   "line": 287,
    "element": "Button",
    "onClick": "onActGather"
   },
   "actMove": {
    "file": "xml/hud.xml",
-   "line": 279,
+   "line": 282,
    "element": "Button",
    "onClick": "onActMove"
   },
   "actPass": {
    "file": "xml/hud.xml",
-   "line": 412,
+   "line": 415,
    "element": "Button",
    "onClick": "onActPass"
   },
   "actPeek": {
    "file": "xml/hud.xml",
-   "line": 326,
+   "line": 329,
    "element": "Button",
    "onClick": "onActPeek"
   },
   "actPry": {
    "file": "xml/hud.xml",
-   "line": 338,
+   "line": 341,
    "element": "Button",
    "onClick": "onActPry"
   },
   "actRally": {
    "file": "xml/hud.xml",
-   "line": 332,
+   "line": 335,
    "element": "Button",
    "onClick": "onActRally"
   },
   "actRest": {
    "file": "xml/hud.xml",
-   "line": 304,
+   "line": 307,
    "element": "Button",
    "onClick": "onActRest"
   },
   "actRevive": {
    "file": "xml/hud.xml",
-   "line": 347,
+   "line": 350,
    "element": "Button",
    "onClick": "onActRevive"
   },
   "actSignature": {
    "file": "xml/hud.xml",
-   "line": 319,
+   "line": 322,
    "element": "Button",
    "onClick": "onActSignature"
   },
   "actStabilize": {
    "file": "xml/hud.xml",
-   "line": 353,
+   "line": 356,
    "element": "Button",
    "onClick": "onActStabilize"
   },
   "actTrade": {
    "file": "xml/hud.xml",
-   "line": 314,
+   "line": 317,
    "element": "Button",
    "onClick": "onActTrade"
   },
   "actUndo": {
    "file": "xml/hud.xml",
-   "line": 407,
+   "line": 410,
    "element": "Button",
    "onClick": "onActUndo"
   },
   "actUseItem": {
    "file": "xml/hud.xml",
-   "line": 377,
+   "line": 380,
    "element": "Button",
    "onClick": "onActUseItem"
   },
   "actionBar": {
    "file": "xml/hud.xml",
-   "line": 264,
+   "line": 267,
    "element": "Panel",
    "onClick": ""
   },
   "actionTooltip": {
    "file": "xml/hud.xml",
-   "line": 479,
+   "line": 482,
    "element": "Panel",
    "onClick": ""
   },
   "actionTooltipText": {
    "file": "xml/hud.xml",
-   "line": 487,
+   "line": 490,
    "element": "Text",
    "onClick": ""
   },
   "bannerActive": {
    "file": "xml/hud.xml",
-   "line": 50,
+   "line": 53,
    "element": "Text",
    "onClick": ""
   },
   "bannerDay": {
    "file": "xml/hud.xml",
-   "line": 32,
+   "line": 35,
    "element": "Text",
    "onClick": ""
   },
   "bannerDoom": {
    "file": "xml/hud.xml",
-   "line": 44,
+   "line": 47,
    "element": "Text",
    "onClick": ""
   },
   "bannerNext": {
    "file": "xml/hud.xml",
-   "line": 56,
+   "line": 59,
    "element": "Text",
    "onClick": ""
   },
   "bannerOmen": {
    "file": "xml/hud.xml",
-   "line": 68,
+   "line": 71,
    "element": "Text",
    "onClick": ""
   },
   "bannerPhase": {
    "file": "xml/hud.xml",
-   "line": 38,
+   "line": 41,
    "element": "Text",
    "onClick": ""
   },
@@ -7725,7 +7807,7 @@
   },
   "btnBeginDay": {
    "file": "xml/hud.xml",
-   "line": 202,
+   "line": 205,
    "element": "Button",
    "onClick": "onHostBeginDay"
   },
@@ -7737,25 +7819,25 @@
   },
   "btnEndTurn": {
    "file": "xml/hud.xml",
-   "line": 212,
+   "line": 215,
    "element": "Button",
    "onClick": "onHostEndTurn"
   },
   "btnResolveNight": {
    "file": "xml/hud.xml",
-   "line": 207,
+   "line": 210,
    "element": "Button",
    "onClick": "onHostResolveNight"
   },
   "btnRestart": {
    "file": "xml/hud.xml",
-   "line": 217,
+   "line": 220,
    "element": "Button",
    "onClick": "onHostRestart"
   },
   "btnSetup": {
    "file": "xml/hud.xml",
-   "line": 197,
+   "line": 200,
    "element": "Button",
    "onClick": "onHostSetupGuided"
   },
@@ -7827,7 +7909,7 @@
   },
   "charRoster": {
    "file": "xml/hud.xml",
-   "line": 571,
+   "line": 574,
    "element": "Panel",
    "onClick": ""
   },
@@ -7953,67 +8035,67 @@
   },
   "cube1": {
    "file": "xml/hud.xml",
-   "line": 423,
+   "line": 426,
    "element": "Text",
    "onClick": ""
   },
   "cube2": {
    "file": "xml/hud.xml",
-   "line": 424,
+   "line": 427,
    "element": "Text",
    "onClick": ""
   },
   "cube3": {
    "file": "xml/hud.xml",
-   "line": 425,
+   "line": 428,
    "element": "Text",
    "onClick": ""
   },
   "cubeLabel": {
    "file": "xml/hud.xml",
-   "line": 426,
+   "line": 429,
    "element": "Text",
    "onClick": ""
   },
   "cycleStrip": {
    "file": "xml/hud.xml",
-   "line": 123,
+   "line": 126,
    "element": "Panel",
    "onClick": ""
   },
   "cycleText": {
    "file": "xml/hud.xml",
-   "line": 130,
+   "line": 133,
    "element": "Text",
    "onClick": ""
   },
   "dawnChecklist": {
    "file": "xml/hud.xml",
-   "line": 141,
+   "line": 144,
    "element": "Panel",
    "onClick": ""
   },
   "dawnStep_1": {
    "file": "xml/hud.xml",
-   "line": 154,
+   "line": 157,
    "element": "Button",
    "onClick": "onDawnStepClick"
   },
   "dawnStep_2": {
    "file": "xml/hud.xml",
-   "line": 157,
+   "line": 160,
    "element": "Button",
    "onClick": "onDawnStepClick"
   },
   "dawnStep_3": {
    "file": "xml/hud.xml",
-   "line": 160,
+   "line": 163,
    "element": "Button",
    "onClick": "onDawnStepClick"
   },
   "dawnStep_4": {
    "file": "xml/hud.xml",
-   "line": 163,
+   "line": 166,
    "element": "Button",
    "onClick": "onDawnStepClick"
   },
@@ -8127,7 +8209,7 @@
   },
   "helpBtn": {
    "file": "xml/hud.xml",
-   "line": 76,
+   "line": 79,
    "element": "Button",
    "onClick": "onHelpClick"
   },
@@ -8211,19 +8293,19 @@
   },
   "hintBtn": {
    "file": "xml/hud.xml",
-   "line": 84,
+   "line": 87,
    "element": "Button",
    "onClick": "onWhatNowClick"
   },
   "hostControls": {
    "file": "xml/hud.xml",
-   "line": 183,
+   "line": 186,
    "element": "Panel",
    "onClick": ""
   },
   "logBtn": {
    "file": "xml/hud.xml",
-   "line": 92,
+   "line": 95,
    "element": "Button",
    "onClick": "onMsgLogToggle"
   },
@@ -8313,7 +8395,7 @@
   },
   "phaseBanner": {
    "file": "xml/hud.xml",
-   "line": 9,
+   "line": 12,
    "element": "Panel",
    "onClick": ""
   },
@@ -8427,25 +8509,25 @@
   },
   "reactBtn_1": {
    "file": "xml/hud.xml",
-   "line": 462,
+   "line": 465,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactBtn_2": {
    "file": "xml/hud.xml",
-   "line": 465,
+   "line": 468,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactBtn_3": {
    "file": "xml/hud.xml",
-   "line": 468,
+   "line": 471,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactionsPanel": {
    "file": "xml/hud.xml",
-   "line": 449,
+   "line": 452,
    "element": "Panel",
    "onClick": ""
   },
@@ -8529,259 +8611,259 @@
   },
   "rosterHealthVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 635,
+   "line": 638,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 711,
+   "line": 714,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_James": {
    "file": "xml/hud.xml",
-   "line": 597,
+   "line": 600,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 749,
+   "line": 752,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 673,
+   "line": 676,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealth_Coco": {
    "file": "xml/hud.xml",
-   "line": 632,
+   "line": 635,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Ellie": {
    "file": "xml/hud.xml",
-   "line": 708,
+   "line": 711,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_James": {
    "file": "xml/hud.xml",
-   "line": 594,
+   "line": 597,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Luca": {
    "file": "xml/hud.xml",
-   "line": 746,
+   "line": 749,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Rayman": {
    "file": "xml/hud.xml",
-   "line": 670,
+   "line": 673,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHungerVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 645,
+   "line": 648,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 721,
+   "line": 724,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_James": {
    "file": "xml/hud.xml",
-   "line": 607,
+   "line": 610,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 759,
+   "line": 762,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 683,
+   "line": 686,
    "element": "Text",
    "onClick": ""
   },
   "rosterHunger_Coco": {
    "file": "xml/hud.xml",
-   "line": 642,
+   "line": 645,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Ellie": {
    "file": "xml/hud.xml",
-   "line": 718,
+   "line": 721,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_James": {
    "file": "xml/hud.xml",
-   "line": 604,
+   "line": 607,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Luca": {
    "file": "xml/hud.xml",
-   "line": 756,
+   "line": 759,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Rayman": {
    "file": "xml/hud.xml",
-   "line": 680,
+   "line": 683,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterName_Coco": {
    "file": "xml/hud.xml",
-   "line": 626,
+   "line": 629,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Ellie": {
    "file": "xml/hud.xml",
-   "line": 702,
+   "line": 705,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_James": {
    "file": "xml/hud.xml",
-   "line": 588,
+   "line": 591,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Luca": {
    "file": "xml/hud.xml",
-   "line": 740,
+   "line": 743,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Rayman": {
    "file": "xml/hud.xml",
-   "line": 664,
+   "line": 667,
    "element": "Text",
    "onClick": ""
   },
   "rosterRow_Coco": {
    "file": "xml/hud.xml",
-   "line": 624,
+   "line": 627,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Ellie": {
    "file": "xml/hud.xml",
-   "line": 700,
+   "line": 703,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_James": {
    "file": "xml/hud.xml",
-   "line": 586,
+   "line": 589,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Luca": {
    "file": "xml/hud.xml",
-   "line": 738,
+   "line": 741,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Rayman": {
    "file": "xml/hud.xml",
-   "line": 662,
+   "line": 665,
    "element": "Panel",
    "onClick": ""
   },
   "rosterSanityVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 655,
+   "line": 658,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 731,
+   "line": 734,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_James": {
    "file": "xml/hud.xml",
-   "line": 617,
+   "line": 620,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 769,
+   "line": 772,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 693,
+   "line": 696,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanity_Coco": {
    "file": "xml/hud.xml",
-   "line": 652,
+   "line": 655,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Ellie": {
    "file": "xml/hud.xml",
-   "line": 728,
+   "line": 731,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_James": {
    "file": "xml/hud.xml",
-   "line": 614,
+   "line": 617,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Luca": {
    "file": "xml/hud.xml",
-   "line": 766,
+   "line": 769,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Rayman": {
    "file": "xml/hud.xml",
-   "line": 690,
+   "line": 693,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rulesBody": {
    "file": "xml/hud.xml",
-   "line": 253,
+   "line": 256,
    "element": "Text",
    "onClick": ""
   },
   "rulesPanel": {
    "file": "xml/hud.xml",
-   "line": 233,
+   "line": 236,
    "element": "Panel",
    "onClick": ""
   },
   "rulesToggle": {
    "file": "xml/hud.xml",
-   "line": 246,
+   "line": 249,
    "element": "Button",
    "onClick": "onRulesToggle"
   },
@@ -8847,67 +8929,67 @@
   },
   "statCharName": {
    "file": "xml/hud.xml",
-   "line": 507,
+   "line": 510,
    "element": "Text",
    "onClick": ""
   },
   "statDisplay": {
    "file": "xml/hud.xml",
-   "line": 497,
+   "line": 500,
    "element": "Panel",
    "onClick": ""
   },
   "statHealthBar": {
    "file": "xml/hud.xml",
-   "line": 515,
+   "line": 518,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statHealthVal": {
    "file": "xml/hud.xml",
-   "line": 518,
+   "line": 521,
    "element": "Text",
    "onClick": ""
   },
   "statHungerBar": {
    "file": "xml/hud.xml",
-   "line": 527,
+   "line": 530,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statHungerVal": {
    "file": "xml/hud.xml",
-   "line": 530,
+   "line": 533,
    "element": "Text",
    "onClick": ""
   },
   "statLocation": {
    "file": "xml/hud.xml",
-   "line": 547,
+   "line": 550,
    "element": "Text",
    "onClick": ""
   },
   "statPerks": {
    "file": "xml/hud.xml",
-   "line": 560,
+   "line": 563,
    "element": "Text",
    "onClick": ""
   },
   "statResources": {
    "file": "xml/hud.xml",
-   "line": 551,
+   "line": 554,
    "element": "Text",
    "onClick": ""
   },
   "statSanityBar": {
    "file": "xml/hud.xml",
-   "line": 539,
+   "line": 542,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statSanityVal": {
    "file": "xml/hud.xml",
-   "line": 542,
+   "line": 545,
    "element": "Text",
    "onClick": ""
   },
@@ -9021,7 +9103,7 @@
   },
   "uiToggle": {
    "file": "xml/hud.xml",
-   "line": 108,
+   "line": 111,
    "element": "Button",
    "onClick": "onToggleCustomUI"
   },
@@ -9118,6 +9200,48 @@
   "weekReviewTitle": {
    "file": "xml/dialogs.xml",
    "line": 80,
+   "element": "Text",
+   "onClick": ""
+  },
+  "welcomeBack": {
+   "file": "xml/dialogs.xml",
+   "line": 692,
+   "element": "Button",
+   "onClick": "onWelcomeBack"
+  },
+  "welcomeBody": {
+   "file": "xml/dialogs.xml",
+   "line": 684,
+   "element": "Text",
+   "onClick": ""
+  },
+  "welcomeNext": {
+   "file": "xml/dialogs.xml",
+   "line": 702,
+   "element": "Button",
+   "onClick": "onWelcomeNext"
+  },
+  "welcomePanel": {
+   "file": "xml/dialogs.xml",
+   "line": 673,
+   "element": "Panel",
+   "onClick": ""
+  },
+  "welcomeSkip": {
+   "file": "xml/dialogs.xml",
+   "line": 697,
+   "element": "Button",
+   "onClick": "onWelcomeSkip"
+  },
+  "welcomeStep": {
+   "file": "xml/dialogs.xml",
+   "line": 688,
+   "element": "Text",
+   "onClick": ""
+  },
+  "welcomeTitle": {
+   "file": "xml/dialogs.xml",
+   "line": 682,
    "element": "Text",
    "onClick": ""
   },

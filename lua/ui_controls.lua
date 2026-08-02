@@ -173,11 +173,26 @@ function refreshHostControls()
         UI.setAttribute(id, "active", on and "true" or "false")
         if on then count = count + 1 end
     end
-    -- No valid buttons right now (e.g. mid-walkthrough, auto-advancing
-    -- phases before the first Restart) → no panel at all.
+    -- No valid buttons right now → no panel at all. That is only ever
+    -- legitimate while the guided walkthrough owns the screen: it has its own
+    -- modal, and "Setup Game" beside "Pick Your Character" read as two
+    -- competing instructions.
+    --
+    -- Every OTHER zero-button state is an unescapable dead end, and one really
+    -- happened: finalizeGuidedSetup threw part-way (an unguarded physical-object
+    -- call), leaving started=false with a full party. The panel had been hidden
+    -- for the walkthrough, nothing re-ran this function, and the banner sat on
+    -- "Click Setup to begin" next to no Setup button and no Restart — the host
+    -- had to reload the mod. So when the walkthrough is not running, always
+    -- leave exactly one way out.
     if count == 0 then
-        UI.setAttribute("hostControls", "active", "false")
-        return
+        if isGuidedSetupRunning and isGuidedSetupRunning() then
+            UI.setAttribute("hostControls", "active", "false")
+            return
+        end
+        local escape = gameState.started and "btnRestart" or "btnSetup"
+        UI.setAttribute(escape, "active", "true")
+        count = 1
     end
     UI.setAttribute("hostControls", "active", "true")
     -- Title (~38px incl. padding) + one 38px button + 6px gap per row.

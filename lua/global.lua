@@ -476,6 +476,11 @@ function onLoad(savedState)
         end)
         -- (No Discard Tray sweep any more — resources are virtual, so no
         -- tokens are ever dropped for it to reclaim.)
+        -- The under-table library exists from the first frame, so it has to be
+        -- sealed from the first frame too — not only once Setup has run.
+        -- Otherwise the pointer highlights invisible cards through the board
+        -- for the whole pre-game. (audit.lua)
+        safecall(function() sealUnderTableObjects() end, "SealUnderTable")
         -- J.10: Run first-load component audit
         safecall(function() auditFirstLoad() end, "FirstLoadAudit")
         -- J.11: Measure the board against the world square its art is drawn

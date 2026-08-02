@@ -56,7 +56,45 @@ function lockdownCriticalObjects()
         end
     end
 
+    safecall(function() sealUnderTableObjects() end, "SealUnderTable")
+
     broadcastEvent("proc", "Locked " .. locked .. " critical objects against accidental movement.")
+end
+
+-----------------------------------------------------------------------
+-- Everything parked under the table is meant to be invisible AND
+-- untouchable. Locking and hiding gets the first half only.
+--
+-- TTS raycasts the pointer straight through the board and the tabletop, so
+-- the hidden library (decks, supply bags, benched standees and boards, the
+-- spare cards) kept flashing its white selection outline as the mouse
+-- crossed the board — "it keeps highlighting cards that are supposed to be
+-- under the table, unselectable and invisible". setLock does not stop that;
+-- a locked object still highlights and still answers the pointer.
+--
+-- interactable=false does, and it is the same lever the Day Counter already
+-- uses two functions up. It blocks the player's mouse only: takeObject,
+-- setPosition, shuffle and every other scripted path are unaffected, which
+-- is what makes it safe to apply to the decks the game draws from.
+--
+-- The inverse lives in placeCharacterAtTile (helpers.lua): a standee coming
+-- back up onto the board has to become touchable again.
+-----------------------------------------------------------------------
+TABLETOP_Y = 0    -- surface level; the library shelf sits at LIBRARY_Y = -2.5
+
+function sealUnderTableObjects()
+    local sealed = 0
+    for _, obj in ipairs(getAllObjects()) do
+        -- pcall per object: getAllObjects can hand back a handle that dies
+        -- between the listing and the read (docs/tts-interface.md).
+        pcall(function()
+            if obj.getPosition().y < TABLETOP_Y then
+                obj.interactable = false
+                sealed = sealed + 1
+            end
+        end)
+    end
+    return sealed
 end
 
 -----------------------------------------------------------------------

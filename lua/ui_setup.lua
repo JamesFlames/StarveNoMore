@@ -104,12 +104,17 @@ function startGuidedSetup(hostColor)
     -- identical turn messages.
     pcall(function() if Turns and Turns.enable then Turns.enable = false end end)
 
+    -- The intro is click-through now, so it can still be open when the host
+    -- starts setup. Close it rather than stack a second modal on top of it.
+    safecall(function() closeWelcomeSequence() end, "Welcome")
+
     setupState.inProgress = true
     setupState.step = 1
     setupState.hostColor = hostColor
     setupState.pickedPath = nil
     setupState.charPicks = {}
     setupState.pendingColors = {}
+    setupState.confirmPickFor = nil -- pending "pick for another seat" confirm
     setupState.duskSecret = false   -- §11.3 A/B variant, off by default
     setupState.solo = false         -- §20.3 → an official mode
 
@@ -415,19 +420,33 @@ function showCharPickForNextPlayer()
         return
     end
 
-    -- Lead with WHO picks now (the head of the queue — the seat a host
-    -- click picks for); the rest of the queue is listed underneath.
-    local current = _seatLabel(setupState.pendingColors[1])
+    -- Shown ONLY to the seats that still have to pick, plus the host. It
+    -- used to be table-wide, which is how a player who had already picked
+    -- could click a second card and have it assigned to somebody else's
+    -- seat. Restricted like this, an ordinary player's click can only ever
+    -- be their own; the host keeps the panel because the hotseat path (one
+    -- person driving several seats) runs through it, behind the confirm
+    -- click in onPickChar.
+    local seats = {}
+    for _, c in ipairs(setupState.pendingColors) do seats[#seats + 1] = c end
+    local hostWaiting = false
+    for _, c in ipairs(seats) do
+        if c == setupState.hostColor then hostWaiting = true break end
+    end
+    if setupState.hostColor and not hostWaiting then
+        seats[#seats + 1] = setupState.hostColor
+    end
+    UI.setAttribute("setupStep2", "visibility", table.concat(seats, "|"))
+
     local others = {}
     for i = 2, #setupState.pendingColors do
         table.insert(others, _seatLabel(setupState.pendingColors[i]))
     end
-    UI.setAttribute("step2Title", "text",
-        "Step 2 — " .. current .. " picks a character")
-    local sub = "Click a card to choose — your seat colour changes to match your character. A host click also picks for " .. current .. "."
+    UI.setAttribute("step2Title", "text", "Step 2 — pick your character")
+    local sub = "Click a card to choose. Your seat colour changes to match your character when setup finishes."
     if #others > 0 then
-        sub = sub .. "\nUp next: " .. table.concat(others, ", ") ..
-            " (anyone waiting may click their own card early)."
+        sub = sub .. "\nStill choosing: " .. _seatLabel(setupState.pendingColors[1]) ..
+            ", " .. table.concat(others, ", ") .. " — first click takes the card."
     end
     sub = sub .. "\nHover a card for the full briefing. HP = Health, HU = Hunger, SA = Sanity."
     UI.setAttribute("step2Subtitle", "text", sub)
@@ -460,13 +479,22 @@ end
 
 -----------------------------------------------------------------------
 -- A player's colour is determined by the character they pick
--- (CHARACTER_COLORS, global.lua): picking reseats the player onto the
--- character's colour so pointer, hand zone, standee holder and roster
--- all match. If another (not-yet-picked) player is parked on the target
--- seat, the two players SWAP seats through a spare — nobody is ever left
--- on a spare seat, because a player stranded off the five character
--- seats has no hand zone and TTS keeps prompting them to "Choose Color"
--- (the stray coloured circles that used to appear mid-game).
+-- (CHARACTER_COLORS, global.lua), so everyone is reseated onto their
+-- character's colour and pointer, hand zone, standee holder and roster
+-- all match.
+--
+-- That reseat used to happen ON EACH PICK, inside the walkthrough, and it
+-- was the wrong moment for it. Player.changeColor rebuilds the moved
+-- client's UI canvas, so a swap fired three canvas rebuilds that raced the
+-- panel show/hide of the *next* pick, and the live queue (pendingColors,
+-- hostColor) had to be rewritten mid-flow to follow the players around.
+-- A real table came out of it with the host holding two characters and one
+-- player who never chose at all.
+--
+-- Now nothing moves until finalize: picks are recorded against whatever
+-- seat the player is already sitting in, and the whole permutation is
+-- applied once, after the walkthrough's panels are closed and the queue is
+-- empty. There is no UI left to lose and no queue left to patch up.
 -----------------------------------------------------------------------
 local SPARE_SEATS = { "Orange", "Purple", "Pink", "Teal", "Brown" }
 
@@ -482,46 +510,76 @@ local function _freeSpareSeat()
     return nil
 end
 
-local function reseatPlayerForCharacter(color, charName)
-    local target = CHARACTER_COLORS and CHARACTER_COLORS[charName]
-    if not target or target == color then return target or color end
-    local mover = Player[color]
-    if not (mover and mover.seated) then return color end
+local function _seatedAt(color)
+    local seated = false
+    pcall(function() seated = (Player[color] and Player[color].seated) or false end)
+    return seated
+end
 
-    local occupant = Player[target]
-    if occupant and occupant.seated then
-        -- Three-step swap through a spare seat (TTS can't swap directly).
-        local spare = _freeSpareSeat()
-        if not spare or not occupant.changeColor(spare) then
-            return color   -- can't clear the seat; colours stay as they are
+local function _changeColor(from, to)
+    -- Always index Player fresh: the handle held before a changeColor is
+    -- stale afterwards (docs/tts-interface.md).
+    local moved = false
+    pcall(function() moved = Player[from].changeColor(to) and true or false end)
+    return moved
+end
+
+-- Seat every picker on their character's colour. Returns the remap
+-- { [seatTheyPickedFrom] = seatTheyEndedOn } for every player that moved.
+--
+-- Targets are distinct by construction (each character maps to its own
+-- colour and is picked at most once), so this is a permutation: resolve it
+-- by repeatedly moving anyone whose target is already free, and when only
+-- a closed cycle is left, park one member on a spare seat to open a hole.
+-- Nobody is left on a spare — a player stranded off the five character
+-- seats has no hand zone and TTS keeps prompting them to "Choose Color".
+local function applyCharacterSeating()
+    local remap, pending, origin = {}, {}, {}
+    for color, charName in pairs(setupState.charPicks) do
+        local target = CHARACTER_COLORS and CHARACTER_COLORS[charName]
+        if target and target ~= color and _seatedAt(color) then
+            pending[color] = target
+            origin[color] = color
         end
-        if not Player[color].changeColor(target) then
-            pcall(function() Player[spare].changeColor(target) end)  -- undo
-            return color
-        end
-        pcall(function() Player[spare].changeColor(color) end)
-        -- Bookkeeping: the displaced player's waiting entry follows them
-        -- onto the picker's old seat. (The picker's own entry was already
-        -- removed by onPickChar; nobody who picked sits off their seat.)
-        for i, c in ipairs(setupState.pendingColors) do
-            if c == target then setupState.pendingColors[i] = color end
-        end
-        if setupState.hostColor == target then setupState.hostColor = color
-        elseif setupState.hostColor == color then setupState.hostColor = target end
-        broadcastEvent("proc", charName .. " plays as " .. target ..
-            " — seats swapped so colours follow characters.")
-        return target
     end
 
-    if mover.changeColor(target) then
-        if setupState.hostColor == color then setupState.hostColor = target end
-        broadcastEvent("proc", charName .. " plays as " .. target ..
-            " — your seat colour now matches your character.")
-        return target
+    -- Evict anyone squatting a needed seat who picked nothing at all (a
+    -- spectator sitting on a character colour). Players who DID pick sort
+    -- themselves out through the permutation below.
+    for _, target in pairs(pending) do
+        if setupState.charPicks[target] == nil and _seatedAt(target) then
+            local spare = _freeSpareSeat()
+            if spare then _changeColor(target, spare) end
+        end
     end
-    -- Reseat refused (engine edge): keep the old colour — the game works
-    -- either way, the colours just won't match.
-    return color
+
+    local guard = 0
+    while next(pending) and guard < 16 do
+        guard = guard + 1
+        local ready = {}
+        for from, to in pairs(pending) do
+            if not _seatedAt(to) then ready[#ready + 1] = from end
+        end
+        for _, from in ipairs(ready) do
+            local to = pending[from]
+            if _changeColor(from, to) then
+                remap[origin[from]] = to
+                pending[from], origin[from] = nil, nil
+            else
+                pending[from], origin[from] = nil, nil   -- engine refused; leave them put
+            end
+        end
+        if #ready == 0 then
+            -- Closed cycle: everyone left is blocked by someone who is also
+            -- waiting to move. Park one on a spare to break it.
+            local from = next(pending)
+            local spare = _freeSpareSeat()
+            if not (spare and _changeColor(from, spare)) then break end
+            pending[spare], origin[spare] = pending[from], origin[from]
+            pending[from], origin[from] = nil, nil
+        end
+    end
+    return remap
 end
 
 function onPickChar(player, value, id)
@@ -575,6 +633,32 @@ function onPickChar(player, value, id)
                 player.color, BROADCAST_COLORS.damage)
             return
         end
+        -- Picking FOR another seat is the hotseat path — one person at the
+        -- keyboard driving several characters. It used to fire on the first
+        -- click with no warning, which is how a host who had already picked
+        -- his own character clicked a second card and had it assigned to the
+        -- next seat in the queue. The log read as if that player had chosen
+        -- it; they had never clicked anything, and the panel was still open
+        -- in front of them.
+        --
+        -- The queue only ever holds SEATED colours (reconcilePendingColors),
+        -- so "is somebody there?" cannot distinguish a hotseat from a real
+        -- second player. Ask instead: the first click warns, a second click
+        -- on the same card goes through. Hotseat still works, in two clicks
+        -- rather than one; the accident does not.
+        if _seatedAt(color) then
+            local confirmKey = color .. ":" .. charName
+            if setupState.confirmPickFor ~= confirmKey then
+                setupState.confirmPickFor = confirmKey
+                broadcastToColor(
+                    _seatLabel(color) .. " is seated and hasn't picked yet — that choice is theirs. " ..
+                    "If you're playing their seat too, click " .. charName ..
+                    " again to pick it for them.",
+                    player.color, BROADCAST_COLORS.warn)
+                return
+            end
+        end
+        setupState.confirmPickFor = nil
         broadcastEvent("proc", tostring(player.steam_name or player.color) ..
             " picks " .. charName .. " for the " .. color .. " seat.")
     end
@@ -583,32 +667,16 @@ function onPickChar(player, value, id)
         if c == color then table.remove(setupState.pendingColors, i) break end
     end
 
-    -- Close the pick panel BEFORE the reseat: Player.changeColor rebuilds
-    -- the moved player's UI canvas, and anything issued after it can miss
-    -- that client entirely.
-    UI.hide("setupStep2")
-
-    local finalColor = color
-    safecall(function() finalColor = reseatPlayerForCharacter(color, charName) end, "Reseat")
-    setupState.charPicks[finalColor] = charName
-    -- The picker can land on a colour that is itself still in the queue
-    -- (their character's seat was empty but queued from an earlier swap).
-    -- Left there, they became the head of their own queue — "<name> picks a
-    -- character" forever, one more card greyed out on every click.
-    for i = #setupState.pendingColors, 1, -1 do
-        if setupState.pendingColors[i] == finalColor then
-            table.remove(setupState.pendingColors, i)
-        end
-    end
-    broadcastEvent("proc", charName .. " assigned to " .. finalColor .. ".")
+    -- Recorded against the seat the player is sitting in RIGHT NOW. Nobody
+    -- changes colour until finalize (applyCharacterSeating), so there is no
+    -- canvas rebuild to race and no queue entry to chase around the table.
+    setupState.charPicks[color] = charName
+    setupState.confirmPickFor = nil
+    broadcastEvent("proc", charName .. " goes to " .. _seatLabel(color) ..
+        ". (Seat colours are set to match characters when setup finishes.)")
 
     -- Show briefing for this player (Step 3 interleaved)
-    showCharBriefing(finalColor, charName)
-
-    -- ...then repair the reseated client once its rebuilt canvas exists.
-    safecall(function()
-        Wait.frames(function() safecall(syncSetupPanels, "SetupSync") end, 3)
-    end, "SetupSync")
+    showCharBriefing(color, charName)
 end
 
 -----------------------------------------------------------------------
@@ -637,9 +705,25 @@ function showCharBriefing(color, charName)
     setupState.step = 3
     setupState.briefingColor = color
 
+    UI.hide("setupStep2")
     local text = CHAR_BRIEFINGS[charName] or ("You are " .. charName .. ".")
     UI.setAttribute("briefTitle", "text", "You are " .. charName)
     UI.setAttribute("briefBody", "text", formatBriefingBody(text))
+    -- Your character sheet, shown to you. Table-wide, everyone got a popup
+    -- about somebody else's character and anyone could dismiss it — so the
+    -- Continue that advanced the walkthrough was routinely clicked by a
+    -- player who had not read a word of it.
+    --
+    -- The host keeps it too. Continue is what advances the walkthrough, and
+    -- restricting it to one seat would put the whole table behind whoever
+    -- just wandered off to make a coffee.
+    if color then
+        local seats = color
+        if setupState.hostColor and setupState.hostColor ~= color then
+            seats = seats .. "|" .. setupState.hostColor
+        end
+        UI.setAttribute("charBriefing", "visibility", seats)
+    end
     UI.show("charBriefing")
 end
 
@@ -695,33 +779,45 @@ end
 -----------------------------------------------------------------------
 -- Finalize setup after all players have picked and been briefed
 -----------------------------------------------------------------------
-function finalizeGuidedSetup()
-    setupState.step = 4
-    setupState.inProgress = false
-    setupState.pendingColors = {}
-    setupState.briefingColor = nil
-    pcall(function() if Turns and Turns.enable then Turns.enable = false end end)
-    -- Close every walkthrough panel. Nothing below re-opens them, so a panel
-    -- still on screen once the game starts is a dead end with no way back.
-    safecall(syncSetupPanels, "SetupSync")
-
+-- The body of finalize. Called under pcall by finalizeGuidedSetup so that a
+-- throw in here can never strand the table (see the wrapper below).
+local function runGuidedSetupFinalize()
     -- Run the actual Setup logic with the picked characters
     broadcastEvent("phase", "Setting up Starve No More...")
 
     -- 1. Path variant already set (announced with the rest, below)
 
     -- 2. Shuffle Phase decks
-    for p = 1, 4 do
-        local deck = getPhaseDeck(p)
-        if deck then deck.shuffle() end
-    end
+    safecall(function()
+        for p = 1, 4 do
+            local deck = getPhaseDeck(p)
+            if deck then deck.shuffle() end
+        end
+    end, "PhaseDecks")
 
     -- 3. Market — deal the display row (empty slots only; re-setup safe)
-    dealMarketDisplay()
+    safecall(function() dealMarketDisplay() end, "Market")
 
     -- 4. Threat deck
-    local threatDeck = getThreatDeck()
-    if threatDeck then threatDeck.shuffle() end
+    safecall(function()
+        local threatDeck = getThreatDeck()
+        if threatDeck then threatDeck.shuffle() end
+    end, "ThreatDeck")
+
+    -- 4.5. NOW everybody moves onto their character's colour — once, with
+    -- the walkthrough closed and the queue empty. Re-key the picks onto the
+    -- seats people actually ended up in, so everything below (activeChars,
+    -- turn order, hand zones) is keyed by the final colour.
+    local remap = {}
+    safecall(function() remap = applyCharacterSeating() or {} end, "Reseat")
+    if next(remap) then
+        local reseated = {}
+        for color, charName in pairs(setupState.charPicks) do
+            reseated[remap[color] or color] = charName
+        end
+        setupState.charPicks = reseated
+        setupState.hostColor = remap[setupState.hostColor] or setupState.hostColor
+    end
 
     -- 5. Assign characters per picks. Wipe the previous party first so a
     -- re-setup can never leave stale characters in the roster.
@@ -756,7 +852,7 @@ function finalizeGuidedSetup()
             signatureUsed = false,   -- Signature Move (§6.7): one per game
         }
 
-        placeCharacterAtTile(charName, home)
+        safecall(function() placeCharacterAtTile(charName, home) end, "PlaceChar")
 
         roster[#roster + 1] = charName .. " (" .. color .. ")"
     end
@@ -803,9 +899,14 @@ function finalizeGuidedSetup()
     gameState.openingOffered = {}      -- guided opening (§15.9)
     gameState.duskPending = {}         -- secret Dusk commitments (§11.3)
 
-    local counter = getDayCounter()
-    if counter then counter.setValue(1) end
-    moveDoomMarker(0)
+    -- Both touch physical object handles, so both are safecall'd: an object
+    -- that was deleted, merged into a deck or never spawned throws on the
+    -- dead handle, and neither gadget is worth failing setup over.
+    safecall(function()
+        local counter = getDayCounter()
+        if counter then counter.setValue(1) end
+    end, "DayCounter")
+    safecall(function() moveDoomMarker(0) end, "DoomMarker")
 
     -- 7. Started
     gameState.started = true
@@ -835,27 +936,130 @@ function finalizeGuidedSetup()
 end
 
 -----------------------------------------------------------------------
+-- Finalize setup — the wrapper that cannot strand the table.
+--
+-- The body above touches a lot of physical objects, and one throw in the
+-- middle of it used to be terminal: gameState.activeChars was already
+-- written but `gameState.started = true` was not, so the game sat at
+-- PreGame *with a full party*, Host Controls stayed hidden (they are
+-- hidden on purpose while the walkthrough runs, and nothing re-ran
+-- refreshHostControls), and the banner advised "Click Setup to begin"
+-- beside no Setup button. The only way out was reloading the mod.
+--
+-- So: close the walkthrough FIRST (that part must happen either way), run
+-- the body under pcall, and always end on a HUD refresh. Paired with the
+-- zero-button escape in refreshHostControls (ui_controls.lua), a failed
+-- setup is now a retryable error instead of a dead end.
+-----------------------------------------------------------------------
+function finalizeGuidedSetup()
+    setupState.step = 4
+    setupState.inProgress = false
+    setupState.pendingColors = {}
+    setupState.briefingColor = nil
+    pcall(function() if Turns and Turns.enable then Turns.enable = false end end)
+    -- Close every walkthrough panel. Nothing below re-opens them, so a panel
+    -- still on screen once the game starts is a dead end with no way back.
+    safecall(syncSetupPanels, "SetupSync")
+
+    local ok, err = pcall(runGuidedSetupFinalize)
+    if not ok then
+        broadcastEvent("damage", "Setup stopped on an error: " .. tostring(err))
+        broadcastEvent("warn", "Nothing is lost — Host Controls are back. Click Restart, then Setup Game to try again.")
+    end
+
+    -- Always, on both paths: the HUD is the only way back to a button.
+    safecall(syncSetupPanels, "SetupSync")
+    safecall(function() refreshPhaseBanner() end, "Banner")
+end
+
+-----------------------------------------------------------------------
 -- H.6 — Welcome sequence on first load
 -----------------------------------------------------------------------
+-- The introduction, one page per click. These were five staged broadcasts;
+-- a broadcast fades on a timer the reader did not choose, which is the wrong
+-- control for the very first thing a new table ever sees. Same words, now
+-- paced by the player (welcomePanel, dialogs.xml).
+--   { category, title, body }   -- category feeds the Message Log colour
+WELCOME_PAGES = {
+    {"warn", "Welcome to Starve No More",
+     "Five teenagers. Seven days. Something out there is hungry.\n\n" ..
+     "You all win together or you all lose together — there is no solo victory in this game."},
+    {"warn", "Take any seat",
+     "Sit at any colour for now. When you pick your character during Setup, your seat colour changes to match them:\n\n" ..
+     "James = Blue     Coco = White     Rayman = Green\nEllie = Yellow     Luca = Red"},
+    {"proc", "Content note",
+     "Cosmic horror. Darkness that hunts you, bodies that fail, and some grim writing when a character falls."},
+    -- RULEBOOK is the leftmost tab but currentHelpTab defaults to "quick"
+    -- (ui_help.lua), so '?' lands on Quick Start. Saying "its first tab is
+    -- the rulebook" sent players looking at a page they weren't on.
+    {"gain", "Where the help lives",
+     "Press '?' anytime — it opens on QUICK START, and the RULEBOOK tab beside it is the complete player rulebook, page by page, so nobody has to go looking for rules outside the game.\n\n" ..
+     "Press 'What now?' if you're stuck. The Message Log (bottom right) keeps everything said — including these pages."},
+    {"warn", "Ready when you are",
+     "Click 'Setup Game' on the Host Controls panel (top-left) to begin.\n\n" ..
+     "Hover anything on the table to see what it does."},
+}
+
+local welcomePage = 0
+
+local function renderWelcomePage()
+    if not UI then return end
+    local page = WELCOME_PAGES[welcomePage]
+    if not page then return end
+    UI.setAttribute("welcomeTitle", "text", page[2])
+    UI.setAttribute("welcomeBody", "text", page[3])
+    UI.setAttribute("welcomeStep", "text", welcomePage .. " of " .. #WELCOME_PAGES)
+    UI.setAttribute("welcomeBack", "interactable", welcomePage > 1 and "true" or "false")
+    -- setButtonLabel, not a bare text attribute: setting a Button's text on
+    -- its own resets the styling to near-black (docs/tts-interface.md).
+    if welcomePage >= #WELCOME_PAGES then
+        setButtonLabel("welcomeNext", "Let's begin", "#12300F", "#CFE8CFF2")
+    else
+        setButtonLabel("welcomeNext", "Next ▸", "#12300F", "#CFE8CFF2")
+    end
+    UI.show("welcomePanel")
+end
+
+function closeWelcomeSequence()
+    welcomePage = 0
+    if UI then UI.hide("welcomePanel") end
+end
+
+function onWelcomeNext(player, value, id)
+    -- A click on a ghost panel (a client that missed the hide) must close it,
+    -- not walk a sequence that is already over.
+    if welcomePage <= 0 or welcomePage >= #WELCOME_PAGES then
+        closeWelcomeSequence()
+        return
+    end
+    welcomePage = welcomePage + 1
+    renderWelcomePage()
+end
+
+function onWelcomeBack(player, value, id)
+    if welcomePage <= 1 then return end
+    welcomePage = welcomePage - 1
+    renderWelcomePage()
+end
+
+function onWelcomeSkip(player, value, id)
+    closeWelcomeSequence()
+end
+
 function showWelcomeSequence()
     if gameState.started or gameState.welcomed then return end
 
-    -- broadcastEvent (not broadcastToAll) so these land in the Message Log
-    -- panel too — new players need to re-read them after the fade. Staged,
-    -- because five paragraphs arriving together is the very first thing a new
-    -- table sees, and it reads as a wall rather than as an introduction. The
-    -- content note (§18.19 item 5) still lands before characters are chosen —
-    -- staging orders the messages, it does not defer them past the decision.
-    stageBroadcasts({
-        {"warn", "Welcome to Starve No More."},
-        {"warn", "Sit at any colour for now — when you pick your character during Setup, your seat colour changes to match it (James=Blue, Coco=White, Rayman=Green, Ellie=Yellow, Luca=Red)."},
-        {"proc", "Content note: cosmic horror. Darkness that hunts you, bodies that fail, and some grim writing when a character falls."},
-        -- RULEBOOK is the leftmost tab but currentHelpTab defaults to "quick"
-        -- (ui_help.lua), so '?' lands on Quick Start. Saying "its first tab is
-        -- the rulebook" sent players looking at a page they weren't on.
-        {"gain", "Press '?' anytime for help — it opens on QUICK START, and the RULEBOOK tab beside it is the complete player rulebook, page by page, so nobody has to go looking for rules outside the game. Press 'What now?' if you're stuck. The Message Log (bottom right) keeps everything said — nothing is lost when a broadcast fades."},
-        {"warn", "Click 'Setup Game' on the Host Controls panel (top-left), or hover anything to see what it does."},
-    })
+    -- Every page also goes straight into the Message Log, so a player who
+    -- skips (or joins late) can still read all of it. logMessage rather than
+    -- broadcastEvent: a broadcast here would put the fading toast back.
+    for _, page in ipairs(WELCOME_PAGES) do
+        if logMessage then
+            pcall(function() logMessage(page[1], page[2] .. " — " .. page[3]) end)
+        end
+    end
+
+    welcomePage = 1
+    renderWelcomePage()
 
     -- Camera tween to the main board for all players
     local board = getMainBoard()
