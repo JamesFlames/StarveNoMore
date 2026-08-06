@@ -53,6 +53,38 @@ def test_no_duplicate_global_assignments(lua_sources):
     )
 
 
+LOCAL_FN_RE = re.compile(r"^local\s+function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(", re.M)
+
+
+def test_no_local_shadows_a_global_function(lua_sources):
+    """A file-local must not share a name with a global defined elsewhere.
+
+    The bundle is one chunk, so a top-level `local function foo` is in scope
+    for every line after it — including another file's `function foo(...)`,
+    which then ASSIGNS TO THAT LOCAL instead of creating a global. The global
+    never exists, and every file loaded before the local's declaration sees
+    `foo` as nil and dies on the first call.
+
+    That is not hypothetical: `_resLabel` was a private gather helper in
+    actions.lua (load index 29) and a would-be global API in
+    ui_actionbar_core.lua (index 42). No global was ever created, so the first
+    caller from an earlier file — canCleanse, in tick_victory.lua at index 28
+    — threw "attempt to call global '_resLabel' (a nil value)" the moment it
+    ran. The duplicate-global tests above cannot see it: only one of the two
+    definitions is a global.
+    """
+    globals_ = find_definitions(lua_sources, GLOBAL_FN_RE)
+    locals_ = find_definitions(lua_sources, LOCAL_FN_RE)
+    clashes = {name: locals_[name] + globals_[name]
+               for name in sorted(set(locals_) & set(globals_))}
+    assert not clashes, (
+        "File-local function names that collide with a global function. In one "
+        "concatenated chunk the `function NAME(...)` writes to the local and no "
+        "global is ever created — rename the local:\n"
+        + "\n".join(f"  {n}: {', '.join(p)}" for n, p in clashes.items())
+    )
+
+
 def test_load_order_files_all_exist(load_order, lua_sources):
     missing = [f for f in load_order if f not in lua_sources]
     assert not missing, f"LUA_LOAD_ORDER names files that do not exist: {missing}"

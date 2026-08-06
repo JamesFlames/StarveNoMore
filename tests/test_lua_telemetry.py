@@ -32,7 +32,7 @@ class TestChronicle:
     def test_day_record_survives_daylog_wipe(self, env):
         add_char(env, "White", "James")
         env.execute("gameState.day = 3; gameState.doom = 14")
-        env.globals().broadcastEvent("damage", "James is DOWN. Flip standee to ghost side.")
+        env.globals().broadcastEvent("damage", "James is DOWN — their standee falls where they stood.")
         env.globals().recordDayInChronicle()
         env.execute("gameState.dayLog = {}")   # the Dawn wipe
         assert env.eval("gameState.chronicle.days[3].damageTonight") == 1

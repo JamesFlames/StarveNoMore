@@ -23,7 +23,7 @@
         onClick="onAchievementsClick"
         fontSize="12"
         color="#2A2418E6" textColor="#F0D89A"
-        tooltip="Achievements — what this table has done across every game it has played. Kept when you Restart; carried to another table with the code at the bottom of the panel."
+        tooltip="Achievements — what this table has done across every game it&#10;has played. Kept when you Restart; carried to another table&#10;with the code at the bottom of the panel."
         tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
         text="Trophies" />
 
@@ -180,7 +180,7 @@
       <Button id="achCopyCode" onClick="onAchievementsCopyCode"
               fontSize="13" color="#192837E6" textColor="#88CCEE"
               preferredWidth="180"
-              tooltip="Write this table's achievement code to the Notes panel (top menu &gt; Notes). Copy it out and paste it into another table's box below to carry your unlocks over."
+              tooltip="Write this table's achievement code to the Notes panel (top&#10;menu &gt; Notes). Copy it out and paste it into another&#10;table's box below to carry your unlocks over."
               text="Copy my code" />
       <InputField id="achCodeInput" onEndEdit="onAchievementsImportCode"
                   fontSize="12" preferredWidth="420"

@@ -140,3 +140,22 @@ def test_committed_save_is_fresh(built_save):
         f"  rebuilt:   …{fresh[lo:hi]!r}…",
         pytrace=False,
     )
+
+
+def test_lua_mirrors_the_tables_surface_height():
+    """TABLE_SURFACE_Y (global.lua) must equal build_save.py's.
+
+    Same rule as the doom marker above: the BUILD authors resting heights for
+    locked pieces, and the SCRIPT authors drop heights for unlocked ones. If
+    the two disagree about where the table is, script spawns land inside it —
+    which is what happened to a whole starting hand and six resource tokens.
+    Read from source, not by import: build_save.py parses argv at import time.
+    """
+    build_src = open(os.path.join(SCRIPTS, "build_save.py"), encoding="utf-8").read()
+    build_y = float(re.search(r"^TABLE_SURFACE_Y\s*=\s*([\d.]+)", build_src, re.M).group(1))
+    lua_src = open(os.path.join(ROOT, "lua", "global.lua"), encoding="utf-8").read()
+    lua_y = float(re.search(r"^TABLE_SURFACE_Y\s*=\s*([\d.]+)", lua_src, re.M).group(1))
+    assert lua_y == build_y, (
+        f"global.lua says the table surface is y={lua_y}, build_save.py says "
+        f"{build_y} — script spawns and built pieces must agree on where the "
+        "table is")

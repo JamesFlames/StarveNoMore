@@ -219,7 +219,7 @@ function refreshHelpPanel(player)
 end
 
 -----------------------------------------------------------------------
--- H.5 — "What now?" context-aware hint system
+-- H.5 — "What next?" context-aware hint system
 --
 -- The WHATNOW_HINTS table itself is auto-generated from
 -- content/help/whatnow_hints.md by scripts/generate_whatnow_hints.py.
@@ -562,13 +562,13 @@ function refreshActionButtonReasons(color)
 
     -- Update tooltips on disabled buttons with reasons
     if noActions then
-        setActionTooltip("actMove", "No actions remaining. Click Pass.")
-        setActionTooltip("actGather", "No actions remaining. Click Pass.")
-        setActionTooltip("actCraft", "No actions remaining. Click Pass.")
-        setActionTooltip("actCook", "No actions remaining. Click Pass.")
-        setActionTooltip("actFight", "No actions remaining. Click Pass.")
-        setActionTooltip("actRest", "No actions remaining. Click Pass.")
-        setActionTooltip("actCleanse", "No actions remaining. Click Pass.")
+        setActionTooltip("actMove", "No actions remaining. Press End Turn.")
+        setActionTooltip("actGather", "No actions remaining. Press End Turn.")
+        setActionTooltip("actCraft", "No actions remaining. Press End Turn.")
+        setActionTooltip("actCook", "No actions remaining. Press End Turn.")
+        setActionTooltip("actFight", "No actions remaining. Press End Turn.")
+        setActionTooltip("actRest", "No actions remaining. Press End Turn.")
+        setActionTooltip("actCleanse", "No actions remaining. Press End Turn.")
         setActionTooltip("actTrade", "Trade is still free once per turn at your tile — even with 0 actions.")
         setActionTooltip("actUndo", "Undo your last action's stat, position, and Doom changes.")
     else
@@ -577,7 +577,7 @@ function refreshActionButtonReasons(color)
         setActionTooltip("actCraft", "Craft an item from the Market. Costs 1 action + resources.")
 
         if hasCrockpot then
-            setActionTooltip("actCook", "Cook a recipe at the Crockpot. Costs 1 action + ingredients.")
+            setActionTooltip("actCook", "Cook a recipe at the Crockpot. Costs 1 action + ingredients. Eaten on the spot — it restores stats now, nothing is stored.")
         else
             setActionTooltip("actCook", "No Crockpot here. Move to Ellie & Luca's House to cook.")
         end
@@ -659,8 +659,8 @@ function quickStartCardText()
         .. "DARK: no light at night = Charlie attacks.\n"
         .. "TRADE: free, on your tile, any time.\n"
         .. "\nHover anything for its rule.\n"
-        .. "'?' > RULEBOOK = the whole rulebook.\n"
-        .. "'What now?' tells you your next move."
+        .. "'Rules' > RULEBOOK = the whole rulebook.\n"
+        .. "'What next?' tells you your next move."
 end
 
 -- Re-stamp the physical Quick Start notecard for the chosen variant.

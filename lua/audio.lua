@@ -32,10 +32,29 @@ Audio = {
     },
 }
 
--- Clips whose URL failed to load this session ("Error: AudioClip could not
--- be loaded"). Blacklisted so a bad file costs one skip, not a silent
--- track-length hole in the soundscape every time it comes up.
+-- Clips whose URL failed to load ("Error: AudioClip could not be loaded"),
+-- as url -> strike count. Skipped once they reach FAIL_STRIKES, so a bad
+-- file costs one retry rather than a silent track-length hole in the
+-- soundscape every time it comes up.
+--
+-- Two strikes, not one, because the first strike is usually not the file.
+-- The whole soundscape is served off one local http.server, and the deploy
+-- script purges TTS's asset cache on every run — so the load right after a
+-- deploy is TTS cold-fetching every board, card and clip at once. A slow
+-- clip in that queue is not a broken clip, and blacklisting it on the first
+-- miss killed tracks that were about to work.
 local _failedUrls = {}
+local FAIL_STRIKES = 2
+
+-- Seconds after starting a clip that the load watchdog checks on it. Clips
+-- shorter than this are never watched: they have already finished playing by
+-- the time it fires, and a finished clip reports the same "Stop" a failed one
+-- does — which would blacklist every boss roar after its first, correct play.
+local WATCH_DELAY = 6
+
+local function _skipped(url)
+    return url ~= nil and (_failedUrls[url] or 0) >= FAIL_STRIKES
+end
 
 -- ---------------- internal helpers ----------------
 
@@ -52,9 +71,25 @@ end
 
 -- Random pick that skips clips already known to fail.
 local function _pickRandom(list)
-    local playable = {}
+    local playable, all = {}, {}
     for _, c in ipairs(list or {}) do
-        if c.url and not _failedUrls[c.url] then playable[#playable + 1] = c end
+        if c.url then
+            all[#all + 1] = c
+            if not _skipped(c.url) then playable[#playable + 1] = c end
+        end
+    end
+    -- Every clip in the pool is skipped. That is almost never a pool of bad
+    -- files — it is one outage that hit all of them, and the two candidates
+    -- are the same one: the asset server was not answering (closed window, or
+    -- a second copy launched against a port the first already held). Without
+    -- this the pool stayed empty for the rest of the session, so the game went
+    -- permanently silent and coming back up on :8080 could not fix it; only
+    -- reloading the save could, and nothing on screen said so.
+    if #playable == 0 and #all > 0 then
+        for _, c in ipairs(all) do _failedUrls[c.url] = nil end
+        log("Every clip in an audio pool had failed — clearing the skip list and retrying. " ..
+            "If it stays silent, the asset server on :8080 is not answering.", "WARN", "Audio")
+        playable = all
     end
     if #playable == 0 then return nil end
     return playable[math.random(1, #playable)]
@@ -70,24 +105,33 @@ local function _playClip(clip)
     MusicPlayer.play()
 end
 
--- Load watchdog: a few seconds after starting a clip, a MusicPlayer left in
--- "Stop" means the URL failed to load. Blacklist it and move on immediately
--- instead of sitting in silence until the scheduled track change. Only a
--- literal "Stop" counts — unknown/absent status (older TTS, headless stub)
--- is left alone.
+-- Load watchdog: WATCH_DELAY seconds after starting a clip, a MusicPlayer
+-- left in "Stop" means the URL failed to load. Strike it and retry
+-- immediately instead of sitting in silence until the scheduled track change.
+-- Only a literal "Stop" counts — unknown/absent status (older TTS, headless
+-- stub) is left alone.
 local function _watchClip(clip, retryFn)
-    if Audio.state.watchHandle then Wait.stop(Audio.state.watchHandle) end
+    if Audio.state.watchHandle then
+        Wait.stop(Audio.state.watchHandle)
+        Audio.state.watchHandle = nil
+    end
+    -- A clip shorter than the window would already be over, and "finished" and
+    -- "never loaded" look identical from here.
+    if clip and (clip.duration or 0) <= WATCH_DELAY then return end
     Audio.state.watchHandle = Wait.time(function()
         Audio.state.watchHandle = nil
         local status = nil
         pcall(function() status = MusicPlayer and MusicPlayer.player_status end)
         if status == "Stop" and clip and clip.url then
-            _failedUrls[clip.url] = true
-            log("Audio clip failed to load, skipping from now on: " .. tostring(clip.url),
-                "WARN", "Audio")
+            local strikes = (_failedUrls[clip.url] or 0) + 1
+            _failedUrls[clip.url] = strikes
+            if strikes >= FAIL_STRIKES then
+                log("Audio clip failed " .. strikes .. " times, skipping from now on: " ..
+                    tostring(clip.url), "WARN", "Audio")
+            end
             if retryFn then retryFn() end
         end
-    end, 6)
+    end, WATCH_DELAY)
 end
 
 -- Schedule the function `fn` to run after `delay` seconds. Replaces any
@@ -111,7 +155,7 @@ end
 local function _playNextDay()
     if Audio.state.mode ~= "ambient" then return end
     local clip = Audio.state.dayClip
-    if not clip or not clip.url or _failedUrls[clip.url] then
+    if not clip or not clip.url or _skipped(clip.url) then
         clip = _pickRandom(_dayPool())
         Audio.state.dayClip = clip
     end
@@ -125,7 +169,7 @@ end
 local function _playNextNight()
     if Audio.state.mode ~= "night" then return end
     local clip = Audio.state.nightClip
-    if not clip or not clip.url or _failedUrls[clip.url] then
+    if not clip or not clip.url or _skipped(clip.url) then
         clip = _pickRandom(AUDIO.AMBIENT_NIGHT)
         Audio.state.nightClip = clip
     end

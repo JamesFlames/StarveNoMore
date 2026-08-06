@@ -112,6 +112,35 @@ local function collectActiveRules()
         table.insert(lines, "SCENARIO — " .. sc.name .. ": " .. sc.description)
     end
 
+    -- 0.8) FESTER PRESSURE — the clock nobody could see.
+    --
+    -- Every threat left standing adds Doom at the next Dawn, and Doom is the
+    -- loss condition. Until this line existed the rule was announced once, in
+    -- a broadcast at the moment it fired, and then never again — so a table
+    -- reasonably concluded that staying home was safe. It is not: doing
+    -- nothing is a slow loss rather than a stalemate, and that is the single
+    -- most important thing this panel can say.
+    --
+    -- Stated as the number it will cost at the NEXT Dawn, not as a rule about
+    -- festering, because the actionable form is "clear these or pay 3".
+    local festerThreats, festerBosses = 0, 0
+    pcall(function() festerThreats, festerBosses = countFesteringThreats() end)
+    local festerTotal = (festerThreats or 0) + (festerBosses or 0)
+    if festerTotal > 0 then
+        local what = {}
+        if (festerThreats or 0) > 0 then
+            what[#what + 1] = festerThreats .. " threat" .. (festerThreats == 1 and "" or "s")
+        end
+        if (festerBosses or 0) > 0 then
+            what[#what + 1] = "a boss"
+        end
+        table.insert(lines, "FESTERING: " .. table.concat(what, " and ") ..
+            " left standing on the map. Doom +" .. festerTotal ..
+            " at the next Dawn, and again every Dawn after — clearing them is " ..
+            "the only thing that stops it. (Doom " .. (gameState.doom or 0) ..
+            " / " .. getDoomLimit() .. ".)")
+    end
+
     -- 1) Doom thresholds crossed
     for _, entry in ipairs(DOOM_THRESHOLD_RULES) do
         if effects[entry[1]] then table.insert(lines, entry[2]) end

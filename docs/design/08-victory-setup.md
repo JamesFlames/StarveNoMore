@@ -59,7 +59,7 @@ The team **loses** if any of:
 When a character is Down (Health 0 or Sanity 0):
 
 - **Doom +1**, immediately. The dark feeds on collapse (§15.1). This is deliberately the *only* systemic penalty for being Down — the pressure lands on the shared clock the team can fight, not on the survivors' stat tracks.
-- Flip the standee to its **ghost side**. The character cannot take actions, cannot gather, cannot fight.
+- The standee is **laid on its side and greyed out** (automatic — setStandeePosture, helpers.lua). There is deliberately no separate "ghost side" art: a standee's back is a rear view of the LIVING character, so flipping it read as facing away rather than fallen. The character cannot take actions, cannot gather, cannot fight.
 - Ghost characters drift between locations (1 free move per round).
 - A ghost can whisper a single word to the team per round (literally — the ghost player may say one word per round to advise; this both flavors the experience and limits the alpha-player problem).
 

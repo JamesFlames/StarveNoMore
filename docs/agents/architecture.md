@@ -24,7 +24,7 @@ How the mod is assembled: the build pipeline, the single Lua namespace, and the 
 ## Asset Pipeline
 - `scripts/generate_card_atlases.py` — Composites card faces from per-card illustrations + text panel; writes deck atlases to `art/decks/*.png`
 - `scripts/generate_assets.py` — Renders tokens, boards, player boards, legends via Pillow
-- `scripts/generate_cover.py` — Renders `saves/StarveNoMore.png` (Coco's front standee on a night-suburb backdrop). A same-basename PNG beside the save is the cover art TTS shows in its Save & Load browser; `iwanttoplay` copies it with the save. Deterministic; rerun only when the cover should change.
+- `scripts/generate_cover.py` — Renders `saves/StarveNoMore.png` (Coco's front standee on a night-suburb backdrop), **1024×1024** — the Save & Load browser fits the thumbnail to a square tile's width, so a 16:9 cover wasted half the tile. A same-basename PNG beside the save is the cover art TTS shows in that browser; `iwanttoplay` copies it with the save. Deterministic; rerun only when the cover should change.
 - `scripts/generate_comfyui_assets.py` — Queues board + per-card illustration prompts to local ComfyUI (Flux Dev). Hero art is intentionally excluded: character standees (hand-drawn) and the three house tiles (authored outside the pipeline).
 - `scripts/sync_comfyui_output.py` — Copies ComfyUI's `output/snm_*_00001_.png` into the matching `art/<subdir>/<base>.png` (idempotent)
 - `scripts/normalize_tile_art.py` — Derives `art/tiles/<name>_tile.png`: the largest square centred on the *content* of the source, so the disc TTS cuts is centred and free of letterbox bars. **`ASSET_MAP` points at the `_tile` files, not the sources** — skip this and new location art simply never reaches the table.

@@ -25,7 +25,7 @@
 -----------------------------------------------------------------------
 PATH_LAYOUTS = {
     Star = {{"BadmintonCourt","EllieLucaHouse"}, {"BasketballCourt","EllieLucaHouse"}, {"EllieLucaHouse","JamesHouse"}, {"EllieLucaHouse","RaymanHouse"}},
-    Ring = {{"BadmintonCourt","EllieLucaHouse"}, {"BadmintonCourt","JamesHouse"}, {"BadmintonCourt","RaymanHouse"}, {"BasketballCourt","EllieLucaHouse"}, {"BasketballCourt","JamesHouse"}, {"BasketballCourt","RaymanHouse"}, {"EllieLucaHouse","JamesHouse"}, {"EllieLucaHouse","RaymanHouse"}},
+    Ring = {{"BadmintonCourt","EllieLucaHouse"}, {"BadmintonCourt","JamesHouse"}, {"BasketballCourt","JamesHouse"}, {"BasketballCourt","RaymanHouse"}, {"EllieLucaHouse","RaymanHouse"}},
     Compact = {{"BadmintonCourt","EllieLucaHouse"}, {"BadmintonCourt","RaymanHouse"}, {"BasketballCourt","EllieLucaHouse"}, {"BasketballCourt","JamesHouse"}, {"EllieLucaHouse","JamesHouse"}, {"EllieLucaHouse","RaymanHouse"}},
     Sprawl = {{"BadmintonCourt","BasketballCourt"}, {"BadmintonCourt","EllieLucaHouse"}, {"BadmintonCourt","JamesHouse"}, {"BadmintonCourt","RaymanHouse"}, {"BasketballCourt","EllieLucaHouse"}, {"BasketballCourt","JamesHouse"}, {"BasketballCourt","RaymanHouse"}, {"EllieLucaHouse","JamesHouse"}, {"EllieLucaHouse","RaymanHouse"}, {"JamesHouse","RaymanHouse"}},
     Linear = {{"BadmintonCourt","EllieLucaHouse"}, {"BadmintonCourt","RaymanHouse"}, {"BasketballCourt","EllieLucaHouse"}, {"BasketballCourt","JamesHouse"}},

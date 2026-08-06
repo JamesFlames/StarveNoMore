@@ -95,10 +95,74 @@ and takes the whole action down.
 - **`reload()` destroys and respawns.** Swapping a custom image needs it, so
   capture snap points first and re-apply them to the fresh object
   (`applyPathVariant`, ui_actionbar_core.lua).
+- **A deck that drops to ONE card stops being a deck.** TTS destroys the
+  container and leaves that card loose where the deck was. The handle you are
+  holding still passes `isLiveObject` — it is simply no longer a container —
+  and `takeObject` on it throws. So the *last* card of any deck is never
+  taken; find it (`getObjectFromGUID` on the guid you snapshotted) and place
+  it (`dealStartingHands`, setup.lua). `tests/tts_stub.lua` models the
+  collapse, so the suite sees this now; it did not before, and the bug below
+  is what that blind spot cost.
 - Guards: `tests/test_dead_handles.py` (a runtime sweep that drops a
   poisoned handle on the table and runs the real entry points over it, plus
   a static scan for unguarded dereferences) and
-  `TestDawnRevealSurvivesDeadHandles`.
+  `TestDawnRevealSurvivesDeadHandles`. Note the static scan tracks risky
+  variable **names per file**, so reusing a name like `card` for a
+  `getObjectFromGUID` result marks every other `card` in that file too.
+
+## Rule 3: `pcall` does not catch everything
+
+Lua `pcall` catches Lua errors. A TTS API can instead throw a **.NET
+exception** — `Value cannot be null. Parameter name: key` is the one to
+recognise, a C# dictionary indexed with null — and that unwinds the entire
+call stack straight past every `pcall` and `safecall` in it.
+
+It cost a live table a whole game. `dealStartingHands` called `takeObject` on
+a collapsed deck (see above); the throw blew through the `safecall` around
+that call, the `safecall` around `dealStartingHands`, *and* the
+`pcall(runGuidedSetupFinalize)` whose entire job was to make setup failures
+survivable. Nothing after it ran: no `gameState.started`, no HUD refresh, no
+Host Controls. The table sat in PreGame with a full party and no button to
+press, and the only way out was reloading the mod.
+
+- **Do not rely on a wrapper for recovery.** Order the work so the cheap
+  state is committed *before* anything touches an object, and schedule the
+  recovery on a `Wait` callback as well — a Wait runs on a fresh stack and
+  survives whatever happened to this one (`finalizeGuidedSetup`, ui_setup.lua).
+- The tests cannot see this: `lupa` runs real Lua 5.2, where `pcall` catches
+  everything the stub can throw. Only the running game raises it.
+
+## Rule 4: TTS's Lua is MoonSharp's, not PUC Lua's
+
+**This is the one class of bug the test suite structurally cannot catch.**
+`tests/` runs the real bundle under real Lua 5.2 (lupa); the game runs
+MoonSharp. Where they disagree, the suite is green and the game throws, and no
+runtime test can help because the runtime under test is the wrong runtime. The
+only defence is not writing the idiom, so both known cases have a helper in
+`helpers.lua` and a static guard in `tests/test_moonsharp_safety.py`:
+
+| Idiom | MoonSharp | Real Lua | Use |
+|---|---|---|---|
+| `s:match("^%s*(.-)%s*$")` | "pattern too complex" past ~200 chars | fine | `trim(s)` |
+| `table.remove(t, 1)` on an empty `t` | "position out of bounds" | returns `nil` | `popFirst(t)` |
+
+Both shipped and reached players. Both were found by reading an error in the
+chat log. When a third turns up, add the helper and add it to that guard —
+each entry is a bug that would otherwise only ever be found by a player.
+
+### The pattern case in detail
+
+TTS runs MoonSharp, whose pattern matcher gives up with **"pattern too
+complex"** on an unbounded lazy capture once the subject passes a couple of
+hundred characters. The standard Lua trim, `s:match("^%s*(.-)%s*$")`, is
+exactly that shape.
+
+The Help panel used one to detect headings and the rulebook has 400- and
+600-character paragraphs, so pressing '?' threw before a single page
+rendered — every tab, not just the Rulebook. Real Lua 5.x matches it happily,
+so the suite was green the whole time. Trim with `find` + `sub` instead
+(`trimLine`, ui_help_pages.lua). Anchored classes like `^%s*$` are fine; it is
+`(.-)` spanning a long subject that breaks.
 
 ## The XML UI layer
 
@@ -198,3 +262,12 @@ entries on every deploy.
 > mis-parented. If the *art is the wrong picture*, suspect the cache. If
 > things are the wrong **size or place**, measure — see
 > [tts-runtime.md](tts-runtime.md).
+
+**The save's cover thumbnail must be square.** A PNG with the same basename
+as the save is what the Save & Load browser shows for it, and the browser
+fits that PNG to the **width** of a square tile. Our cover was 16:9 for a
+while, so it covered a bit over half the tile's height and the rest showed
+bare UI panel. `scripts/generate_cover.py` renders 1024×1024 now; keep it
+1:1. (TTS normalises the Workshop thumbnails it caches under
+`Mods/Workshop/` to exactly 256×256 — same square tile, and a handy way to
+confirm this without launching the game.)

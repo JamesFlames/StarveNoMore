@@ -304,7 +304,7 @@ This single popup is the on-ramp. New players read it, dismiss it, and they have
 
 **Step 4 — Day 1 begins.** Phase banner takes over; "Reveal Dawn" button is the only highlighted action. The team is in the river of play.
 
-### 18.17 The Help menu and the "What now?" hint
+### 18.17 The Help menu and the "What next?" hint
 
 A floating **Help (?)** button on the Phase Banner opens a side panel with six tabs. The panel is read-only (no game state changes); it stays open while the game continues.
 
@@ -321,7 +321,7 @@ A floating **Help (?)** button on the Phase Banner opens a side panel with six t
 
 **Every tab is paged, and this is not a nicety.** A TTS `Text` element renders what fits and **clips the rest silently** — no scrollbar, no ellipsis, no warning, no error. The Quick Start *notecard* taught this lesson once already (hence `QUICKSTART_CARD_BUDGET`), but the Help panel had the same defect at larger scale and unmeasured: the Glossary is ~7,000 characters against a body that holds roughly 2,000, so **two thirds of the game's own reference material was invisible** and the tab looked fine. Pagination (`lua/ui_help_pages.lua`) splits on line boundaries, keeps a heading with the text beneath it, and hides its own nav row on single-page tabs. Two tests hold the line: pagination must lose nothing, and no page may exceed the body's estimated line capacity — otherwise paging has merely relocated the clipping.
 
-A second smaller button next to Help: **"What now?"** — context-aware advice. Click during:
+A second smaller button next to Help: **"What next?"** — context-aware advice. Click during:
 - Day Phase: "It's your turn, Ellie. You have 2 actions left. Suggested: cook a recipe at the Kitchen — you have 2 Provisions and 1 Wood available."
 - Dusk: "Last chance to move: scramble 1 tile (1 Hunger) via the Dusk panel, or stay put. You sleep where you stand."
 - Night: "Resolving threats at Badminton Court. Coco is here; click Resolve to proceed."

@@ -74,7 +74,7 @@ end
 --
 -- pairs() order is arbitrary, so the names are sorted — a confirm dialog
 -- that reshuffles its list between openings reads as a different warning.
-function confirmEndDayEarly(activeColor, onConfirm)
+function confirmEndDayEarly(activeColor, onConfirm, sourceButtonId)
     local unspent, active = {}, nil
     for color, char in pairs(gameState.activeChars) do
         if not char.down and (char.actionsLeft or 0) > 0 then
@@ -96,7 +96,7 @@ function confirmEndDayEarly(activeColor, onConfirm)
         active.name .. " still has " .. active.actionsLeft ..
         " action(s), and ending the turn forfeits them.\n\n" ..
         "Still holding actions: " .. table.concat(unspent, ", "),
-        onConfirm
+        onConfirm, nil, sourceButtonId
     )
 end
 
@@ -136,7 +136,7 @@ function confirmSleepAloneAtCourt(color, location, onConfirm)
 end
 
 -- Warn when spending the last Telltale Heart
-function confirmLastHeart(reviverName, targetName, onConfirm)
+function confirmLastHeart(reviverName, targetName, onConfirm, sourceButtonId)
     local heartCount = gameState.heartCount or 0
     if heartCount <= 1 then
         showConfirm(
@@ -144,7 +144,7 @@ function confirmLastHeart(reviverName, targetName, onConfirm)
             reviverName .. " will revive " .. targetName .. ", but this is the LAST heart.\n"
             .. "If another character goes Down, there won't be a way to revive them.\n"
             .. "Cook another heart when you can (1 Cloth + 1 Battery + 1 Provisions + 2 HP).",
-            onConfirm
+            onConfirm, nil, sourceButtonId
         )
     else
         onConfirm()

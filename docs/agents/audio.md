@@ -66,6 +66,32 @@ Single-channel constraint: TTS has only one global `MusicPlayer`. One-shots
 (chime, character SFX, boss roar) interrupt the ambient track for their
 duration; the next ambient track is rescheduled fresh after.
 
+## "There is no sound at all"
+
+Everything is served off one local `http.server`, so the whole soundscape
+fails together or not at all — and there is no in-game audio control to click,
+which is why total silence used to be unrecoverable. Three rules in
+`audio.lua` (guarded by `tests/test_lua_audio.py`):
+
+- **The load watchdog** checks `MusicPlayer.player_status` `WATCH_DELAY` (6s)
+  after starting a clip; a literal `"Stop"` means the URL did not load.
+- **Two strikes, not one** (`FAIL_STRIKES`). The first miss is usually TTS
+  cold-fetching every asset at once right after `iwanttoplay` purged the
+  cache, not a broken file.
+- **An empty pool forgives itself.** When every clip in a pool is skipped,
+  the skip list for that pool is cleared and playback retries — that state is
+  an outage (server closed, or a leftover `serve_art.bat` from an earlier
+  session holding `:8080` from the wrong folder), not fifteen bad files.
+  Without it the session stayed silent even after the server came back, and
+  only reloading the save could fix it.
+- Clips **shorter than `WATCH_DELAY` are never watched**: they have already
+  finished, and a finished `MusicPlayer` reports the same `"Stop"` a failed
+  load does. That is every boss roar (max 3.7s for bearger).
+
+`iwanttoplay` probes `/art/` and `/sounds/` separately after the server
+answers, so a leftover server rooted in the wrong folder is named rather than
+silently accepted.
+
 ## Pipeline
 
 1. **Edit/add sound files** under `sounds/...`.

@@ -1,7 +1,7 @@
 """Every authored hint must be reachable, or it is help nobody can get.
 
 `content/help/whatnow_hints.md` is authored prose, generated into
-`lua/whatnow_hints.lua`, and shown by the "What now?" panel — the game's whole
+`lua/whatnow_hints.lua`, and shown by the "What next?" panel — the game's whole
 answer to a player who does not know what to do next. The dispatch in
 `ui_help.lua` picks entries by game state, and **fifteen of the forty-nine
 authored hints had no condition that could ever select them**:

@@ -13,6 +13,7 @@ from conftest import (
     ART_DIR,
     LUA_DIR,
     SCRIPTS,
+    XML_DIR,
     read_csv_rows,
     read_text,
 )
@@ -535,6 +536,91 @@ def test_printed_location_labels_stay_readable():
     assert not problems, "printed board labels collide:\n  " + "\n  ".join(problems)
 
 
+def test_printed_labels_do_not_bury_a_path():
+    """A label may not sit on the road between two tiles.
+
+    The guard above checks labels against labels, tiles and the board edge —
+    and missed the thing players actually hit. Badminton and Ellie & Luca are
+    the two tiles on the x=0 axis, so the road between them is a short
+    vertical corridor; both stacks pointed into it, and four lines of text
+    covered the only road north. On four of the five layouts a legal move
+    looked like no connection, and the board read as a pure hub-and-spoke
+    star whichever variant you had picked.
+
+    Checked against the UNION of every variant's edges: the art is generated
+    per variant but the label placement is shared, so a corridor that is clear
+    on Star and buried on Ring is still a bug in the shared layout.
+    """
+    import sys
+
+    sys.path.insert(0, SCRIPTS)
+    import board_geometry as g
+    import generate_assets as ga
+    import path_layouts as pl
+    from PIL import Image, ImageDraw
+
+    draw = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    S = ga.BOARD_PX
+    ring_px = pl.LOCATION_RING_R * ga.BOARD_PX_PER_UNIT
+
+    def node(loc):
+        wx, wz = pl.LOCATION_WORLD[loc]
+        return g.world_to_px(wx), g.world_to_py(wz)
+
+    every_edge = {e for edges in pl.PATH_LAYOUTS.values() for e in map(tuple, edges)}
+
+    # Every label band on the board, as (owner, which, x0, x1, y0, y1).
+    bands = []
+    for loc, side in ga.LOCATION_LABEL_SIDE.items():
+        cx, cy = node(loc)
+        for which, (dy, half_h, half_w) in zip(("name", "yields"),
+                                               ga.location_label_bands(draw, loc, side)):
+            text = (pl.LOCATION_LABELS[loc] if which == "name"
+                    else ga.LOCATION_YIELD_TEXT[loc])
+            font = ga.FONT_BOARD_NAME if which == "name" else ga.FONT_BOARD_YIELD
+            tx = ga.clamped_center(draw, cx, text, font, S)
+            bands.append((f"{loc}.{which}", tx - half_w, tx + half_w,
+                          cy + dy - half_h, cy + dy + half_h))
+
+    # Measured per ROAD, against ALL labels at once. Per-label was the first
+    # attempt and it missed the real case: Badminton's yields line and Ellie &
+    # Luca's name line each covered a minority of the corridor between them,
+    # and together left nothing. What a player can see is the union.
+    problems = []
+    for a, b in sorted(every_edge):
+        ax, ay = node(a)
+        bx, by = node(b)
+        exposed, buried, culprits = 0, 0, set()
+        for i in range(201):
+            t = i / 200
+            px_, py_ = ax + (bx - ax) * t, ay + (by - ay) * t
+            # A label may legitimately overlap a printed ring, so the stretch
+            # under either endpoint's ring does not count as road.
+            if (((px_ - ax) ** 2 + (py_ - ay) ** 2) ** 0.5 < ring_px
+                    or ((px_ - bx) ** 2 + (py_ - by) ** 2) ** 0.5 < ring_px):
+                continue
+            exposed += 1
+            for key, x0, x1, y0, y1 in bands:
+                if x0 <= px_ <= x1 and y0 <= py_ <= y1:
+                    buried += 1
+                    culprits.add(key)
+                    break
+        # A label CROSSING a road is ordinary cartography; a label that leaves
+        # no road visible is the bug. Half is the line between the two, and it
+        # is where the real case sat: Badminton's stack pointing south put the
+        # north corridor at 63% buried, and flipping it to the open board above
+        # took it to 34% — a name crossing a road you can still follow.
+        if exposed and buried / exposed > 0.5:
+            problems.append(
+                f"{a}-{b}: {buried / exposed:.0%} of the visible road is under "
+                f"{', '.join(sorted(culprits))}")
+
+    assert not problems, (
+        "printed labels lie across roads, so a legal move looks like no "
+        "connection — flip the location's LABEL_SIDE or shorten the text:\n  "
+        + "\n  ".join(problems))
+
+
 def test_board_doom_thresholds_mirror_the_lua_table():
     """The ribbons printed on the board must be the thresholds the game
     actually fires. This was a third hand-typed copy of DOOM_THRESHOLDS
@@ -740,3 +826,94 @@ def test_location_defense_mirrors_the_locations_csv():
         f"defence drift: lua={lua_def} csv={csv_def} — LOCATION_DEFENSE "
         "(global.lua) and the `defense` column of content/locations.csv "
         "must agree.")
+
+
+def test_step2_has_a_you_line_for_every_seat():
+    """Step 2's "this is you" line is one Text per seat colour, each visible
+    only to that seat, because the panel is open to several seats at once and
+    only the reader's own name answers "whose pick is this?".
+
+    A colour in SEAT_COLORS_ALL with no matching element renders nothing at all
+    for whoever is sitting there — silently, and only for that one player. That
+    is the failure this pairs against, so the two lists must agree exactly."""
+    lua = read_text(os.path.join(LUA_DIR, "ui_setup.lua"))
+    body = re.search(r"SEAT_COLORS_ALL\s*=\s*\{(.*?)\}", lua, re.S)
+    assert body, "SEAT_COLORS_ALL not found in lua/ui_setup.lua"
+    colors = set(re.findall(r'"(\w+)"', body.group(1)))
+
+    xml = read_text(os.path.join(XML_DIR, "setup.xml"))
+    ids = set(re.findall(r'id="step2You_(\w+)"', xml))
+    assert colors == ids, (
+        "Step 2's per-seat lines and SEAT_COLORS_ALL disagree — "
+        f"lua only: {sorted(colors - ids)}, xml only: {sorted(ids - colors)}")
+
+    # Each must be scoped to its own seat, or every player sees every line.
+    for c in sorted(colors):
+        assert re.search(rf'id="step2You_{c}"\s+visibility="{c}"', xml), (
+            f"step2You_{c} must carry visibility=\"{c}\" — an unscoped line "
+            "shows all ten players somebody else's name")
+
+
+def test_printed_tile_yields_match_the_gather_table():
+    """The board prints what a tile yields; Gather draws at random from
+    LOCATION_YIELDS. Two hand-written lists, and they have already disagreed in
+    spirit: the label repeated "Provisions, Provisions" verbatim, which is how
+    the data expresses weighting and how a player reads a duplication bug.
+    Multipliers are the printed form now, so check they still add up."""
+    from collections import Counter
+
+    lua = read_text(os.path.join(LUA_DIR, "global.lua"))
+    body = re.search(r"LOCATION_YIELDS\s*=\s*\{(.*?)\n\}", lua, re.S)
+    assert body, "LOCATION_YIELDS not found in lua/global.lua"
+    lua_yields = {loc: Counter(re.findall(r'"(\w+)"', items))
+                  for loc, items in
+                  re.findall(r"(\w+)\s*=\s*\{([^}]*)\}", body.group(1))}
+
+    src = read_text(os.path.join(SCRIPTS, "generate_assets.py"))
+    body = re.search(r"LOCATION_YIELD_TEXT\s*=\s*\{(.*?)\n\}", src, re.S)
+    assert body, "LOCATION_YIELD_TEXT not found in scripts/generate_assets.py"
+
+    shorthand = {"Energy": "EnergyDrink"}   # printed name -> resource id
+    printed = {}
+    for loc, text in re.findall(r'"(\w+)":\s*"([^"]*)"', body.group(1)):
+        counts = Counter()
+        for part in text.split("+")[0].split(","):   # "+ Crockpot" is a special
+            part = part.strip()
+            if not part:
+                continue
+            m = re.match(r"(.+?)\s*x(\d+)$", part)
+            name, mult = (m.group(1), int(m.group(2))) if m else (part, 1)
+            counts[shorthand.get(name, name)] += mult
+        printed[loc] = counts
+
+    drift = [loc for loc in set(printed) | set(lua_yields)
+             if printed.get(loc) != lua_yields.get(loc)]
+    assert not drift, (
+        "the printed tile labels and the Gather table disagree:\n" + "\n".join(
+            f"  {loc}: board says {dict(printed.get(loc, {}))}, "
+            f"LOCATION_YIELDS says {dict(lua_yields.get(loc, {}))}"
+            for loc in sorted(drift)))
+
+
+def test_printed_tile_defence_matches_the_rules():
+    """The board prints each tile's defence; combat reads LOCATION_DEFENSE.
+
+    Defence used to live only in a hover description, so players never saw it
+    and read the map by intuition — "houses safe, courts dangerous" — which is
+    wrong in both directions. Printing it only helps while the printed number
+    is the one the dice actually use."""
+    lua = read_text(os.path.join(LUA_DIR, "global.lua"))
+    body = re.search(r"LOCATION_DEFENSE\s*=\s*\{(.*?)\n\}", lua, re.S)
+    assert body, "LOCATION_DEFENSE not found in lua/global.lua"
+    rules = {k: int(v) for k, v in
+             re.findall(r"(\w+)\s*=\s*(-?\d+)", body.group(1))}
+
+    src = read_text(os.path.join(SCRIPTS, "generate_assets.py"))
+    body = re.search(r"LOCATION_DEFENCE_TEXT\s*=\s*\{(.*?)\n\}", src, re.S)
+    assert body, "LOCATION_DEFENCE_TEXT not found in scripts/generate_assets.py"
+    printed = {loc: int(txt.replace("Def", "").replace("+", "").strip())
+               for loc, txt in re.findall(r'"(\w+)":\s*"([^"]*)"', body.group(1))}
+
+    assert printed == rules, (
+        f"the board and the combat rules disagree about defence:\n"
+        f"  board says {printed}\n  LOCATION_DEFENSE says {rules}")

@@ -39,8 +39,12 @@ end
 -- An ALL-CAPS line is a heading: generate_notebook.py uppercases markdown
 -- headings when it converts them to plain text. Starting a page on one reads
 -- as a chapter break; ending a page on one orphans it from its content.
+--
+-- trim() rather than `line:match("^%s*(.-)%s*$")`: that idiom throws
+-- "pattern too complex" in TTS on the rulebook's long paragraphs, which is
+-- what broke the whole Help panel. See helpers.lua.
 local function isHeading(line)
-    local trimmed = line:match("^%s*(.-)%s*$")
+    local trimmed = trim(line)
     if trimmed == "" then return false end
     if string.len(trimmed) > 60 then return false end
     return trimmed == string.upper(trimmed) and trimmed:match("%a") ~= nil

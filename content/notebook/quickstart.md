@@ -27,6 +27,6 @@ Every character has one **once-per-game Signature Move** (the purple button on y
 Anywhere without a light source at night = a Charlie attack (2 Sanity + 1 Health — and she hits harder every consecutive dark night). Carry a Flashlight (Battery), a Lantern (Fire), or sleep next to a Fire.
 
 ## Tip
-**Hover anything** for its rule. **Click "?"** at the top of the screen for the Help menu. **Click "What now?"** if you don't know what to do.
+**Hover anything** for its rule. **Click "Rules"** at the top of the screen for the Help menu. **Click "What next?"** if you don't know what to do.
 
 You don't need to read the rulebook. The game will prompt you.

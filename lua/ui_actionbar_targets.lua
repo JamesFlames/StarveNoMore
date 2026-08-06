@@ -79,13 +79,28 @@ function _armTargetTimeout()
     end, TARGET_TIMEOUT)
 end
 
+-- createButton's `rotation` is in the object's LOCAL frame, so a button at
+-- {0,0,0} inherits whatever yaw its object has. Threat cards are dealt face
+-- up at rotY=180 (that is what "face up" is for a Card in this mod), so FIGHT
+-- and TOGETHER came out mirrored — printed backwards across the card, which
+-- is how a player reported them. Location tiles sit at rotY=0, which is why
+-- MOVE HERE always looked fine and this went unnoticed.
+--
+-- Cancelling the object's own yaw makes every target button read the same way
+-- up, whatever it is stuck to.
+local function _uprightYaw(obj)
+    local yaw = 0
+    pcall(function() yaw = (obj.getRotation() or {}).y or 0 end)
+    return (360 - (yaw % 360)) % 360
+end
+
 local function _spawnTargetButton(obj, label, fnName, tooltip, wide, pos)
     obj.createButton({
         click_function = fnName,
         function_owner  = Global,
         label           = label,
         position        = pos or {0, 0.4, 0},
-        rotation        = {0, 0, 0},
+        rotation        = {0, _uprightYaw(obj), 0},
         width           = wide and 2000 or 1200,
         height          = wide and 560 or 420,
         font_size       = wide and 240 or 180,
@@ -261,32 +276,70 @@ function _handleStandeeDrop(dropColor, obj, charName)
     updateActivePlayerIndicator()
 end
 
+-- Why the last _spawnCraftButtons call produced nothing. Read by onActCraft so
+-- a failure names itself instead of being reported as an empty market — the
+-- old bare pcall turned EVERY error in this loop into "No cards in the Market
+-- display", printed to a player looking straight at five market cards.
+_craftScanProblem = nil
+
 function _spawnCraftButtons()
     -- Iterate the CARDS (not the slots) and attach each to its nearest
     -- market slot. Robust to a card that drifted off its slot, and every
-    -- handle access is pcall-guarded (a card merged/destroyed mid-deal
-    -- would otherwise throw and abort the whole scan → false "no cards").
+    -- handle access is guarded (a card merged/destroyed mid-deal would
+    -- otherwise throw and abort the whole scan).
+    _craftScanProblem = nil
     local slots = getMarketSlots()
-    if #slots == 0 then return 0 end
-    local n = 0
+    if #slots == 0 then
+        _craftScanProblem = "the five Market slots are not on the table"
+        return 0
+    end
+    local n, seen, failed, hidden = 0, 0, 0, 0
     for _, card in ipairs(findAllByTag("MarketCard")) do
-        pcall(function()
+        local ok = safecall(function()
             if card.type ~= "Card" then return end   -- skip the deck itself
+            seen = seen + 1
+            -- A guid that cannot be read is a card that cannot be bought:
+            -- doCraft is handed the slot index through this map, so an entry
+            -- keyed on nil is not a degraded button, it is a throw.
+            local guid = safeGuid(card)
+            if not guid then return end
             local cp = card.getPosition()
             local bestSlot, bestD = nil, math.huge
             for i, slot in ipairs(slots) do
-                local d = cp:distance(slot.getPosition())
-                if d < bestD then bestSlot, bestD = i, d end
+                local d = objDistance(cp, slot.getPosition())
+                if d and d < bestD then bestSlot, bestD = i, d end
             end
             -- Generous radius: cards settle up to ~1.5u off their slot.
             if bestSlot and bestD < 4 then
-                _craftSlotByGuid[card.getGUID()] = bestSlot
+                -- A shelf that has not opened yet gets no button: the card is
+                -- face down, so offering to buy it would be offering a choice
+                -- the player cannot make (marketOpenSlots, global.lua).
+                if marketSlotIsHidden(bestSlot) then
+                    hidden = hidden + 1
+                    return
+                end
+                _craftSlotByGuid[guid] = bestSlot
                 _spawnTargetButton(card, "CRAFT", "onCraftTargetClick",
-                    "Craft " .. (card.getNickname() or "this item") .. " (1 action + resources)",
+                    "Craft " .. safeNickname(card) .. " (1 action + resources)",
                     false)
                 n = n + 1
             end
-        end)
+        end, "CraftButton")
+        if not ok then failed = failed + 1 end
+    end
+    if n == 0 then
+        if seen == 0 then
+            _craftScanProblem = "no Market cards are dealt — the display is empty"
+        elseif hidden > 0 and hidden == seen then
+            _craftScanProblem = "every Market card is still face down — the shelves open " ..
+                "one per day (" .. marketOpenSlots() .. " of " .. MARKET_SLOTS_TOTAL .. " so far)"
+        elseif failed > 0 then
+            _craftScanProblem = failed .. " of " .. seen ..
+                " Market card(s) could not be read (see the TTS log for the error)"
+        else
+            _craftScanProblem = seen .. " Market card(s) are on the table but none is " ..
+                "near a Market slot — drag them back onto their slots"
+        end
     end
     return n
 end

@@ -63,7 +63,7 @@ function offerOpeningSuggestion(color)
     local char = gameState.activeChars[color]
     printToColor("First turn — a plan that works, if you want one:\n  " .. char.name ..
                  " — try: " .. line ..
-                 "\n(A suggestion, not a rule. 'What now?' will keep advising all week.)",
+                 "\n(A suggestion, not a rule. 'What next?' will keep advising all week.)",
                  color, BROADCAST_COLORS.gain)
 end
 
@@ -97,6 +97,14 @@ end
 -----------------------------------------------------------------------
 function refreshPhaseBanner()
     if not UI then return end  -- guard against early calls
+
+    -- Don't re-disable Turns here. It was tried: the star/name/swatch widget
+    -- sitting in the middle of this banner survived it untouched, which means
+    -- the widget is Hotseat's active-player indicator and not TTS's turn
+    -- plate at all. There is no scripting API for that one (checked the Player
+    -- instance and the base function list — nothing hides built-in chrome), so
+    -- the call bought nothing and only risked interfering with hotseat, which
+    -- switches seats through the turn system. onLoad's single pass stays.
 
     -- The omen is banner state, so a reload mid-Dusk must not silently drop
     -- the only visual channel a muted player has.
@@ -146,7 +154,22 @@ function refreshPhaseBanner()
         if char then
             -- Include the seat colour so "whose turn" is unambiguous even
             -- when one person drives several characters (hotseat).
-            activeText = char.name .. "'s turn (" .. gameState.activeColor .. ")"
+            --
+            -- Naming the PLAYER here too was tried and reverted: the banner row
+            -- is full (1462px of 1470 once the three buttons are counted), and
+            -- an overflowing Text draws straight over its neighbours. The
+            -- collision with TTS's own turn plate is solved by moving this
+            -- field out of the screen centre instead — see xml/hud.xml.
+            if gameState.subPhase == "Dusk" then
+                -- Dusk is not a turn — nobody is blocked from scrambling or
+                -- settling out of order — so it says who the seat is ON
+                -- rather than whose turn it is. Kept to 23 characters:
+                -- bannerActive is 232px and test_phase_banner_slots_fit
+                -- _their_text models ~10px a character at this font size.
+                activeText = char.name .. " settles (" .. gameState.activeColor .. ")"
+            else
+                activeText = char.name .. "'s turn (" .. gameState.activeColor .. ")"
+            end
         end
     end
     UI.setAttribute("bannerActive", "text", activeText)
@@ -290,7 +313,9 @@ function recommendNext()
             if char and char.actionsLeft > 0 then
                 return "Take an action (" .. char.actionsLeft .. " left)"
             else
-                return "Click Pass to end your turn"
+                -- The button is labelled "End Turn" (xml/hud.xml), and has been
+                -- for a while. There is nothing called Pass on screen to click.
+                return "Press End Turn to end your turn"
             end
         end
         return "Day phase"
@@ -313,8 +338,39 @@ end
 -----------------------------------------------------------------------
 local bobTimerId = nil
 
+-- Point TTS's own turn system at whoever THIS game says is up.
+--
+-- The hotseat fix. In hotseat one person drives every seat, and the seat their
+-- clicks carry is TTS's current turn — which this mod does not use, because it
+-- tracks turns itself. So the two drifted apart the moment Coco's turn began
+-- while TTS still had Blue active: the player got "It's Coco's turn, and you
+-- are sitting in the Blue seat", a full action bar they could not use, and no
+-- indication that the cure was to change colour by hand. Now the swap happens
+-- for them.
+--
+-- Guarded on Turns.enable, which is the whole scoping rule. TTS's turn system
+-- is switched off at load and stays off in ordinary multiplayer, where every
+-- player has their own client and there is nothing to point; Hotseat turns it
+-- back on by itself, and that is exactly the case that needs this. Also
+-- guarded on an actual change, because assigning turn_color makes TTS announce
+-- the turn — reassigning the same colour every banner refresh would be a
+-- stream of identical "X's turn." lines.
+function syncTtsTurnColor()
+    local color = gameState.activeColor
+    if not color then return end
+    pcall(function()
+        if Turns and Turns.enable and Turns.turn_color ~= color then
+            Turns.turn_color = color
+        end
+    end)
+end
+
 function updateActivePlayerIndicator()
     local activeColor = gameState.activeColor
+
+    -- Channel 0: hand the hotseat driver the right seat before anything else
+    -- asks them to click something.
+    safecall(function() syncTtsTurnColor() end, "TurnColor")
 
     -- Channel 1: Banner (handled by refreshPhaseBanner)
 
@@ -390,6 +446,32 @@ function startStandeeBob(charName)
         end
         bobUp = not bobUp
     end, 2.0, -1)  -- repeat every 2s indefinitely
+end
+
+-- A standee shakes when its character does something.
+--
+-- Distinct from the bob above on purpose: the bob is a slow lean that means
+-- "it is your turn", this is a quick shake that means "that action landed".
+-- Feedback at the piece, where the player is already looking, rather than one
+-- more line in a log they are not reading. Fired from spendAction (turns.lua),
+-- which every action verb funnels through.
+STANDEE_JIGGLE_STEPS    = { 14, -11, 8, -5, 0 }
+STANDEE_JIGGLE_INTERVAL = 0.09
+
+function jiggleStandee(charName)
+    local standee = getCharacterStandee(charName)
+    if not isLiveObject(standee) then return end
+    local base = standee.getRotation()
+    local step = 0
+    Wait.time(function()
+        step = step + 1
+        -- Re-checked every tick, not just once up front: an action can move,
+        -- merge or destroy the piece while the shake is still running (Move
+        -- re-parents it to another tile), and a dead handle throws.
+        if not isLiveObject(standee) then return end
+        standee.setRotationSmooth(
+            {base.x, base.y, STANDEE_JIGGLE_STEPS[step] or 0}, false, false)
+    end, STANDEE_JIGGLE_INTERVAL, #STANDEE_JIGGLE_STEPS)
 end
 
 function stopStandeeBob()

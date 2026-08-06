@@ -271,6 +271,27 @@ def script_dice(rt, rolls):
     )
 
 
+def neighbours(rt, loc):
+    """Tiles adjacent to `loc` under the layout currently in force.
+
+    Ask, never hard-code. Which tiles touch which is a design decision and it
+    has changed: "Ring" was a wheel (hub + outer loop, 8 roads) and became a
+    true 5-cycle, at which point five tests failed — not because the rule they
+    were named for broke, but because each had quietly written down the old
+    graph. A test for "Rally reaches an adjacent ally" should say *adjacent*.
+    """
+    adj = lua_to_py(rt.eval(f'LOCATION_ADJACENCY["{loc}"]')) or []
+    # lua_to_py returns a list for a Lua array and a dict for a Lua map.
+    return sorted(adj.values() if isinstance(adj, dict) else adj)
+
+
+def a_neighbour_of(rt, loc):
+    """One adjacent tile, chosen deterministically."""
+    near = neighbours(rt, loc)
+    assert near, f"{loc} has no neighbours in the current layout"
+    return near[0]
+
+
 def add_char(rt, color, name, **overrides):
     """Install a character into gameState.activeChars[color] with sane defaults."""
     stats = {"James": (8, 6, 10), "Coco": (6, 8, 12), "Rayman": (12, 10, 6),

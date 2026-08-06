@@ -45,6 +45,11 @@ function BeginDay()
     -- five. They turn over here, on their day, before anyone acts.
     safecall(function() revealScheduledStartingItems(gameState.day) end, "StartingReveal")
 
+    -- The Market opens on the same schedule and for the same reason: two
+    -- cards on Day 1, one more each Dawn until all five are on offer
+    -- (marketOpenSlots, global.lua).
+    safecall(function() revealMarketSlotsForToday() end, "MarketReveal")
+
     -- Phase 2.5 foreshadow: the Treeguard wakes at Dusk tonight (Design §14.2).
     if gameState.day == 4 and not gameState.treeguard then
         broadcastEvent("warn", "The trees remember every plank you took. Something in the courts is breathing slower than the wind...")
@@ -201,8 +206,18 @@ local function locationTilePositions()
     return tiles
 end
 
+-- "On the map" means ON it. The radius test is x/z only, and the under-table
+-- library (LIBRARY_Y ~ -2.5) sits DIRECTLY BENEATH the board — the Threat draw
+-- pile is 1.1 units from James's House in x/z. Without a height test the draw
+-- deck itself is "near a tile", which the card/deck fix below would otherwise
+-- have turned into 46 festering threats every Dawn.
+local function onTheTable(p)
+    return (p.y or 0) > (TABLE_SURFACE_Y - 1.0)
+end
+
 local function nearATile(obj, tiles)
     local p = obj.getPosition()
+    if not onTheTable(p) then return false end
     for _, tp in ipairs(tiles) do
         local dx, dz = p.x - tp.x, p.z - tp.z
         if (dx * dx + dz * dz) <= (FESTER_RADIUS * FESTER_RADIUS) then return true end
@@ -230,8 +245,29 @@ function countFesteringThreats()
     local pendingWrongGuid = gameState.wrongness and gameState.wrongness.guid
     local threatCount = 0
     for _, obj in ipairs(findAllByTag("ThreatCard")) do
-        if obj.type == "Card" and obj.guid ~= pendingWrongGuid and nearATile(obj, tiles) then
-            threatCount = threatCount + 1
+        if obj.guid ~= pendingWrongGuid
+            and not safeHasTag(obj, "ThreatCardDeck")   -- never the draw pile
+            and nearATile(obj, tiles) then
+            if obj.type == "Card" then
+                threatCount = threatCount + 1
+            elseif obj.type == "Deck" then
+                -- COUNT THE CARDS INSIDE. Threats drawn to the same tile on
+                -- successive nights land on the same spot and TTS merges them
+                -- into a Deck — and a Deck is not a Card, so this loop used to
+                -- skip the pile entirely.
+                --
+                -- That inverted the rule it implements. Festering exists to
+                -- punish leaving messes on the map, and it switched itself off
+                -- precisely when the mess got big enough to stack: a team that
+                -- turtled at home drew threats onto the same three tiles every
+                -- night, and from night two onward those threats cost nothing.
+                -- A real Nightmare game finished at Doom 11 of 30 — the fixed
+                -- clock plus one Down, and not a single point of festering all
+                -- week. Guard: test_lua_day_loop.py::TestFestering.
+                local n = 0
+                pcall(function() n = obj.getQuantity() or 0 end)
+                threatCount = threatCount + math.max(0, n)
+            end
         end
     end
 
@@ -504,6 +540,10 @@ function beginDusk()
     safecall(function() resolveWatchingJar() end, "WatchingJar")
 
     gameState.duskPending = {}
+    -- Dusk gets a seat of its own, handed on as each character settles
+    -- (setDuskSeat / nextDuskSeat, turns.lua). advanceToNextPlayer cleared
+    -- activeColor on its way here, so start it on whoever settles first.
+    safecall(function() setDuskSeat(nextDuskSeat(nil)) end, "DuskSeat")
     refreshPhaseBanner()
     if gameState.duskSecret then
         broadcastEvent("phase", "DUSK — SECRET COMMITMENT. Argue it out, then choose: your scramble is banked and nobody sees it until the light goes. You sleep where you stand.")
@@ -633,6 +673,11 @@ end
 -----------------------------------------------------------------------
 function beginNight()
     gameState.subPhase = "Night"
+    -- Dusk's seat (setDuskSeat, turns.lua) does not survive into the Night.
+    -- The host's Resolve Night can cut Dusk short with the seat still on
+    -- someone, and a stale activeColor would leave the banner naming a
+    -- settler and the hand-zone glowing all through the night resolution.
+    gameState.activeColor = nil
     if UI then UI.hide("duskPanel") end
     -- Secret Dusk commitment (§11.3 variant): every banked scramble lands now,
     -- simultaneously, before anything else reads a position.

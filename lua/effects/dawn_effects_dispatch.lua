@@ -113,7 +113,12 @@ function dispatchDawnEffect(card, info)
         if name == "" and card then
             pcall(function() name = card.getNickname() or "" end)
         end
-        id = name:match("^%s*(.-)%s*$") or ""
+        -- trim(), not the standard `match("^%s*(.-)%s*$")`: that idiom throws
+        -- "pattern too complex" in TTS on a long subject, and this one is a
+        -- card nickname straight off the table — whatever a player renamed it
+        -- to. Real Lua never complains, so nothing would catch it but a live
+        -- Dawn reveal failing to dispatch (helpers.lua, docs/tts-interface.md).
+        id = trim(name)
     end
 
     local handler = DAWN_EFFECTS[id]

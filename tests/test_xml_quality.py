@@ -284,7 +284,9 @@ BANNER_WORST_CASE = {
     "bannerDay":    "Day 7 of 7",
     "bannerPhase":  "Dusk of the Week",
     "bannerDoom":   "Doom 30 / 30  (next: 25)",
-    "bannerActive": "Rayman's turn (Yellow)",
+    # Dusk's "<name> settles (<seat>)" (ui_banner.lua) is one character longer
+    # than the Day's "<name>'s turn (<seat>)", so it is the worst case now.
+    "bannerActive": "Rayman settles (Yellow)",
     "bannerNext":   "Click Begin Day to start Day 1",
 }
 
@@ -311,6 +313,104 @@ def test_phase_banner_slots_fit_their_text():
         "phase banner fields too narrow for their runtime text:\n  " + "\n  ".join(problems))
 
 
+# Verbs that call spendAction() (grep lua/ for spendAction). Everything else
+# takes no action: Flee is priced in Sanity, Revive in Health + a Telltale
+# Heart, the Signature is once-per-game, and Peek/Rally/Pry are free perks.
+# Trade is in FREE because its headline case is free — once per turn at your
+# own tile; the trade dialog prices each partner individually.
+COSTED_ACTIONS = {
+    "actMove", "actGather", "actCraft", "actCook", "actFight", "actRest",
+    "actCleanse", "actStabilize", "actDefend", "actBarricade", "actAppease",
+    "actClear",
+}
+
+
+def _action_groups():
+    root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, "hud.xml")) + "</root>")
+    bar = next(el for el in root.iter("Panel") if el.get("id") == "actionBar")
+    groups = {}
+    for grp in bar.iter("HorizontalLayout"):
+        if grp.get("id") in ("actGroupCosted", "actGroupFree"):
+            groups[grp.get("id")] = [b for b in grp if b.tag == "Button"]
+    return bar, groups
+
+
+def test_action_bar_groups_match_the_action_costs():
+    """A button's group must match whether the verb behind it spends an action.
+
+    The bar was one undifferentiated run, so the only way to find out that Pry
+    and Rally are free while Rest and Cleanse are not was to spend an action
+    finding out.
+    """
+    bar, groups = _action_groups()
+    assert set(groups) == {"actGroupCosted", "actGroupFree"}, (
+        "the action bar lost one of its two groups")
+
+    costed = {b.get("id") for b in groups["actGroupCosted"]}
+    free = {b.get("id") for b in groups["actGroupFree"]}
+    assert costed == COSTED_ACTIONS, (
+        f"COSTS-1 group is {sorted(costed)}; the verbs that call spendAction() "
+        f"are {sorted(COSTED_ACTIONS)}. Move the button or update the set — but "
+        "only after checking the Lua, not to make this pass.")
+    assert not (costed & free), "a button is in both groups"
+
+    every = {b.get("id") for b in bar.iter("Button")}
+    assert every == costed | free, (
+        f"action-bar buttons in neither group: {sorted(every - costed - free)}")
+
+
+def test_costed_action_labels_carry_their_price():
+    """...and the label says it too, for anyone reading the button and not the
+    group heading above it."""
+    _bar, groups = _action_groups()
+    missing = [b.get("id") for b in groups["actGroupCosted"] if "(1)" not in (b.get("text") or "")]
+    assert not missing, f"COSTS-1 buttons whose label omits '(1)': {missing}"
+    # actSignature is relabelled at runtime to the signature's own name
+    # (ui_actionbar_display.lua), so its XML placeholder is not the real label.
+    stray = [b.get("id") for b in groups["actGroupFree"]
+             if "(1)" in (b.get("text") or "") and b.get("id") != "actSignature"]
+    assert not stray, f"FREE buttons whose label claims an action cost: {stray}"
+
+
+TOOLTIP_MAX_LINE = 74
+
+
+def test_tooltips_are_wrapped():
+    """A TTS tooltip does not wrap — it renders as one line, however long.
+
+    The Optional Variants panel had four of them at 243, 302, 311 and 396
+    characters: a single strip of text wider than the screen, describing the
+    setting the player is deciding on right now. Break with `&#10;` (the same
+    entity the button labels already use).
+    """
+    problems = []
+    for name in sorted(os.listdir(XML_DIR)):
+        if not name.endswith(".xml"):
+            continue
+        root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, name)) + "</root>")
+        for el in root.iter():
+            tip = el.get("tooltip")
+            if not tip:
+                continue
+            for line in tip.split("\n"):
+                if len(line) > TOOLTIP_MAX_LINE:
+                    problems.append(
+                        f"{name}:{el.get('id') or el.tag}: {len(line)}-char line "
+                        f"(max {TOOLTIP_MAX_LINE}) — {line[:48]}...")
+    assert not problems, (
+        "tooltips with an unbroken line too long to read:\n  " + "\n  ".join(problems))
+
+
+def test_every_variant_toggle_explains_itself():
+    """Random Scenario was the only toggle on the Variants panel with no
+    tooltip — the one setting whose name does not say what it does."""
+    root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, "setup.xml")) + "</root>")
+    panel = next(el for el in root.iter("Panel") if el.get("id") == "setupStepVariants")
+    missing = [b.get("id") for b in panel.iter("Button")
+               if b.get("id", "").startswith("toggle") and not b.get("tooltip")]
+    assert not missing, f"variant toggles with no tooltip: {missing}"
+
+
 def test_phase_banner_row_fits_inside_its_panel():
     """...and the widened slots must still fit the bar, or the whole row
     overflows the panel instead of one field overflowing its slot."""
@@ -327,3 +427,37 @@ def test_phase_banner_row_fits_inside_its_panel():
         f"phase banner children need {need:.0f}px but the panel is {have:.0f}px — "
         "trim a slot or drop a separator; widening the panel past ~1470 pushes "
         "it off narrower screens.")
+
+
+def test_phase_banner_active_field_is_not_centred():
+    """bannerActive must not straddle the horizontal centre of the bar.
+
+    TTS's own turn plate draws at the top-centre of the screen and cannot be
+    hidden from a script — in Hotseat it re-enables itself whatever we do — so
+    it shows through whichever banner field sits there. When that was the
+    active-player field, the bar read as giving two different answers to "whose
+    turn is it": ours in white over a ghosted player name. Any field may take
+    the hit except this one, because only this one can be misread as the same
+    statement."""
+    root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, "hud.xml")) + "</root>")
+    banner = next(el for el in root.iter("Panel") if el.get("id") == "phaseBanner")
+    layout = banner.find("HorizontalLayout")
+    pad = [float(v) for v in (layout.get("padding") or "0 0 0 0").split()]
+    spacing = float(layout.get("spacing") or 0)
+    kids = [k for k in layout if k.get("preferredWidth")]
+
+    widths = [float(k.get("preferredWidth")) for k in kids]
+    row = sum(widths) + spacing * (len(kids) - 1) + pad[0] + pad[1]
+    panel = float(banner.get("width"))
+    centre = panel / 2.0
+
+    x = (panel - row) / 2.0 + pad[0]      # the row is centred in the panel
+    for kid, w in zip(kids, widths):
+        if kid.get("id") == "bannerActive":
+            assert not (x <= centre <= x + w), (
+                f"bannerActive spans {x:.0f}-{x + w:.0f}px and the bar's centre "
+                f"is {centre:.0f}px — TTS's turn plate will draw through it and "
+                "the banner will look like it disagrees with itself. Reorder "
+                "the row so a field that cannot be mistaken for a name (Doom) "
+                "takes the centre.")
+        x += w + spacing

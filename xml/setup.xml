@@ -72,33 +72,35 @@
             onClick="onToggleDifficulty"
             fontSize="14" color="#CFE6C2FF" textColor="#1E5A1E"
             preferredHeight="64"
-            tooltip="Difficulty and length are separate dials. Three difficulties on the full 7-day arc: Story (Doom to 35, a 6 HP Source — start here) / Standard (as tuned) / Nightmare (Doom +1 in Phases 3-4, a 9 HP Source, starts on Strange Days - winnable, barely). Then Long Weekend, which is a SHORT game (3 days, Doom to 15) — good for a weeknight or a teach, but you won't meet the Eye of Terror or The Source."
+            tooltip="Difficulty and length are two separate dials.&#10;&#10;Three difficulties, all on the full 7-day arc:&#10;   STORY — Doom track to 35, a 6 HP Source. Start here.&#10;   STANDARD — the week as tuned.&#10;   NIGHTMARE — Doom +1 in Phases 3-4, a 9 HP Source, and&#10;   the week opens on Strange Days. Winnable, barely.&#10;&#10;LONG WEEKEND is a LENGTH, not a difficulty: 3 days,&#10;Doom track to 15. Good for a weeknight or a teach — but&#10;you will not meet the Eye of Terror or The Source."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
             text="Mode: STORY — the full week, gentler&#10;(7 days, Doom track to 35, a 6 HP Source. Recommended for your first game.)" />
     <Button id="toggleRotation"
             onClick="onToggleRotation"
             fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
             preferredHeight="64"
-            tooltip="OFF (standard): on your turn you take all 3 of your actions, then the next player goes. ON: you take just 1 action and play passes on, going around the table until everyone has spent all 3 — shorter waits between your decisions at 4-5 players."
+            tooltip="OFF (standard): on your turn you take all 3 of your&#10;actions, then the next player goes.&#10;&#10;ON: you take just 1 action and play passes on, going&#10;around the table until everyone has spent all 3.&#10;Shorter waits between your decisions at 4-5 players."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
             text="Rotation turns: OFF&#10;(standard turns — each player takes all 3 actions in one go)" />
     <Button id="toggleScenario"
             onClick="onToggleScenario"
             fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
             preferredHeight="64"
+            tooltip="OFF (standard): an ordinary week.&#10;&#10;ON: one Scenario card is drawn at setup and its twist&#10;runs the whole week — The Long Winter, The Scorching&#10;Summer or The Rotting Autumn. Each changes a rule you&#10;would otherwise plan around, so it is worth meeting a&#10;normal week first."
+            tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
             text="Random Scenario: OFF&#10;(a week-long twist like The Long Winter — recommended after your first game)" />
     <Button id="toggleDuskSecret"
             onClick="onToggleDuskSecret"
             fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
             preferredHeight="64"
-            tooltip="OFF (standard): at Dusk you declare where you sleep out loud, in turn order. ON: the table argues freely, then everyone commits their night privately and all the moves land at once. The alpha player can still argue — they can no longer confirm that everyone complied. Expect 'I thought you were coming with me'."
+            tooltip="OFF (standard): at Dusk you declare where you sleep&#10;out loud, in turn order.&#10;&#10;ON: the table argues freely, then everyone commits their&#10;night privately and every move lands at once. The alpha&#10;player can still argue — they can no longer confirm that&#10;everyone complied.&#10;&#10;Expect &apos;I thought you were coming with me&apos;."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
             text="Secret Dusk: OFF&#10;(standard — you declare where you sleep out loud, in turn order)" />
     <Button id="toggleSolo"
             onClick="onToggleSolo"
             fontSize="14" color="#ECE6D8FF" textColor="#3A362E"
             preferredHeight="64"
-            tooltip="One player runs three characters as a personal cast. The anti-alpha rules are suspended, because they are all anti-solo by definition: play every hand face up, ignore the ghost's one-word limit, and skip Dusk secrecy. The win rate is NOT calibrated for solo — treat Standard as a different number here."
+            tooltip="One player runs three characters as a personal cast.&#10;Needs three seated colours — turn on Tabletop Simulator&#10;Hotseat first.&#10;&#10;Every anti-alpha rule is suspended, because they are all&#10;anti-solo by definition: play every hand face up, ignore&#10;the ghost&apos;s one-word limit, and skip Dusk secrecy.&#10;&#10;The win rate is NOT calibrated for solo — treat Standard&#10;as a different number here."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
             text="Solo: OFF&#10;(a normal 3-5 player game)" />
     <Button id="variantsContinue"
@@ -118,7 +120,7 @@
 <!-- (set from CHAR_BRIEFINGS by showCharPickForNextPlayer).               -->
 <Panel id="setupStep2"
        rectAlignment="MiddleCenter"
-       width="880" height="440"
+       width="880" height="470"
        color="#F2E8D5F7"
        outline="#7A5C2ECC"
        outlineSize="2"
@@ -127,6 +129,31 @@
                   childForceExpandHeight="false">
     <Text id="step2Title" fontSize="20" fontStyle="Bold" color="#5C3A10"
           text="Step 2 — Pick Your Character" preferredHeight="28" />
+    <!-- "This is you." One Text per seat colour, all stacked in the same spot,
+         each visible only to that seat, so every player reads their OWN name
+         and never has to work out which seat their clicks carry.
+         A single shared line cannot do this job: the panel is open to several
+         seats at once, and the queue is not a turn order — the seat a click
+         lands on is the seat the clicker occupies. On the hotseat path that is
+         whichever player TTS currently has active, which is exactly the thing
+         the person at the keyboard cannot see. Twice now that has read as the
+         game handing a character to the wrong player.
+         Stacked, not listed: inside a layout each hidden sibling would still
+         reserve its own row, so they sit in a fixed-height Panel and overlap.
+         Text is filled in by showCharPickForNextPlayer; the colour list there
+         must match these ids (test_step2_has_a_you_line_for_every_seat). -->
+    <Panel preferredHeight="24">
+      <Text id="step2You_White"  visibility="White"  fontSize="14" fontStyle="Bold" color="#7A4A10" alignment="MiddleCenter" text="" />
+      <Text id="step2You_Red"    visibility="Red"    fontSize="14" fontStyle="Bold" color="#7A4A10" alignment="MiddleCenter" text="" />
+      <Text id="step2You_Yellow" visibility="Yellow" fontSize="14" fontStyle="Bold" color="#7A4A10" alignment="MiddleCenter" text="" />
+      <Text id="step2You_Green"  visibility="Green"  fontSize="14" fontStyle="Bold" color="#7A4A10" alignment="MiddleCenter" text="" />
+      <Text id="step2You_Blue"   visibility="Blue"   fontSize="14" fontStyle="Bold" color="#7A4A10" alignment="MiddleCenter" text="" />
+      <Text id="step2You_Orange" visibility="Orange" fontSize="14" fontStyle="Bold" color="#7A4A10" alignment="MiddleCenter" text="" />
+      <Text id="step2You_Purple" visibility="Purple" fontSize="14" fontStyle="Bold" color="#7A4A10" alignment="MiddleCenter" text="" />
+      <Text id="step2You_Pink"   visibility="Pink"   fontSize="14" fontStyle="Bold" color="#7A4A10" alignment="MiddleCenter" text="" />
+      <Text id="step2You_Teal"   visibility="Teal"   fontSize="14" fontStyle="Bold" color="#7A4A10" alignment="MiddleCenter" text="" />
+      <Text id="step2You_Brown"  visibility="Brown"  fontSize="14" fontStyle="Bold" color="#7A4A10" alignment="MiddleCenter" text="" />
+    </Panel>
     <Text id="step2Subtitle" fontSize="13" color="#4A4436"
           text="Click a card to choose. Hover a card for the full briefing. HP = Health, HU = Hunger, SA = Sanity."
           preferredHeight="58" />

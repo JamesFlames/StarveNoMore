@@ -70,6 +70,9 @@ function Setup(hostColor)
 
             -- Move standee to its per-character slot at the home tile
             placeCharacterAtTile(charName, home)
+            -- Upright: a restart after somebody went Down must not leave
+            -- their standee lying on the table for the new game.
+            setStandeePosture(charName, false)
 
             roster[#roster + 1] = charName .. " (" .. color .. ")"
         end
@@ -172,7 +175,13 @@ local function _startingRowSpot(base, ox, oz, dist, idx, count)
     local offset = (idx - 1) - (count - 1) / 2
     return {
         base.x + ox * dist + px_ * offset * 1.3,
-        base.y + 0.6 + idx * 0.05,
+        -- Dropped from clear air, not from `base.y + 0.6`. These rows land
+        -- just off the main board's rim, and 0.65 above the surface was not
+        -- enough of a drop to clear it: a live session ended with a whole
+        -- starting hand resting between y=0.97 and y=1.50 — inside the
+        -- tabletop, invisible, on a table that looked like it had never dealt
+        -- them (docs/tts-runtime.md, "the #1 invisible-object trap").
+        spawnDropY(base.y) + idx * 0.05,
         base.z + oz * dist + pz_ * offset * 1.3,
     }
 end
@@ -239,23 +248,47 @@ function dealStartingHands()
                     spot = _startingRowSpot(base, ox, oz, STARTING_RESERVE_DIST, li, later)
                     reserveTag = "StartingReserve:" .. color .. ":" .. tostring(p.day)
                 end
+                -- rz 0 = face up, 180 = face down. These cards carry
+                -- HideWhenFaceDown, so a reserve card shows nothing but its
+                -- "STARTING" back until its day comes.
+                local rot = {0, 180, faceUp and 0 or 180}
+                -- pcall: the safecall below wraps the take, not this, and by
+                -- the time it runs the handle can already be dead.
+                local function dress(c)
+                    if c and reserveTag then
+                        pcall(function() c.addTag(reserveTag) end)
+                    end
+                end
                 safecall(function()
                     if not isLiveObject(deck) then return end
+                    -- The LAST card is not taken from anything. TTS destroys a
+                    -- Deck the moment it drops to a single card and leaves that
+                    -- card on the table in its place — but the handle we are
+                    -- holding still passes isLiveObject, it is simply no longer
+                    -- a container, and takeObject on it throws a .NET exception.
+                    -- Lua pcall does not catch those (docs/tts-interface.md), so
+                    -- neither this safecall nor the pcall wrapping the whole of
+                    -- Setup caught it: one undealt Headphones aborted the entire
+                    -- finalize and stranded the table in PreGame with a full
+                    -- party. Place the survivor directly instead.
+                    if deck.getQuantity() <= 1 then
+                        -- Named `survivor`, not `card`: test_dead_handles
+                        -- tracks risky handle names per FILE, so a `local
+                        -- card = getObjectFromGUID(...)` here marks every
+                        -- other `card` in setup.lua as unguarded too.
+                        local survivor = getObjectFromGUID(p.guid) or deck
+                        if not isLiveObject(survivor) then return end
+                        survivor.setPosition(spot)
+                        survivor.setRotation(rot)
+                        dress(survivor)
+                        return
+                    end
                     deck.takeObject({
                         guid     = p.guid,
                         position = spot,
-                        -- rz 0 = face up, 180 = face down. These cards carry
-                        -- HideWhenFaceDown, so a reserve card shows nothing
-                        -- but its "STARTING" back until its day comes.
-                        rotation = {0, 180, faceUp and 0 or 180},
+                        rotation = rot,
                         smooth   = false,
-                        callback_function = function(c)
-                            -- pcall: the outer safecall wraps takeObject, not
-                            -- this callback, whose handle can already be dead.
-                            if reserveTag then
-                                pcall(function() c.addTag(reserveTag) end)
-                            end
-                        end,
+                        callback_function = dress,
                     })
                 end, "StartingItems")
             end
@@ -329,17 +362,28 @@ function dealMarketDisplay()
     Wait.time(function()
         local deck = getMarketDeck()
         if not deck then return end
-        for _, slot in ipairs(getMarketSlots()) do
+        -- Only the first marketOpenSlots() cards are on offer; the rest are
+        -- dealt face down and turned over one per Dawn (global.lua). Setup
+        -- runs on Day 1, so that is two up and three down.
+        local open = marketOpenSlots()
+        gameState.marketFaceDown = gameState.marketFaceDown or {}
+        for i, slot in ipairs(getMarketSlots()) do
             local slotPos = slot.getPosition()
             if not _slotOccupied(slotPos) and deck.getQuantity() > 0 then
+                local hidden = i > open
+                gameState.marketFaceDown[i] = hidden or nil
                 deck.takeObject({
                     position = slotPos + Vector(0, 1, 0),
-                    rotation = {0, 180, 0},  -- face-up
+                    rotation = hidden and {0, 180, 180} or {0, 180, 0},
                     smooth   = true,
                     -- The slot markers no longer print the "what is this?"
                     -- paragraph beside them; it hangs off the card's own
                     -- tooltip instead (addMarketHelp, lua/crafting.lua).
-                    callback_function = function(c) addMarketHelp(c) end,
+                    -- A face-down card gets no help text: the tooltip would
+                    -- name the item the card is deliberately not showing.
+                    callback_function = function(c)
+                        if not hidden then addMarketHelp(c) end
+                    end,
                 })
             end
         end
@@ -362,7 +406,7 @@ end
 -----------------------------------------------------------------------
 function tableOrientationMessages()
     return {
-        {"proc", "The 5 face-up cards west of the map are the shared MARKET. They belong to nobody until someone buys one with the Craft action — hover one to see what it does."},
+        {"proc", "The card column west of the map is the shared MARKET. It belongs to nobody until someone buys with the Market Craft action — hover a face-up card to see what it does. Only " .. MARKET_SLOTS_DAY_ONE .. " are on offer today; the shop puts out one more each morning until all " .. MARKET_SLOTS_TOTAL .. " are up."},
         {"proc", "Recipes for the Cook action are listed in the action itself, in the Notebook, and in the ? panel. Nothing to memorise."},
     }
 end

@@ -150,21 +150,56 @@ LOCATION_RING_COLOR = {
 # (toward Badminton, 8.0 units away — the roomiest gap on the board) and
 # Basketball keeps the south side. Put both in the middle and Ellie's yields
 # line runs straight through Basketball's ring.
+# Which side of its ring a location's two printed lines sit on.
+#
+# BadmintonCourt reads "above", and that is not cosmetic. It and Ellie & Luca
+# are the two tiles on the x=0 axis, so the road between them is a short
+# vertical corridor — and with Badminton labelling "below" and Ellie & Luca
+# "above", both label stacks pointed INTO that corridor and buried the road
+# under four lines of text. On the Ring, Compact, Sprawl and Linear boards
+# that made a legal move look like no connection at all: a player reported the
+# art "shows connections between everything and Ellie & Luca's house", which
+# is what is left when the one road you cannot see is the one to the north.
+# Badminton is the northernmost tile and has open board above it.
+# Guard: test_cross_refs.py::test_printed_labels_do_not_bury_a_path.
 LOCATION_LABEL_SIDE = {
     "JamesHouse":      "below",
     "EllieLucaHouse":  "above",
     "RaymanHouse":     "below",
     "BasketballCourt": "below",
-    "BadmintonCourt":  "below",
+    "BadmintonCourt":  "above",
 }
 
-# What each location yields, as printed under its name.
+# What each location yields, as printed under its name. Mirrors
+# LOCATION_YIELDS (lua/global.lua), which Gather draws from at random —
+# so a resource listed twice there is twice as likely, not a typo.
+# Say that with a multiplier: printing "Provisions, Provisions" verbatim
+# reads as a duplication bug to everyone who sees it, and did.
+# Guard: test_cross_refs.py::test_printed_tile_yields_match_the_gather_table.
 LOCATION_YIELD_TEXT = {
     "JamesHouse":      "Energy, Battery, Provisions",
-    "EllieLucaHouse":  "Provisions, Provisions, Cloth + Crockpot",
+    "EllieLucaHouse":  "Provisions x2, Cloth + Crockpot",
     "RaymanHouse":     "Metal, Battery, Provisions",
     "BasketballCourt": "Wood, Metal, Cloth",
     "BadmintonCourt":  "Cloth, Wood, Metal",
+}
+
+# Printed beside the yields. Mirrors LOCATION_DEFENSE (lua/global.lua), which
+# in turn mirrors the `defense` column of content/locations.csv.
+#
+# It goes on the board because it was effectively invisible: defence changes
+# how a fight at a tile resolves, and the only place it appeared was a
+# hover-only description nobody hovers. A player who has never seen these
+# numbers reads the map as "houses are safe, courts are not" — which is wrong
+# in both directions (Badminton is as good as Rayman's; James's and Ellie &
+# Luca's are neutral). Printed, the map argues for itself.
+# Guard: test_cross_refs.py::test_printed_tile_defence_matches_the_rules.
+LOCATION_DEFENCE_TEXT = {
+    "JamesHouse":      "Def 0",
+    "EllieLucaHouse":  "Def 0",
+    "RaymanHouse":     "Def +1",
+    "BasketballCourt": "Def -1",
+    "BadmintonCourt":  "Def +1",
 }
 
 # Label band geometry, in board pixels at BOARD_PX.
@@ -637,11 +672,21 @@ def generate_player_board(char_name, data):
     # Footer
     centered_text(draw, W//2, H - 16, "STARVE NO MORE", FONT_TINY, PAL["border"])
 
-    # Custom_Tile at rotY=0 renders its image rotated 180 degrees in the
-    # default table view (same convention as the main board) — rotate the
-    # finished image once so the board reads upright in play.
-    img = img.rotate(180)
-
+    # NOT rotated 180 here, unlike the main board, and that is deliberate.
+    #
+    # A Custom_Tile at rotY=0 does render its image 180 degrees round in the
+    # table view, so pre-rotating the artwork is the obvious fix and is what
+    # this used to do. It costs you Alt-zoom: TTS renders the zoom preview in
+    # the object's LOCAL frame, not the table's, so an image pre-rotated to
+    # look right on the felt reads upside down the moment anyone magnifies it.
+    # All five boards did. (Local frame is also why all five were wrong by the
+    # same 180 degrees despite sitting at four different table rotations — a
+    # table-relative preview would have shown the side boards 90 degrees out.)
+    #
+    # So the artwork stays upright and build_save.py turns the OBJECT instead:
+    # ry + 180, with the local snap points negated to follow it. Identical on
+    # the table, upright in the zoom. Keep the two in step — this comment and
+    # PLAYER_BOARD_ZOOM_ROT in build_save.py are the pair.
     img.save(os.path.join(DIRS["chars"], f"board_{char_name.lower()}.png"))
     print(f"  Player board: board_{char_name.lower()}.png")
 
@@ -696,13 +741,19 @@ def generate_main_board(variant=None, doom_limit=None):
     # board can never show a route the Move action refuses (path_layouts.py).
     paths = path_layouts.PATH_LAYOUTS[variant]
 
-    # Draw paths first (behind nodes)
+    # Draw paths first (behind nodes).
+    #
+    # Much lighter than they were. The roads used to be (55,50,42) with a
+    # (75,68,58) dashed centre, which is a few points off the (35,32,28) board
+    # — legible in an image viewer at 4096px, and very nearly invisible on a
+    # table. "Which tiles connect?" is the single most-used piece of
+    # information on this board, so it gets contrast rather than atmosphere.
     for loc_a, loc_b in paths:
         xa, ya = node_px[loc_a]
         xb, yb = node_px[loc_b]
         # Thick path line
-        draw.line([xa, ya, xb, yb], fill=(55, 50, 42), width=18)
-        # Dotted center line
+        draw.line([xa, ya, xb, yb], fill=(96, 88, 74), width=20)
+        # Dashed centre line, bright enough to read as a road
         steps = 30
         for i in range(0, steps, 2):
             t1 = i / steps
@@ -711,7 +762,7 @@ def generate_main_board(variant=None, doom_limit=None):
             py1 = int(ya + (yb - ya) * t1)
             px2 = int(xa + (xb - xa) * t2)
             py2 = int(ya + (yb - ya) * t2)
-            draw.line([px1, py1, px2, py2], fill=(75, 68, 58), width=4)
+            draw.line([px1, py1, px2, py2], fill=(168, 154, 128), width=5)
 
     # Draw location nodes. The tile (5x5 world units) covers the ring centre,
     # so everything readable stacks outward from the tile edge —
@@ -732,6 +783,9 @@ def generate_main_board(variant=None, doom_limit=None):
         # Name + yields on the open side ("above" = north).
         label = path_layouts.LOCATION_LABELS[name]
         yields = LOCATION_YIELD_TEXT.get(name, "")
+        defence = LOCATION_DEFENCE_TEXT.get(name)
+        if defence:
+            yields = yields + "   ·   " + defence
         (d_name, _, _), (d_yield, _, _) = location_label_bands(draw, name, side)
         centered_text(draw, clamped_center(draw, cx, label, FONT_BOARD_NAME, S),
                       cy + d_name, label, FONT_BOARD_NAME, color)
@@ -773,10 +827,18 @@ def generate_main_board(variant=None, doom_limit=None):
         b_val = int(80 - t * 60)
         step_color = (r_val, g_val, b_val)
 
-        # Step cell
+        # Step cell. A threshold step wears a white border and stands 10px
+        # proud of its neighbours: the ribbon floats 58px above the track, and
+        # with 31 identical cells underneath it players were counting along the
+        # row to work out which number "Crafts +1 cost" belonged to — and
+        # getting it wrong. The marked cell answers it at a glance.
+        marked = step in thresholds
         half = int(step_w / 2) - 3
-        draw.rounded_rectangle([sx - half, doom_y - cell_h, sx + half, doom_y + cell_h],
-                               radius=3, fill=step_color)
+        grow = 10 if marked else 0
+        draw.rounded_rectangle([sx - half, doom_y - cell_h - grow, sx + half, doom_y + cell_h + grow],
+                               radius=3, fill=step_color,
+                               outline=(255, 255, 255) if marked else None,
+                               width=5 if marked else 0)
         # Number
         centered_text(draw, sx, doom_y, str(step), FONT_BOARD_NUM, PAL["text"])
 
@@ -784,11 +846,16 @@ def generate_main_board(variant=None, doom_limit=None):
         # Doom 15 ribbon sits directly under the Basketball Court, whose label
         # band now reaches further south, and 96px of clearance put the two
         # on top of each other.
-        if step in thresholds:
+        if marked:
             ribbon_y = doom_y - cell_h - 58
             tw = draw.textbbox((0, 0), thresholds[step], font=FONT_BOARD_RIB)[2]
+            # White stem from the marked cell up to its ribbon, so the pairing
+            # survives being read from across the table.
+            draw.line([(sx, doom_y - cell_h - grow), (sx, ribbon_y + 26)],
+                      fill=(255, 255, 255), width=5)
             draw.rounded_rectangle([sx - tw // 2 - 14, ribbon_y - 26, sx + tw // 2 + 14, ribbon_y + 26],
-                                   radius=6, fill=(80, 25, 25), outline=PAL["red"], width=2)
+                                   radius=6, fill=(80, 25, 25),
+                                   outline=(255, 255, 255), width=3)
             centered_text(draw, sx, ribbon_y, thresholds[step], FONT_BOARD_RIB, (255, 200, 150))
 
     # --- TITLE (north-west corner, clear of the Badminton ring) ---

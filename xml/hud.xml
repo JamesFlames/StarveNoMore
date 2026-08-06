@@ -31,11 +31,14 @@
   <HorizontalLayout spacing="14" padding="8 14 8 14"
                     childForceExpandWidth="false"
                     childAlignment="MiddleCenter">
-    <!-- Day -->
+    <!-- Day. 118, not 130: "Day 7 of 7" is the longest string this field can
+         ever hold (the only other length is Long Weekend's "Day 3 of 3"), so
+         the 12px it was carrying spare went to bannerActive, which now also
+         has to fit "Rayman settles (Yellow)" at Dusk. -->
     <Text id="bannerDay"
           fontSize="20" fontStyle="Bold"
           color="#88DDFF"
-          preferredWidth="130"
+          preferredWidth="118"
           text="Day 1 of 7" />
     <!-- Phase -->
     <Text id="bannerPhase"
@@ -43,18 +46,32 @@
           color="#AACCDD"
           preferredWidth="170"
           text="Dusk of the Week" />
+    <!-- Active Player — placed BEFORE Doom, and that order is load-bearing.
+         TTS draws its own turn plate at the top-centre of the screen, which is
+         also the centre of this bar, and in Hotseat it re-enables itself
+         however often the script switches it off (there is no API to hide
+         built-in chrome — checked the Player instance and the base function
+         list). Whichever field sits at the centre therefore gets a faded
+         player name showing through from behind it. While that field was this
+         one, the bar appeared to answer "whose turn is it" twice, differently:
+         our "James's turn (Blue)" over a ghosted "Raymanx". Doom takes the
+         centre now — a yellow "Doom 12 / 30" with a name behind it is noise,
+         not a contradiction.
+         Widening this field to name the player as well was tried first and
+         does not fit: the row is 1462px of the 1470px panel once the three
+         buttons are counted, and an overflowing Text draws over its neighbour.
+         Guard: test_phase_banner_active_field_is_not_centred. -->
+    <Text id="bannerActive"
+          fontSize="18"
+          color="#FFFFFF"
+          preferredWidth="232"
+          text="— pre-game —" />
     <!-- Doom -->
     <Text id="bannerDoom"
           fontSize="20" fontStyle="Bold"
           color="#FFDD66"
           preferredWidth="270"
           text="Doom 0 / 30" />
-    <!-- Active Player -->
-    <Text id="bannerActive"
-          fontSize="18"
-          color="#FFFFFF"
-          preferredWidth="220"
-          text="— pre-game —" />
     <!-- Next Action -->
     <Text id="bannerNext"
           fontSize="17" fontStyle="Italic"
@@ -72,25 +89,31 @@
           fontSize="20"
           color="#8899BB"
           preferredWidth="28"
-          tooltip="A waning moon. It shows up on the nights the neighborhood makes that sound — the same warning, for anyone playing muted. What it means is for you to find out."
+          tooltip="A waning moon. It shows up on the nights the neighborhood&#10;makes that sound — the same warning, for anyone playing muted.&#10;What it means is for you to find out."
           tooltipPosition="Below" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
           text="" />
-    <!-- Help button -->
+    <!-- Help button. Reads "Rules", not "?" — a lone question mark is a
+         convention, and a table that has never played this mod has to click it
+         to find out it holds the whole rulebook. The word says so.
+         The extra 12px comes out of the row's slack;
+         test_phase_banner_row_fits_inside_its_panel is the guard. -->
     <Button id="helpBtn"
             onClick="onHelpClick"
-            fontSize="22" fontStyle="Bold"
+            fontSize="14" fontStyle="Bold"
             color="#285064E6"
             textColor="#88EEFF"
-            preferredWidth="44" preferredHeight="44"
-            text="?" />
-    <!-- What now? button -->
+            preferredWidth="56" preferredHeight="44"
+            tooltip="The help menu — Quick Start, the complete Rulebook, the&#10;glossary and the character briefings."
+            tooltipPosition="Below" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
+            text="Rules" />
+    <!-- What next? button -->
     <Button id="hintBtn"
             onClick="onWhatNowClick"
             fontSize="14"
             color="#28503CE6"
             textColor="#BBFFBB"
             preferredWidth="100" preferredHeight="44"
-            text="What now?" />
+            text="What next?" />
     <!-- Message Log toggle -->
     <Button id="logBtn"
             onClick="onMsgLogToggle"
@@ -98,7 +121,7 @@
             color="#28323CE6"
             textColor="#BBDDFF"
             preferredWidth="60" preferredHeight="44"
-            tooltip="Show or hide the Message Log — every game message stays there until you clear it."
+            tooltip="Show or hide the Message Log — every game message stays there&#10;until you clear it."
             tooltipPosition="Below" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
             text="Log" />
   </HorizontalLayout>
@@ -115,7 +138,7 @@
         onClick="onToggleCustomUI"
         fontSize="12"
         color="#282828E6" textColor="#CCCCCC"
-        tooltip="Hide or show all of this game's panels, so the standard Tabletop Simulator controls underneath are easy to reach."
+        tooltip="Hide or show all of this game's panels, so the standard&#10;Tabletop Simulator controls underneath are easy to reach."
         tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
         text="Hide UI" />
 
@@ -129,7 +152,7 @@
        width="640" height="24"
        color="#00000099"
        active="false"
-       tooltip="The day cycle. Dawn: the world acts first. Day: your 3 actions. Dusk: last scramble. Night: threats + sleep. Tick: stat decay. The lit step is where you are now.">
+       tooltip="The day cycle. Dawn: the world acts first. Day: your 3&#10;actions. Dusk: last scramble. Night: threats + sleep. Tick:&#10;stat decay. The lit step is where you are now.">
   <Text id="cycleText"
         fontSize="13"
         alignment="MiddleCenter"
@@ -276,9 +299,28 @@
        actionTooltip panel above the bar after a hover delay — not in native
        tooltip attributes (those render instantly, transparent, on the bar). -->
   <VerticalLayout spacing="4" padding="6 10 6 10">
-    <!-- Action Buttons Row -->
-    <HorizontalLayout spacing="8" childForceExpandWidth="true"
+    <!-- Action Buttons Row — TWO GROUPS, and the split is the point.
+         Every button used to sit in one undifferentiated run, so the only way
+         to learn that Pry and Rally are free while Rest and Cleanse are not
+         was to spend an action finding out. The "(1)" suffix carried that
+         information and was easy to read as part of the name.
+
+         Membership is decided by whether the verb calls spendAction():
+         costed = Move, Gather, Market Craft, Cook, Fight, Rest, Cleanse,
+         Stabilize, Defend, Barricade, Appease, Clear. Everything else takes
+         no action (Flee costs Sanity, Revive costs Health + a Heart, the
+         Signature is once-per-game). Trade sits in FREE because its headline
+         case is free — once per turn at your own tile; the trade dialog
+         prices each partner individually.
+         Guard: test_xml_quality.py::test_action_bar_groups_match_the_action_costs -->
+    <HorizontalLayout spacing="6" childForceExpandWidth="false"
                       preferredHeight="52">
+      <Text id="actGroupCostLabel" fontSize="10" fontStyle="Bold"
+            color="#C8B48A" alignment="MiddleCenter"
+            preferredWidth="34" flexibleWidth="0"
+            text="COSTS&#10;1" />
+      <HorizontalLayout id="actGroupCosted" spacing="8"
+                        childForceExpandWidth="true" flexibleWidth="6">
       <Button id="actMove"
               onClick="onActMove"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
@@ -289,11 +331,14 @@
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
               fontSize="14" color="#B9C9B4FF" textColor="#12180F"
               text="Gather (1)" />
+      <!-- "Craft" alone read as a generic verb and gave no hint that the
+           thing it acts on is the Market row down the side of the table.
+           Two lines because "Market Craft (1)" does not fit one at 14pt. -->
       <Button id="actCraft"
               onClick="onActCraft"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#B9C9B4FF" textColor="#12180F"
-              text="Craft (1)" />
+              fontSize="12" color="#B9C9B4FF" textColor="#12180F"
+              text="Market&#10;Craft (1)" />
       <Button id="actCook"
               onClick="onActCook"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
@@ -314,6 +359,50 @@
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
               fontSize="14" color="#B9C9B4FF" textColor="#12180F"
               text="Cleanse (1)" />
+      <!-- Costed situational verbs: hidden until their precondition holds,
+           like the free ones below, but they still bill an action. -->
+      <Button id="actStabilize"
+              onClick="onActStabilize"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#C9B4A0FF" textColor="#12180F"
+              active="false"
+              text="Stabilize (1)" />
+      <Button id="actDefend"
+              onClick="onActDefend"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#A8C4DCFF" textColor="#12180F"
+              active="false"
+              text="Defend (1)" />
+      <Button id="actBarricade"
+              onClick="onActBarricade"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#B0A48CFF" textColor="#12180F"
+              active="false"
+              text="Barricade (1)" />
+      <Button id="actAppease"
+              onClick="onActAppease"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#9CC49CFF" textColor="#12180F"
+              active="false"
+              text="Appease (1)" />
+      <Button id="actClear"
+              onClick="onActClear"
+              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
+              fontSize="14" color="#C4B49CFF" textColor="#12180F"
+              active="false"
+              text="Clear (1)" />
+      </HorizontalLayout>
+      <Text fontSize="18" color="#5A6656" alignment="MiddleCenter"
+            preferredWidth="10" flexibleWidth="0" text="│" />
+      <Text id="actGroupFreeLabel" fontSize="10" fontStyle="Bold"
+            color="#8FC28F" alignment="MiddleCenter"
+            preferredWidth="34" flexibleWidth="0"
+            text="FREE" />
+      <HorizontalLayout id="actGroupFree" spacing="8"
+                        childForceExpandWidth="true" flexibleWidth="5">
+      <!-- Trade lives here because its headline case is free: once per turn
+           at your own tile. Reaching an ally on another tile costs an action,
+           and the trade dialog says so per partner. -->
       <Button id="actTrade"
               onClick="onActTrade"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
@@ -353,18 +442,6 @@
               fontSize="14" color="#C9A0DCFF" textColor="#12180F"
               active="false"
               text="Revive" />
-      <Button id="actStabilize"
-              onClick="onActStabilize"
-              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#C9B4A0FF" textColor="#12180F"
-              active="false"
-              text="Stabilize" />
-      <Button id="actDefend"
-              onClick="onActDefend"
-              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#A8C4DCFF" textColor="#12180F"
-              active="false"
-              text="Defend" />
       <Button id="actEnergy"
               onClick="onActEnergyDrink"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
@@ -389,24 +466,6 @@
               fontSize="14" color="#DCA0A0FF" textColor="#12180F"
               active="false"
               text="Flee" />
-      <Button id="actBarricade"
-              onClick="onActBarricade"
-              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#B0A48CFF" textColor="#12180F"
-              active="false"
-              text="Barricade" />
-      <Button id="actAppease"
-              onClick="onActAppease"
-              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#9CC49CFF" textColor="#12180F"
-              active="false"
-              text="Appease" />
-      <Button id="actClear"
-              onClick="onActClear"
-              onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
-              fontSize="14" color="#C4B49CFF" textColor="#12180F"
-              active="false"
-              text="Clear" />
       <Button id="actUndo"
               onClick="onActUndo"
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
@@ -417,11 +476,20 @@
               onMouseEnter="onActionTooltipEnter" onMouseExit="onActionTooltipExit"
               fontSize="14" color="#E0C89AFF" textColor="#12180F"
               text="End Turn" />
+      </HorizontalLayout>
     </HorizontalLayout>
     <!-- Action Cubes Row -->
     <HorizontalLayout spacing="6" childForceExpandWidth="false"
                       childAlignment="MiddleCenter"
                       preferredHeight="30">
+      <!-- Whose bar this is, said at the bar. The banner names the character
+           and the seat, TTS's player list names the human, and TTS's own turn
+           plate names a third thing — a real player reported being "baffled
+           whose turn it is, player or character". This is the panel they are
+           actually clicking, so it answers it here: "Rayman (Green seat)".
+           Set by refreshActionBar (ui_actionbar_display.lua). -->
+      <Text id="actBarWho" fontSize="14" fontStyle="Bold" color="#CFE0CF"
+            alignment="MiddleRight" preferredWidth="230" text="" />
       <Text fontSize="13" color="#889988" text="Actions:" preferredWidth="65" />
       <Text id="cube1" fontSize="20" color="#66FF66" text="■" preferredWidth="28" />
       <Text id="cube2" fontSize="20" color="#66FF66" text="■" preferredWidth="28" />
@@ -500,7 +568,7 @@
 <Panel id="statDisplay"
        rectAlignment="MiddleLeft"
        offsetXY="10 0"
-       width="180" height="298"
+       width="180" height="320"
        color="#000000B2"
        outline="#9696964C"
        outlineSize="1"
@@ -509,11 +577,17 @@
                   childForceExpandHeight="false">
     <Text id="statCharName" fontSize="16" fontStyle="Bold" color="#FFFFFF"
           text="—" preferredHeight="22" />
+    <!-- Who is playing this character. The single most-asked question at a
+         real table was "who is what character", because the game names
+         characters everywhere and TTS names humans everywhere and nothing
+         joined the two up. Set by refreshStatDisplay. -->
+    <Text id="statPlayerName" fontSize="12" fontStyle="Italic" color="#A8B8C8"
+          text="" preferredHeight="16" />
 
     <!-- Health -->
     <HorizontalLayout spacing="4" preferredHeight="28">
       <Text fontSize="14" color="#FF6666" text="HP" preferredWidth="28"
-            tooltip="Health — physical damage. At 0 you go Down (a ghost) until revived with a Telltale Heart. Below 3: Move costs +1 action."
+            tooltip="Health — physical damage. At 0 you go Down (a ghost) until&#10;revived with a Telltale Heart. Below 3: Move costs +1 action."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
       <ProgressBar id="statHealthBar" percentage="100"
                    fillImageColor="#FF4444" color="#EFEFEFFF"
@@ -525,7 +599,7 @@
     <!-- Hunger -->
     <HorizontalLayout spacing="4" preferredHeight="28">
       <Text fontSize="14" color="#FFAA44" text="HU" preferredWidth="28"
-            tooltip="Hunger — your stomach. It drops every night at Tick; at 0 you lose Health instead. Below 3: you cannot Fight (you may always Flee). Eat food or Rest to refill."
+            tooltip="Hunger — your stomach. It drops every night at Tick; at 0 you&#10;lose Health instead. Below 3: you cannot Fight (you may always&#10;Flee). Eat food or Rest to refill."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
       <ProgressBar id="statHungerBar" percentage="100"
                    fillImageColor="#FFAA22" color="#EFEFEFFF"
@@ -537,7 +611,7 @@
     <!-- Sanity -->
     <HorizontalLayout spacing="4" preferredHeight="28">
       <Text fontSize="14" color="#66BBFF" text="SA" preferredWidth="28"
-            tooltip="Sanity — your mind. Drained by darkness, isolation and weird events. At 0 you go Down (lost). Below 3: Haunted — each Dawn a Threat appears at your tile that only you can face."
+            tooltip="Sanity — your mind. Drained by darkness, isolation and weird&#10;events. At 0 you go Down (lost). Below 3: Haunted — each Dawn&#10;a Threat appears at your tile that only you can face."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
       <ProgressBar id="statSanityBar" percentage="100"
                    fillImageColor="#4488FF" color="#EFEFEFFF"
@@ -553,7 +627,7 @@
     <!-- Live resource counts (tokens beside your player board) -->
     <Text id="statResources" fontSize="11" color="#CCC8A0"
           alignment="UpperLeft"
-          tooltip="Your resource tokens, counted live. They physically sit beside your player board."
+          tooltip="Your resource tokens, counted live. They physically sit beside&#10;your player board."
           tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
           text="" preferredHeight="48" />
 
@@ -592,7 +666,7 @@
               color="#4C9DFF" text="James" preferredHeight="14" />
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10"
-                tooltip="Health — at 0 this character goes Down (ghost) until revived with a Telltale Heart."
+                tooltip="Health — at 0 this character goes Down (ghost) until revived&#10;with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_James" percentage="100"
                        fillImageColor="#FF4444" color="#EFEFEFFF"
@@ -602,7 +676,7 @@
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10"
-                tooltip="Hunger — drops each night; at 0 they lose Health instead. Below 3 they cannot Fight."
+                tooltip="Hunger — drops each night; at 0 they lose Health instead.&#10;Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_James" percentage="100"
                        fillImageColor="#FFAA22" color="#EFEFEFFF"
@@ -612,7 +686,7 @@
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10"
-                tooltip="Sanity — drained by darkness and horrors; at 0 they go Down (lost). Below 3: Haunted."
+                tooltip="Sanity — drained by darkness and horrors; at 0 they go Down&#10;(lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_James" percentage="100"
                        fillImageColor="#4488FF" color="#EFEFEFFF"
@@ -630,7 +704,7 @@
               color="#FFFFFF" text="Coco" preferredHeight="14" />
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10"
-                tooltip="Health — at 0 this character goes Down (ghost) until revived with a Telltale Heart."
+                tooltip="Health — at 0 this character goes Down (ghost) until revived&#10;with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Coco" percentage="100"
                        fillImageColor="#FF4444" color="#EFEFEFFF"
@@ -640,7 +714,7 @@
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10"
-                tooltip="Hunger — drops each night; at 0 they lose Health instead. Below 3 they cannot Fight."
+                tooltip="Hunger — drops each night; at 0 they lose Health instead.&#10;Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Coco" percentage="100"
                        fillImageColor="#FFAA22" color="#EFEFEFFF"
@@ -650,7 +724,7 @@
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10"
-                tooltip="Sanity — drained by darkness and horrors; at 0 they go Down (lost). Below 3: Haunted."
+                tooltip="Sanity — drained by darkness and horrors; at 0 they go Down&#10;(lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Coco" percentage="100"
                        fillImageColor="#4488FF" color="#EFEFEFFF"
@@ -668,7 +742,7 @@
               color="#5AC766" text="Rayman" preferredHeight="14" />
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10"
-                tooltip="Health — at 0 this character goes Down (ghost) until revived with a Telltale Heart."
+                tooltip="Health — at 0 this character goes Down (ghost) until revived&#10;with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Rayman" percentage="100"
                        fillImageColor="#FF4444" color="#EFEFEFFF"
@@ -678,7 +752,7 @@
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10"
-                tooltip="Hunger — drops each night; at 0 they lose Health instead. Below 3 they cannot Fight."
+                tooltip="Hunger — drops each night; at 0 they lose Health instead.&#10;Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Rayman" percentage="100"
                        fillImageColor="#FFAA22" color="#EFEFEFFF"
@@ -688,7 +762,7 @@
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10"
-                tooltip="Sanity — drained by darkness and horrors; at 0 they go Down (lost). Below 3: Haunted."
+                tooltip="Sanity — drained by darkness and horrors; at 0 they go Down&#10;(lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Rayman" percentage="100"
                        fillImageColor="#4488FF" color="#EFEFEFFF"
@@ -706,7 +780,7 @@
               color="#E8E44D" text="Ellie" preferredHeight="14" />
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10"
-                tooltip="Health — at 0 this character goes Down (ghost) until revived with a Telltale Heart."
+                tooltip="Health — at 0 this character goes Down (ghost) until revived&#10;with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Ellie" percentage="100"
                        fillImageColor="#FF4444" color="#EFEFEFFF"
@@ -716,7 +790,7 @@
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10"
-                tooltip="Hunger — drops each night; at 0 they lose Health instead. Below 3 they cannot Fight."
+                tooltip="Hunger — drops each night; at 0 they lose Health instead.&#10;Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Ellie" percentage="100"
                        fillImageColor="#FFAA22" color="#EFEFEFFF"
@@ -726,7 +800,7 @@
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10"
-                tooltip="Sanity — drained by darkness and horrors; at 0 they go Down (lost). Below 3: Haunted."
+                tooltip="Sanity — drained by darkness and horrors; at 0 they go Down&#10;(lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Ellie" percentage="100"
                        fillImageColor="#4488FF" color="#EFEFEFFF"
@@ -744,7 +818,7 @@
               color="#FF5C5C" text="Luca" preferredHeight="14" />
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10"
-                tooltip="Health — at 0 this character goes Down (ghost) until revived with a Telltale Heart."
+                tooltip="Health — at 0 this character goes Down (ghost) until revived&#10;with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Luca" percentage="100"
                        fillImageColor="#FF4444" color="#EFEFEFFF"
@@ -754,7 +828,7 @@
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10"
-                tooltip="Hunger — drops each night; at 0 they lose Health instead. Below 3 they cannot Fight."
+                tooltip="Hunger — drops each night; at 0 they lose Health instead.&#10;Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Luca" percentage="100"
                        fillImageColor="#FFAA22" color="#EFEFEFFF"
@@ -764,7 +838,7 @@
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
           <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10"
-                tooltip="Sanity — drained by darkness and horrors; at 0 they go Down (lost). Below 3: Haunted."
+                tooltip="Sanity — drained by darkness and horrors; at 0 they go Down&#10;(lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Luca" percentage="100"
                        fillImageColor="#4488FF" color="#EFEFEFFF"

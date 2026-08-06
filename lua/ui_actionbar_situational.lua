@@ -247,6 +247,7 @@ local function showDownedTargets(color, kind, title, note)
 end
 
 function onActRevive(player, value, id)
+    if confirmClickedOnItsOwnButton(player, id) then return end
     local color = player.color
     if not validateActivePlayer(color) then return end
     local ok, why = canRevive(color)
@@ -293,7 +294,8 @@ function onDownedTargetClick(player, value, id)
         local reviver = gameState.activeChars[color]
         local target = gameState.activeChars[value]
         confirmLastHeart(reviver and reviver.name or "?", target and target.name or "?",
-            function() safecall(function() reviveCharacter(color, value) end, "Revive") end)
+            function() safecall(function() reviveCharacter(color, value) end, "Revive") end,
+            "actRevive")
     end
     refreshPhaseBanner()
     updateActivePlayerIndicator()

@@ -28,6 +28,10 @@ function onActMove(player, value, id)
 end
 
 function onActGather(player, value, id)
+    -- Gather at James's House offers the Stash every time, so this is the
+    -- button that raises a confirm most often — clicking it again answers it
+    -- (confirmClickedOnItsOwnButton, ui_controls.lua).
+    if confirmClickedOnItsOwnButton(player, id) then return end
     local color = player.color
     if not validateActivePlayer(color) then return end
     safecall(function() doGather(color) end, "Gather")
@@ -51,7 +55,14 @@ function onActCraft(player, value, id)
     safecall(function() n = _spawnCraftButtons() end, "CraftTargets")
     if n == 0 then
         gameState.pendingAction = nil
-        broadcastToColor("No cards in the Market display.", color, BROADCAST_COLORS.damage)
+        -- Say which of the several things went wrong. This line used to be a
+        -- flat "No cards in the Market display", printed underneath the
+        -- highlight pass's own "Affordable Market cards highlighted Green (1)"
+        -- — two messages, one after the other, disagreeing about whether the
+        -- Market existed.
+        broadcastToColor("Can't offer a Market purchase: " ..
+            (_craftScanProblem or "no Market cards are reachable") .. ".",
+            color, BROADCAST_COLORS.damage)
         return
     end
     _armTargetTimeout()
@@ -88,8 +99,7 @@ function onActCook(player, value, id)
     safecall(function() n = _showCookDialog(color) end, "CookDialog")
     if n == 0 then
         gameState.pendingAction = nil
-        broadcastToColor("Nothing you can cook right now — every recipe needs ingredients you don't hold.",
-            color, BROADCAST_COLORS.damage)
+        broadcastToColor(cookShortfallMessage(), color, BROADCAST_COLORS.damage)
         return
     end
     -- Same shape as Craft and Cleanse: the highlight lives beside theirs in
@@ -111,6 +121,27 @@ local function _canPayCost(color, cost)
     return true
 end
 
+-- Everything except the ingredients that can stop a cook. Cost was the only
+-- filter, so the list still offered the once-per-game recipes already eaten,
+-- Gumbo away from a pot, and the Telltale Heart with the supply gone — all of
+-- which doCook refuses on the click, after the dialog has promised them.
+local function _cookBlockedBy(color, id, recipe)
+    local char = gameState.activeChars[color]
+    if recipe.oncePerGame and (gameState.usedRecipes or {})[id] then
+        return "already cooked once this game"
+    end
+    if recipe.special == "heart" and (gameState.heartCount or 0) >= HEART_SUPPLY_MAX then
+        return "the Telltale Heart supply is gone"
+    end
+    if recipe.requiresCrockpot and char and not crockpotAt(char.location or "") then
+        return "needs a Crockpot at your tile"
+    end
+    if char and (char.actionsLeft or 0) < (recipe.actionCost or 1) then
+        return "needs " .. (recipe.actionCost or 1) .. " actions"
+    end
+    return nil
+end
+
 function _showCookDialog(color)
     if not UI then return 0 end
     local shown, hidden = 0, 0
@@ -120,11 +151,21 @@ function _showCookDialog(color)
     for id in pairs(RECIPE_DATA or {}) do table.insert(ids, id) end
     table.sort(ids)
 
+    -- What the player is short of, for the message when nothing is cookable.
+    -- "Nothing you can cook" is true but unhelpful; every recipe in the game
+    -- takes Provisions, so that is nearly always the actual answer.
+    local shortOf = {}
+
     _cookDialogIds = {}
     for _, id in ipairs(ids) do
         local recipe = RECIPE_DATA[id]
         local cost = recipeIngredientCost(color, recipe)
-        if _canPayCost(color, cost) then
+        if not _canPayCost(color, cost) then
+            local have = getPlayerResources(color)
+            for r, qty in pairs(cost) do
+                if (have[r] or 0) < qty then shortOf[r] = true end
+            end
+        elseif not _cookBlockedBy(color, id, recipe) then
             if shown < COOK_DIALOG_SLOTS then
                 shown = shown + 1
                 _cookDialogIds[shown] = id
@@ -141,14 +182,40 @@ function _showCookDialog(color)
     end
     if shown == 0 then
         UI.hide("cookDialog")
+        _cookShortOf = shortOf
         return 0
     end
 
+    -- Say what cooking DOES, at the moment of choosing. A meal is eaten on the
+    -- spot — it moves the stat bars now and leaves nothing behind — and the
+    -- word "cook" plus a dialog full of food names reads like crafting, which
+    -- does put an item in your hand.
     UI.setAttribute("cookDialogHint", "text",
-        "Ingredients are paid automatically from what you hold."
-        .. (hidden > 0 and ("  (" .. hidden .. " more affordable recipes not shown)") or ""))
+        "Ingredients are paid automatically from what you hold. The meal is eaten "
+        .. "immediately — it restores stats right now and is not stored."
+        .. (hidden > 0 and ("  (" .. hidden .. " more you could cook are not shown)") or ""))
     UI.show("cookDialog")
     return shown
+end
+
+-- Set by the pass above when nothing was cookable, so onActCook can name the
+-- resource instead of shrugging.
+_cookShortOf = {}
+
+function cookShortfallMessage()
+    local names = {}
+    for _, r in ipairs({"Provisions", "Wood", "Cloth", "Metal", "EnergyDrink", "Battery"}) do
+        if (_cookShortOf or {})[r] then names[#names + 1] = _resLabel(r) end
+    end
+    if #names == 0 then
+        return "Nothing you can cook right now — the recipes you can pay for are blocked " ..
+               "(no Crockpot here, already cooked once, or not enough actions)."
+    end
+    if (_cookShortOf or {}).Provisions then
+        return "Nothing you can cook right now — you hold no Provisions, and every recipe needs them. " ..
+               "Gather at a house, or buy food from the Market."
+    end
+    return "Nothing you can cook right now — you are short of " .. table.concat(names, ", ") .. "."
 end
 
 function onCookOptionClick(player, value, id)
@@ -233,6 +300,7 @@ function onActPry(player, value, id)
 end
 
 function onActCleanse(player, value, id)
+    if confirmClickedOnItsOwnButton(player, id) then return end
     local color = player.color
     if not validateActivePlayer(color) then return end
     -- Highlight the resource bags being consumed so the player can see the cost.
@@ -244,7 +312,8 @@ function onActCleanse(player, value, id)
         function()
             safecall(function() doCleanse(color) end, "Cleanse")
             refreshPhaseBanner()
-        end
+        end,
+        nil, "actCleanse"
     )
 end
 
@@ -322,6 +391,53 @@ end
 -----------------------------------------------------------------------
 local TRADE_COLORS = {"White", "Red", "Yellow", "Green", "Blue"}
 
+-- Every trade this character could actually make right now, plus a count of
+-- the partners they cannot afford to reach.
+--
+-- One function, two callers, deliberately: the DIALOG builds its rows from
+-- this and the BUTTON's precondition (canTrade, below) asks the same question.
+-- They were separate, and drifted the way the comment above onActTrade warns
+-- about — the dialog filtered by affordability while the bar lit Trade
+-- unconditionally, so the only way to discover there was no trade available
+-- was to spend a click finding out.
+function tradeOffersFor(color)
+    local char = gameState.activeChars[color]
+    if not char then return {}, 0 end
+    local actionsLeft = char.actionsLeft or 0
+    local offers, unaffordable = {}, 0
+    for _, c in ipairs(TRADE_COLORS) do
+        local ch = gameState.activeChars[c]
+        if ch and c ~= color and not ch.down then
+            local same = (ch.location == char.location)
+            local free = same and ((gameState.tradesThisTurn or {})[color] or 0) < 1
+            if free or actionsLeft > 0 then
+                local note
+                if free then note = "same tile — free"
+                elseif same then note = "same tile — 1 action"
+                else note = "at " .. (ch.location or "?") .. " — 1 action" end
+                offers[#offers + 1] = { color = c, name = ch.name, note = note, free = free }
+            else
+                unaffordable = unaffordable + 1
+            end
+        end
+    end
+    return offers, unaffordable
+end
+
+-- Trade is a free action once per turn at your own tile, so it is legal with
+-- zero actions left — but only when there is somebody to trade with.
+function canTrade(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.down then return false, "You are Down." end
+    local offers, unaffordable = tradeOffersFor(color)
+    if #offers > 0 then return true end
+    if unaffordable > 0 then
+        return false, "Every standing ally is away from your tile, which costs 1 action, and you have none left."
+    end
+    return false, "Nobody to trade with — every other character is Down or absent."
+end
+
 function onActTrade(player, value, id)
     local color = player.color
     if not validateActivePlayer(color) then return end
@@ -334,26 +450,39 @@ function onActTrade(player, value, id)
     local char = gameState.activeChars[color]
     if not char then return end
 
-    local any = false
+    -- Offer only trades this character can actually pay for. The dialog used
+    -- to list every standing ally with its price beside it, including ones
+    -- priced at "1 action" for a character holding zero — click it and the
+    -- action bounces, which reads as the game changing its mind. A partner you
+    -- cannot afford is not an option, so it is not shown.
+    local offers, unaffordable = tradeOffersFor(color)
+    local any = #offers > 0
+    local shown = {}
+    for _, o in ipairs(offers) do
+        shown[o.color] = o
+    end
     for _, c in ipairs(TRADE_COLORS) do
-        local ch = gameState.activeChars[c]
         local btn = "tradeBtn_" .. c
-        if ch and c ~= color and not ch.down then
-            any = true
-            local same = (ch.location == char.location)
-            local free = same and ((gameState.tradesThisTurn or {})[color] or 0) < 1
-            local note
-            if free then note = "same tile — free"
-            elseif same then note = "same tile — 1 action"
-            else note = "at " .. (ch.location or "?") .. " — 1 action" end
+        local o = shown[c]
+        if o then
             UI.setAttribute(btn, "active", "true")
-            setButtonLabel(btn, ch.name .. "  (" .. note .. ")")
+            setButtonLabel(btn, o.name .. "  (" .. o.note .. ")")
         else
             UI.setAttribute(btn, "active", "false")
         end
     end
     if not any then
-        broadcastToColor("No one to trade with — all allies are Down.", color, BROADCAST_COLORS.damage)
+        -- Say which of the two walls they hit; "no one to trade with" in front
+        -- of a table of standing allies is just wrong.
+        if unaffordable > 0 then
+            broadcastToColor(
+                "No trade you can afford right now: every standing ally is away from your tile, " ..
+                "which costs 1 action, and you have none left. A trade at your OWN tile is still " ..
+                "free — move to somebody, or trade at the start of your next turn.",
+                color, BROADCAST_COLORS.damage)
+        else
+            broadcastToColor("No one to trade with — all allies are Down.", color, BROADCAST_COLORS.damage)
+        end
         return
     end
     gameState.pendingAction = { type = "trade", color = color }
@@ -465,9 +594,30 @@ end
 -- scramble their own character once during Dusk; rules are enforced in
 -- doDuskMove (actions.lua).
 -----------------------------------------------------------------------
+-- The Ready button settles WHOEVER THE DUSK SEAT IS ON, not whoever clicked.
+--
+-- This is the same conclusion the character-pick queue reached after three
+-- failed attempts (ui_setup.lua): in hotseat one person drives every seat and
+-- TTS alone decides which colour their clicks carry, so inferring the target
+-- from player.color settles the same character over and over. That is exactly
+-- what a session logged — "Coco is settled / Coco is up again", five times,
+-- with the count stuck at 1/3 and Rayman never asked. Passing the seat on in
+-- gameState was half the fix; the click has to follow it.
+--
+-- A player who has NOT settled still settles themselves: in multiplayer you
+-- are answering for your own character and the seat order is a nudge, not a
+-- lock. It is only once your own answer is in that the button hands on.
 function onDuskReadyClick(player, value, id)
     if noteInteraction then noteInteraction() end
-    safecall(function() toggleDuskReady(player.color) end, "DuskReady")
+    local color = player.color
+    local mine = gameState.activeChars[color]
+    local settled = (gameState.duskReady or {})[color]
+    if not mine or settled then
+        -- Either a driver with no character of their own on this seat, or
+        -- someone already settled clicking on behalf of the seat that is up.
+        color = gameState.activeColor or color
+    end
+    safecall(function() toggleDuskReady(color) end, "DuskReady")
 end
 
 function onDuskMoveClick(player, value, id)

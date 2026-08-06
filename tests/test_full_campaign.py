@@ -204,16 +204,19 @@ def test_reentrant_setup_is_refused():
 
 
 def test_guided_setup_reseats_players_to_character_colors():
-    """A player's colour is determined by the character they pick, so setup
-    ends with everyone on CHARACTER_COLORS' seat for their character.
+    """A closed swap leaves everyone where they are, and the game still works.
 
-    This is a straight SWAP — White takes James (Blue) while Blue takes Coco
-    (White) — which is a closed 2-cycle: neither can move until the other
-    does. applyCharacterSeating breaks it through a spare seat and must put
-    BOTH players back on character colours, because a player stranded off
-    the five seats has no hand zone and TTS re-prompts them to choose a
-    colour mid-game. The reseat happens once, at finalize; nobody changes
-    colour while the walkthrough is still on screen."""
+    White takes James (Blue) while Blue takes Coco (White): a 2-cycle, where
+    neither can move until the other does. This used to be broken by parking
+    somebody on a spare colour — which is precisely what makes TTS pop "Enter
+    name of player 2" in hotseat and fire a burst of turn announcements, so
+    parking is gone.
+
+    What must hold instead: nobody is stranded on a spare seat, both players
+    keep the seats they already have, and the roster is keyed by those seats
+    rather than by the character's nominal colour. Everything downstream reads
+    activeChars by seat, so a colour that does not match a character's is
+    cosmetic — an unpicked hand zone is not."""
     env = make_env()
     populate_full_world(env)
     env.globals().onLoad("")
@@ -238,12 +241,23 @@ def test_guided_setup_reseats_players_to_character_colors():
 
     assert env.eval("gameState.started") is True
     chars = lua_to_py(env.eval("gameState.activeChars"))
-    assert chars["Blue"]["name"] == "James", chars
-    assert chars["White"]["name"] == "Coco", chars
+    assert chars["White"]["name"] == "James", (
+        f"the cycle could not be resolved without parking, so White keeps the "
+        f"seat they picked from — and James must be keyed to it: {chars}")
+    assert chars["Blue"]["name"] == "Coco", chars
+
     seated = lua_to_py(env.eval("TTS.seated"))
     if isinstance(seated, dict):
         seated = list(seated.values())
-    assert sorted(seated) == ["Blue", "White"], seated
+    assert sorted(seated) == ["Blue", "White"], (
+        f"somebody was moved onto a spare colour — that is the parking this "
+        f"design removed, and in hotseat it costs a TTS name prompt: {seated}")
+
+    # The real hazard parking was protecting against: a player left off the
+    # five character seats has no hand zone at all.
+    for color in seated:
+        assert color in ("White", "Red", "Yellow", "Green", "Blue"), (
+            f"{color} is not a character seat — that player has no hand zone")
 
 
 def _run_guided_setup(env):
@@ -370,17 +384,25 @@ def test_pick_never_requeues_the_picker_under_their_new_colour():
 
 
 def test_a_seated_player_the_queue_missed_can_still_pick():
-    """Sitting down after Setup started (or moving seats) left a real player
-    out of the queue, and the walkthrough refused every card they clicked —
-    a dead end, since the queue was waiting on a seat they weren't in."""
+    """Sitting down after Setup started must not lock a player out.
+
+    Picks are taken one seat at a time now, so a late arrival does not pick on
+    the spot — their click is refused with whose turn it actually is. What must
+    not happen is the old dead end, where they were absent from the queue
+    entirely and nothing they ever clicked could register. Reconciling on every
+    click is what puts them in line."""
     env = make_env()
     _begin_walkthrough(env, ("White", "Blue"), "White")
     env.execute('TTS.seated = {"White", "Blue", "Yellow"}')
     env.execute('onPickChar(Player["Yellow"], "-1", "pickEllie")')
     flush(env)
 
-    assert "Yellow=Ellie" in _setup_field(env, "| picked:"), (
-        "a seated player without a character must pick for themself")
+    assert "Yellow=Ellie" not in _setup_field(env, "| picked:"), (
+        "a late arrival jumped the queue — picks go to the seat the panel names")
+    waiting = _setup_field(env, "| waiting:")
+    assert any(str(s).startswith("Yellow=") for s in waiting), (
+        "a seated player with no character is not in the queue at all, so "
+        f"nothing they click can ever register — the original dead end: {waiting}")
 
 
 def test_a_player_leaving_mid_setup_does_not_hang_the_walkthrough():

@@ -182,9 +182,16 @@ class TestSourcePhases:
     def _arrive(self, env):
         env.execute('DAWN_EFFECTS["P4_SOURCE_ARRIVES"].onReveal(TTS.makeObject({}))')
 
-    def _split_world(self, env, beaks=3):
+    def _split_world(self, env, beaks=5):
         """Tiles, the Source standee at the center house, and a threat deck
-        holding Terror Beak cards for the split to pull."""
+        holding Terror Beak cards for the split to pull.
+
+        More beaks than the split needs, deliberately. tts_stub models real
+        TTS's deck collapse — a deck that drops to one card stops being a deck
+        and that card lands loose on the table — so a fixture seeded with
+        exactly as many cards as the test pulls leaves a spare Terror Beak
+        lying on the map and counts it as a spawn. The real threat deck is
+        never down to its last card here either."""
         add = env.eval("TTS.addObject")
         positions = {"JamesHouse": [-10, 1, 0], "RaymanHouse": [10, 1, 0],
                      "EllieLucaHouse": [0, 1, 8], "BasketballCourt": [-10, 1, -10],

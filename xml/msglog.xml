@@ -1,5 +1,5 @@
 <!-- msglog.xml — the persistent Message Log panel (ui_msglog.lua) and the
-     "What now?" hint panel (ui_help.lua). Both exist because TTS broadcast
+     "What next?" hint panel (ui_help.lua). Both exist because TTS broadcast
      text fades fast and renders behind the Phase Banner. -->
 
 <!-- Message Log: every public game message, newest at the bottom. Stays
@@ -37,7 +37,7 @@
   </VerticalLayout>
 </Panel>
 
-<!-- "What now?" hint panel — per-player (visibility is set to the clicking
+<!-- "What next?" hint panel — per-player (visibility is set to the clicking
      player's colour). Replaces the old broadcast, which rendered behind
      the Phase Banner and faded before it could be read. -->
 <Panel id="whatNowPanel"
@@ -53,7 +53,7 @@
   <VerticalLayout spacing="6" padding="12 12 10 10"
                   childForceExpandHeight="false">
     <Text fontSize="16" fontStyle="Bold" color="#BBFFBB"
-          text="What now?" preferredHeight="22" />
+          text="What next?" preferredHeight="22" />
     <Text id="whatNowBody" fontSize="13" color="#DDF5DD"
           alignment="UpperLeft"
           text="" preferredHeight="156" />

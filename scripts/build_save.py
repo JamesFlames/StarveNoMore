@@ -1127,6 +1127,14 @@ _south_z = -(board_geometry.BOARD_WORLD_HALF + PLAYER_BOARD_SZ + 0.5)
 _flank_z = round(PLAYER_BOARD_W / 2 + 0.65, 1)
 assert 2 * _flank_z > PLAYER_BOARD_W, "the two boards on a flank still overlap"
 
+# The player board's artwork is authored upright and the OBJECT carries the
+# half turn that a Custom_Tile needs to render the right way up on the felt
+# (generate_assets.py, generate_player_board). Doing it this way round is what
+# makes Alt-zoom readable: TTS draws the zoom preview from the object's local
+# frame, so artwork pre-rotated to suit the table came out upside down in the
+# magnifier — all five boards did, which is how we found it.
+PLAYER_BOARD_ZOOM_ROT = 180
+
 # (name, colour, x, z, ry, stats) - ry turns the printed top toward the board:
 # 0 = faces north, 90 = faces east, 270 = faces west.
 characters = [
@@ -1203,6 +1211,15 @@ for char_name, color, bx, bz, bry, stats in characters:
             "Rotation": {"x": 0, "y": 0, "z": 0},
             "Tags": [f"Snap:ActionCube:{ai}"]
         })
+    # Both sets above are authored against the ARTWORK. The object is spawned
+    # PLAYER_BOARD_ZOOM_ROT degrees round from it, so turn them with it: a
+    # 180-degree turn about Y maps (x, z) -> (-x, -z). Do this once, here,
+    # rather than pre-negating every literal above — the printed positions
+    # should stay readable against the board you can look at.
+    assert PLAYER_BOARD_ZOOM_ROT == 180, "snap flip below assumes a half turn"
+    for _snap in board_snaps_pb:
+        _snap["Position"]["x"] = -_snap["Position"]["x"]
+        _snap["Position"]["z"] = -_snap["Position"]["z"]
 
     # SURFACE_Y, not SURFACE_Y+0.1: SURFACE_Y is already TABLE_SURFACE_Y plus
     # half a 0.1-thick tile, i.e. the height at which a tile's BOTTOM FACE
@@ -1216,7 +1233,8 @@ for char_name, color, bx, bz, bry, stats in characters:
     # resource tokens are laid beside it). Locking stops players dragging it
     # into a pile and stops physics shoving the row apart at load.
     pboard = base_obj("Custom_Tile",
-                      tf(bx, SURFACE_Y, bz, ry=bry,
+                      tf(bx, SURFACE_Y, bz,
+                         ry=(bry + PLAYER_BOARD_ZOOM_ROT) % 360,
                          sx=PLAYER_BOARD_SX, sy=1, sz=PLAYER_BOARD_SZ),
                       nickname=f"{char_name}'s Player Board",
                       desc=f"{char_name}'s reference board. Stats are tracked automatically "
@@ -1371,7 +1389,7 @@ quickstart_text = (
     "TRADE: free, on your tile, any time.\n"
     "\nHover anything for its rule.\n"
     "'?' > RULEBOOK = the whole rulebook.\n"
-    "'What now?' tells you your next move."
+    "'What next?' tells you your next move."
 )
 
 # On the board's clear SE patch — it used to sit at the board's very edge,

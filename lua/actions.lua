@@ -327,13 +327,21 @@ end
 -- House Stash (2 Energy Drinks), Ellie's pantry pick, the Backpack (+1),
 -- and the porch-light dare (+2 for -2 Sanity).
 -----------------------------------------------------------------------
-local RES_LABELS = { EnergyDrink = "Energy Drink" }
-local function _resLabel(r) return RES_LABELS[r] or r end
+-- Named _gatherResLabel, not _resLabel, and the distinction is load-bearing.
+-- ui_actionbar_core.lua declares `function _resLabel(...)` believing it is
+-- defining a global; the bundle is ONE chunk, so with a file-local of that
+-- name already in scope from here on, that line silently reassigned THIS
+-- local instead and no global was ever created. Everything loaded before
+-- actions.lua then saw `_resLabel` as nil — which is exactly how canCleanse
+-- (tick_victory.lua, loaded one file earlier) threw on its first call.
+-- Guard: tests/test_lua_statics.py::test_no_local_shadows_a_global_function.
+local GATHER_RES_LABELS = { EnergyDrink = "Energy Drink" }
+local function _gatherResLabel(r) return GATHER_RES_LABELS[r] or r end
 
 -- One line summarising a gather: { Provisions = 2, Wood = 1 } -> "2 Provisions + 1 Wood".
 local function _describeHaul(got)
     local parts = {}
-    for r, n in pairs(got) do parts[#parts + 1] = n .. " " .. _resLabel(r) end
+    for r, n in pairs(got) do parts[#parts + 1] = n .. " " .. _gatherResLabel(r) end
     return table.concat(parts, " + ")
 end
 
@@ -516,15 +524,18 @@ function doGather(color)
                 broadcastEvent("damage", ch.name .. " loses 2 Sanity from what they see through the window. (Now " .. ch.sanity .. ")")
                 checkDownState(color)
                 refreshPhaseBanner()
-            end)
+            end,
+            nil, "actGather")
         return
     end
 
     -- The Stash (Design §7.1): a Gather at James's House may take 2 Energy
     -- Drinks instead of the random draw. Confirm = the Stash, Cancel = draw.
     if loc == "JamesHouse" then
+        -- Neither button is a "never mind" here: this is a choice between two
+        -- gathers, so both are labelled with what they do.
         showConfirm("The Stash",
-            "Take 2 Energy Drinks (The Stash)?\nConfirm = 2 Energy Drinks.  Cancel = 1 random resource.",
+            "Take the Stash for 2 Energy Drinks, or gather 1 random resource?",
             function()
                 giveResource(color, "EnergyDrink", 2)
                 broadcastEvent("gain", char.name .. " raids the Stash: 2 Energy Drinks (delivered to your board).")
@@ -532,7 +543,9 @@ function doGather(color)
             end,
             function()
                 gatherRandomResources(color, loc, 1 + extra)
-            end)
+            end,
+            "actGather",
+            { yes = "Take the Stash", no = "Gather Random" })
         return
     end
 

@@ -124,7 +124,7 @@ function applyThreatDefeat(threatName, colors)
             end
         end, "ThreatDiscard")
     end
-    safecall(function() markBossDefeated(threatName) end, "BossFlags")
+    safecall(function() markBossDefeated(threatName, colors) end, "BossFlags")
     safecall(function() recordKillInChronicle(threatName, colors) end, "Chronicle")
     local bossKey = Audio and Audio.threatNameToBossKey and Audio.threatNameToBossKey(threatName)
     if bossKey then safecall(function() Audio.stopBossLoop(bossKey) end, "Audio") end

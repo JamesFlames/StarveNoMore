@@ -11,6 +11,7 @@ the shape of the fix.
 
 import pytest
 from conftest import (
+    a_neighbour_of,
     add_char,
     broadcasts,
     lua52,
@@ -314,11 +315,14 @@ class TestRecipeEffects:
 
     def test_iced_tea_reaches_an_adjacent_ally(self, env):
         add_char(env, "Green", "Ellie", location="EllieLucaHouse", sanity=4)
-        add_char(env, "White", "James", location="JamesHouse", sanity=4)
+        # Ask the layout which tile is adjacent rather than naming one: this
+        # test said "JamesHouse", which stopped being next to the middle the
+        # day Ring became a real ring.
+        add_char(env, "White", "James",
+                 location=a_neighbour_of(env, "EllieLucaHouse"), sanity=4)
         self._stock(env, "Green", Provisions=1, Cloth=1)
         env.globals().doCook("Green", "R_ICE_TEA")
-        # cookOnly for the cook, adjacentAllies for the neighbour (the Ring
-        # default connects EllieLucaHouse and JamesHouse).
+        # cookOnly for the cook, adjacentAllies for the neighbour.
         assert env.eval("gameState.activeChars.Green.sanity") == 5
         assert env.eval("gameState.activeChars.White.sanity") == 5
 

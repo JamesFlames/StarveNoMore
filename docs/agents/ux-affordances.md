@@ -58,7 +58,7 @@ player never has to ask "what now?":
 
 ## 6. Idle nudge
 - `turns.lua` runs an idle watcher during the `Day` sub-phase: every 10s it checks `os.time() - gameState.lastInteractionAt`.
-- After 45s of inactivity, the active player is `printToColor`'d a "click What now?" prompt — once per turn (`gameState.idleNudgedThisTurn`).
+- After 45s of inactivity, the active player is `printToColor`'d a "click What next?" prompt — once per turn (`gameState.idleNudgedThisTurn`).
 - `noteInteraction()` is called from `validateActivePlayer()` so any action click resets the timer.
 
 ## 6b. Dawn-card manual-steps checklist

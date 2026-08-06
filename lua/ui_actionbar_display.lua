@@ -60,10 +60,27 @@ function refreshActionBar()
         UI.show("actionBar")
         UI.show("statDisplay")
 
+        -- Wear the active character's colour. The bar is the one panel a
+        -- player is looking at while they act, and it looked identical no
+        -- matter whose turn it was — so "whose turn is it" had to be answered
+        -- by reading the banner, at the far end of the screen, where TTS's own
+        -- turn plate is also competing for the same answer. A seat-coloured
+        -- border says it where the clicking happens.
+        UI.setAttributes("actionBar", {
+            outline     = SEAT_OUTLINE[gameState.activeColor] or "#64B4644C",
+            outlineSize = "3",
+        })
+
         local char = gameState.activeChars[gameState.activeColor]
         if char then
             local left = char.actionsLeft or 0
             setActionCubes(left)
+            -- Name the character AND the seat, right where the clicking is.
+            -- The colour word is painted in its own colour (seatWord,
+            -- global.lua) so it matches the border this bar is already
+            -- wearing instead of being a second thing to look up.
+            UI.setAttribute("actBarWho", "text",
+                char.name .. "  (" .. seatWord(gameState.activeColor) .. " seat)")
 
             -- Show/hide buttons based on availability. safecall: one bad
             -- precondition check must not blank the whole bar.
@@ -151,11 +168,33 @@ function refreshActionButtonStates(color)
     -- Rest: always available if actions remain
     setActionEnabled("actRest", not noActions)
 
-    -- Cleanse: need actions (resource check is manual)
-    setActionEnabled("actCleanse", not noActions)
+    -- Cleanse: needs the action AND all four ingredients. It used to be lit on
+    -- the action alone with the resource check left to the click, so a player
+    -- with none of them got a live button that spent an action and handed it
+    -- back — the one behaviour the "hidden, not dimmed" rule below exists to
+    -- prevent.
+    if canCleanse then
+        local cleanseOk, cleanseWhy = canCleanse(color)
+        setActionEnabled("actCleanse", cleanseOk and true or false)
+        setActionTooltip("actCleanse",
+            cleanseOk and ("Cleansing ritual: -" .. CLEANSE_REDUCTION .. " Doom for 1 action + " ..
+                           formatIngredientCost(CLEANSE_COST) .. ".")
+                      or ("Cleanse (1 action). Unavailable: " .. (cleanseWhy or "")))
+    else
+        setActionEnabled("actCleanse", not noActions)
+    end
 
-    -- Trade: free once per turn at your tile — legal even with 0 actions
-    setActionEnabled("actTrade", true)
+    -- Trade: free once per turn at your tile, so it is legal with 0 actions —
+    -- but not when there is nobody within reach to trade WITH.
+    if canTrade then
+        local tradeOk, tradeWhy = canTrade(color)
+        setActionEnabled("actTrade", tradeOk and true or false)
+        setActionTooltip("actTrade",
+            tradeOk and "Swap resources with another character. Free once per turn at your own tile; 1 action otherwise."
+                    or ("Trade. Unavailable: " .. (tradeWhy or "")))
+    else
+        setActionEnabled("actTrade", true)
+    end
 
     -- Pry (§13.5): free action, but only lit when a sealed thing is at the
     -- tile and the player holds a tool
@@ -175,8 +214,10 @@ function refreshActionButtonStates(color)
         UI.setAttribute("actSignature", "text", sig.name)
         -- Setting a Button's text from Lua resets its styling — re-assert.
         UI.setAttribute("actSignature", "textColor", "#EECCFF")
+        -- sig.cost is already "Once per game." (signatures.lua) — appending a
+        -- second copy printed "Once per game. Once per game." on every tooltip.
         setActionTooltip("actSignature",
-            sigOk and (sig.desc .. " " .. sig.cost .. " Once per game.")
+            sigOk and (sig.desc .. " " .. sig.cost)
                   or (sig.desc .. " Unavailable: " .. (sigWhy or "")))
     end
 
@@ -205,6 +246,14 @@ ENABLED_ACTIONS = {}
 
 function setActionEnabled(buttonId, enabled)
     ENABLED_ACTIONS[buttonId] = enabled or nil
+    -- Leave the button that is currently mirroring an open confirm alone
+    -- (ui_controls.lua). A banner refresh lands between the click and the
+    -- answer — the handlers call refreshPhaseBanner on their way out — and
+    -- would paint the action's own label back over the CONFIRM.
+    if buttonId == pendingConfirmButton then
+        UI.setAttributes(buttonId, { active = "true", interactable = "true" })
+        return
+    end
     if enabled then
         -- Colour comes from the shared constants, never a literal: this line
         -- used to re-apply the OLD dark plate at runtime and overwrite the
@@ -260,6 +309,17 @@ function refreshStatDisplay()
     if not char then return end
 
     UI.setAttribute("statCharName", "text", char.name .. (char.down and " [DOWN]" or ""))
+    -- ...and who is playing them. Falls back to the seat colour when the chair
+    -- is empty, which is itself worth seeing: an unattended character in a
+    -- hotseat game is one nobody is going to take a turn for.
+    local who
+    pcall(function()
+        local p = Player[showColor]
+        if p and p.seated and p.steam_name and p.steam_name ~= "" then who = p.steam_name end
+    end)
+    UI.setAttribute("statPlayerName", "text",
+        who and ("played by " .. who .. "  (" .. seatWord(showColor) .. " seat)")
+             or ("(" .. seatWord(showColor) .. " seat — nobody sitting)"))
 
     -- Health bar
     local hPct = (char.maxHealth > 0) and math.floor(char.health / char.maxHealth * 100) or 0
@@ -327,7 +387,7 @@ ACTION_TOOLTIPS = {
     actMove      = "Move to an adjacent location. Costs 1 action + 1 Hunger.",
     actGather    = "Gather a resource here — it's delivered to your board automatically. Costs 1 action.",
     actCraft     = "Craft an item from the Market. Costs 1 action + resources.",
-    actCook      = "Cook a recipe at a Crockpot location. Costs 1 action + ingredients.",
+    actCook      = "Cook a recipe at a Crockpot location. Costs 1 action + ingredients. The meal is eaten immediately — it restores stats now, nothing is stored.",
     actFight     = "Fight a threat or boss at this location — click FIGHT on the target (TOGETHER = group fight). Costs 1 action.",
     actPeek      = "Pattern Recognition (James): peek at the top card of any deck. Free action, once per day.",
     actRally     = "Rally (Luca): give an ally at your tile or adjacent a free non-movement action. Free, once per round — and firable on their turn from the Reactions panel.",

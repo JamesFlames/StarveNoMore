@@ -1,6 +1,6 @@
 # What-Now Hints
 
-Context-aware hint strings for the "What now?" button (Design §18.17). Each hint is keyed by sub-phase + character state. The Lua runtime substitutes placeholders at display time:
+Context-aware hint strings for the "What next?" button (Design §18.17). Each hint is keyed by sub-phase + character state. The Lua runtime substitutes placeholders at display time:
 
 - `{name}` — active character name
 - `{actionsLeft}` — remaining actions this turn
@@ -17,7 +17,7 @@ Context-aware hint strings for the "What now?" button (Design §18.17). Each hin
 
 ## Pre-Game
 
-- **default:** "Click 'Setup Game' on the table to begin. Hover anything to see what it does. Press '?' for help anytime."
+- **default:** "Click 'Setup Game' on the table to begin. Hover anything to see what it does. Press 'Rules' for help anytime."
 
 ---
 

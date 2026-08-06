@@ -70,6 +70,46 @@ FLOOD_THRESH = 60
 
 SENTINEL = (255, 0, 255)
 
+# ENCLOSED backdrop pockets: the gap between a standing figure's legs, and the
+# slots between their arms and their body. The flood above only starts at the
+# border by design, so it cannot reach anything the figure encloses — James
+# stood on the table with a solid cream wedge between his shins, reading as a
+# skirt, and cream slabs under both arms.
+#
+# The obvious fix (clear every enclosed backdrop-coloured pocket) is wrong
+# here, and measurably so: this art paints skin highlights in the SAME
+# parchment tone as the backdrop, so his face is itself an enclosed pocket
+# whose mean colour is (236,223,190) against a backdrop of (231,215,176) — a
+# distance of 14, well inside any threshold that catches the leg gap at
+# (237,224,191). Colour cannot separate them. Height can: measured on
+# james_front, the pockets are
+#
+#   face          y 304-517   centre 28% of height   KEEP
+#   above hair    y 133-294   centre 15%             KEEP
+#   arm/body gap  y 1021-1125 centre 74%             CUT
+#   arm/body gap  y 1032-1117 centre 74%             CUT
+#   between legs  y 1023-1376 centre 82%             CUT
+#
+# so the rule is "enclosed backdrop below this fraction of the image". Opt-in
+# per character for the same reason CUT_BACKGROUND is: it is a claim about one
+# piece of art, and it should be reviewable rather than inferred.
+# Guard: tests/test_standee_art.py.
+CUT_ENCLOSED_BELOW = {"james": 0.55}
+
+# Ignore specks. A fraction of the canvas, not a pixel count, so it means the
+# same thing whatever size the art arrives at.
+MIN_POCKET_FRAC = 0.0003
+
+# Much tighter than FLOOD_THRESH, and the pass runs on the ORIGINAL image
+# rather than the flooded one. Both were learned the hard way in one go: at 60,
+# on the post-flood image, "backdrop-coloured and still opaque" walked through
+# the jacket's highlights and the skin and found ONE component covering 18% of
+# the canvas, whose centroid happened to fall low. It cleared his jacket, his
+# face and his shins and left the gap between his legs exactly as it was.
+# At 25, on the original, the components come out clean and separate: the
+# figure's own tones no longer bridge them.
+POCKET_THRESH = 25
+
 
 def _border_pixels(img, step=4):
     px = img.load()
@@ -122,6 +162,74 @@ def _cut_background(img):
     return out, cleared / float(w * h)
 
 
+def _backdrop_colour(img):
+    """The backdrop's colour: the median of the border ring, per channel."""
+    band = _border_pixels(img)
+    return tuple(sorted(c[i] for c in band)[len(band) // 2] for i in range(3))
+
+
+def _cut_enclosed_pockets(original, cut_img, below_frac):
+    """Clear backdrop-coloured pockets the border flood could not reach.
+
+    `original` is the art BEFORE the flood — the connectivity question is
+    "was this region enclosed by the figure", and the flooded image no longer
+    answers it (everything outside is already gone, so nothing can touch the
+    border any more). `cut_img` is the flooded RGBA the pixels are cleared in.
+
+    Only pockets whose vertical centre sits below `below_frac` of the image —
+    see CUT_ENCLOSED_BELOW for why height, and not colour, is the test.
+    """
+    rgb = original.convert("RGB")
+    w, h = rgb.size
+    bg = _backdrop_colour(rgb)
+    src = list(rgb.getdata())
+
+    def is_backdrop(i):
+        c = src[i]
+        return (abs(c[0] - bg[0]) <= POCKET_THRESH
+                and abs(c[1] - bg[1]) <= POCKET_THRESH
+                and abs(c[2] - bg[2]) <= POCKET_THRESH)
+
+    seen = bytearray(w * h)
+    min_px = max(1, int(MIN_POCKET_FRAC * w * h))
+    pockets, clear_px = 0, []
+
+    for start in range(w * h):
+        if seen[start] or not is_backdrop(start):
+            continue
+        stack, cells, touches_edge = [start], [], False
+        seen[start] = 1
+        while stack:
+            i = stack.pop()
+            cells.append(i)
+            y, x = divmod(i, w)
+            if x == 0 or y == 0 or x == w - 1 or y == h - 1:
+                touches_edge = True
+            for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                if 0 <= nx < w and 0 <= ny < h:
+                    j = ny * w + nx
+                    if not seen[j] and is_backdrop(j):
+                        seen[j] = 1
+                        stack.append(j)
+        if touches_edge or len(cells) < min_px:
+            continue          # outside, or a speck
+        centre_y = sum(i // w for i in cells) / float(len(cells))
+        if centre_y / h < below_frac:
+            continue          # up in the figure's face — see the table above
+        clear_px.extend(cells)
+        pockets += 1
+
+    out = cut_img.convert("RGBA")
+    if clear_px:
+        alpha = out.getchannel("A")
+        opaque = list(alpha.getdata())
+        for i in clear_px:
+            opaque[i] = 0
+        alpha.putdata(opaque)
+        out.putalpha(alpha)
+    return out, pockets, len(clear_px) / float(w * h)
+
+
 def _fit(img):
     """Scale the visible content to FILL of the canvas height and centre it,
     preserving aspect. Bottom-aligned so every character stands on the same
@@ -159,9 +267,16 @@ def normalize(name, cut):
             print(f"  {name:16s} REFUSED: listed for background removal but its "
                   f"border is not plain (spread {spread}) — check the art")
             return None
+        original = img.copy()          # the flood destroys the enclosure test
         img, frac = _cut_background(img)
+        note = f"cut {frac * 100:.0f}% background"
+        below = CUT_ENCLOSED_BELOW.get(name.split("_")[0])
+        if below:
+            img, pockets, pocket_frac = _cut_enclosed_pockets(original, img, below)
+            if pockets:
+                note += f" + {pockets} enclosed pocket(s) ({pocket_frac * 100:.1f}%)"
         out = _fit(img)
-        note = f"cut {frac * 100:.0f}% background, content re-fitted"
+        note += ", content re-fitted"
     elif had_alpha:
         out = _fit(img.convert("RGBA"))
         note = "already transparent, content re-fitted"

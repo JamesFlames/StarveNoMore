@@ -109,11 +109,14 @@ CLUE_SURFACE_DAYS = { 3, 5 }   -- by these Dawns, a clue must have been offered
 -- the Market display)? Cards in the display are public, so one on the board
 -- counts as offered even if nobody has bought it yet.
 function clueIsOnOffer()
-    for _, obj in ipairs(findAllByTag("MarketCard")) do
-        if obj.type == "Card" and isClueCard(obj) then
-            for _, slot in ipairs(getMarketSlots()) do
-                if obj.getPosition():distance(slot.getPosition()) < 2 then return true end
-            end
+    -- Only an OPEN shelf counts. A Clue dealt face down into slot 5 on Day 1
+    -- is not "in front of the team" — nobody can see it, and treating it as
+    -- offered would let the Truth Run guarantee (§16.2) tick off a Clue the
+    -- table never had the chance to read.
+    for i = 1, MARKET_SLOTS_TOTAL do
+        if not marketSlotIsHidden(i) then
+            local card = marketCardAtSlot(i)
+            if card and isClueCard(card) then return true end
         end
     end
     return false

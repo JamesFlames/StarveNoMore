@@ -29,8 +29,13 @@ function logMessage(category, message)
         m = tostring(message),
         day = gameState.day,
     })
+    -- popFirst rather than table.remove(log, 1). The `while` above already
+    -- guarantees a non-empty list, so this one was never going to throw — but
+    -- the rule is absolute on purpose. "table.remove(t, 1) is fine here
+    -- because of the surrounding loop" is a judgement call re-made at every
+    -- call site, and it is the one that got the achievement toast wrong.
     while #gameState.messageLog > MSGLOG_MAX do
-        table.remove(gameState.messageLog, 1)
+        popFirst(gameState.messageLog)
     end
     refreshMsgLog()
 end

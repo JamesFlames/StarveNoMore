@@ -16,7 +16,7 @@ the bug this file is about:
   3. does it refuse cleanly when it shouldn't fire?
 """
 import pytest
-from conftest import add_char, broadcasts, flush, lua52, lua_to_py
+from conftest import a_neighbour_of, add_char, broadcasts, flush, lua52, lua_to_py
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
 
@@ -387,13 +387,21 @@ class TestGhostDrift:
 
 class TestFlee:
     def _cornered(self, env, color="White", loc="BasketballCourt", **overrides):
-        """A character with a real threat card on their tile."""
+        """A character with a real threat card on their tile, and somewhere
+        adjacent to run to.
+
+        `__there` was hard-coded to EllieLucaHouse, which was next to the
+        Basketball Court right up until Ring became a true 5-cycle. Flee
+        offers ADJACENT tiles, so the fixture asks the layout which those are
+        rather than writing down a map that can change.
+        """
         add_char(env, color, "James", location=loc, **overrides)
+        there = a_neighbour_of(env, loc)
         env.execute(
             '__here = TTS.addObject({tags = {"Location:%s"}, position = {0,1,0}})\n'
-            '__there = TTS.addObject({tags = {"Location:EllieLucaHouse"}, position = {40,1,40}})\n'
+            '__there = TTS.addObject({tags = {"Location:%s"}, position = {40,1,40}})\n'
             'TTS.addObject({tags = {"ThreatCard", "T_SHADOW_STALKER"}, type = "Card",\n'
-            '               nickname = "Shadow Stalker", position = {1,1,1}})' % loc)
+            '               nickname = "Shadow Stalker", position = {1,1,1}})' % (loc, there))
         start_day(env, color)
 
     def test_the_button_appears_only_when_something_is_there(self, env):
@@ -432,7 +440,8 @@ class TestFlee:
 
         env.eval("onMoveTargetClick")(env.eval("__there"), "White", False)
         flush(env)
-        assert env.eval("gameState.activeChars.White.location") == "EllieLucaHouse"
+        assert env.eval("gameState.activeChars.White.location") == \
+            a_neighbour_of(env, "BasketballCourt"), "the runner did not land on the tile clicked"
         assert env.eval("gameState.activeChars.White.sanity") == 7   # -1
         assert env.eval("gameState.activeChars.White.actionsLeft") == 3  # never an action
 

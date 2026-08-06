@@ -45,6 +45,16 @@ TTS_SAVE_DIRS = [
 # stripped, so this mod's entries all contain one of these substrings.
 CACHE_MARKERS = ("reposStarveNoMore", "localhost8080")
 SERVER_PROBE = "http://localhost:8080/PlayerRules.html"
+# ...and the trees that probe alone does not prove. An asset server left
+# running from an earlier session holds :8080, so ensure_server() sees "already
+# up" and never starts its own — but a leftover rooted in the wrong folder
+# serves only part of the mod. That is silent in TTS: the art it can reach
+# still loads, and the sounds just never play. Checked separately so the
+# warning can name which tree is missing.
+SERVER_TREES = {
+    "art":    "http://localhost:8080/art/",
+    "sounds": "http://localhost:8080/sounds/",
+}
 SERVE_BAT = os.path.join(SCRIPTS, "serve_art.bat")
 TTS_STEAM_URL = "steam://rungameid/286160"
 
@@ -89,17 +99,35 @@ def run_step(label, cmd, timeout=900):
     say(f"{label} OK ({took:.0f}s)")
 
 
-def server_running():
+def probe(url):
     try:
-        with urllib.request.urlopen(SERVER_PROBE, timeout=3) as r:
+        with urllib.request.urlopen(url, timeout=3) as r:
             return r.status == 200
     except Exception:
         return False
 
 
+def server_running():
+    return probe(SERVER_PROBE)
+
+
+def check_server_trees():
+    """Warn if whatever answered on :8080 cannot serve the whole mod."""
+    missing = sorted(name for name, url in SERVER_TREES.items() if not probe(url))
+    if not missing:
+        return
+    say("WARNING: something answers on :8080 but cannot serve: "
+        + ", ".join(missing) + ".")
+    say("  That is almost always an asset server left open from an earlier "
+        "session, started somewhere other than the repo root. It holds the "
+        "port, so the one this script would start never runs. Close that "
+        "console window and run this again.")
+
+
 def ensure_server():
     if server_running():
         say("asset server already up on :8080")
+        check_server_trees()
         return
     say("starting asset server (scripts/serve_art.bat) in its own window — "
         "keep it open while playing")
@@ -110,6 +138,7 @@ def ensure_server():
         time.sleep(1)
         if server_running():
             say("asset server up")
+            check_server_trees()
             return
     say("WARNING: asset server did not answer on :8080 — sounds and the "
         "rules tablet may not load. Is something else using the port?")

@@ -161,6 +161,18 @@ local function makeObject(spec)
         if params.position then taken.setPosition(params.position) end
         table.insert(TTS.world, taken)
         if params.callback_function then params.callback_function(taken) end
+        -- A Deck that drops to ONE card stops being a deck: real TTS destroys
+        -- the container and leaves that card on the table in its place. The
+        -- handle a caller is holding stays non-nil and still passes an
+        -- isLiveObject check — it is simply no longer a container, and calling
+        -- takeObject on it throws a .NET exception, which Lua pcall does NOT
+        -- catch. That is not a hypothetical: it aborted the whole of guided
+        -- Setup mid-way and stranded a live table (lua/setup.lua,
+        -- dealStartingHands). The stub used to let a deck drain to zero
+        -- happily, so no test could ever see the last card fail to deal.
+        if #state.contained == 1 then
+            table.insert(TTS.world, makeObject(table.remove(state.contained, 1)))
+        end
         return taken
     end
     o.putObject = function(other)
@@ -231,6 +243,12 @@ local function makeObject(spec)
     -- Counter-based GUIDs: never consumes math.random (see divergence ledger).
     TTS.guidCounter = (TTS.guidCounter or 0) + 1
     o.guid = spec.guid or ("stub" .. TTS.guidCounter)
+    -- getGUID() was MISSING, and the permissive __index below turned it into a
+    -- no-op returning nil rather than an error — so `map[obj.getGUID()] = v`
+    -- threw "table index is nil" inside the caller's pcall and the whole Craft
+    -- purchase path silently did nothing under test. A stub gap that hides a
+    -- feature is the finding, not an inconvenience (docs/tts-interface.md).
+    o.getGUID = function() return o.guid end
     o.type = spec.type or "Card"   -- TTS .type property ("Card", "Deck", ...)
     o.interactable = true
     o.UI = { setAttribute = function() return true end, show = function() return true end, hide = function() return true end }
@@ -255,6 +273,12 @@ function TTS.reset()
     TTS.waits = {}
     TTS.waitId = 0
     TTS.seated = { "White" }
+    TTS.spectators = {}     -- colours here are Grey/Black, i.e. not sat down
+    -- Guarded: reset() also runs at load, before MusicPlayer is defined below.
+    if MusicPlayer then
+        MusicPlayer.clips = {}
+        MusicPlayer.player_status = "Play"
+    end
 end
 TTS.reset()
 
@@ -423,6 +447,14 @@ Player = setmetatable({
         return out
     end,
     getAvailableColors = function() return { "White", "Red", "Yellow", "Green", "Blue" } end,
+    -- Anyone in TTS.spectators is sitting in Grey/Black — i.e. has not taken a
+    -- coloured seat. Real TTS keeps these OUT of getPlayers(), which is why a
+    -- spectator is invisible to every seat-counting loop in the bundle.
+    getSpectators = function()
+        local out = {}
+        for _, c in ipairs(TTS.spectators or {}) do out[#out + 1] = makePlayer(c) end
+        return out
+    end,
 }, {
     __index = function(_, color)
         if type(color) == "string" then return makePlayer(color) end
@@ -471,8 +503,16 @@ Notes = {
     setNotes = function(_s) return true end,
     getNotes = function() return "" end,
 }
+-- Records what was played, and lets a test drive player_status. audio.lua's
+-- load watchdog reads that status to decide a URL is dead, and its skip list
+-- is file-local — the played clips are the only place the decision shows.
 MusicPlayer = {
-    setCurrentAudioclip = function(_clip) return true end,
+    clips = {},
+    player_status = "Play",   -- "Stop" is what a failed load looks like
+    setCurrentAudioclip = function(clip)
+        table.insert(MusicPlayer.clips, clip)
+        return true
+    end,
     play = function() return true end,
     pause = function() return true end,
     skipForward = function() return true end,

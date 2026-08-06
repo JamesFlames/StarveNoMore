@@ -5,7 +5,7 @@
 
 -----------------------------------------------------------------------
 -- Idle-detection nudge: if the active player hasn't taken an action in
--- IDLE_THRESHOLD seconds, surface a "click What now?" prompt once per
+-- IDLE_THRESHOLD seconds, surface a "click What next?" prompt once per
 -- turn. Watcher only runs during Day sub-phase.
 -----------------------------------------------------------------------
 local IDLE_THRESHOLD = 45  -- seconds
@@ -24,7 +24,7 @@ function _checkIdle()
     local elapsed = os.time() - last
     if elapsed >= IDLE_THRESHOLD then
         gameState.idleNudgedThisTurn = true
-        printToColor("Idle for " .. elapsed .. "s. Click '?' or 'What now?' on the Phase Banner for a context hint.",
+        printToColor("Idle for " .. elapsed .. "s. Click 'Rules' or 'What next?' on the Phase Banner for a context hint.",
                      active, {1, 0.85, 0.4})
     end
 end
@@ -211,6 +211,11 @@ function spendAction(color, actionName)
         recordUsage("actions", actionName)
         recordUsage("locations", char.location)
     end, "Usage")
+    -- Feedback at the piece. Every action verb funnels through here, so one
+    -- hook shakes the standee that just acted — the answer to "did that
+    -- register?" arrives where the player is already looking, instead of as
+    -- one more line in a log nobody reads mid-turn.
+    safecall(function() jiggleStandee(char.name) end, "Jiggle")
     broadcastEvent("proc", char.name .. " uses " .. actionName .. ". (" .. char.actionsLeft .. " left)")
     return true
 end
@@ -295,8 +300,11 @@ function revealDuskCommitments()
     end
 end
 
+-- ready, total, and the NAMES of the characters still to settle. The third
+-- return is what the Dusk button needs to explain itself; older callers that
+-- want two values are unaffected.
 function countDuskReady()
-    local ready, total = 0, 0
+    local ready, total, waiting = 0, 0, {}
     for color, ch in pairs(gameState.activeChars) do
         if not ch.down then
             local seated = false
@@ -306,24 +314,91 @@ function countDuskReady()
             end)
             if seated then
                 total = total + 1
-                if (gameState.duskReady or {})[color] then ready = ready + 1 end
+                if (gameState.duskReady or {})[color] then
+                    ready = ready + 1
+                else
+                    waiting[#waiting + 1] = ch.name
+                end
             end
         end
     end
-    return ready, total
+    table.sort(waiting)   -- pairs() order would reshuffle the label each refresh
+    return ready, total, waiting
 end
 
 function refreshDuskReadyLabel()
     if not UI then return end
-    local ready, total = countDuskReady()
+    local ready, total, waiting = countDuskReady()
     if total > 0 then
-        setButtonLabel("duskReadyBtn",
-            "I'm settled — Ready for Night  (" .. ready .. "/" .. total .. ")",
-            "#AAFFCC", "#192D23F2")
+        -- Name who is still outstanding, and say the button toggles.
+        --
+        -- It read "I'm settled — Ready for Night (1/2)" and nothing else, so a
+        -- hotseat player watching the count refuse to reach 2/2 kept pressing
+        -- it — settling and un-settling the SAME character, with 1/2 and 0/2
+        -- alternating in the log. The count could not move, because the other
+        -- character had never been readied and nothing on screen said whose
+        -- turn to settle it was. Both facts belong on the button.
+        local label = "I'm settled — Ready for Night  (" .. ready .. "/" .. total .. ")"
+        if #waiting > 0 then
+            label = label .. "\nStill to settle: " .. table.concat(waiting, ", ") ..
+                    "  ·  clicking again un-settles you"
+        end
+        setButtonLabel("duskReadyBtn", label, "#AAFFCC", "#192D23F2")
     else
         setButtonLabel("duskReadyBtn", "Host: click Resolve Night when settled",
             "#AAFFCC", "#192D23F2")
     end
+end
+
+-- The next character down the turn order who still has to settle: seated,
+-- standing, and not yet ready. `after` is the colour to start looking AFTER;
+-- nil starts at the top of the order. Returns nil when nobody is left.
+function nextDuskSeat(after)
+    local order = gameState.turnOrder or {}
+    local n = #order
+    if n == 0 then return nil end
+    local start = 0
+    if after then
+        for i, c in ipairs(order) do
+            if c == after then start = i break end
+        end
+    end
+    for step = 1, n do
+        local color = order[((start + step - 1) % n) + 1]
+        local ch = gameState.activeChars[color]
+        if ch and not ch.down and not (gameState.duskReady or {})[color] then
+            -- Same seated test countDuskReady uses: an empty chair is not
+            -- waited on, so it must not be handed the seat either.
+            local seated = false
+            pcall(function()
+                local p = Player[color]
+                seated = (p and p.seated) or false
+            end)
+            if seated then return color end
+        end
+    end
+    return nil
+end
+
+-- Hand Dusk's seat to `color` (nil once everyone has settled).
+--
+-- Dusk has no turn order of its own — the design is that everyone scrambles
+-- and settles at once — and that is exactly what broke in hotseat, where one
+-- person drives every seat. "Everyone at once" meant one player clicking the
+-- SAME character's ready button over and over: the log filled with "Coco is
+-- settled / Coco is up again" while the count sat at 1/3 and the other two
+-- were never asked, because nothing moved the driver off Coco's chair. So
+-- Dusk now passes the seat like a turn does. syncTtsTurnColor (ui_banner.lua)
+-- moves the hotseat driver with it; multiplayer is unaffected, since nothing
+-- here refuses a click from a player whose seat is not the current one.
+function setDuskSeat(color)
+    -- State first, then the three UI channels behind safecall: a refresh that
+    -- throws must not leave the seat un-passed, which is the one thing this
+    -- function exists to do.
+    gameState.activeColor = color
+    safecall(function() refreshPhaseBanner() end, "DuskBanner")
+    safecall(function() updateActivePlayerIndicator() end, "DuskIndicator")
+    if color then safecall(function() pulseHandZone(color) end, "DuskPulse") end
 end
 
 function toggleDuskReady(color)
@@ -345,9 +420,26 @@ function toggleDuskReady(color)
     refreshDuskReadyLabel()
 
     if total > 0 and ready >= total then
+        setDuskSeat(nil)
         broadcastEvent("phase", "Everyone is settled — night falls.")
         Wait.time(function()
             if gameState.subPhase == "Dusk" then beginNight() end
         end, 1.5)
+        return
+    end
+
+    if gameState.duskReady[color] then
+        -- Settled: pass the seat on so the next character can be scrambled
+        -- and settled without anyone changing colour by hand.
+        local nxt = nextDuskSeat(color)
+        if nxt then
+            setDuskSeat(nxt)
+            local nch = gameState.activeChars[nxt]
+            broadcastEvent("proc", (nch and nch.name or nxt) ..
+                " is up — scramble now if you must, then click 'I'm settled'.")
+        end
+    else
+        -- Un-settled: they want the table back, so the seat returns to them.
+        setDuskSeat(color)
     end
 end

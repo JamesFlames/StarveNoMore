@@ -691,6 +691,61 @@ def test_path_layouts_mirror_the_lua_table():
             "match exactly.")
 
 
+def test_each_layout_is_the_shape_its_name_promises():
+    """The setup panel sells these by name, so the name is a rule.
+
+    "Ring (circular loop)" was a WHEEL for a long time: the four hub spokes
+    plus a four-tile outer loop, eight roads, Ellie & Luca at degree four —
+    and its own comment called it "the most open map", which is Sprawl's job.
+    A player picked Ring and got a hub. Nothing checked the shape, only that
+    the art and the Move table agreed on it, so both were consistently wrong.
+    """
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import path_layouts as pl
+
+    n = len(pl.LOCATIONS)
+
+    def degrees(variant):
+        return sorted(len(v) for v in pl.adjacency(variant).values())
+
+    def connected(variant):
+        adj = pl.adjacency(variant)
+        seen, stack = set(), [pl.LOCATIONS[0]]
+        while stack:
+            cur = stack.pop()
+            if cur in seen:
+                continue
+            seen.add(cur)
+            stack.extend(adj[cur])
+        return len(seen) == n
+
+    # A ring is one closed loop through every tile: n tiles, n roads, and
+    # every tile with exactly two neighbours.
+    assert len(pl.PATH_LAYOUTS["Ring"]) == n, (
+        f"Ring has {len(pl.PATH_LAYOUTS['Ring'])} roads; a ring of {n} "
+        f"locations has exactly {n}")
+    assert degrees("Ring") == [2] * n, (
+        f"Ring degrees are {degrees('Ring')}; every tile on a ring has "
+        "exactly two neighbours")
+
+    # A star is one hub joined to every other tile and nothing else.
+    assert degrees("Star") == [1] * (n - 1) + [n - 1], (
+        f"Star degrees are {degrees('Star')}; a star is one hub and n-1 leaves")
+
+    # A line has two ends and no branches.
+    assert degrees("Linear") == [1, 1] + [2] * (n - 2), (
+        f"Linear degrees are {degrees('Linear')}; a line has exactly two ends")
+
+    # Sprawl is the open map: everything reaches everything in one move.
+    assert degrees("Sprawl") == [n - 1] * n, (
+        f"Sprawl degrees are {degrees('Sprawl')}; Sprawl is the complete graph")
+
+    # ...and no layout may strand a tile, whatever its shape.
+    for variant in pl.VARIANTS:
+        assert connected(variant), f"{variant} leaves a tile unreachable"
+
+
 def test_every_path_variant_has_board_art():
     import sys
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -797,6 +852,17 @@ def test_action_buttons_do_not_hardcode_a_plate_colour():
 
 # --------------------------------------------------------------------------
 # 14. Player boards line up square with the game board.
+def _player_board_zoom_rot():
+    """build_save.PLAYER_BOARD_ZOOM_ROT — the half turn the player board OBJECT
+    carries so its upright artwork renders correctly on the felt AND reads the
+    right way up under Alt-zoom. Read from source rather than imported:
+    importing build_save runs the whole build."""
+    src = read_text(os.path.join(ROOT, "scripts", "build_save.py"))
+    m = re.search(r"^PLAYER_BOARD_ZOOM_ROT\s*=\s*(\d+)", src, re.M)
+    assert m, "PLAYER_BOARD_ZOOM_ROT is gone from build_save.py"
+    return int(m.group(1))
+
+
 # --------------------------------------------------------------------------
 # They used to sit on a pentagon at angles like 294.3 and 215.1 degrees, which
 # reads as scattered next to a square board, and the two northern seats hung
@@ -835,8 +901,15 @@ def test_player_boards_are_square_to_the_board_and_face_it():
         if min(abs(ry - a) for a in (0, 90, 180, 270, 360)) > 0.01:
             problems.append(f"{name}: rotY={ry:.1f} is not square to the board")
             continue
-        # Printed top points along +z at ry=0; it must point back at the board.
-        nx, nz = math.sin(math.radians(ry)), math.cos(math.radians(ry))
+        # The printed top does NOT point along +z at rotY=0. The artwork is
+        # authored upright and the OBJECT carries the half turn a Custom_Tile
+        # needs to render right way up (build_save.PLAYER_BOARD_ZOOM_ROT) —
+        # done that way round because TTS draws Alt-zoom from the object's
+        # local frame, so artwork pre-rotated to suit the felt magnified upside
+        # down. Read the constant rather than hard-coding the offset, so this
+        # follows the build instead of quietly disagreeing with it.
+        facing = math.radians((ry + _player_board_zoom_rot()) % 360)
+        nx, nz = math.sin(facing), math.cos(facing)
         if nx * -t["posX"] + nz * -t["posZ"] <= 0:
             problems.append(f"{name}: printed top faces away from the board")
         # Must not sit on top of the board itself.

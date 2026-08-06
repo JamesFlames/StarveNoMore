@@ -55,24 +55,29 @@ function doCraft(color, marketSlotIndex)
     local slot = slots[marketSlotIndex]
     if not slot then
         broadcastEvent("damage", "Invalid market slot.")
+        char.actionsLeft = char.actionsLeft + 1   -- nothing happened; give it back
         return
     end
 
-    -- Find the card sitting on this slot (within ~2 units above it)
-    local slotPos = slot.getPosition()
-    local card = nil
-    for _, obj in ipairs(getAllObjects()) do
-        if obj.type == "Card" and obj.hasTag("MarketCard") then
-            local d = obj.getPosition():distance(slotPos)
-            if d < 2 then
-                card = obj
-                break
-            end
-        end
+    -- A slot that has not opened yet holds a card nobody has seen. It cannot
+    -- be bought, and the refusal must be free — this is the one refusal a
+    -- player can walk into without any information at all.
+    if marketSlotIsHidden(marketSlotIndex) then
+        broadcastToColor("That Market card is still face down — the shelf opens on Day " ..
+            (marketSlotIndex - MARKET_SLOTS_DAY_ONE + 1) .. ".", color, BROADCAST_COLORS.damage)
+        char.actionsLeft = char.actionsLeft + 1
+        return
     end
+
+    -- Find the card sitting on this slot (marketCardAtSlot uses objDistance,
+    -- not Vector:distance() — see helpers.lua). The action is already spent by
+    -- this point, so a throw here cost the player an action and produced no
+    -- card and no message: "I click the card I want and nothing happens."
+    local card = marketCardAtSlot(marketSlotIndex)
 
     if not card then
         broadcastEvent("damage", "No card at market slot " .. marketSlotIndex .. ".")
+        char.actionsLeft = char.actionsLeft + 1
         return
     end
 
@@ -147,6 +152,62 @@ function _pickScarcityResource(color, baseCost)
     return best
 end
 
+-- The card sitting on Market slot `index` (1..MARKET_SLOTS_TOTAL), or nil.
+-- One lookup, three callers (doCraft, the Dawn reveal, the Clue check) — they
+-- were three copies of the same "scan every object and measure" loop.
+function marketCardAtSlot(index)
+    local slot = getMarketSlots()[index]
+    if not slot then return nil end
+    local slotPos = slot.getPosition()
+    for _, obj in ipairs(findAllByTag("MarketCard")) do
+        if obj.type == "Card" then
+            local d = objDistance(obj.getPosition(), slotPos)
+            if d and d < 2 then return obj end
+        end
+    end
+    return nil
+end
+
+-- Which slot this slot object is, or nil. refillMarketSlot is handed the
+-- object and needs the index to know whether the replacement goes down face
+-- up or face down.
+function marketSlotIndex(slot)
+    if not slot then return nil end
+    local want = safeGuid(slot)
+    if not want then return nil end
+    for i, s in ipairs(getMarketSlots()) do
+        if safeGuid(s) == want then return i end
+    end
+    return nil
+end
+
+-- Called at Dawn: turn over one more shelf. Idempotent — it reveals whatever
+-- today's marketOpenSlots() says should be face up and is not, so a reloaded
+-- save or a skipped Dawn cannot leave the Market permanently short.
+function revealMarketSlotsForToday()
+    local open = marketOpenSlots()
+    gameState.marketFaceDown = gameState.marketFaceDown or {}
+    local revealed = {}
+    for i = 1, MARKET_SLOTS_TOTAL do
+        if i <= open and marketSlotIsHidden(i) then
+            local card = marketCardAtSlot(i)
+            gameState.marketFaceDown[i] = nil
+            if card then
+                safecall(function()
+                    card.setRotationSmooth({0, 180, 0})
+                    addMarketHelp(card)
+                    revealed[#revealed + 1] = safeNickname(card)
+                end, "MarketReveal")
+            end
+        end
+    end
+    if #revealed > 0 then
+        broadcastEvent("gain", "The Market puts out more stock: " ..
+            table.concat(revealed, ", ") .. ". " .. open .. " of " ..
+            MARKET_SLOTS_TOTAL .. " cards are now on offer.")
+    end
+end
+
 function refillMarketSlot(slot)
     local marketDeck = getMarketDeck()
     if not marketDeck then return end
@@ -182,17 +243,32 @@ function refillMarketSlot(slot)
     local clueGuid = nil
     safecall(function() clueGuid = clueDueForRefill() end, "ClueRefill")
 
+    -- A restock into a shelf that has not opened yet goes down face down, like
+    -- the original deal did. Buying from slot 2 on Day 1 must not turn slot 5
+    -- into a fifth visible option a day early.
+    local index = marketSlotIndex(slot)
+    local hidden = index ~= nil and index > marketOpenSlots()
+    if index then
+        gameState.marketFaceDown = gameState.marketFaceDown or {}
+        gameState.marketFaceDown[index] = hidden or nil
+    end
+
     marketDeck.takeObject({
         guid     = clueGuid,   -- nil ⇒ normal top-of-deck draw
         position = slot.getPosition() + Vector(0, 1, 0),
-        rotation = {0, 180, 0},  -- face up
+        rotation = hidden and {0, 180, 180} or {0, 180, 0},
         smooth   = true,
         callback_function = function(newCard)
-            addMarketHelp(newCard)
+            if not hidden then addMarketHelp(newCard) end
             -- pcall: the refilled card can merge with the placeholder/next
             -- card on the slot, leaving a dead handle (see docs/tts-interface.md).
             pcall(function()
-                broadcastEvent("proc", "Market refilled: " .. (newCard.getNickname() or "?"))
+                if hidden then
+                    broadcastEvent("proc", "The Market restocks that shelf face down — " ..
+                        "it opens with the rest, one a day.")
+                else
+                    broadcastEvent("proc", "Market refilled: " .. (newCard.getNickname() or "?"))
+                end
             end)
         end
     })
@@ -315,7 +391,12 @@ function doCook(color, recipeId)
 
     if recipe.oncePerGame then gameState.usedRecipes[recipeId] = true end
 
-    broadcastEvent("proc", char.name .. " cooks " .. recipe.name .. "!")
+    -- "Cooks X!" alone read like crafting, which DOES hand you an item. Every
+    -- recipe but Trail Mix and the Telltale Heart is eaten where it is cooked:
+    -- the stat lines below are the whole of it, and there is nothing to keep.
+    local keeps = (recipe.special == "trailmix" or recipe.special == "heart")
+    broadcastEvent("proc", char.name .. " cooks " .. recipe.name ..
+        (keeps and "!" or " — eaten on the spot."))
     safecall(function() recordMealInChronicle(char.name) end, "Chronicle")
     safecall(function() recordUsage("cooked", recipe.name or recipeId) end, "Usage")
 
@@ -334,7 +415,8 @@ function doCook(color, recipeId)
     end
 
     if recipe.special == "trailmix" then
-        broadcastEvent("gain", char.name .. " makes Trail Mix! 2 Energy Bar items placed in hand.")
+        broadcastEvent("gain", char.name .. " makes Trail Mix — the one recipe that keeps. " ..
+            "2 Energy Bar items go to your hand instead of being eaten now.")
         return
     end
 

@@ -8,24 +8,103 @@
 local pendingConfirmCallback = nil
 local pendingConfirmCancel   = nil
 
+-----------------------------------------------------------------------
+-- Answer where you asked.
+--
+-- The confirm dialog opens in the MIDDLE of the screen. The buttons that
+-- raise it are at the bottom (the action bar) or the top-left (Host
+-- Controls), so saying yes to your own click meant a full traverse of the
+-- screen and back — on Gather at James's House, which offers the Stash every
+-- single time you gather there.
+--
+-- So the button that asked the question also carries the answer: while its
+-- confirm is open it reads CONFIRM, and clicking it again is Yes. The dialog
+-- is unchanged and still holds both options and the reason — this adds a
+-- second Yes at the mouse, it does not move the decision.
+--
+-- Nothing here is per-button: showConfirm is told which id raised it, and the
+-- handler for that id asks whether it currently owns the open confirm.
+-----------------------------------------------------------------------
+CONFIRM_MIRROR_PREFIX = "✔ "
+CONFIRM_MIRROR_LABEL  = CONFIRM_MIRROR_PREFIX .. "CONFIRM"
+pendingConfirmButton = nil     -- element id that raised the open confirm
+local pendingConfirmStyle = nil   -- its {text, color, textColor}, to restore
+
+local function _mirrorConfirmOntoButton(id, yesLabel)
+    if not (UI and id) then return end
+    -- Read and restore text AND both colours together: setting a Button's
+    -- text alone resets its styling (docs/tts-interface.md), and these
+    -- buttons each carry their own plate colour from the XML.
+    local style = nil
+    pcall(function()
+        style = {
+            text      = UI.getAttribute(id, "text"),
+            color     = UI.getAttribute(id, "color"),
+            textColor = UI.getAttribute(id, "textColor"),
+        }
+    end)
+    if not (style and style.text) then return end
+    pendingConfirmButton = id
+    pendingConfirmStyle  = style
+    UI.setAttributes(id, {
+        -- Wear the dialog's own Yes label where there is one: on the Stash
+        -- offer that is "Take the Stash", which says what the click does.
+        text      = yesLabel and (CONFIRM_MIRROR_PREFIX .. yesLabel) or CONFIRM_MIRROR_LABEL,
+        color     = "#1E501EF2",
+        textColor = "#AEFFAE",
+    })
+end
+
+local function _restoreConfirmButton()
+    local id, style = pendingConfirmButton, pendingConfirmStyle
+    pendingConfirmButton, pendingConfirmStyle = nil, nil
+    if UI and id and style then
+        pcall(function() UI.setAttributes(id, style) end)
+    end
+end
+
+-- True (and answers Yes) when this click landed on the button that is
+-- currently mirroring an open confirm. Every action handler that can raise
+-- one calls this first; anything else falls through to its normal behaviour.
+function confirmClickedOnItsOwnButton(player, id)
+    if not id or id ~= pendingConfirmButton then return false end
+    onConfirmYes(player, nil, id)
+    return true
+end
+
 -- onCancel is optional: when given, "Cancel" runs it instead of just
 -- aborting (e.g. the Stash confirm, where Cancel means "take the normal
 -- random draw"). Without UI, the fallback takes the Confirm branch.
-function showConfirm(title, body, onConfirm, onCancel)
+-- sourceButtonId is the element that raised it, if any — see above.
+-- labels is optional { yes = ..., no = ... }: when Cancel DOES something,
+-- "Cancel" is the wrong word for it. The Stash offer is the clear case —
+-- Cancel there is not "never mind", it takes the ordinary random resource,
+-- and a player reading "Cancel" has no way to know that from the button.
+CONFIRM_DEFAULT_LABELS = { yes = "Confirm", no = "Cancel" }
+
+function showConfirm(title, body, onConfirm, onCancel, sourceButtonId, labels)
     if not UI then
         -- Fallback: just execute
         if onConfirm then onConfirm() end
         return
     end
+    _restoreConfirmButton()   -- a second confirm must not strand the first
     UI.setAttribute("confirmTitle", "text", title)
     UI.setAttribute("confirmBody", "text", body)
+    labels = labels or {}
+    setButtonLabel("confirmYes", labels.yes or CONFIRM_DEFAULT_LABELS.yes,
+                   "#88FF88", "#1E501EE6")
+    setButtonLabel("confirmNo", labels.no or CONFIRM_DEFAULT_LABELS.no,
+                   "#FF8888", "#501E1EE6")
     pendingConfirmCallback = onConfirm
     pendingConfirmCancel   = onCancel
     UI.show("confirmDialog")
+    _mirrorConfirmOntoButton(sourceButtonId, labels.yes)
 end
 
 function onConfirmYes(player, value, id)
     UI.hide("confirmDialog")
+    _restoreConfirmButton()
     pendingConfirmCancel = nil
     if pendingConfirmCallback then
         local cb = pendingConfirmCallback
@@ -36,6 +115,7 @@ end
 
 function onConfirmNo(player, value, id)
     UI.hide("confirmDialog")
+    _restoreConfirmButton()
     pendingConfirmCallback = nil
     local cb = pendingConfirmCancel
     pendingConfirmCancel = nil
@@ -229,6 +309,7 @@ function onHostResolveNight(player, value, id)
 end
 
 function onHostEndTurn(player, value, id)
+    if confirmClickedOnItsOwnButton(player, id) then return end
     local color = gameState.activeColor
     if not color then return end
     -- Safety net (I.6): this button forfeits whatever the active player has
@@ -241,7 +322,7 @@ function onHostEndTurn(player, value, id)
                 refreshPhaseBanner()
                 updateActivePlayerIndicator()
             end, "EndTurn")
-        end)
+        end, "btnEndTurn")
     end, "EndTurnConfirm")
 end
 

@@ -74,17 +74,30 @@ PATH_LAYOUTS = {
         ("EllieLucaHouse", "BasketballCourt"),
         ("EllieLucaHouse", "BadmintonCourt"),
     ),
-    # Hub plus a full outer loop — you can always go around. The most open
-    # map, and the layout the original board art drew.
+    # A RING: one closed loop through all five tiles, every tile with exactly
+    # two neighbours. Five locations, five roads.
+    #
+    #   James - Badminton - Ellie & Luca - Rayman - Basketball - back to James
+    #
+    # This was a wheel for a long time — the four hub spokes PLUS a four-tile
+    # outer loop, eight roads, Ellie & Luca at degree four — and it was
+    # described as "the most open map". That is not what the word means, and a
+    # player who picked "Ring" and got a hub said so. Sprawl is the open map.
+    #
+    # The cycle order is the one that stays planar with these tile positions
+    # (Ellie & Luca sits at the centre, which Star needs): no two roads cross.
+    # It reads as a pentagon with one vertex pulled into the middle, because
+    # one of the five tiles IS in the middle.
+    #
+    # Balance note: Ring dropped from 8 roads to 5, so it is now a genuinely
+    # tighter map than Compact (6) rather than a looser one. Every tile is
+    # still reachable, and the longest trip is two moves.
     "Ring": _edges(
-        ("EllieLucaHouse", "JamesHouse"),
+        ("JamesHouse", "BadmintonCourt"),
+        ("BadmintonCourt", "EllieLucaHouse"),
         ("EllieLucaHouse", "RaymanHouse"),
-        ("EllieLucaHouse", "BasketballCourt"),
-        ("EllieLucaHouse", "BadmintonCourt"),
-        ("JamesHouse", "BasketballCourt"),
-        ("BasketballCourt", "RaymanHouse"),
-        ("RaymanHouse", "BadmintonCourt"),
-        ("BadmintonCourt", "JamesHouse"),
+        ("RaymanHouse", "BasketballCourt"),
+        ("BasketballCourt", "JamesHouse"),
     ),
     # Hub plus one shortcut per house — each home has its own back door.
     "Compact": _edges(

@@ -224,7 +224,7 @@ function checkDownState(color)
         if narration then
             broadcastEvent("damage", narration)
         end
-        broadcastEvent("damage", char.name .. " is DOWN. Flip standee to ghost side.")
+        broadcastEvent("damage", char.name .. " is DOWN — their standee falls where they stood.")
         broadcastEvent("proc", char.name .. " cannot act, cannot gather, cannot fight. Ghost drifts 1 free move/round.")
         wentDown = true
     elseif char.sanity <= 0 then
@@ -234,12 +234,16 @@ function checkDownState(color)
         if narration then
             broadcastEvent("damage", narration)
         end
-        broadcastEvent("damage", char.name .. " is LOST. Flip standee to ghost side.")
+        broadcastEvent("damage", char.name .. " is LOST — their standee falls where they stood.")
         broadcastEvent("proc", char.name .. " cannot act. Ghost drifts. One whispered word per round.")
         wentDown = true
     end
 
     if wentDown then
+        -- Lay the standee over. Until now "is DOWN" was a line of chat and
+        -- nothing on the table changed, so a fallen character was
+        -- indistinguishable from a standing one at a glance.
+        safecall(function() setStandeePosture(char.name, true) end, "StandeeDown")
         safecall(function() Audio.playDeath() end, "Audio")
         safecall(function() ensureChronicle().downs = ensureChronicle().downs + 1 end, "Chronicle")
 
@@ -313,6 +317,8 @@ function reviveCharacter(reviverColor, targetColor)
     end
 
     target.down = false
+    -- ...and stand the standee back up (setStandeePosture, helpers.lua).
+    safecall(function() setStandeePosture(target.name, false) end, "StandeeUp")
 
     -- Return heart token to supply
     gameState.heartCount = math.max(0, (gameState.heartCount or 0) - 1)
@@ -347,6 +353,34 @@ end
 -- F.11 — Cleanse Doom action
 -- Design §15.3: Spend 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink + 1 Action → Doom -2
 -----------------------------------------------------------------------
+-- Cleanse's preconditions, in the canX(color) -> ok, why shape the rest of
+-- the bar uses. It did not have one: the button was lit whenever an action
+-- remained, with "the resource check is manual" as the reason. So a character
+-- holding none of the four ingredients got a live Cleanse button, clicked it,
+-- and watched the action be spent and handed back with a refusal — which
+-- reads as the game changing its mind, and as "I was able to do Cleanse".
+-- ui_actionbar_display.lua's own rule is that unavailable actions are HIDDEN,
+-- and this is now one of them.
+function canCleanse(color)
+    local char = gameState.activeChars[color]
+    if not char then return false, "No character." end
+    if char.down then return false, "You are Down." end
+    if (char.actionsLeft or 0) <= 0 then return false, "No actions remaining." end
+    local have = getPlayerResources(color)
+    local missing = {}
+    for resType, qty in pairs(CLEANSE_COST) do
+        if (have[resType] or 0) < qty then
+            missing[#missing + 1] = qty .. " " .. _resLabel(resType) ..
+                " (have " .. (have[resType] or 0) .. ")"
+        end
+    end
+    table.sort(missing)   -- pairs() order would reshuffle the tooltip
+    if #missing > 0 then
+        return false, "The ritual needs " .. table.concat(missing, ", ") .. "."
+    end
+    return true
+end
+
 function doCleanse(color)
     if not spendAction(color, "Cleanse") then return end
 

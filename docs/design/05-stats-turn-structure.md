@@ -61,9 +61,9 @@ What it changes at the table: the calculus of Flee, of Rest, and of rescue prior
 
 When a stat hits 0:
 
-- **Health 0:** The character is **Down**. Flip the standee to its ghost side. (See §16.4.)
+- **Health 0:** The character is **Down**. Their standee is laid on its side and greyed out, automatically. (See §16.4.)
 - **Hunger 0:** Lose 1 Health each Tick until fed.
-- **Sanity 0:** The character is **Lost**. Flip ghost side. (Also a Down state.)
+- **Sanity 0:** The character is **Lost**. Same treatment. (Also a Down state.)
 
 ### 10.2 The player board
 

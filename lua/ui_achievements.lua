@@ -157,7 +157,12 @@ function showAchievementToast(id)
 end
 
 function popAchievementToast()
-    local id = table.remove(achToastQueue, 1)
+    -- popFirst, not table.remove(q, 1): every toast schedules one more call of
+    -- this function to clear itself, so the last of a run always lands here on
+    -- an EMPTY queue — where table.remove throws in TTS but not in real Lua.
+    -- That is why the game logged an error every time an achievement fired and
+    -- the suite stayed green. See helpers.lua.
+    local id = popFirst(achToastQueue)
     if not id then
         achToastShowing = false
         if UI then UI.hide("achToast") end

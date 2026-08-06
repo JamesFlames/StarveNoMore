@@ -83,6 +83,37 @@ CHARACTER_COLORS = {
     Luca   = "Red",
 }
 
+-- Seat colour as a UI hex, for the panels that wear the active character's
+-- colour — currently the action bar's border (ui_actionbar_display.lua).
+-- Brighter and more saturated than the standee tints in stringToColorTint
+-- (ui_banner.lua): those multiply a lit 3D model, these have to carry as a
+-- thin outline on a near-black panel. White is pulled down to a warm grey so
+-- it reads as a colour rather than as "no colour applied".
+SEAT_OUTLINE = {
+    White  = "#D8D4CCFF",
+    Red    = "#E05555FF",
+    Yellow = "#E8D24AFF",
+    Green  = "#4FC44FFF",
+    Blue   = "#4C86E0FF",
+}
+
+-- The seat-colour WORD, painted in that seat's colour, for the UI Text
+-- elements that say "(Green seat)". The word and the swatch were two
+-- separate things to learn — the action bar's border already wore the
+-- colour, and the sentence beside it spelled the colour out in the same
+-- grey as everything else, so a player had to map "Green" onto a border
+-- they were not looking at. Same palette as the border, so they agree.
+--
+-- Returns Unity rich text (<color=…>), which TTS UI Text elements parse;
+-- callers must be UI.setAttribute("…", "text", …) targets, never tooltips
+-- or broadcasts, where the tag would show as literal characters.
+function seatWord(color)
+    local hex = SEAT_OUTLINE[color]
+    if not color then return "?" end
+    if not hex then return tostring(color) end
+    return "<color=" .. hex .. ">" .. color .. "</color>"
+end
+
 CHARACTER_HOMES = {
     James  = "JamesHouse",
     Rayman = "RaymanHouse",
@@ -284,6 +315,61 @@ function getDoomDelta(phase)
     return d or 0
 end
 
+-- The table's playing surface, mirroring TABLE_SURFACE_Y in build_save.py
+-- (test_build_output.py compares them, the same way DOOM_MARKER_Y is kept
+-- honest). Anything authored between 0 and this height starts INSIDE the
+-- tabletop and is invisible until somebody picks it up — see
+-- docs/tts-runtime.md, "the #1 invisible-object trap".
+TABLE_SURFACE_Y = 1.55
+
+-- Where a RUNTIME spawn is dropped from. The build authors resting heights,
+-- because its pieces are locked and never settle; script spawns are unlocked,
+-- so the documented rule for them is the opposite — drop from clear air and
+-- let physics land them.
+--
+-- This exists because the drops were not clear air. Starting items came off
+-- `board.y + 0.6` and gathered tokens off `board.y + 0.8`, i.e. 0.65 and 0.85
+-- above the surface, and both rows land in the rim zone just past the main
+-- board's edge. A live session ended with twenty pieces — a whole starting
+-- hand, the Quick Start card, six resource tokens — resting between y=0.97
+-- and y=1.50: inside the tabletop, invisible, on a table that looked like it
+-- had simply not dealt them.
+--
+-- Check a real session with: python scripts/inspect_save.py --live --band
+SPAWN_DROP_Y = TABLE_SURFACE_Y + 2.5
+
+-- Drop height for a piece spawned relative to another object (a player board,
+-- a location tile). Takes whichever is higher: clear air above the table, or
+-- clear air above that object.
+function spawnDropY(baseY)
+    return math.max(SPAWN_DROP_Y, (baseY or 0) + 2.5)
+end
+
+-- The Market opens one shelf at a time (§ market pacing). Day 1 shows two
+-- cards face up and the other three face down; each Dawn turns one more over
+-- until all five are on offer from Day 4.
+--
+-- Five simultaneous unknown items, five costs and six resource types is the
+-- heaviest single read on the table, and it lands on the turn a player has
+-- the least context to use it. A face-down card is not a decision, so the
+-- opening turn is a choice between two things instead of five.
+MARKET_SLOTS_TOTAL   = 5
+MARKET_SLOTS_DAY_ONE = 2
+
+function marketOpenSlots()
+    local day = math.max(1, gameState.day or 1)
+    return math.min(MARKET_SLOTS_TOTAL, MARKET_SLOTS_DAY_ONE + day - 1)
+end
+
+-- Is this slot's card face down (dealt, but not yet on offer)? Authoritative
+-- in gameState, not in the card's physical rotation — the same rule the
+-- resource counts follow (helpers.lua), and for the same reason: a card that
+-- physics has nudged, or a handle that died, must not be able to change what
+-- a player is allowed to buy.
+function marketSlotIsHidden(index)
+    return ((gameState.marketFaceDown or {})[index] or false) == true
+end
+
 function getDoomRate()
     local pc = math.max(3, math.min(5, gameState.playerCount))
     local rates = DOOM_RATES[pc] or DOOM_RATES[4]
@@ -411,6 +497,7 @@ function migrateGameState()
     -- Deliberately absent: lastMarketRefillDay. nil means "never restocked",
     -- which is exactly what Strict Rationing's first refill needs to see.
     gs.missingAlly          = gs.missingAlly or nil          -- P3_ALLY_MISSING: who gets today's +1 action
+    gs.marketFaceDown       = gs.marketFaceDown or {}        -- slot index -> true: dealt, not yet on offer
     if gs.duskSecret == nil then gs.duskSecret = false end   -- §11.3 A/B variant
     if gs.solo == nil then gs.solo = false end               -- §20.3 solo mode
     -- The achievement vault (achievements.lua). It spans games rather than
@@ -480,6 +567,8 @@ function onLoad(savedState)
         -- sealed from the first frame too — not only once Setup has run.
         -- Otherwise the pointer highlights invisible cards through the board
         -- for the whole pre-game. (audit.lua)
+        -- Before anything else asks them to click something.
+        safecall(function() nudgeSpectatorsToSitDown() end, "Spectators")
         safecall(function() sealUnderTableObjects() end, "SealUnderTable")
         -- J.10: Run first-load component audit
         safecall(function() auditFirstLoad() end, "FirstLoadAudit")

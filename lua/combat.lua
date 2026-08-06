@@ -50,21 +50,59 @@ TROPHY_BY_BOSS = {
 }
 local BOSS_LOOT_RESOURCES = { "Wood", "Metal", "Cloth", "Provisions" }
 
--- Resource shower + a nod to the Trophy at the fallen boss's tile.
-function dropBossLoot(bossKey)
-    local standee = findOneByTag(BOSS_STANDEE_TAG[bossKey] or "")
-    local pos = standee and standee.getPosition()
-    if not pos then return end
-    for i = 1, 3 do
-        local resType = BOSS_LOOT_RESOURCES[gameRoll(#BOSS_LOOT_RESOURCES)]
-        local bag = getResourceBag and getResourceBag(resType)
-        if bag then
-            safecall(function()
-                bag.takeObject({ position = { pos.x + (i - 2) * 1.2, pos.y + 3, pos.z + 1.5 }, smooth = true })
-            end, "BossLoot")
-        end
+BOSS_LOOT_COUNT = 3
+
+-- Who the spoils belong to: the characters who fought it, in the order they
+-- joined, so a group kill deals round-robin from whoever swung first. Falls
+-- back to everyone standing on the boss's tile — a boss can be finished by
+-- something other than a fight (a Signature, a Dawn effect), and the loot
+-- still has to land somewhere.
+local function _bossLootRecipients(colors)
+    local out = {}
+    for _, c in ipairs(colors or {}) do
+        local ch = gameState.activeChars[c]
+        if ch and not ch.down then out[#out + 1] = c end
     end
-    broadcastEvent("gain", "Spoils spill across the tile — 3 resources salvaged from the wreckage.")
+    if #out > 0 then return out end
+    for c, ch in pairs(gameState.activeChars) do
+        if not ch.down then out[#out + 1] = c end
+    end
+    table.sort(out)   -- pairs() order is arbitrary; the split must be stable
+    return out
+end
+
+-- Resource shower at the fallen boss's tile — dealt to the fighters.
+--
+-- It used to spawn three tokens on the ground beside the standee and say
+-- "3 resources salvaged". Nobody received them: the economy is authoritative
+-- in gameState.resources per colour and physical tokens are decoration
+-- (helpers.lua), so the spoils were a pile of props. A player asked the right
+-- question — "who should the wood go to?" — because the game had never
+-- answered it. giveResource both credits the owner AND lays the token beside
+-- their board, so the shower still happens, just where it means something.
+function dropBossLoot(bossKey, colors)
+    local winners = _bossLootRecipients(colors)
+    if #winners == 0 then
+        broadcastEvent("warn", "The spoils spill across the tile with nobody standing to take them.")
+        return
+    end
+    local haul = {}
+    for i = 1, BOSS_LOOT_COUNT do
+        local resType = BOSS_LOOT_RESOURCES[gameRoll(#BOSS_LOOT_RESOURCES)]
+        local color = winners[((i - 1) % #winners) + 1]
+        safecall(function() giveResource(color, resType, 1) end, "BossLoot")
+        local ch = gameState.activeChars[color]
+        local who = (ch and ch.name) or color
+        haul[who] = (haul[who] or {})
+        table.insert(haul[who], resType)
+    end
+    local parts = {}
+    for who, got in pairs(haul) do
+        table.insert(parts, who .. ": " .. table.concat(got, ", "))
+    end
+    table.sort(parts)   -- pairs() order would reshuffle the line every kill
+    broadcastEvent("gain", "Spoils salvaged from the wreckage — " ..
+        table.concat(parts, "  ·  ") .. ".")
 end
 
 -- Brief victory flash so a boss kill reads as an event, not a line of chat.
@@ -228,7 +266,7 @@ function sourceSplitIntoBeaks()
     end
 end
 
-function markBossDefeated(threatName)
+function markBossDefeated(threatName, colors)
     local lower = string.lower(threatName or "")
     gameState.bossesDefeated = gameState.bossesDefeated or {}
     local e = gameState.ongoingDawnEffects
@@ -276,7 +314,7 @@ function markBossDefeated(threatName)
     if key then
         if BOSS_KILL_NARRATIONS[key] then broadcastEvent("phase", BOSS_KILL_NARRATIONS[key]) end
         safecall(function() flashVictoryLighting() end, "Light")
-        safecall(function() dropBossLoot(key) end, "BossLoot")
+        safecall(function() dropBossLoot(key, colors) end, "BossLoot")
         safecall(function() revealTrophy(key) end, "Trophy")
         -- The fallen boss leaves the map (loot dropped first — it needs the
         -- standee's position). Back in the pool it stops festering and the

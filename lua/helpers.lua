@@ -45,6 +45,20 @@ function safeNickname(obj)
     return ""
 end
 
+-- A handle's GUID, or nil if it cannot be read. Exists because a nil GUID is
+-- worse than a dead handle: `someTable[obj.getGUID()] = v` throws "table index
+-- is nil" rather than the usual field-access error, and the callers that keep
+-- a guid->something map all did exactly that inside a bare pcall — so the
+-- throw was swallowed and reported as "there is nothing here" (the Craft
+-- purchase reported "No cards in the Market display" with five cards on the
+-- table). Returns nil so callers can skip the object instead of dying.
+function safeGuid(obj)
+    if not obj then return nil end
+    local ok, guid = pcall(function() return obj.getGUID() end)
+    if ok and type(guid) == "string" and guid ~= "" then return guid end
+    return nil
+end
+
 function safeHasTag(obj, tag)
     if not obj then return false end
     local ok, has = pcall(function()
@@ -188,10 +202,14 @@ local function _spawnVisualTokens(charName, resType, qty)
                 -- Step each token along the row; wrap to a second rank after
                 -- six so a big pile stays beside the board instead of walking
                 -- across the table.
-                position = base + Vector(
-                    -2.6 + (n % 6) * 0.42,
-                    0.8 + (n % 6) * 0.04,
-                    -1.2 - slot * 0.55 - math.floor(n / 6) * 0.30),
+                -- Y is absolute (spawnDropY, global.lua), not base.y + 0.8:
+                -- gathered tokens land beside the board, right on the main
+                -- board's rim, and a 0.85 drop was not enough to clear it.
+                -- Six of them ended a live session sunk inside the tabletop.
+                position = Vector(
+                    base.x - 2.6 + (n % 6) * 0.42,
+                    spawnDropY(base.y),
+                    base.z - 1.2 - slot * 0.55 - math.floor(n / 6) * 0.30),
                 smooth   = true,
             })
             _tagResource(tok, resType)
@@ -293,6 +311,51 @@ function getCharSlotPosition(tile, charName)
     -- y is ABOVE the tile top (tiles sit on the ~1.55-high glass surface);
     -- the unlocked standee settles the last stretch itself.
     return tile.getPosition() + Vector(-1.8 + i * 0.9, 1.0, -1.7)
+end
+
+-- A Down character's standee lies on the table; reviving stands it back up.
+--
+-- rotX, not rotZ: a standee is a flat plane facing the camera, so tipping it
+-- about X turns the art face-up and the whole figure reads as lying down from
+-- a seated camera. Rotating about Z would only spin the picture in its own
+-- plane — the figure would still be standing, sideways.
+--
+-- The yaw is preserved, so a standee keeps whichever way it was facing. Move
+-- and ghost drift only ever set position, so the posture survives both: a
+-- ghost drifts around the map still lying down.
+STANDEE_DOWN_PITCH = 90
+
+-- ...and the colour drains out of them.
+--
+-- This is the automated version of "flip the standee to its ghost side", an
+-- instruction the game printed for a long time and could never be followed:
+-- THERE IS NO GHOST SIDE. Each standee's back is simply a rear view of the
+-- living character — James from behind, Coco from behind, halo and wings
+-- unchanged. Flipping shows a character standing with their back turned,
+-- which reads as "facing away", not "dead".
+--
+-- TTS multiplies ColorDiffuse over the whole standee, so a near-black tint
+-- greys the figure out where it lies. Down reads as down without needing art
+-- nobody drew. Revive puts the seat colour back (CHARACTER_COLORS ->
+-- stringToColorTint, the same source the hand-zone glow uses).
+STANDEE_DOWN_TINT = { 0.28, 0.28, 0.32 }
+
+function setStandeePosture(charName, isDown)
+    local standee = getCharacterStandee(charName)
+    if not standee then return false end
+    local ok = safecall(function()
+        local rot = standee.getRotation() or {}
+        standee.setRotationSmooth({ isDown and STANDEE_DOWN_PITCH or 0,
+                                    rot.y or 0, 0 }, false, true)
+    end, "StandeePosture")
+    safecall(function()
+        local tint = STANDEE_DOWN_TINT
+        if not isDown then
+            tint = stringToColorTint(CHARACTER_COLORS[charName])
+        end
+        standee.setColorTint(tint)
+    end, "StandeeTint")
+    return ok
 end
 
 function placeCharacterAtTile(charName, locName)
@@ -585,6 +648,100 @@ end
 function gameRoll(a, b)
     if b then return math.random(a, b) end
     return math.random(a)
+end
+
+-----------------------------------------------------------------------
+-- MoonSharp-safe replacements for two standard Lua idioms.
+--
+-- These exist because of a structural blind spot, not a style preference.
+-- The test suite runs the real bundle under real Lua 5.2 (lupa), and TTS runs
+-- MoonSharp. Where the two disagree, the suite is green and the game throws —
+-- so the ONLY defence is to not write the idiom. Both of these shipped, both
+-- reached players, neither was catchable by any runtime test we could write.
+-- Guard: tests/test_moonsharp_safety.py. Background: docs/tts-interface.md.
+-----------------------------------------------------------------------
+
+-- Trim. `s:match("^%s*(.-)%s*$")` is the standard Lua trim and MoonSharp
+-- abandons it with "pattern too complex" once the subject passes a couple of
+-- hundred characters. The rulebook has 400- and 600-character paragraphs, so
+-- pressing '?' threw before a single help page rendered. find+sub is O(n) and
+-- has no backtracking to give up on.
+function trim(s)
+    s = tostring(s or "")
+    local first = s:find("%S")
+    if not first then return "" end
+    return s:sub(first, s:find("%s*$", first) - 1)
+end
+
+-- Distance between two positions, from their x/y/z instead of through the
+-- engine's `Vector:distance()`.
+--
+-- Same rule as the two above: don't write an idiom whose behaviour differs
+-- between the runtime the suite uses and the runtime the game uses. What
+-- `Object.getPosition()` hands back is engine-provided, and whether it carries
+-- Vector's methods is the engine's business — the three callers that matched
+-- an object to a position (`doCraft`, `_spawnCraftButtons`, the Clue check)
+-- all wrapped the call in a bare pcall, so if it ever came back as a plain
+-- table the failure was invisible: `_spawnCraftButtons` reported "No cards in
+-- the Market display" to a player looking at five of them.
+--
+-- Returns nil for anything that isn't two readable positions, so callers skip
+-- rather than throw. Arithmetic on three numbers has no such ambiguity.
+function objDistance(a, b)
+    if type(a) ~= "table" and type(a) ~= "userdata" then return nil end
+    if type(b) ~= "table" and type(b) ~= "userdata" then return nil end
+    local ok, d = pcall(function()
+        local dx = (a.x or 0) - (b.x or 0)
+        local dy = (a.y or 0) - (b.y or 0)
+        local dz = (a.z or 0) - (b.z or 0)
+        return math.sqrt(dx * dx + dy * dy + dz * dz)
+    end)
+    if ok and type(d) == "number" then return d end
+    return nil
+end
+
+-- Take the first element of a list. `table.remove(t, 1)` throws in MoonSharp
+-- when `t` is EMPTY ("bad argument #1 to 'remove' (position out of bounds)");
+-- real Lua 5.2 just returns nil. That is not an edge case — every queue drain
+-- reaches the empty case on its final pass, which is why the achievement toast
+-- logged an error every single time one unlocked.
+function popFirst(list)
+    if not list or #list == 0 then return nil end
+    return table.remove(list, 1)
+end
+
+-----------------------------------------------------------------------
+-- Tell anyone still in the Grey seat why nothing they click works.
+--
+-- TTS refuses every interaction from Grey with its own message: "Grey
+-- (Spectator) cannot interact. Click your name in the top right -> Change
+-- Color, then click a colored circle." Accurate, and it reads as a bug —
+-- because nobody joined AS a spectator. Grey is simply where TTS puts you
+-- until you take a colour, so the player sees an error about a spectator that
+-- does not exist, three refused clicks, and no way to connect the two. That
+-- has now confused a real table twice.
+--
+-- Spectators are invisible to Player.getPlayers() (it returns seated players
+-- only), which is also why every seat-counting loop in this mod cannot see
+-- them and the guided setup will happily wait forever on a table of one.
+-----------------------------------------------------------------------
+function nudgeSpectatorsToSitDown()
+    local watchers = {}
+    pcall(function() watchers = Player.getSpectators() or {} end)
+    for _, p in ipairs(watchers) do
+        pcall(function()
+            p.print(
+                "You are not sitting down yet — Tabletop Simulator has you in the Grey " ..
+                "seat, which it calls a spectator. A spectator cannot click anything on " ..
+                "the table, pick a character, or take a turn, and every click you make " ..
+                "will be refused.\n" ..
+                "To join: click your name in the player list (top right), choose Change " ..
+                "Color, then click any coloured circle. Which colour does not matter — " ..
+                "picking a character sets your final colour during Setup.",
+                {1, 0.85, 0.4})
+        end)
+    end
+    return #watchers
 end
 
 -- Safe pcall wrapper (F.15)

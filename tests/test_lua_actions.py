@@ -7,6 +7,7 @@ tests/conftest.py; split out of the former monolithic test_lua_runtime.py.
 
 import pytest
 from conftest import (
+    a_neighbour_of,
     add_char,
     broadcasts,
     flush,
@@ -336,7 +337,8 @@ class TestPerks:
 
     def test_rally_grants_action_once_per_turn_within_reach(self, env):
         add_char(env, "Blue", "Luca", location="JamesHouse")
-        add_char(env, "Green", "Ellie", location="EllieLucaHouse", actionsLeft=2)  # adjacent
+        add_char(env, "Green", "Ellie", location=a_neighbour_of(env, "JamesHouse"),
+                 actionsLeft=2)  # adjacent, whatever the layout calls it
         add_char(env, "Yellow", "Rayman", location="RaymanHouse", actionsLeft=2)   # 2 tiles away
         assert env.globals().doRally("Blue", "Yellow") is False  # out of reach
         assert env.globals().doRally("Blue", "Green") is True
@@ -695,17 +697,35 @@ class TestMarketHelpTooltip:
     def _card_descs(self, env):
         return list(lua_to_py(env.eval(self._DESCS)))
 
-    def test_dealt_market_cards_carry_the_help(self, env):
+    def test_only_the_open_shelves_carry_the_help(self, env):
+        """All five slots are filled on Day 1, but only the open ones are
+        face up — and a face-down card must not carry a tooltip naming the
+        item it is deliberately not showing (marketOpenSlots, global.lua)."""
+        env.execute("gameState.day = 1")
         self._market(env)
         env.globals().dealMarketDisplay()
         flush(env)
         descs = self._card_descs(env)
         assert len(descs) == 5, f"expected 5 cards dealt, got {len(descs)}"
-        for d in descs:
-            assert "Craft action" in d, f"card dealt without the market tooltip: {d!r}"
+        helped = [d for d in descs if "Craft action" in d]
+        assert len(helped) == env.eval("MARKET_SLOTS_DAY_ONE"), (
+            f"expected only the open shelves to carry the help; got {len(helped)} of 5")
+
+    def test_the_dawn_reveal_gives_the_new_shelf_its_help(self, env):
+        env.execute("gameState.day = 1")
+        self._market(env)
+        env.globals().dealMarketDisplay()
+        flush(env)
+        env.execute("gameState.day = 2")
+        env.globals().revealMarketSlotsForToday()
+        flush(env)
+        helped = [d for d in self._card_descs(env) if "Craft action" in d]
+        assert len(helped) == 3, f"Day 2 should have 3 cards on offer; got {len(helped)}"
 
     def test_buying_a_card_strips_the_help_before_it_reaches_the_hand(self, env):
         add_char(env, "White", "James")
+        # Day 4+: every shelf is open, so this stays a test about STRIPPING.
+        env.execute("gameState.day = 5")
         self._market(env)
         env.globals().dealMarketDisplay()
         flush(env)
@@ -794,7 +814,7 @@ class TestQuickStartCardFits:
 
     def test_the_full_rules_are_still_reachable_from_the_card(self, env):
         text = env.globals().quickStartCardText()
-        assert "?" in text and "What now?" in text, (
+        assert "?" in text and "What next?" in text, (
             "the short card must point at the places that hold the long "
             "version, or the detail is simply gone")
 

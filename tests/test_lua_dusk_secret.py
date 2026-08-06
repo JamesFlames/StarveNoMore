@@ -11,7 +11,7 @@ move landed as it was clicked, the last player to commit would see everyone
 else's board and the variant would be theatre. That is what these tests pin.
 """
 import pytest
-from conftest import add_char, broadcasts, lua_to_py, make_env
+from conftest import add_char, broadcasts, lua_to_py, make_env, neighbours
 
 pytest.importorskip("lupa")
 
@@ -84,19 +84,28 @@ def test_still_only_one_scramble_each(dusk):
 
 
 def test_adjacency_is_still_enforced_before_banking(dusk):
+    # Ask the layout what is out of reach instead of naming a tile: this said
+    # "RaymanHouse", which became adjacent to nothing in particular the day
+    # Ring stopped being a wheel.
     dusk.execute('gameState.activeChars.White.location = "JamesHouse"')
-    dusk.eval("doDuskMove")("White", "RaymanHouse")   # not adjacent
+    far = next(t for t in ("RaymanHouse", "BadmintonCourt", "BasketballCourt",
+                           "EllieLucaHouse")
+               if t not in neighbours(dusk, "JamesHouse"))
+    dusk.eval("doDuskMove")("White", far)
     assert dusk.eval("gameState.duskPending.White") is None
 
 
 # ---------------------------------------------------------------- reveal
 
 def test_reveal_applies_every_commitment_at_once(dusk):
-    dusk.eval("doDuskMove")("White", "BadmintonCourt")
-    dusk.eval("doDuskMove")("Green", "BasketballCourt")
+    # Two different adjacent tiles, whichever ones this layout provides.
+    near = neighbours(dusk, "EllieLucaHouse")
+    assert len(near) >= 2, "this test needs a hub with two exits"
+    dusk.eval("doDuskMove")("White", near[0])
+    dusk.eval("doDuskMove")("Green", near[1])
     dusk.eval("revealDuskCommitments()")
-    assert loc(dusk, "White") == "BadmintonCourt"
-    assert loc(dusk, "Green") == "BasketballCourt"
+    assert loc(dusk, "White") == near[0]
+    assert loc(dusk, "Green") == near[1]
     assert not dict(dusk.eval("gameState.duskPending") or {}), "pending not cleared"
 
 

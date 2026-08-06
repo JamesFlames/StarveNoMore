@@ -86,7 +86,7 @@
             onClick="onCopySessionLog"
             fontSize="14" color="#192837E6" textColor="#88CCEE"
             preferredHeight="32"
-            tooltip="Write this session's telemetry (setup, per-day stats, turn times, batch beats) to the Notes panel as JSON — paste it into the playtest tracker."
+            tooltip="Write this session's telemetry (setup, per-day stats, turn&#10;times, batch beats) to the Notes panel as JSON — paste it into&#10;the playtest tracker."
             text="Copy Session Log" />
     <Button id="weekReviewClose"
             onClick="onWeekReviewClose"
@@ -127,7 +127,7 @@
       <Button id="helpTabRules"
               onClick="onHelpTab"
               fontSize="11" color="#142828CC" textColor="#AACCCC"
-              tooltip="The whole player rulebook, in the game: Quick Start, Full Rules, The Characters, Glossary. The same text as PlayerRules.html."
+              tooltip="The whole player rulebook, in the game: Quick Start, Full&#10;Rules, The Characters, Glossary. The same text as&#10;PlayerRules.html."
               tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF"
               text="Rulebook" />
       <Button id="helpTabQuick"
@@ -641,12 +641,12 @@
       <Button id="duskBasketballCourt"
               onClick="onDuskMoveClick(BasketballCourt)"
               fontSize="13" color="#2D1E1EE6" textColor="#FFCCAA"
-              tooltip="Scramble to the Basketball Court. Risky at night — but survivors salvage 2 resources at Dawn."
+              tooltip="Scramble to the Basketball Court. Risky at night — but&#10;survivors salvage 2 resources at Dawn."
               text="Basketball Court" />
       <Button id="duskBadmintonCourt"
               onClick="onDuskMoveClick(BadmintonCourt)"
               fontSize="13" color="#2D1E1EE6" textColor="#FFCCAA"
-              tooltip="Scramble to the Badminton Court. Risky at night — but survivors salvage 2 resources at Dawn."
+              tooltip="Scramble to the Badminton Court. Risky at night — but&#10;survivors salvage 2 resources at Dawn."
               text="Badminton Court" />
     </HorizontalLayout>
     <!-- Ready-check: Night begins automatically when everyone has clicked. -->
@@ -655,7 +655,7 @@
             fontSize="14" fontStyle="Bold"
             color="#192D23F2" textColor="#AAFFCC"
             preferredHeight="38"
-            tooltip="Click when you're settled for the night. Night begins automatically once every seated player is ready. Click again to un-ready."
+            tooltip="Click when you're settled for the night. Night begins&#10;automatically once every seated player is ready. Click again&#10;to un-ready."
             text="I'm settled — Ready for Night" />
   </VerticalLayout>
 </Panel>
@@ -697,7 +697,7 @@
       <Button id="welcomeSkip"
               onClick="onWelcomeSkip"
               fontSize="16" color="#DCDCDCE6" textColor="#1E1E1E"
-              tooltip="Close the introduction. Every page stays in the Message Log (bottom right)."
+              tooltip="Close the introduction. Every page stays in the Message Log&#10;(bottom right)."
               text="Skip" />
       <Button id="welcomeNext"
               onClick="onWelcomeNext"

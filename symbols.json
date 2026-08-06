@@ -74,7 +74,7 @@
   "ACTIONS_PER_TURN": [
    {
     "file": "lua/global.lua",
-    "line": 137,
+    "line": 168,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -84,7 +84,7 @@
   "ACTION_TOOLTIPS": [
    {
     "file": "lua/ui_actionbar_display.lua",
-    "line": 326,
+    "line": 386,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -94,7 +94,7 @@
   "ACTION_TOOLTIP_DELAY": [
    {
     "file": "lua/ui_actionbar_display.lua",
-    "line": 324,
+    "line": 384,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -134,7 +134,7 @@
   "Audio.playBossLoop": [
    {
     "file": "lua/audio.lua",
-    "line": 207,
+    "line": 251,
     "kind": "function",
     "params": [
      "boss_name"
@@ -146,7 +146,7 @@
   "Audio.playChime": [
    {
     "file": "lua/audio.lua",
-    "line": 255,
+    "line": 299,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -156,7 +156,7 @@
   "Audio.playDeath": [
    {
     "file": "lua/audio.lua",
-    "line": 260,
+    "line": 304,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -166,7 +166,7 @@
   "Audio.playGrowl": [
    {
     "file": "lua/audio.lua",
-    "line": 261,
+    "line": 305,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -176,7 +176,7 @@
   "Audio.playMeet": [
    {
     "file": "lua/audio.lua",
-    "line": 259,
+    "line": 303,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -186,7 +186,7 @@
   "Audio.playSFX": [
    {
     "file": "lua/audio.lua",
-    "line": 232,
+    "line": 276,
     "kind": "function",
     "params": [
      "key"
@@ -198,7 +198,7 @@
   "Audio.playTradeChat": [
    {
     "file": "lua/audio.lua",
-    "line": 258,
+    "line": 302,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -208,7 +208,7 @@
   "Audio.playTurnPing": [
    {
     "file": "lua/audio.lua",
-    "line": 256,
+    "line": 300,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -218,7 +218,7 @@
   "Audio.playWalk": [
    {
     "file": "lua/audio.lua",
-    "line": 257,
+    "line": 301,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -228,7 +228,7 @@
   "Audio.startDayAmbience": [
    {
     "file": "lua/audio.lua",
-    "line": 163,
+    "line": 207,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -238,7 +238,7 @@
   "Audio.startNightAmbience": [
    {
     "file": "lua/audio.lua",
-    "line": 173,
+    "line": 217,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -248,7 +248,7 @@
   "Audio.stopAmbience": [
    {
     "file": "lua/audio.lua",
-    "line": 182,
+    "line": 226,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -258,7 +258,7 @@
   "Audio.stopBossLoop": [
    {
     "file": "lua/audio.lua",
-    "line": 217,
+    "line": 261,
     "kind": "function",
     "params": [
      "boss_name"
@@ -270,7 +270,7 @@
   "Audio.threatNameToBossKey": [
    {
     "file": "lua/audio.lua",
-    "line": 194,
+    "line": 238,
     "kind": "function",
     "params": [
      "name"
@@ -282,7 +282,7 @@
   "BENCH_POSITION": [
    {
     "file": "lua/helpers.lua",
-    "line": 320,
+    "line": 383,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -329,10 +329,20 @@
     "doc": "Boss rewards (Design §14.1, improvements.md item 1 / design_batch1.md §2) A phase-boss kill should visibly rescue the week, not just remove a penalty. On top o…"
    }
   ],
+  "BOSS_LOOT_COUNT": [
+   {
+    "file": "lua/combat.lua",
+    "line": 53,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
   "BROADCAST_COLORS": [
    {
     "file": "lua/global.lua",
-    "line": 316,
+    "line": 402,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -342,7 +352,7 @@
   "BROADCAST_STAGE_GAP": [
    {
     "file": "lua/global.lua",
-    "line": 340,
+    "line": 426,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -352,7 +362,7 @@
   "BTN_DARK_PLATE": [
    {
     "file": "lua/helpers.lua",
-    "line": 69,
+    "line": 83,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -362,7 +372,7 @@
   "BTN_ON_DARK": [
    {
     "file": "lua/helpers.lua",
-    "line": 70,
+    "line": 84,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -392,7 +402,7 @@
   "CHARACTER_HOMES": [
    {
     "file": "lua/global.lua",
-    "line": 86,
+    "line": 117,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -422,7 +432,7 @@
   "CHAR_SLOT_INDEX": [
    {
     "file": "lua/helpers.lua",
-    "line": 288,
+    "line": 306,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -432,7 +442,7 @@
   "CHAR_TRAIT_LINES": [
    {
     "file": "lua/ui_actionbar_display.lua",
-    "line": 230,
+    "line": 279,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -442,7 +452,7 @@
   "CLEANSE_COST": [
    {
     "file": "lua/global.lua",
-    "line": 159,
+    "line": 190,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -452,7 +462,7 @@
   "CLEANSE_REDUCTION": [
    {
     "file": "lua/global.lua",
-    "line": 160,
+    "line": 191,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -509,10 +519,40 @@
     "doc": "Spreading the clues across the week. The proposal was \"shuffle one Clue into each third of the Market deck\". TTS has no insert-at-index on a Deck — takeObject …"
    }
   ],
+  "CONFIRM_DEFAULT_LABELS": [
+   {
+    "file": "lua/ui_controls.lua",
+    "line": 83,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "onCancel is optional: when given, \"Cancel\" runs it instead of just aborting (e.g. the Stash confirm, where Cancel means \"take the normal random draw\"). Without…"
+   }
+  ],
+  "CONFIRM_MIRROR_LABEL": [
+   {
+    "file": "lua/ui_controls.lua",
+    "line": 29,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
+  "CONFIRM_MIRROR_PREFIX": [
+   {
+    "file": "lua/ui_controls.lua",
+    "line": 28,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "Answer where you asked. The confirm dialog opens in the MIDDLE of the screen. The buttons that raise it are at the bottom (the action bar) or the top-left (Hos…"
+   }
+  ],
   "COOK_DIALOG_SLOTS": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 101,
+    "line": 111,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -522,7 +562,7 @@
   "CROCKPOT_HOME": [
    {
     "file": "lua/helpers.lua",
-    "line": 514,
+    "line": 577,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -532,7 +572,7 @@
   "CUSTOM_UI_PANELS": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 108,
+    "line": 188,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -592,7 +632,7 @@
   "DIFFICULTY_BLURBS": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 256,
+    "line": 297,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -602,7 +642,7 @@
   "DIFFICULTY_CYCLE": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 255,
+    "line": 296,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -612,7 +652,7 @@
   "DIFFICULTY_PARAMS": [
    {
     "file": "lua/global.lua",
-    "line": 207,
+    "line": 238,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -622,7 +662,7 @@
   "DOOM_RATES": [
    {
     "file": "lua/global.lua",
-    "line": 270,
+    "line": 301,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -632,7 +672,7 @@
   "DOOM_STEP0_X": [
    {
     "file": "lua/setup.lua",
-    "line": 381,
+    "line": 425,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -642,7 +682,7 @@
   "DOOM_STEP30_X": [
    {
     "file": "lua/setup.lua",
-    "line": 382,
+    "line": 426,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -652,7 +692,7 @@
   "DOOM_THRESHOLDS": [
    {
     "file": "lua/global.lua",
-    "line": 144,
+    "line": 175,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -672,7 +712,7 @@
   "DOOM_TRACK_Z": [
    {
     "file": "lua/setup.lua",
-    "line": 383,
+    "line": 427,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -702,7 +742,7 @@
   "ENABLED_ACTIONS": [
    {
     "file": "lua/ui_actionbar_display.lua",
-    "line": 204,
+    "line": 245,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -722,7 +762,7 @@
   "HEART_SUPPLY_MAX": [
    {
     "file": "lua/global.lua",
-    "line": 172,
+    "line": 203,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -782,7 +822,7 @@
   "LAST_NERVE_THRESHOLD": [
    {
     "file": "lua/helpers.lua",
-    "line": 432,
+    "line": 495,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -822,7 +862,7 @@
   "LOCATION_DEFENSE": [
    {
     "file": "lua/global.lua",
-    "line": 129,
+    "line": 160,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -832,7 +872,7 @@
   "LOCATION_ORDER": [
    {
     "file": "lua/global.lua",
-    "line": 105,
+    "line": 136,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -852,7 +892,7 @@
   "LOCATION_YIELDS": [
    {
     "file": "lua/global.lua",
-    "line": 109,
+    "line": 140,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -907,6 +947,26 @@
     "params": null,
     "arity": null,
     "doc": "The Market slot markers used to be big notecards printing this paragraph beside every slot. A notecard is much wider than a card, so the column lay across the …"
+   }
+  ],
+  "MARKET_SLOTS_DAY_ONE": [
+   {
+    "file": "lua/global.lua",
+    "line": 357,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
+  "MARKET_SLOTS_TOTAL": [
+   {
+    "file": "lua/global.lua",
+    "line": 356,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "The Market opens one shelf at a time (§ market pacing). Day 1 shows two cards face up and the other three face down; each Dawn turns one more over until all fi…"
    }
   ],
   "MEASURE_FOOTPRINTS": [
@@ -1082,7 +1142,7 @@
   "RESOURCE_ROW_INDEX": [
    {
     "file": "lua/helpers.lua",
-    "line": 167,
+    "line": 181,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1092,7 +1152,7 @@
   "RESOURCE_TYPES_LIST": [
    {
     "file": "lua/helpers.lua",
-    "line": 136,
+    "line": 150,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1102,7 +1162,7 @@
   "REVIVE_HEALTH_COST": [
    {
     "file": "lua/global.lua",
-    "line": 167,
+    "line": 198,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1122,7 +1182,7 @@
   "SCENARIOS": [
    {
     "file": "lua/setup.lua",
-    "line": 442,
+    "line": 486,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1147,6 +1207,26 @@
     "params": null,
     "arity": null,
     "doc": "Sealed-thing rewards (Design §13.5), delivered by doPry (actions.lua). The Sealed Basement is a placed object, not a card — actions.lua adds SEALED_REWARDS.BAS…"
+   }
+  ],
+  "SEAT_COLORS_ALL": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 379,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "Every colour a player can be sitting in when Step 2 opens: the five character seats (CHARACTER_COLORS) plus the five spare colours. The welcome page tells peop…"
+   }
+  ],
+  "SEAT_OUTLINE": [
+   {
+    "file": "lua/global.lua",
+    "line": 92,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "Seat colour as a UI hex, for the panels that wear the active character's colour — currently the action bar's border (ui_actionbar_display.lua). Brighter and mo…"
    }
   ],
   "SELFTEST": [
@@ -1182,7 +1262,7 @@
   "SITUATIONAL_ACTIONS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 448,
+    "line": 450,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1202,7 +1282,7 @@
   "SOURCE_MAX_HP": [
    {
     "file": "lua/combat.lua",
-    "line": 98,
+    "line": 136,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1212,11 +1292,61 @@
   "SOURCE_SPLIT_HP": [
    {
     "file": "lua/combat.lua",
-    "line": 99,
+    "line": 137,
     "kind": "value",
     "params": null,
     "arity": null,
     "doc": ""
+   }
+  ],
+  "SPAWN_DROP_Y": [
+   {
+    "file": "lua/global.lua",
+    "line": 339,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "Where a RUNTIME spawn is dropped from. The build authors resting heights, because its pieces are locked and never settle; script spawns are unlocked, so the do…"
+   }
+  ],
+  "STANDEE_DOWN_PITCH": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 326,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "A Down character's standee lies on the table; reviving stands it back up. rotX, not rotZ: a standee is a flat plane facing the camera, so tipping it about X tu…"
+   }
+  ],
+  "STANDEE_DOWN_TINT": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 341,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "...and the colour drains out of them. This is the automated version of \"flip the standee to its ghost side\", an instruction the game printed for a long time an…"
+   }
+  ],
+  "STANDEE_JIGGLE_INTERVAL": [
+   {
+    "file": "lua/ui_banner.lua",
+    "line": 459,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
+  "STANDEE_JIGGLE_STEPS": [
+   {
+    "file": "lua/ui_banner.lua",
+    "line": 458,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "A standee shakes when its character does something. Distinct from the bob above on purpose: the bob is a slow lean that means \"it is your turn\", this is a quic…"
    }
   ],
   "STARTING_ARRIVAL": [
@@ -1232,7 +1362,7 @@
   "STARTING_RESERVE_DIST": [
    {
     "file": "lua/setup.lua",
-    "line": 166,
+    "line": 169,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1242,7 +1372,7 @@
   "STARTING_ROW_DIST": [
    {
     "file": "lua/setup.lua",
-    "line": 165,
+    "line": 168,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1279,6 +1409,16 @@
     "params": null,
     "arity": null,
     "doc": "Everything parked under the table is meant to be invisible AND untouchable. Locking and hiding gets the first half only. TTS raycasts the pointer straight thro…"
+   }
+  ],
+  "TABLE_SURFACE_Y": [
+   {
+    "file": "lua/global.lua",
+    "line": 323,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "The table's playing surface, mirroring TABLE_SURFACE_Y in build_save.py (test_build_output.py compares them, the same way DOOM_MARKER_Y is kept honest). Anythi…"
    }
   ],
   "THREAT_STATS": [
@@ -1324,7 +1464,7 @@
   "TOOLTIP_DATA": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 374,
+    "line": 455,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1374,7 +1514,7 @@
   "USE_ITEM_DIALOG_SLOTS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 353,
+    "line": 355,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1404,7 +1544,7 @@
   "WELCOME_PAGES": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 983,
+    "line": 1056,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1456,7 +1596,7 @@
   "_cardSnapshot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 422,
+    "line": 458,
     "kind": "function",
     "params": [
      "obj"
@@ -1478,17 +1618,37 @@
   "_cookDialogIds": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 102,
+    "line": 112,
     "kind": "table",
     "params": null,
     "arity": null,
     "doc": ""
    }
   ],
+  "_cookShortOf": [
+   {
+    "file": "lua/ui_actionbar_handlers.lua",
+    "line": 203,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "Set by the pass above when nothing was cookable, so onActCook can name the resource instead of shrugging."
+   }
+  ],
+  "_craftScanProblem": [
+   {
+    "file": "lua/ui_actionbar_targets.lua",
+    "line": 283,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "Why the last _spawnCraftButtons call produced nothing. Read by onActCraft so a failure names itself instead of being reported as an empty market — the old bare…"
+   }
+  ],
   "_dawnCardRevealed": [
    {
     "file": "lua/day_loop.lua",
-    "line": 449,
+    "line": 485,
     "kind": "function",
     "params": [
      "card",
@@ -1501,7 +1661,7 @@
   "_findCardAtDawnRevealSpot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 438,
+    "line": 474,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1511,7 +1671,7 @@
   "_handleStandeeDrop": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 183,
+    "line": 198,
     "kind": "function",
     "params": [
      "dropColor",
@@ -1525,7 +1685,7 @@
   "_highlightCleanseTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 507,
+    "line": 560,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1535,7 +1695,7 @@
   "_highlightCookTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 502,
+    "line": 555,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1545,7 +1705,7 @@
   "_highlightCraftTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 467,
+    "line": 520,
     "kind": "function",
     "params": [
      "color"
@@ -1557,7 +1717,7 @@
   "_pickScarcityResource": [
    {
     "file": "lua/crafting.lua",
-    "line": 140,
+    "line": 145,
     "kind": "function",
     "params": [
      "color",
@@ -1582,7 +1742,7 @@
   "_showCookDialog": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 114,
+    "line": 145,
     "kind": "function",
     "params": [
      "color"
@@ -1594,7 +1754,7 @@
   "_spawnCraftButtons": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 264,
+    "line": 285,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1604,7 +1764,7 @@
   "_spawnFightButtons": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 329,
+    "line": 382,
     "kind": "function",
     "params": [
      "color"
@@ -1616,7 +1776,7 @@
   "_spawnMoveButtons": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 118,
+    "line": 133,
     "kind": "function",
     "params": [
      "color",
@@ -1629,7 +1789,7 @@
   "_useItemDialogIds": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 354,
+    "line": 356,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1821,7 +1981,7 @@
   "adjacentLocations": [
    {
     "file": "lua/helpers.lua",
-    "line": 484,
+    "line": 547,
     "kind": "function",
     "params": [
      "loc"
@@ -1869,7 +2029,7 @@
   "announceInventory": [
    {
     "file": "lua/actions.lua",
-    "line": 343,
+    "line": 351,
     "kind": "function",
     "params": [
      "color"
@@ -1917,7 +2077,7 @@
   "applyRandomScenario": [
    {
     "file": "lua/setup.lua",
-    "line": 523,
+    "line": 567,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1927,7 +2087,7 @@
   "applyScenario": [
    {
     "file": "lua/setup.lua",
-    "line": 537,
+    "line": 581,
     "kind": "function",
     "params": [
      "scenarioId"
@@ -1952,7 +2112,7 @@
   "applyTooltips": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 405,
+    "line": 486,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2048,7 +2208,7 @@
   "beginDusk": [
    {
     "file": "lua/day_loop.lua",
-    "line": 488,
+    "line": 524,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2058,7 +2218,7 @@
   "beginNight": [
    {
     "file": "lua/day_loop.lua",
-    "line": 634,
+    "line": 674,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2068,7 +2228,7 @@
   "benchUnusedBoards": [
    {
     "file": "lua/helpers.lua",
-    "line": 348,
+    "line": 411,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2078,7 +2238,7 @@
   "benchUnusedCharacters": [
    {
     "file": "lua/helpers.lua",
-    "line": 322,
+    "line": 385,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2100,7 +2260,7 @@
   "bossKeyForName": [
    {
     "file": "lua/combat.lua",
-    "line": 108,
+    "line": 146,
     "kind": "function",
     "params": [
      "name"
@@ -2138,7 +2298,7 @@
   "broadcastEvent": [
    {
     "file": "lua/global.lua",
-    "line": 324,
+    "line": 410,
     "kind": "function",
     "params": [
      "category",
@@ -2205,6 +2365,18 @@
     ],
     "arity": 1,
     "doc": ""
+   }
+  ],
+  "canCleanse": [
+   {
+    "file": "lua/tick_victory.lua",
+    "line": 364,
+    "kind": "function",
+    "params": [
+     "color"
+    ],
+    "arity": 1,
+    "doc": "F.11 — Cleanse Doom action Design §15.3: Spend 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink + 1 Action → Doom -2 Cleanse's preconditions, in the canX(color) -…"
    }
   ],
   "canClearPersistent": [
@@ -2351,6 +2523,18 @@
     "doc": ""
    }
   ],
+  "canTrade": [
+   {
+    "file": "lua/ui_actionbar_handlers.lua",
+    "line": 429,
+    "kind": "function",
+    "params": [
+     "color"
+    ],
+    "arity": 1,
+    "doc": "Trade is a free action once per turn at your own tile, so it is legal with zero actions left — but only when there is somebody to trade with."
+   }
+  ],
   "canUseItem": [
    {
     "file": "lua/items.lua",
@@ -2400,7 +2584,7 @@
   "charHasCompany": [
    {
     "file": "lua/helpers.lua",
-    "line": 544,
+    "line": 607,
     "kind": "function",
     "params": [
      "color"
@@ -2424,7 +2608,7 @@
   "checkBonusVictories": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 442,
+    "line": 476,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2434,7 +2618,7 @@
   "checkDefeat": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 382,
+    "line": 416,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2444,7 +2628,7 @@
   "checkDoomThresholds": [
    {
     "file": "lua/day_loop.lua",
-    "line": 253,
+    "line": 289,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2478,7 +2662,7 @@
   "checkSourcePhase": [
    {
     "file": "lua/combat.lua",
-    "line": 152,
+    "line": 190,
     "kind": "function",
     "params": [
      "hp"
@@ -2490,7 +2674,7 @@
   "checkVictory": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 412,
+    "line": 446,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2522,7 +2706,7 @@
   "clearHighlight": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 421,
+    "line": 503,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2554,7 +2738,7 @@
   "closeWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1023,
+    "line": 1134,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2564,7 +2748,7 @@
   "clueDueForRefill": [
    {
     "file": "lua/clues.lua",
-    "line": 124,
+    "line": 127,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2584,13 +2768,26 @@
   "colorToCharacter": [
    {
     "file": "lua/helpers.lua",
-    "line": 569,
+    "line": 632,
     "kind": "function",
     "params": [
      "color"
     ],
     "arity": 1,
     "doc": "Map player color to character name. Mid-game the roster is authoritative (a loaded old save may predate the colour scheme); otherwise fall back to the characte…"
+   }
+  ],
+  "confirmClickedOnItsOwnButton": [
+   {
+    "file": "lua/ui_controls.lua",
+    "line": 69,
+    "kind": "function",
+    "params": [
+     "player",
+     "id"
+    ],
+    "arity": 2,
+    "doc": "True (and answers Yes) when this click landed on the button that is currently mirroring an open confirm. Every action handler that can raise one calls this fir…"
    }
   ],
   "confirmEndDayEarly": [
@@ -2600,9 +2797,10 @@
     "kind": "function",
     "params": [
      "activeColor",
-     "onConfirm"
+     "onConfirm",
+     "sourceButtonId"
     ],
-    "arity": 2,
+    "arity": 3,
     "doc": "Guard on the host's End Turn button (ui_controls.lua): it pushes the game past whoever is up, and their unspent actions are gone. The list names everyone still…"
    }
   ],
@@ -2614,9 +2812,10 @@
     "params": [
      "reviverName",
      "targetName",
-     "onConfirm"
+     "onConfirm",
+     "sourceButtonId"
     ],
-    "arity": 3,
+    "arity": 4,
     "doc": "Warn when spending the last Telltale Heart"
    }
   ],
@@ -2651,7 +2850,7 @@
   "consumeCarriedItem": [
    {
     "file": "lua/helpers.lua",
-    "line": 472,
+    "line": 535,
     "kind": "function",
     "params": [
      "obj"
@@ -2660,10 +2859,20 @@
     "doc": "Consume a single-use carried item. Best-effort: the rule has already been paid for by the time the card is destroyed, and a dead handle must not un-apply the e…"
    }
   ],
+  "cookShortfallMessage": [
+   {
+    "file": "lua/ui_actionbar_handlers.lua",
+    "line": 205,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": ""
+   }
+  ],
   "cookTelltaleHeart": [
    {
     "file": "lua/crafting.lua",
-    "line": 411,
+    "line": 493,
     "kind": "function",
     "params": [
      "color"
@@ -2675,17 +2884,17 @@
   "countDuskReady": [
    {
     "file": "lua/turns.lua",
-    "line": 298,
+    "line": 306,
     "kind": "function",
     "params": [],
     "arity": 0,
-    "doc": ""
+    "doc": "ready, total, and the NAMES of the characters still to settle. The third return is what the Dusk button needs to explain itself; older callers that want two va…"
    }
   ],
   "countFesteringThreats": [
    {
     "file": "lua/day_loop.lua",
-    "line": 223,
+    "line": 238,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2695,7 +2904,7 @@
   "crockpotAt": [
    {
     "file": "lua/helpers.lua",
-    "line": 516,
+    "line": 579,
     "kind": "function",
     "params": [
      "loc"
@@ -2707,7 +2916,7 @@
   "customUIHidden": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 106,
+    "line": 186,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -2717,7 +2926,7 @@
   "dealMarketDisplay": [
    {
     "file": "lua/setup.lua",
-    "line": 325,
+    "line": 358,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2727,7 +2936,7 @@
   "dealStartingHands": [
    {
     "file": "lua/setup.lua",
-    "line": 190,
+    "line": 199,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2737,7 +2946,7 @@
   "describeDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 297,
+    "line": 383,
     "kind": "function",
     "params": [
      "diff"
@@ -2798,13 +3007,13 @@
   "doCleanse": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 350,
+    "line": 384,
     "kind": "function",
     "params": [
      "color"
     ],
     "arity": 1,
-    "doc": "F.11 — Cleanse Doom action Design §15.3: Spend 1 Wood + 1 Cloth + 1 Battery + 1 Energy Drink + 1 Action → Doom -2"
+    "doc": ""
    }
   ],
   "doClearPersistent": [
@@ -2822,7 +3031,7 @@
   "doCook": [
    {
     "file": "lua/crafting.lua",
-    "line": 244,
+    "line": 320,
     "kind": "function",
     "params": [
      "color",
@@ -2924,7 +3133,7 @@
   "doGather": [
    {
     "file": "lua/actions.lua",
-    "line": 434,
+    "line": 442,
     "kind": "function",
     "params": [
      "color"
@@ -3012,7 +3221,7 @@
   "doRest": [
    {
     "file": "lua/actions.lua",
-    "line": 588,
+    "line": 601,
     "kind": "function",
     "params": [
      "color",
@@ -3102,7 +3311,7 @@
   "doomStepWorld": [
    {
     "file": "lua/setup.lua",
-    "line": 392,
+    "line": 436,
     "kind": "function",
     "params": [
      "step"
@@ -3139,19 +3348,20 @@
   "dropBossLoot": [
    {
     "file": "lua/combat.lua",
-    "line": 54,
+    "line": 83,
     "kind": "function",
     "params": [
-     "bossKey"
+     "bossKey",
+     "colors"
     ],
-    "arity": 1,
-    "doc": "Resource shower + a nod to the Trophy at the fallen boss's tile."
+    "arity": 2,
+    "doc": "Resource shower at the fallen boss's tile — dealt to the fighters. It used to spawn three tokens on the ground beside the standee and say \"3 resources salvaged…"
    }
   ],
   "dumpSetupState": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 390,
+    "line": 439,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3193,7 +3403,7 @@
   "ensurePlayerResources": [
    {
     "file": "lua/helpers.lua",
-    "line": 139,
+    "line": 153,
     "kind": "function",
     "params": [
      "color"
@@ -3237,7 +3447,7 @@
   "finalizeGuidedSetup": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 954,
+    "line": 1014,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3259,7 +3469,7 @@
   "findCarriedItem": [
    {
     "file": "lua/helpers.lua",
-    "line": 454,
+    "line": 517,
     "kind": "function",
     "params": [
      "color",
@@ -3295,7 +3505,7 @@
   "flashSplitLighting": [
    {
     "file": "lua/combat.lua",
-    "line": 163,
+    "line": 201,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3305,7 +3515,7 @@
   "flashVictoryLighting": [
    {
     "file": "lua/combat.lua",
-    "line": 71,
+    "line": 109,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3315,7 +3525,7 @@
   "formatIngredientCost": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 302,
+    "line": 355,
     "kind": "function",
     "params": [
      "cost"
@@ -3327,7 +3537,7 @@
   "gameRoll": [
    {
     "file": "lua/helpers.lua",
-    "line": 585,
+    "line": 648,
     "kind": "function",
     "params": [
      "a",
@@ -3350,7 +3560,7 @@
   "gatherRandomResources": [
    {
     "file": "lua/actions.lua",
-    "line": 369,
+    "line": 377,
     "kind": "function",
     "params": [
      "color",
@@ -3364,7 +3574,7 @@
   "getActivePlayerColors": [
    {
     "file": "lua/helpers.lua",
-    "line": 556,
+    "line": 619,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3386,7 +3596,7 @@
   "getBossPool": [
    {
     "file": "lua/helpers.lua",
-    "line": 88,
+    "line": 102,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3396,7 +3606,7 @@
   "getCharSlotPosition": [
    {
     "file": "lua/helpers.lua",
-    "line": 290,
+    "line": 308,
     "kind": "function",
     "params": [
      "tile",
@@ -3409,7 +3619,7 @@
   "getCharacterStandee": [
    {
     "file": "lua/helpers.lua",
-    "line": 101,
+    "line": 115,
     "kind": "function",
     "params": [
      "name"
@@ -3421,7 +3631,7 @@
   "getDayCounter": [
    {
     "file": "lua/helpers.lua",
-    "line": 84,
+    "line": 98,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3431,7 +3641,7 @@
   "getDifficulty": [
    {
     "file": "lua/global.lua",
-    "line": 225,
+    "line": 256,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3441,7 +3651,7 @@
   "getDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 281,
+    "line": 312,
     "kind": "function",
     "params": [
      "phase"
@@ -3453,7 +3663,7 @@
   "getDoomLimit": [
    {
     "file": "lua/global.lua",
-    "line": 230,
+    "line": 261,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3463,7 +3673,7 @@
   "getDoomMarker": [
    {
     "file": "lua/helpers.lua",
-    "line": 83,
+    "line": 97,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3473,7 +3683,7 @@
   "getDoomRate": [
    {
     "file": "lua/global.lua",
-    "line": 287,
+    "line": 373,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3483,7 +3693,7 @@
   "getHandZone": [
    {
     "file": "lua/helpers.lua",
-    "line": 109,
+    "line": 123,
     "kind": "function",
     "params": [
      "color"
@@ -3495,7 +3705,7 @@
   "getHeartSupply": [
    {
     "file": "lua/helpers.lua",
-    "line": 89,
+    "line": 103,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3537,7 +3747,7 @@
   "getLocationTile": [
    {
     "file": "lua/helpers.lua",
-    "line": 97,
+    "line": 111,
     "kind": "function",
     "params": [
      "name"
@@ -3549,7 +3759,7 @@
   "getMainBoard": [
    {
     "file": "lua/helpers.lua",
-    "line": 82,
+    "line": 96,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3559,7 +3769,7 @@
   "getMarketDeck": [
    {
     "file": "lua/helpers.lua",
-    "line": 85,
+    "line": 99,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3569,7 +3779,7 @@
   "getMarketSlots": [
    {
     "file": "lua/helpers.lua",
-    "line": 113,
+    "line": 127,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3579,7 +3789,7 @@
   "getNextCTA": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 466,
+    "line": 548,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3589,7 +3799,7 @@
   "getNextDoomThreshold": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 267,
+    "line": 290,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3599,7 +3809,7 @@
   "getPhaseDeck": [
    {
     "file": "lua/helpers.lua",
-    "line": 92,
+    "line": 106,
     "kind": "function",
     "params": [
      "phase"
@@ -3611,7 +3821,7 @@
   "getPhaseForDay": [
    {
     "file": "lua/global.lua",
-    "line": 248,
+    "line": 279,
     "kind": "function",
     "params": [
      "day"
@@ -3623,7 +3833,7 @@
   "getPlayerBoard": [
    {
     "file": "lua/helpers.lua",
-    "line": 105,
+    "line": 119,
     "kind": "function",
     "params": [
      "name"
@@ -3635,7 +3845,7 @@
   "getPlayerCarriedObjects": [
    {
     "file": "lua/helpers.lua",
-    "line": 373,
+    "line": 436,
     "kind": "function",
     "params": [
      "color",
@@ -3660,7 +3870,7 @@
   "getResourceBag": [
    {
     "file": "lua/helpers.lua",
-    "line": 122,
+    "line": 136,
     "kind": "function",
     "params": [
      "resType"
@@ -3672,7 +3882,7 @@
   "getSeverityLegend": [
    {
     "file": "lua/helpers.lua",
-    "line": 90,
+    "line": 104,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3682,7 +3892,7 @@
   "getSourceMaxHP": [
    {
     "file": "lua/global.lua",
-    "line": 235,
+    "line": 266,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3692,7 +3902,7 @@
   "getSourceSplitHP": [
    {
     "file": "lua/global.lua",
-    "line": 243,
+    "line": 274,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3702,7 +3912,7 @@
   "getThreatDeck": [
    {
     "file": "lua/helpers.lua",
-    "line": 86,
+    "line": 100,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3712,7 +3922,7 @@
   "getTotalDays": [
    {
     "file": "lua/global.lua",
-    "line": 229,
+    "line": 260,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3732,7 +3942,7 @@
   "getVisitorDeck": [
    {
     "file": "lua/helpers.lua",
-    "line": 87,
+    "line": 101,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3742,7 +3952,7 @@
   "ghostDrift": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 331,
+    "line": 337,
     "kind": "function",
     "params": [
      "color",
@@ -3755,7 +3965,7 @@
   "giveResource": [
    {
     "file": "lua/helpers.lua",
-    "line": 233,
+    "line": 251,
     "kind": "function",
     "params": [
      "color",
@@ -3833,7 +4043,7 @@
   "hasLastNerve": [
    {
     "file": "lua/helpers.lua",
-    "line": 434,
+    "line": 497,
     "kind": "function",
     "params": [
      "color"
@@ -3858,7 +4068,7 @@
   "highlightCTA": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 435,
+    "line": 517,
     "kind": "function",
     "params": [
      "ids"
@@ -3906,7 +4116,7 @@
   "isAdjacent": [
    {
     "file": "lua/helpers.lua",
-    "line": 501,
+    "line": 564,
     "kind": "function",
     "params": [
      "from",
@@ -3919,7 +4129,7 @@
   "isBossOnMap": [
    {
     "file": "lua/day_loop.lua",
-    "line": 216,
+    "line": 231,
     "kind": "function",
     "params": [
      "bossTag"
@@ -3965,13 +4175,25 @@
   "isSportCourt": [
    {
     "file": "lua/helpers.lua",
-    "line": 446,
+    "line": 509,
     "kind": "function",
     "params": [
      "loc"
     ],
     "arity": 1,
     "doc": "Sport court vs. house. The two sport courts are the only non-house tiles, and a dozen rules key off the distinction (threat rates, sleep regen, rain, Coco's No…"
+   }
+  ],
+  "jiggleStandee": [
+   {
+    "file": "lua/ui_banner.lua",
+    "line": 461,
+    "kind": "function",
+    "params": [
+     "charName"
+    ],
+    "arity": 1,
+    "doc": ""
    }
   ],
   "lockdownCriticalObjects": [
@@ -4012,12 +4234,13 @@
   "markBossDefeated": [
    {
     "file": "lua/combat.lua",
-    "line": 231,
+    "line": 269,
     "kind": "function",
     "params": [
-     "threatName"
+     "threatName",
+     "colors"
     ],
-    "arity": 1,
+    "arity": 2,
     "doc": ""
    }
   ],
@@ -4029,6 +4252,52 @@
     "params": [],
     "arity": 0,
     "doc": "Turn-duration bookkeeping (hooked from day_loop.lua)."
+   }
+  ],
+  "marketCardAtSlot": [
+   {
+    "file": "lua/crafting.lua",
+    "line": 158,
+    "kind": "function",
+    "params": [
+     "index"
+    ],
+    "arity": 1,
+    "doc": "The card sitting on Market slot `index` (1..MARKET_SLOTS_TOTAL), or nil. One lookup, three callers (doCraft, the Dawn reveal, the Clue check) — they were three…"
+   }
+  ],
+  "marketOpenSlots": [
+   {
+    "file": "lua/global.lua",
+    "line": 359,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": ""
+   }
+  ],
+  "marketSlotIndex": [
+   {
+    "file": "lua/crafting.lua",
+    "line": 174,
+    "kind": "function",
+    "params": [
+     "slot"
+    ],
+    "arity": 1,
+    "doc": "Which slot this slot object is, or nil. refillMarketSlot is handed the object and needs the index to know whether the replacement goes down face up or face dow…"
+   }
+  ],
+  "marketSlotIsHidden": [
+   {
+    "file": "lua/global.lua",
+    "line": 369,
+    "kind": "function",
+    "params": [
+     "index"
+    ],
+    "arity": 1,
+    "doc": "Is this slot's card face down (dealt, but not yet on offer)? Authoritative in gameState, not in the card's physical rotation — the same rule the resource count…"
    }
   ],
   "maybeJamesReroll": [
@@ -4047,7 +4316,7 @@
   "migrateGameState": [
    {
     "file": "lua/global.lua",
-    "line": 366,
+    "line": 452,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4057,13 +4326,25 @@
   "moveDoomMarker": [
    {
     "file": "lua/setup.lua",
-    "line": 407,
+    "line": 451,
     "kind": "function",
     "params": [
      "targetStep"
     ],
     "arity": 1,
     "doc": ""
+   }
+  ],
+  "nextDuskSeat": [
+   {
+    "file": "lua/turns.lua",
+    "line": 356,
+    "kind": "function",
+    "params": [
+     "after"
+    ],
+    "arity": 1,
+    "doc": "The next character down the turn order who still has to settle: seated, standing, and not yet ready. `after` is the colour to start looking AFTER; nil starts a…"
    }
   ],
   "noteInteraction": [
@@ -4123,6 +4404,29 @@
     "params": [],
     "arity": 0,
     "doc": "Focus on the Doom marker when crossing a threshold"
+   }
+  ],
+  "nudgeSpectatorsToSitDown": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 728,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Tell anyone still in the Grey seat why nothing they click works. TTS refuses every interaction from Grey with its own message: \"Grey (Spectator) cannot interac…"
+   }
+  ],
+  "objDistance": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 690,
+    "kind": "function",
+    "params": [
+     "a",
+     "b"
+    ],
+    "arity": 2,
+    "doc": "Distance between two positions, from their x/y/z instead of through the engine's `Vector:distance()`. Same rule as the two above: don't write an idiom whose be…"
    }
   ],
   "offerAntlerSled": [
@@ -4238,7 +4542,7 @@
   "onActAppease": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 429,
+    "line": 431,
     "kind": "function",
     "params": [
      "player",
@@ -4252,7 +4556,7 @@
   "onActBarricade": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 425,
+    "line": 427,
     "kind": "function",
     "params": [
      "player",
@@ -4266,7 +4570,7 @@
   "onActCleanse": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 235,
+    "line": 302,
     "kind": "function",
     "params": [
      "player",
@@ -4280,7 +4584,7 @@
   "onActClear": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 436,
+    "line": 438,
     "kind": "function",
     "params": [
      "player",
@@ -4294,7 +4598,7 @@
   "onActCook": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 61,
+    "line": 72,
     "kind": "function",
     "params": [
      "player",
@@ -4308,7 +4612,7 @@
   "onActCraft": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 38,
+    "line": 42,
     "kind": "function",
     "params": [
      "player",
@@ -4322,7 +4626,7 @@
   "onActDefend": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 334,
+    "line": 336,
     "kind": "function",
     "params": [
      "player",
@@ -4336,7 +4640,7 @@
   "onActEatUncooked": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 343,
+    "line": 345,
     "kind": "function",
     "params": [
      "player",
@@ -4350,7 +4654,7 @@
   "onActEnergyDrink": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 338,
+    "line": 340,
     "kind": "function",
     "params": [
      "player",
@@ -4364,7 +4668,7 @@
   "onActFight": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 169,
+    "line": 236,
     "kind": "function",
     "params": [
      "player",
@@ -4378,7 +4682,7 @@
   "onActFlee": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 400,
+    "line": 402,
     "kind": "function",
     "params": [
      "player",
@@ -4420,7 +4724,7 @@
   "onActPass": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 251,
+    "line": 320,
     "kind": "function",
     "params": [
      "player",
@@ -4434,7 +4738,7 @@
   "onActPeek": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 383,
+    "line": 512,
     "kind": "function",
     "params": [
      "player",
@@ -4448,7 +4752,7 @@
   "onActPry": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 227,
+    "line": 294,
     "kind": "function",
     "params": [
      "player",
@@ -4462,7 +4766,7 @@
   "onActRally": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 410,
+    "line": 539,
     "kind": "function",
     "params": [
      "player",
@@ -4476,7 +4780,7 @@
   "onActRest": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 197,
+    "line": 264,
     "kind": "function",
     "params": [
      "player",
@@ -4504,7 +4808,7 @@
   "onActSignature": [
    {
     "file": "lua/signatures.lua",
-    "line": 288,
+    "line": 290,
     "kind": "function",
     "params": [
      "player",
@@ -4518,7 +4822,7 @@
   "onActStabilize": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 262,
+    "line": 263,
     "kind": "function",
     "params": [
      "player",
@@ -4532,7 +4836,7 @@
   "onActTrade": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 325,
+    "line": 441,
     "kind": "function",
     "params": [
      "player",
@@ -4546,7 +4850,7 @@
   "onActUndo": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 455,
+    "line": 584,
     "kind": "function",
     "params": [
      "player",
@@ -4560,7 +4864,7 @@
   "onActUseItem": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 356,
+    "line": 358,
     "kind": "function",
     "params": [
      "player",
@@ -4574,7 +4878,7 @@
   "onActionTooltipEnter": [
    {
     "file": "lua/ui_actionbar_display.lua",
-    "line": 345,
+    "line": 405,
     "kind": "function",
     "params": [
      "player",
@@ -4588,7 +4892,7 @@
   "onActionTooltipExit": [
    {
     "file": "lua/ui_actionbar_display.lua",
-    "line": 358,
+    "line": 418,
     "kind": "function",
     "params": [
      "player",
@@ -4602,7 +4906,7 @@
   "onBriefBack": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 732,
+    "line": 771,
     "kind": "function",
     "params": [
      "player",
@@ -4616,7 +4920,7 @@
   "onBriefDismiss": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 753,
+    "line": 792,
     "kind": "function",
     "params": [
      "player",
@@ -4630,7 +4934,7 @@
   "onConfirmNo": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 37,
+    "line": 116,
     "kind": "function",
     "params": [
      "player",
@@ -4644,7 +4948,7 @@
   "onConfirmYes": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 27,
+    "line": 105,
     "kind": "function",
     "params": [
      "player",
@@ -4658,7 +4962,7 @@
   "onCookCancel": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 163,
+    "line": 230,
     "kind": "function",
     "params": [
      "player"
@@ -4670,7 +4974,7 @@
   "onCookOptionClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 154,
+    "line": 221,
     "kind": "function",
     "params": [
      "player",
@@ -4698,7 +5002,7 @@
   "onCraftTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 425,
+    "line": 478,
     "kind": "function",
     "params": [
      "obj",
@@ -4712,7 +5016,7 @@
   "onDawnStepClick": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 374,
+    "line": 403,
     "kind": "function",
     "params": [
      "player",
@@ -4726,7 +5030,7 @@
   "onDownedCancel": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 302,
+    "line": 304,
     "kind": "function",
     "params": [
      "player",
@@ -4740,7 +5044,7 @@
   "onDownedTargetClick": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 274,
+    "line": 275,
     "kind": "function",
     "params": [
      "player",
@@ -4754,7 +5058,7 @@
   "onDuskMoveClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 473,
+    "line": 623,
     "kind": "function",
     "params": [
      "player",
@@ -4768,7 +5072,7 @@
   "onDuskReadyClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 468,
+    "line": 610,
     "kind": "function",
     "params": [
      "player",
@@ -4776,13 +5080,13 @@
      "id"
     ],
     "arity": 3,
-    "doc": "Dusk scramble panel handler (Design §11.3). Any seated player may scramble their own character once during Dusk; rules are enforced in doDuskMove (actions.lua)."
+    "doc": "Dusk scramble panel handler (Design §11.3). Any seated player may scramble their own character once during Dusk; rules are enforced in doDuskMove (actions.lua)…"
    }
   ],
   "onFightTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 459,
+    "line": 512,
     "kind": "function",
     "params": [
      "obj",
@@ -4796,7 +5100,7 @@
   "onFightTogetherClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 463,
+    "line": 516,
     "kind": "function",
     "params": [
      "obj",
@@ -4810,7 +5114,7 @@
   "onFinishCombat": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 314,
+    "line": 383,
     "kind": "function",
     "params": [
      "player",
@@ -4894,7 +5198,7 @@
   "onHostBeginDay": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 201,
+    "line": 281,
     "kind": "function",
     "params": [
      "player",
@@ -4908,7 +5212,7 @@
   "onHostEndTurn": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 231,
+    "line": 311,
     "kind": "function",
     "params": [
      "player",
@@ -4922,7 +5226,7 @@
   "onHostResolveNight": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 218,
+    "line": 298,
     "kind": "function",
     "params": [
      "player",
@@ -4936,7 +5240,7 @@
   "onHostRestart": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 248,
+    "line": 329,
     "kind": "function",
     "params": [
      "player",
@@ -4950,7 +5254,7 @@
   "onHostSetupGuided": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1087,
+    "line": 1198,
     "kind": "function",
     "params": [
      "player",
@@ -4964,7 +5268,7 @@
   "onLoad": [
    {
     "file": "lua/global.lua",
-    "line": 436,
+    "line": 523,
     "kind": "function",
     "params": [
      "savedState"
@@ -4976,7 +5280,7 @@
   "onMoveTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 360,
+    "line": 413,
     "kind": "function",
     "params": [
      "obj",
@@ -4990,7 +5294,7 @@
   "onMsgLogClear": [
    {
     "file": "lua/ui_msglog.lua",
-    "line": 65,
+    "line": 70,
     "kind": "function",
     "params": [
      "player",
@@ -5004,7 +5308,7 @@
   "onMsgLogHide": [
    {
     "file": "lua/ui_msglog.lua",
-    "line": 70,
+    "line": 75,
     "kind": "function",
     "params": [
      "player",
@@ -5018,7 +5322,7 @@
   "onMsgLogToggle": [
    {
     "file": "lua/ui_msglog.lua",
-    "line": 55,
+    "line": 60,
     "kind": "function",
     "params": [
      "player",
@@ -5032,7 +5336,7 @@
   "onObjectDrop": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 173,
+    "line": 188,
     "kind": "function",
     "params": [
      "dropColor",
@@ -5045,7 +5349,7 @@
   "onPeekCancel": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 400,
+    "line": 529,
     "kind": "function",
     "params": [
      "player",
@@ -5059,7 +5363,7 @@
   "onPeekDeckClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 394,
+    "line": 523,
     "kind": "function",
     "params": [
      "player",
@@ -5087,7 +5391,7 @@
   "onPickChar": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 585,
+    "line": 651,
     "kind": "function",
     "params": [
      "player",
@@ -5101,7 +5405,7 @@
   "onPickPath": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 156,
+    "line": 197,
     "kind": "function",
     "params": [
      "player",
@@ -5129,7 +5433,7 @@
   "onPressAttack": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 293,
+    "line": 362,
     "kind": "function",
     "params": [
      "player",
@@ -5143,7 +5447,7 @@
   "onRallyCancel": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 445,
+    "line": 574,
     "kind": "function",
     "params": [
      "player",
@@ -5157,7 +5461,7 @@
   "onRallyTargetClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 435,
+    "line": 564,
     "kind": "function",
     "params": [
      "player",
@@ -5185,7 +5489,7 @@
   "onResourcePickCancel": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 88,
+    "line": 168,
     "kind": "function",
     "params": [
      "player",
@@ -5199,7 +5503,7 @@
   "onResourcePickClick": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 73,
+    "line": 153,
     "kind": "function",
     "params": [
      "player",
@@ -5213,7 +5517,7 @@
   "onRestHunger": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 205,
+    "line": 272,
     "kind": "function",
     "params": [
      "player",
@@ -5227,7 +5531,7 @@
   "onRestSanity": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 216,
+    "line": 283,
     "kind": "function",
     "params": [
      "player",
@@ -5241,7 +5545,7 @@
   "onRulesToggle": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 327,
+    "line": 356,
     "kind": "function",
     "params": [
      "player",
@@ -5255,7 +5559,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 501,
+    "line": 590,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5265,7 +5569,7 @@
   "onSignatureCancel": [
    {
     "file": "lua/signatures.lua",
-    "line": 279,
+    "line": 281,
     "kind": "function",
     "params": [
      "player",
@@ -5279,7 +5583,7 @@
   "onSignatureTargetClick": [
    {
     "file": "lua/signatures.lua",
-    "line": 264,
+    "line": 265,
     "kind": "function",
     "params": [
      "player",
@@ -5293,7 +5597,7 @@
   "onSummaryClose": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 366,
+    "line": 447,
     "kind": "function",
     "params": [
      "player",
@@ -5307,7 +5611,7 @@
   "onToggleCustomUI": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 115,
+    "line": 195,
     "kind": "function",
     "params": [
      "player",
@@ -5321,7 +5625,7 @@
   "onToggleDifficulty": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 263,
+    "line": 304,
     "kind": "function",
     "params": [
      "player",
@@ -5335,7 +5639,7 @@
   "onToggleDuskSecret": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 209,
+    "line": 250,
     "kind": "function",
     "params": [
      "player",
@@ -5349,7 +5653,7 @@
   "onToggleRotation": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 188,
+    "line": 229,
     "kind": "function",
     "params": [
      "player",
@@ -5363,7 +5667,7 @@
   "onToggleScenario": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 196,
+    "line": 237,
     "kind": "function",
     "params": [
      "player",
@@ -5377,7 +5681,7 @@
   "onToggleSolo": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 221,
+    "line": 262,
     "kind": "function",
     "params": [
      "player",
@@ -5391,7 +5695,7 @@
   "onTradeCancel": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 373,
+    "line": 502,
     "kind": "function",
     "params": [
      "player",
@@ -5405,7 +5709,7 @@
   "onTradeTargetClick": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 363,
+    "line": 492,
     "kind": "function",
     "params": [
      "player",
@@ -5419,7 +5723,7 @@
   "onUseItemCancel": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 394,
+    "line": 396,
     "kind": "function",
     "params": [
      "player",
@@ -5433,7 +5737,7 @@
   "onUseItemOptionClick": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 384,
+    "line": 386,
     "kind": "function",
     "params": [
      "player",
@@ -5447,7 +5751,7 @@
   "onVariantsContinue": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 276,
+    "line": 317,
     "kind": "function",
     "params": [
      "player",
@@ -5475,7 +5779,7 @@
   "onWelcomeBack": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1039,
+    "line": 1150,
     "kind": "function",
     "params": [
      "player",
@@ -5489,7 +5793,7 @@
   "onWelcomeNext": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1028,
+    "line": 1139,
     "kind": "function",
     "params": [
      "player",
@@ -5503,7 +5807,7 @@
   "onWelcomeSkip": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1045,
+    "line": 1156,
     "kind": "function",
     "params": [
      "player",
@@ -5545,7 +5849,7 @@
   "paginateHelpText": [
    {
     "file": "lua/ui_help_pages.lua",
-    "line": 52,
+    "line": 56,
     "kind": "function",
     "params": [
      "text",
@@ -5566,6 +5870,16 @@
     ],
     "arity": 2,
     "doc": "Burn a light's fuel for tonight. Quiet when the player can't pay — the caller reports it as part of \"why are you in the dark\", and a shortfall broadcast per ch…"
+   }
+  ],
+  "pendingConfirmButton": [
+   {
+    "file": "lua/ui_controls.lua",
+    "line": 30,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": ""
    }
   ],
   "persistentBlocksBarricade": [
@@ -5717,7 +6031,7 @@
   "placeCharacterAtTile": [
    {
     "file": "lua/helpers.lua",
-    "line": 298,
+    "line": 361,
     "kind": "function",
     "params": [
      "charName",
@@ -5730,7 +6044,7 @@
   "playerHasBackpack": [
    {
     "file": "lua/actions.lua",
-    "line": 357,
+    "line": 365,
     "kind": "function",
     "params": [
      "color"
@@ -5773,6 +6087,18 @@
     "doc": ""
    }
   ],
+  "popFirst": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 708,
+    "kind": "function",
+    "params": [
+     "list"
+    ],
+    "arity": 1,
+    "doc": "Take the first element of a list. `table.remove(t, 1)` throws in MoonSharp when `t` is EMPTY (\"bad argument #1 to 'remove' (position out of bounds)\"); real Lua…"
+   }
+  ],
   "populateNotebook": [
    {
     "file": "lua/ui_help.lua",
@@ -5799,7 +6125,7 @@
   "pulseHandZone": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 503,
+    "line": 585,
     "kind": "function",
     "params": [
      "color"
@@ -5853,7 +6179,7 @@
   "recipeIngredientCost": [
    {
     "file": "lua/crafting.lua",
-    "line": 228,
+    "line": 304,
     "kind": "function",
     "params": [
      "color",
@@ -5866,7 +6192,7 @@
   "recommendNext": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 280,
+    "line": 303,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5995,7 +6321,7 @@
   "refillMarketSlot": [
    {
     "file": "lua/crafting.lua",
-    "line": 150,
+    "line": 211,
     "kind": "function",
     "params": [
      "slot"
@@ -6039,7 +6365,7 @@
   "refreshActionButtonStates": [
    {
     "file": "lua/ui_actionbar_display.lua",
-    "line": 98,
+    "line": 115,
     "kind": "function",
     "params": [
      "color"
@@ -6051,7 +6377,7 @@
   "refreshCharRoster": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 193,
+    "line": 216,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6061,7 +6387,7 @@
   "refreshCombatPanel": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
-    "line": 279,
+    "line": 348,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6071,7 +6397,7 @@
   "refreshCycleStrip": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 396,
+    "line": 425,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6081,7 +6407,7 @@
   "refreshDawnChecklist": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 340,
+    "line": 369,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6091,7 +6417,7 @@
   "refreshDuskReadyLabel": [
    {
     "file": "lua/turns.lua",
-    "line": 316,
+    "line": 329,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6101,7 +6427,7 @@
   "refreshDynamicTooltips": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 427,
+    "line": 508,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6123,7 +6449,7 @@
   "refreshHostControls": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 157,
+    "line": 237,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6133,7 +6459,7 @@
   "refreshMsgLog": [
    {
     "file": "lua/ui_msglog.lua",
-    "line": 38,
+    "line": 43,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6173,7 +6499,7 @@
   "refreshRulesPanel": [
    {
     "file": "lua/ui_rules.lua",
-    "line": 277,
+    "line": 306,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6183,7 +6509,7 @@
   "refreshSituationalButtons": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 482,
+    "line": 484,
     "kind": "function",
     "params": [
      "color"
@@ -6195,7 +6521,7 @@
   "refreshStandeeTooltips": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 247,
+    "line": 270,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6205,7 +6531,7 @@
   "refreshStatDisplay": [
    {
     "file": "lua/ui_actionbar_display.lua",
-    "line": 238,
+    "line": 287,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6215,7 +6541,7 @@
   "removeVisualTokens": [
    {
     "file": "lua/helpers.lua",
-    "line": 229,
+    "line": 247,
     "kind": "function",
     "params": [
      "color",
@@ -6264,7 +6590,7 @@
   "resolveEchoes": [
    {
     "file": "lua/actions.lua",
-    "line": 558,
+    "line": 571,
     "kind": "function",
     "params": [
      "color",
@@ -6405,7 +6731,7 @@
   "revealDawnCard": [
    {
     "file": "lua/day_loop.lua",
-    "line": 364,
+    "line": 400,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6415,7 +6741,7 @@
   "revealDuskCommitments": [
    {
     "file": "lua/turns.lua",
-    "line": 240,
+    "line": 245,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6425,7 +6751,7 @@
   "revealFirstDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 351,
+    "line": 387,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6435,17 +6761,27 @@
   "revealLastDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 307,
+    "line": 343,
     "kind": "function",
     "params": [],
     "arity": 0,
     "doc": ""
    }
   ],
+  "revealMarketSlotsForToday": [
+   {
+    "file": "lua/crafting.lua",
+    "line": 187,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Called at Dawn: turn over one more shelf. Idempotent — it reveals whatever today's marketOpenSlots() says should be face up and is not, so a reloaded save or a…"
+   }
+  ],
   "revealScheduledStartingItems": [
    {
     "file": "lua/setup.lua",
-    "line": 288,
+    "line": 321,
     "kind": "function",
     "params": [
      "day"
@@ -6457,7 +6793,7 @@
   "revealTrophy": [
    {
     "file": "lua/combat.lua",
-    "line": 300,
+    "line": 338,
     "kind": "function",
     "params": [
      "key"
@@ -6469,7 +6805,7 @@
   "reviveCharacter": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 266,
+    "line": 270,
     "kind": "function",
     "params": [
      "reviverColor",
@@ -6494,7 +6830,7 @@
   "rulebookText": [
    {
     "file": "lua/ui_help_pages.lua",
-    "line": 101,
+    "line": 105,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6511,10 +6847,22 @@
     "doc": ""
    }
   ],
+  "safeGuid": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 55,
+    "kind": "function",
+    "params": [
+     "obj"
+    ],
+    "arity": 1,
+    "doc": "A handle's GUID, or nil if it cannot be read. Exists because a nil GUID is worse than a dead handle: `someTable[obj.getGUID()] = v` throws \"table index is nil\"…"
+   }
+  ],
   "safeHasTag": [
    {
     "file": "lua/helpers.lua",
-    "line": 48,
+    "line": 62,
     "kind": "function",
     "params": [
      "obj",
@@ -6539,7 +6887,7 @@
   "safecall": [
    {
     "file": "lua/helpers.lua",
-    "line": 591,
+    "line": 748,
     "kind": "function",
     "params": [
      "fn",
@@ -6559,10 +6907,22 @@
     "doc": ""
    }
   ],
+  "seatWord": [
+   {
+    "file": "lua/global.lua",
+    "line": 110,
+    "kind": "function",
+    "params": [
+     "color"
+    ],
+    "arity": 1,
+    "doc": "The seat-colour WORD, painted in that seat's colour, for the UI Text elements that say \"(Green seat)\". The word and the swatch were two separate things to lear…"
+   }
+  ],
   "setActionCubes": [
    {
     "file": "lua/ui_actionbar_display.lua",
-    "line": 84,
+    "line": 101,
     "kind": "function",
     "params": [
      "remaining"
@@ -6574,7 +6934,7 @@
   "setActionEnabled": [
    {
     "file": "lua/ui_actionbar_display.lua",
-    "line": 206,
+    "line": 247,
     "kind": "function",
     "params": [
      "buttonId",
@@ -6600,7 +6960,7 @@
   "setButtonLabel": [
    {
     "file": "lua/helpers.lua",
-    "line": 72,
+    "line": 86,
     "kind": "function",
     "params": [
      "id",
@@ -6610,6 +6970,18 @@
     ],
     "arity": 4,
     "doc": ""
+   }
+  ],
+  "setDuskSeat": [
+   {
+    "file": "lua/turns.lua",
+    "line": 394,
+    "kind": "function",
+    "params": [
+     "color"
+    ],
+    "arity": 1,
+    "doc": "Hand Dusk's seat to `color` (nil once everyone has settled). Dusk has no turn order of its own — the design is that everyone scrambles and settles at once — an…"
    }
   ],
   "setNightOmen": [
@@ -6636,6 +7008,19 @@
     "doc": "Transition lighting to match the current sub-phase. NOTE: the runtime Lighting API uses snake_case properties + setters + apply() — the PascalCase names (Light…"
    }
   ],
+  "setStandeePosture": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 343,
+    "kind": "function",
+    "params": [
+     "charName",
+     "isDown"
+    ],
+    "arity": 2,
+    "doc": ""
+   }
+  ],
   "showAchievementToast": [
    {
     "file": "lua/ui_achievements.lua",
@@ -6651,7 +7036,7 @@
   "showCharBriefing": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 704,
+    "line": 743,
     "kind": "function",
     "params": [
      "color",
@@ -6664,7 +7049,7 @@
   "showCharPickForNextPlayer": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 412,
+    "line": 461,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6674,22 +7059,24 @@
   "showConfirm": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 14,
+    "line": 85,
     "kind": "function",
     "params": [
      "title",
      "body",
      "onConfirm",
-     "onCancel"
+     "onCancel",
+     "sourceButtonId",
+     "labels"
     ],
-    "arity": 4,
-    "doc": "onCancel is optional: when given, \"Cancel\" runs it instead of just aborting (e.g. the Stash confirm, where Cancel means \"take the normal random draw\"). Without…"
+    "arity": 6,
+    "doc": ""
    }
   ],
   "showEndOfDaySummary": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 300,
+    "line": 381,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6713,7 +7100,7 @@
   "showResourcePicker": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 57,
+    "line": 137,
     "kind": "function",
     "params": [
      "color",
@@ -6727,7 +7114,7 @@
   "showSignatureTargetDialog": [
    {
     "file": "lua/signatures.lua",
-    "line": 243,
+    "line": 244,
     "kind": "function",
     "params": [
      "color"
@@ -6765,7 +7152,7 @@
   "showWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1049,
+    "line": 1160,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6800,11 +7187,23 @@
   "sourceSplitIntoBeaks": [
    {
     "file": "lua/combat.lua",
-    "line": 176,
+    "line": 214,
     "kind": "function",
     "params": [],
     "arity": 0,
     "doc": ""
+   }
+  ],
+  "spawnDropY": [
+   {
+    "file": "lua/global.lua",
+    "line": 344,
+    "kind": "function",
+    "params": [
+     "baseY"
+    ],
+    "arity": 1,
+    "doc": "Drop height for a piece spawned relative to another object (a player board, a location tile). Takes whichever is higher: clear air above the table, or clear ai…"
    }
   ],
   "spawnPosterizeTargets": [
@@ -6822,7 +7221,7 @@
   "spawnResourceAtTile": [
    {
     "file": "lua/helpers.lua",
-    "line": 243,
+    "line": 261,
     "kind": "function",
     "params": [
      "locName",
@@ -6849,7 +7248,7 @@
   "sportCourtSurcharge": [
    {
     "file": "lua/helpers.lua",
-    "line": 537,
+    "line": 600,
     "kind": "function",
     "params": [
      "from",
@@ -6862,7 +7261,7 @@
   "stageBroadcasts": [
    {
     "file": "lua/global.lua",
-    "line": 342,
+    "line": 428,
     "kind": "function",
     "params": [
      "msgs",
@@ -6897,7 +7296,7 @@
   "startStandeeBob": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 369,
+    "line": 425,
     "kind": "function",
     "params": [
      "charName"
@@ -6919,7 +7318,7 @@
   "stopStandeeBob": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 395,
+    "line": 477,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6929,7 +7328,7 @@
   "stringToColorTint": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 355,
+    "line": 411,
     "kind": "function",
     "params": [
      "color"
@@ -6978,7 +7377,7 @@
   "syncBossHP": [
    {
     "file": "lua/combat.lua",
-    "line": 128,
+    "line": 166,
     "kind": "function",
     "params": [
      "threatName",
@@ -6991,7 +7390,7 @@
   "syncSourceHP": [
    {
     "file": "lua/combat.lua",
-    "line": 118,
+    "line": 156,
     "kind": "function",
     "params": [
      "threatName",
@@ -7004,7 +7403,7 @@
   "syncThreatHP": [
    {
     "file": "lua/combat.lua",
-    "line": 144,
+    "line": 182,
     "kind": "function",
     "params": [
      "threat",
@@ -7014,10 +7413,20 @@
     "doc": "Threat-card damage that survives between Fight actions (and saves): a 4 HP Shadow Stalker chipped for 2 today is a 2 HP fight tomorrow. Keyed by card GUID; cle…"
    }
   ],
+  "syncTtsTurnColor": [
+   {
+    "file": "lua/ui_banner.lua",
+    "line": 358,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Point TTS's own turn system at whoever THIS game says is up. The hotseat fix. In hotseat one person drives every seat, and the seat their clicks carry is TTS's…"
+   }
+  ],
   "tableOrientationMessages": [
    {
     "file": "lua/setup.lua",
-    "line": 363,
+    "line": 407,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7027,7 +7436,7 @@
   "takeClueFromMarketDeck": [
    {
     "file": "lua/clues.lua",
-    "line": 156,
+    "line": 159,
     "kind": "function",
     "params": [
      "color",
@@ -7040,7 +7449,7 @@
   "takeResourceFromPlayer": [
    {
     "file": "lua/helpers.lua",
-    "line": 270,
+    "line": 288,
     "kind": "function",
     "params": [
      "color",
@@ -7115,7 +7524,7 @@
   "toggleDuskReady": [
    {
     "file": "lua/turns.lua",
-    "line": 329,
+    "line": 404,
     "kind": "function",
     "params": [
      "color"
@@ -7134,6 +7543,18 @@
     "doc": ""
    }
   ],
+  "tradeOffersFor": [
+   {
+    "file": "lua/ui_actionbar_handlers.lua",
+    "line": 403,
+    "kind": "function",
+    "params": [
+     "color"
+    ],
+    "arity": 1,
+    "doc": "Every trade this character could actually make right now, plus a count of the partners they cannot afford to reach. One function, two callers, deliberately: th…"
+   }
+  ],
   "treeguardDefeated": [
    {
     "file": "lua/treeguard.lua",
@@ -7142,6 +7563,18 @@
     "params": [],
     "arity": 0,
     "doc": "Called from combat.lua when a threat named \"Treeguard\" hits 0 HP."
+   }
+  ],
+  "trim": [
+   {
+    "file": "lua/helpers.lua",
+    "line": 669,
+    "kind": "function",
+    "params": [
+     "s"
+    ],
+    "arity": 1,
+    "doc": "Trim. `s:match(\"^%s*(.-)%s*$\")` is the standard Lua trim and MoonSharp abandons it with \"pattern too complex\" once the subject passes a couple of hundred chara…"
    }
   ],
   "unlockAchievement": [
@@ -7170,7 +7603,7 @@
   "updateActivePlayerIndicator": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 316,
+    "line": 368,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7243,6 +7676,18 @@
     "params": [],
     "arity": 0,
     "doc": "THE HOOK (§16.5) — one concrete suggestion for the next game, drawn from what actually went wrong this one. Ordered by how badly each failure bit, so the table…"
+   }
+  ],
+  "welcomeBody": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 1112,
+    "kind": "function",
+    "params": [
+     "page"
+    ],
+    "arity": 1,
+    "doc": "Page bodies are templates: {PARTY} is resolved at read time, so the panel and the Message Log copy always agree with whoever is actually sitting down."
    }
   ],
   "witnessTargets": [
@@ -7585,229 +8030,259 @@
   },
   "actAppease": {
    "file": "xml/hud.xml",
-   "line": 398,
+   "line": 382,
    "element": "Button",
    "onClick": "onActAppease"
   },
+  "actBarWho": {
+   "file": "xml/hud.xml",
+   "line": 491,
+   "element": "Text",
+   "onClick": ""
+  },
   "actBarricade": {
    "file": "xml/hud.xml",
-   "line": 392,
+   "line": 376,
    "element": "Button",
    "onClick": "onActBarricade"
   },
   "actCleanse": {
    "file": "xml/hud.xml",
-   "line": 312,
+   "line": 357,
    "element": "Button",
    "onClick": "onActCleanse"
   },
   "actClear": {
    "file": "xml/hud.xml",
-   "line": 404,
+   "line": 388,
    "element": "Button",
    "onClick": "onActClear"
   },
   "actCook": {
    "file": "xml/hud.xml",
-   "line": 297,
+   "line": 342,
    "element": "Button",
    "onClick": "onActCook"
   },
   "actCraft": {
    "file": "xml/hud.xml",
-   "line": 292,
+   "line": 337,
    "element": "Button",
    "onClick": "onActCraft"
   },
   "actDefend": {
    "file": "xml/hud.xml",
-   "line": 362,
+   "line": 370,
    "element": "Button",
    "onClick": "onActDefend"
   },
   "actEatUncooked": {
    "file": "xml/hud.xml",
-   "line": 374,
+   "line": 451,
    "element": "Button",
    "onClick": "onActEatUncooked"
   },
   "actEnergy": {
    "file": "xml/hud.xml",
-   "line": 368,
+   "line": 445,
    "element": "Button",
    "onClick": "onActEnergyDrink"
   },
   "actFight": {
    "file": "xml/hud.xml",
-   "line": 302,
+   "line": 347,
    "element": "Button",
    "onClick": "onActFight"
   },
   "actFlee": {
    "file": "xml/hud.xml",
-   "line": 386,
+   "line": 463,
    "element": "Button",
    "onClick": "onActFlee"
   },
   "actGather": {
    "file": "xml/hud.xml",
-   "line": 287,
+   "line": 329,
    "element": "Button",
    "onClick": "onActGather"
   },
+  "actGroupCostLabel": {
+   "file": "xml/hud.xml",
+   "line": 318,
+   "element": "Text",
+   "onClick": ""
+  },
+  "actGroupCosted": {
+   "file": "xml/hud.xml",
+   "line": 322,
+   "element": "HorizontalLayout",
+   "onClick": ""
+  },
+  "actGroupFree": {
+   "file": "xml/hud.xml",
+   "line": 401,
+   "element": "HorizontalLayout",
+   "onClick": ""
+  },
+  "actGroupFreeLabel": {
+   "file": "xml/hud.xml",
+   "line": 397,
+   "element": "Text",
+   "onClick": ""
+  },
   "actMove": {
    "file": "xml/hud.xml",
-   "line": 282,
+   "line": 324,
    "element": "Button",
    "onClick": "onActMove"
   },
   "actPass": {
    "file": "xml/hud.xml",
-   "line": 415,
+   "line": 474,
    "element": "Button",
    "onClick": "onActPass"
   },
   "actPeek": {
    "file": "xml/hud.xml",
-   "line": 329,
+   "line": 418,
    "element": "Button",
    "onClick": "onActPeek"
   },
   "actPry": {
    "file": "xml/hud.xml",
-   "line": 341,
+   "line": 430,
    "element": "Button",
    "onClick": "onActPry"
   },
   "actRally": {
    "file": "xml/hud.xml",
-   "line": 335,
+   "line": 424,
    "element": "Button",
    "onClick": "onActRally"
   },
   "actRest": {
    "file": "xml/hud.xml",
-   "line": 307,
+   "line": 352,
    "element": "Button",
    "onClick": "onActRest"
   },
   "actRevive": {
    "file": "xml/hud.xml",
-   "line": 350,
+   "line": 439,
    "element": "Button",
    "onClick": "onActRevive"
   },
   "actSignature": {
    "file": "xml/hud.xml",
-   "line": 322,
+   "line": 411,
    "element": "Button",
    "onClick": "onActSignature"
   },
   "actStabilize": {
    "file": "xml/hud.xml",
-   "line": 356,
+   "line": 364,
    "element": "Button",
    "onClick": "onActStabilize"
   },
   "actTrade": {
    "file": "xml/hud.xml",
-   "line": 317,
+   "line": 406,
    "element": "Button",
    "onClick": "onActTrade"
   },
   "actUndo": {
    "file": "xml/hud.xml",
-   "line": 410,
+   "line": 469,
    "element": "Button",
    "onClick": "onActUndo"
   },
   "actUseItem": {
    "file": "xml/hud.xml",
-   "line": 380,
+   "line": 457,
    "element": "Button",
    "onClick": "onActUseItem"
   },
   "actionBar": {
    "file": "xml/hud.xml",
-   "line": 267,
+   "line": 290,
    "element": "Panel",
    "onClick": ""
   },
   "actionTooltip": {
    "file": "xml/hud.xml",
-   "line": 482,
+   "line": 550,
    "element": "Panel",
    "onClick": ""
   },
   "actionTooltipText": {
    "file": "xml/hud.xml",
-   "line": 490,
+   "line": 558,
    "element": "Text",
    "onClick": ""
   },
   "bannerActive": {
    "file": "xml/hud.xml",
-   "line": 53,
+   "line": 64,
    "element": "Text",
    "onClick": ""
   },
   "bannerDay": {
    "file": "xml/hud.xml",
-   "line": 35,
+   "line": 38,
    "element": "Text",
    "onClick": ""
   },
   "bannerDoom": {
    "file": "xml/hud.xml",
-   "line": 47,
+   "line": 70,
    "element": "Text",
    "onClick": ""
   },
   "bannerNext": {
    "file": "xml/hud.xml",
-   "line": 59,
+   "line": 76,
    "element": "Text",
    "onClick": ""
   },
   "bannerOmen": {
    "file": "xml/hud.xml",
-   "line": 71,
+   "line": 88,
    "element": "Text",
    "onClick": ""
   },
   "bannerPhase": {
    "file": "xml/hud.xml",
-   "line": 41,
+   "line": 44,
    "element": "Text",
    "onClick": ""
   },
   "briefBack": {
    "file": "xml/setup.xml",
-   "line": 259,
+   "line": 286,
    "element": "Button",
    "onClick": "onBriefBack"
   },
   "briefBody": {
    "file": "xml/setup.xml",
-   "line": 254,
+   "line": 281,
    "element": "Text",
    "onClick": ""
   },
   "briefDismiss": {
    "file": "xml/setup.xml",
-   "line": 265,
+   "line": 292,
    "element": "Button",
    "onClick": "onBriefDismiss"
   },
   "briefTitle": {
    "file": "xml/setup.xml",
-   "line": 252,
+   "line": 279,
    "element": "Text",
    "onClick": ""
   },
   "btnBeginDay": {
    "file": "xml/hud.xml",
-   "line": 205,
+   "line": 228,
    "element": "Button",
    "onClick": "onHostBeginDay"
   },
@@ -7819,97 +8294,97 @@
   },
   "btnEndTurn": {
    "file": "xml/hud.xml",
-   "line": 215,
+   "line": 238,
    "element": "Button",
    "onClick": "onHostEndTurn"
   },
   "btnResolveNight": {
    "file": "xml/hud.xml",
-   "line": 210,
+   "line": 233,
    "element": "Button",
    "onClick": "onHostResolveNight"
   },
   "btnRestart": {
    "file": "xml/hud.xml",
-   "line": 220,
+   "line": 243,
    "element": "Button",
    "onClick": "onHostRestart"
   },
   "btnSetup": {
    "file": "xml/hud.xml",
-   "line": 200,
+   "line": 223,
    "element": "Button",
    "onClick": "onHostSetupGuided"
   },
   "cardCoco": {
    "file": "xml/setup.xml",
-   "line": 156,
+   "line": 183,
    "element": "Panel",
    "onClick": ""
   },
   "cardEllie": {
    "file": "xml/setup.xml",
-   "line": 196,
+   "line": 223,
    "element": "Panel",
    "onClick": ""
   },
   "cardJames": {
    "file": "xml/setup.xml",
-   "line": 136,
+   "line": 163,
    "element": "Panel",
    "onClick": ""
   },
   "cardLuca": {
    "file": "xml/setup.xml",
-   "line": 216,
+   "line": 243,
    "element": "Panel",
    "onClick": ""
   },
   "cardRayman": {
    "file": "xml/setup.xml",
-   "line": 176,
+   "line": 203,
    "element": "Panel",
    "onClick": ""
   },
   "charBriefing": {
    "file": "xml/setup.xml",
-   "line": 243,
+   "line": 270,
    "element": "Panel",
    "onClick": ""
   },
   "charName_Coco": {
    "file": "xml/setup.xml",
-   "line": 159,
+   "line": 186,
    "element": "Text",
    "onClick": ""
   },
   "charName_Ellie": {
    "file": "xml/setup.xml",
-   "line": 199,
+   "line": 226,
    "element": "Text",
    "onClick": ""
   },
   "charName_James": {
    "file": "xml/setup.xml",
-   "line": 139,
+   "line": 166,
    "element": "Text",
    "onClick": ""
   },
   "charName_Luca": {
    "file": "xml/setup.xml",
-   "line": 219,
+   "line": 246,
    "element": "Text",
    "onClick": ""
   },
   "charName_Rayman": {
    "file": "xml/setup.xml",
-   "line": 179,
+   "line": 206,
    "element": "Text",
    "onClick": ""
   },
   "charRoster": {
    "file": "xml/hud.xml",
-   "line": 574,
+   "line": 648,
    "element": "Panel",
    "onClick": ""
   },
@@ -8035,67 +8510,67 @@
   },
   "cube1": {
    "file": "xml/hud.xml",
-   "line": 426,
+   "line": 494,
    "element": "Text",
    "onClick": ""
   },
   "cube2": {
    "file": "xml/hud.xml",
-   "line": 427,
+   "line": 495,
    "element": "Text",
    "onClick": ""
   },
   "cube3": {
    "file": "xml/hud.xml",
-   "line": 428,
+   "line": 496,
    "element": "Text",
    "onClick": ""
   },
   "cubeLabel": {
    "file": "xml/hud.xml",
-   "line": 429,
+   "line": 497,
    "element": "Text",
    "onClick": ""
   },
   "cycleStrip": {
    "file": "xml/hud.xml",
-   "line": 126,
+   "line": 149,
    "element": "Panel",
    "onClick": ""
   },
   "cycleText": {
    "file": "xml/hud.xml",
-   "line": 133,
+   "line": 156,
    "element": "Text",
    "onClick": ""
   },
   "dawnChecklist": {
    "file": "xml/hud.xml",
-   "line": 144,
+   "line": 167,
    "element": "Panel",
    "onClick": ""
   },
   "dawnStep_1": {
    "file": "xml/hud.xml",
-   "line": 157,
+   "line": 180,
    "element": "Button",
    "onClick": "onDawnStepClick"
   },
   "dawnStep_2": {
    "file": "xml/hud.xml",
-   "line": 160,
+   "line": 183,
    "element": "Button",
    "onClick": "onDawnStepClick"
   },
   "dawnStep_3": {
    "file": "xml/hud.xml",
-   "line": 163,
+   "line": 186,
    "element": "Button",
    "onClick": "onDawnStepClick"
   },
   "dawnStep_4": {
    "file": "xml/hud.xml",
-   "line": 166,
+   "line": 189,
    "element": "Button",
    "onClick": "onDawnStepClick"
   },
@@ -8209,7 +8684,7 @@
   },
   "helpBtn": {
    "file": "xml/hud.xml",
-   "line": 79,
+   "line": 100,
    "element": "Button",
    "onClick": "onHelpClick"
   },
@@ -8293,19 +8768,19 @@
   },
   "hintBtn": {
    "file": "xml/hud.xml",
-   "line": 87,
+   "line": 110,
    "element": "Button",
    "onClick": "onWhatNowClick"
   },
   "hostControls": {
    "file": "xml/hud.xml",
-   "line": 186,
+   "line": 209,
    "element": "Panel",
    "onClick": ""
   },
   "logBtn": {
    "file": "xml/hud.xml",
-   "line": 95,
+   "line": 118,
    "element": "Button",
    "onClick": "onMsgLogToggle"
   },
@@ -8401,7 +8876,7 @@
   },
   "pickCoco": {
    "file": "xml/setup.xml",
-   "line": 170,
+   "line": 197,
    "element": "Button",
    "onClick": "onPickChar"
   },
@@ -8413,13 +8888,13 @@
   },
   "pickEllie": {
    "file": "xml/setup.xml",
-   "line": 210,
+   "line": 237,
    "element": "Button",
    "onClick": "onPickChar"
   },
   "pickJames": {
    "file": "xml/setup.xml",
-   "line": 150,
+   "line": 177,
    "element": "Button",
    "onClick": "onPickChar"
   },
@@ -8431,13 +8906,13 @@
   },
   "pickLuca": {
    "file": "xml/setup.xml",
-   "line": 230,
+   "line": 257,
    "element": "Button",
    "onClick": "onPickChar"
   },
   "pickRayman": {
    "file": "xml/setup.xml",
-   "line": 190,
+   "line": 217,
    "element": "Button",
    "onClick": "onPickChar"
   },
@@ -8509,25 +8984,25 @@
   },
   "reactBtn_1": {
    "file": "xml/hud.xml",
-   "line": 465,
+   "line": 533,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactBtn_2": {
    "file": "xml/hud.xml",
-   "line": 468,
+   "line": 536,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactBtn_3": {
    "file": "xml/hud.xml",
-   "line": 471,
+   "line": 539,
    "element": "Button",
    "onClick": "onReactionClick"
   },
   "reactionsPanel": {
    "file": "xml/hud.xml",
-   "line": 452,
+   "line": 520,
    "element": "Panel",
    "onClick": ""
   },
@@ -8611,259 +9086,259 @@
   },
   "rosterHealthVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 638,
+   "line": 712,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 714,
+   "line": 788,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_James": {
    "file": "xml/hud.xml",
-   "line": 600,
+   "line": 674,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 752,
+   "line": 826,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealthVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 676,
+   "line": 750,
    "element": "Text",
    "onClick": ""
   },
   "rosterHealth_Coco": {
    "file": "xml/hud.xml",
-   "line": 635,
+   "line": 709,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Ellie": {
    "file": "xml/hud.xml",
-   "line": 711,
+   "line": 785,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_James": {
    "file": "xml/hud.xml",
-   "line": 597,
+   "line": 671,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Luca": {
    "file": "xml/hud.xml",
-   "line": 749,
+   "line": 823,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHealth_Rayman": {
    "file": "xml/hud.xml",
-   "line": 673,
+   "line": 747,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHungerVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 648,
+   "line": 722,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 724,
+   "line": 798,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_James": {
    "file": "xml/hud.xml",
-   "line": 610,
+   "line": 684,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 762,
+   "line": 836,
    "element": "Text",
    "onClick": ""
   },
   "rosterHungerVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 686,
+   "line": 760,
    "element": "Text",
    "onClick": ""
   },
   "rosterHunger_Coco": {
    "file": "xml/hud.xml",
-   "line": 645,
+   "line": 719,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Ellie": {
    "file": "xml/hud.xml",
-   "line": 721,
+   "line": 795,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_James": {
    "file": "xml/hud.xml",
-   "line": 607,
+   "line": 681,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Luca": {
    "file": "xml/hud.xml",
-   "line": 759,
+   "line": 833,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterHunger_Rayman": {
    "file": "xml/hud.xml",
-   "line": 683,
+   "line": 757,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterName_Coco": {
    "file": "xml/hud.xml",
-   "line": 629,
+   "line": 703,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Ellie": {
    "file": "xml/hud.xml",
-   "line": 705,
+   "line": 779,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_James": {
    "file": "xml/hud.xml",
-   "line": 591,
+   "line": 665,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Luca": {
    "file": "xml/hud.xml",
-   "line": 743,
+   "line": 817,
    "element": "Text",
    "onClick": ""
   },
   "rosterName_Rayman": {
    "file": "xml/hud.xml",
-   "line": 667,
+   "line": 741,
    "element": "Text",
    "onClick": ""
   },
   "rosterRow_Coco": {
    "file": "xml/hud.xml",
-   "line": 627,
+   "line": 701,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Ellie": {
    "file": "xml/hud.xml",
-   "line": 703,
+   "line": 777,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_James": {
    "file": "xml/hud.xml",
-   "line": 589,
+   "line": 663,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Luca": {
    "file": "xml/hud.xml",
-   "line": 741,
+   "line": 815,
    "element": "Panel",
    "onClick": ""
   },
   "rosterRow_Rayman": {
    "file": "xml/hud.xml",
-   "line": 665,
+   "line": 739,
    "element": "Panel",
    "onClick": ""
   },
   "rosterSanityVal_Coco": {
    "file": "xml/hud.xml",
-   "line": 658,
+   "line": 732,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Ellie": {
    "file": "xml/hud.xml",
-   "line": 734,
+   "line": 808,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_James": {
    "file": "xml/hud.xml",
-   "line": 620,
+   "line": 694,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Luca": {
    "file": "xml/hud.xml",
-   "line": 772,
+   "line": 846,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanityVal_Rayman": {
    "file": "xml/hud.xml",
-   "line": 696,
+   "line": 770,
    "element": "Text",
    "onClick": ""
   },
   "rosterSanity_Coco": {
    "file": "xml/hud.xml",
-   "line": 655,
+   "line": 729,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Ellie": {
    "file": "xml/hud.xml",
-   "line": 731,
+   "line": 805,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_James": {
    "file": "xml/hud.xml",
-   "line": 617,
+   "line": 691,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Luca": {
    "file": "xml/hud.xml",
-   "line": 769,
+   "line": 843,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rosterSanity_Rayman": {
    "file": "xml/hud.xml",
-   "line": 693,
+   "line": 767,
    "element": "ProgressBar",
    "onClick": ""
   },
   "rulesBody": {
    "file": "xml/hud.xml",
-   "line": 256,
+   "line": 279,
    "element": "Text",
    "onClick": ""
   },
   "rulesPanel": {
    "file": "xml/hud.xml",
-   "line": 236,
+   "line": 259,
    "element": "Panel",
    "onClick": ""
   },
   "rulesToggle": {
    "file": "xml/hud.xml",
-   "line": 249,
+   "line": 272,
    "element": "Button",
    "onClick": "onRulesToggle"
   },
@@ -8875,7 +9350,7 @@
   },
   "setupStep2": {
    "file": "xml/setup.xml",
-   "line": 119,
+   "line": 121,
    "element": "Panel",
    "onClick": ""
   },
@@ -8929,79 +9404,145 @@
   },
   "statCharName": {
    "file": "xml/hud.xml",
-   "line": 510,
+   "line": 578,
    "element": "Text",
    "onClick": ""
   },
   "statDisplay": {
    "file": "xml/hud.xml",
-   "line": 500,
+   "line": 568,
    "element": "Panel",
    "onClick": ""
   },
   "statHealthBar": {
    "file": "xml/hud.xml",
-   "line": 518,
+   "line": 592,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statHealthVal": {
    "file": "xml/hud.xml",
-   "line": 521,
+   "line": 595,
    "element": "Text",
    "onClick": ""
   },
   "statHungerBar": {
    "file": "xml/hud.xml",
-   "line": 530,
+   "line": 604,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statHungerVal": {
    "file": "xml/hud.xml",
-   "line": 533,
+   "line": 607,
    "element": "Text",
    "onClick": ""
   },
   "statLocation": {
    "file": "xml/hud.xml",
-   "line": 550,
+   "line": 624,
    "element": "Text",
    "onClick": ""
   },
   "statPerks": {
    "file": "xml/hud.xml",
-   "line": 563,
+   "line": 637,
+   "element": "Text",
+   "onClick": ""
+  },
+  "statPlayerName": {
+   "file": "xml/hud.xml",
+   "line": 584,
    "element": "Text",
    "onClick": ""
   },
   "statResources": {
    "file": "xml/hud.xml",
-   "line": 554,
+   "line": 628,
    "element": "Text",
    "onClick": ""
   },
   "statSanityBar": {
    "file": "xml/hud.xml",
-   "line": 542,
+   "line": 616,
    "element": "ProgressBar",
    "onClick": ""
   },
   "statSanityVal": {
    "file": "xml/hud.xml",
-   "line": 545,
+   "line": 619,
    "element": "Text",
    "onClick": ""
   },
   "step2Subtitle": {
    "file": "xml/setup.xml",
-   "line": 130,
+   "line": 157,
    "element": "Text",
    "onClick": ""
   },
   "step2Title": {
    "file": "xml/setup.xml",
-   "line": 128,
+   "line": 130,
+   "element": "Text",
+   "onClick": ""
+  },
+  "step2You_Blue": {
+   "file": "xml/setup.xml",
+   "line": 150,
+   "element": "Text",
+   "onClick": ""
+  },
+  "step2You_Brown": {
+   "file": "xml/setup.xml",
+   "line": 155,
+   "element": "Text",
+   "onClick": ""
+  },
+  "step2You_Green": {
+   "file": "xml/setup.xml",
+   "line": 149,
+   "element": "Text",
+   "onClick": ""
+  },
+  "step2You_Orange": {
+   "file": "xml/setup.xml",
+   "line": 151,
+   "element": "Text",
+   "onClick": ""
+  },
+  "step2You_Pink": {
+   "file": "xml/setup.xml",
+   "line": 153,
+   "element": "Text",
+   "onClick": ""
+  },
+  "step2You_Purple": {
+   "file": "xml/setup.xml",
+   "line": 152,
+   "element": "Text",
+   "onClick": ""
+  },
+  "step2You_Red": {
+   "file": "xml/setup.xml",
+   "line": 147,
+   "element": "Text",
+   "onClick": ""
+  },
+  "step2You_Teal": {
+   "file": "xml/setup.xml",
+   "line": 154,
+   "element": "Text",
+   "onClick": ""
+  },
+  "step2You_White": {
+   "file": "xml/setup.xml",
+   "line": 146,
+   "element": "Text",
+   "onClick": ""
+  },
+  "step2You_Yellow": {
+   "file": "xml/setup.xml",
+   "line": 148,
    "element": "Text",
    "onClick": ""
   },
@@ -9037,7 +9578,7 @@
   },
   "toggleDuskSecret": {
    "file": "xml/setup.xml",
-   "line": 90,
+   "line": 92,
    "element": "Button",
    "onClick": "onToggleDuskSecret"
   },
@@ -9055,7 +9596,7 @@
   },
   "toggleSolo": {
    "file": "xml/setup.xml",
-   "line": 97,
+   "line": 99,
    "element": "Button",
    "onClick": "onToggleSolo"
   },
@@ -9103,7 +9644,7 @@
   },
   "uiToggle": {
    "file": "xml/hud.xml",
-   "line": 111,
+   "line": 134,
    "element": "Button",
    "onClick": "onToggleCustomUI"
   },
@@ -9175,7 +9716,7 @@
   },
   "variantsContinue": {
    "file": "xml/setup.xml",
-   "line": 104,
+   "line": 106,
    "element": "Button",
    "onClick": "onVariantsContinue"
   },

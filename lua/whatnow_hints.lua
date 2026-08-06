@@ -5,7 +5,7 @@
 WHATNOW_HINTS = {}
 
 WHATNOW_HINTS.PreGame = {
-    default = "Click 'Setup Game' on the table to begin. Hover anything to see what it does. Press '?' for help anytime.",
+    default = "Click 'Setup Game' on the table to begin. Hover anything to see what it does. Press 'Rules' for help anytime.",
 }
 
 WHATNOW_HINTS.Dawn = {

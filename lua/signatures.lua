@@ -232,7 +232,8 @@ function onPosterizeTargetClick(obj, clickerColor, altClick)
             clearSignatureTargets()
             safecall(function() doSignature(color, obj) end, "Signature")
             refreshPhaseBanner()
-        end)
+        end,
+        nil, "actSignature")
 end
 
 -----------------------------------------------------------------------
@@ -273,7 +274,8 @@ function onSignatureTargetClick(player, value, id)
         function()
             safecall(function() doSignature(pa.color, value) end, "Signature")
             refreshPhaseBanner()
-        end)
+        end,
+        nil, "actSignature")
 end
 
 function onSignatureCancel(player, value, id)
@@ -286,6 +288,7 @@ end
 -- Action-bar Signature button (XML: actSignature)
 -----------------------------------------------------------------------
 function onActSignature(player, value, id)
+    if confirmClickedOnItsOwnButton(player, id) then return end
     local color = player.color
     if not validateActivePlayer(color) then return end
     local char = gameState.activeChars[color]
@@ -316,6 +319,7 @@ function onActSignature(player, value, id)
             function()
                 safecall(function() doSignature(color) end, "Signature")
                 refreshPhaseBanner()
-            end)
+            end,
+            nil, "actSignature")
     end
 end
