@@ -17,7 +17,16 @@ python scripts/simulate_balance.py --policy turtle      # single policy
 python scripts/simulate_balance.py --trace --policy balanced --seed 7   # one game, day-by-day log
 python scripts/simulate_balance.py --sweep3             # all ten 3-character teams (composition viability)
 python scripts/simulate_balance.py --no-defence         # control group for location defence (§7.1-7.5)
+python scripts/simulate_balance.py --scenario SC_WINTER # one of the eight Scenario cards (§17.3)
+python scripts/simulate_balance.py --topology Ring      # one of the five path variants
+python scripts/simulate_balance.py --sweep-scenario     # every Scenario / --sweep-topology / --sweep-roster
+python scripts/simulate_balance.py --matrix scenario --policy turtle   # team x Scenario grid
 ```
+
+**Setup draws a Scenario and a path variant at random in every real game**, so
+the defaults (`none` / Star, and every baseline below) are a control group, not
+a table state. The other cells: [balance-scenarios.md](balance-scenarios.md),
+[balance-map-and-rosters.md](balance-map-and-rosters.md).
 
 ## Policies (what each one tests)
 
@@ -29,7 +38,32 @@ python scripts/simulate_balance.py --no-defence         # control group for loca
 | `court_camper` | Balanced + Rayman sleeps at a court for Moonlit Salvage (unless a boss is loose) | Whether the salvage gamble is a temptation or an exploit |
 | `net_camper` | court_camper with **one berth moved**: the salvage camp is the Badminton Court, not the Basketball Court | Whether The Net's +1 defence pays for the tile's threat rate — and the only policy that ever stands on the Badminton Court |
 
-## Baseline results (2026-07 batch 5, 3000 sims, 4 players — diff future runs against this)
+## Current baseline (2026-08 batch 6, 3000 sims, 4 players, Star, no Scenario)
+
+Batch 6 is a **movement-model** batch: no rule changed, four modelling gaps
+closed — real path variants, the one-tile Dusk scramble, map-aware policies,
+and (the one that moves everything) Rayman's Loud read off tracked movement
+instead of a hardcoded `True`. Write-up:
+[balance-map-and-rosters.md](balance-map-and-rosters.md).
+
+| policy | batch 5 | **batch 6** | loss:doom | loss:down | late-loss% |
+|---|---|---|---|---|---|
+| turtle | 40.3% | **97.9%** | 2% | 0% | 100% |
+| spread | 42.0% | **86.6%** | 9% | 0% | 100% |
+| balanced | 16.2% | **18.9%** | 47% | 20% | 99% |
+| court_camper | 13.9% | **24.9%** | 41% | 18% | 99% |
+| net_camper | 8.2% | **20.9%** | 46% | 18% | 99% |
+
+**The 40–50% band is not met, and the batch-5 table that said it was had the
+sim charging a stationary team for Loud every night.** §6.2 levies Loud only on
+a day Rayman moved, and `LOCATION_THREAT_RATE` (night.lua) is 0 at every house,
+so a camp draws nothing at all until Doom 10. Calibrating against the camping
+line now means pricing a new anti-stacking rule, not turning an existing knob —
+the priced knob list below moves the *fighting* lines, which were never the
+ones setting the ceiling. Everything below this line is the batch-5 record,
+kept because the knob prices and the `--rules old` control are still valid.
+
+## Batch-5 results (2026-07, 3000 sims, 4 players — the historic record)
 
 Ruleset: **Source-mandatory victory**, **uncapped boss festering**, **no boss arrival Doom**, retuned per-count Doom rates, batches 1–3 (Press the Attack, boss-kill rewards, Nothing Left to Lose, Signature Moves, Source split, Last Dawn, Sealed Basement, Wrongness), batch 4 (**Source HP 10 → 8**, the 3-player reliefs), batch 5 (**the Last Nerve valve**, **per-location defence**, **4p Phase 4 Doom +2 → +3**). Under `--rules old` the same policies win 72–100% — that control group is frozen and unaffected by anything below.
 
@@ -43,12 +77,16 @@ Earlier tables are in git: batch 3 turtle 34 / spread 27 / balanced 11, batch 4 
 | court_camper | 13.9% | 16.8% | −2.9 | 49% | 19% | 100% |
 | net_camper | 8.2% | 8.6% | −0.4 | 58% | 20% | 100% |
 
-Standard error at 3000 sims is ~0.9 points. Two live calibration facts:
+Standard error at 3000 sims is ~0.9 points. Batch 5 read this table as "the
+band is met" and as "losses land on Days 6-7 ~100% of the time, mostly to
+Doom". The second still holds; the first did not survive the batch-6 Loud fix.
+The Last Nerve valve is worth ~+9 points here (`LAST_NERVE_THRESHOLD = 0`
+reproduces the batch-4 row), a number §20.1 measured and accepted rather than a
+regression anyone missed.
 
-1. **The band is met**: the best lines sit at 40–42%, inside §20.2's 40–50%. They sat at 50–52% before batch 5's Phase-4 knob — the Last Nerve valve is worth ~+9 points (`LAST_NERVE_THRESHOLD = 0` reproduces the batch-4 row: turtle 41.4 / spread 42.1 / balanced 14.1), a number §20.1 measured and accepted at the time rather than a regression anyone missed. The knob answers it; the valve keeps its §25 agency fix.
-2. **Losses still land on Days 6–7 ~100% of the time**, and are now mostly Doom rather than the Source — a clock that runs out on a team still standing, which is the near-miss shape §20.1's gate asks for.
-
-The `--no-defence` column is the control for batch 5's location-defence rule; the probe that reads it apart is [balance-location-defence.md](balance-location-defence.md).
+The `--no-defence` column is the control for batch 5's location-defence rule;
+the probe that reads it apart is
+[balance-location-defence.md](balance-location-defence.md).
 
 ### The ordered knobs, priced (knob 3 taken in batch 5)
 
@@ -70,26 +108,16 @@ Phase **4** alone is knob 3's only usable setting: phase 3+4 crashes to 21.6–2
 
 **Watch Nightmare.** Its Phase 3–4 surcharge stacks on the new rate for a 4-per-day final act, and that flipped which line is best: turtle falls 19.2% → 4.8% and spread to 7.8%, while the boss-fighting lines hold at 10.5–13.1%. The ladder still holds (76% / 42% / 13%, floor 8%), but Nightmare is now the mode where ignoring bosses stops working — an identity nobody designed on purpose.
 
-**3-player sweep after the W2 reliefs** (`--sweep3`): the cliff is gone but over-corrected in the sim — Rayman trios now top the turtle table (99–100%) because Loud is his only modeled cost against his fully-modeled combat value. Floor gate passes (worst trio 48% under its best policy; nothing near 0). Treat the sim's Rayman numbers as a bracket, not a measurement: the real tuning verdict belongs to the W2 table A/B.
+## Composition sweeps
 
-## 3-character composition sweep (2026-07, `--sweep3`)
-
-The policies are **composition-aware** (strike pair, weapon carriers, and night pairing adapt to whoever is on the roster; `FIGHTER_PRIORITY` resolves to Rayman+James on the full roster, so 4p/5p baselines are unaffected). `--sweep3` runs every 3-character team. Re-measured at batch 5, 2000 sims, ±1.1 — location defence changes no team's rank (every delta ≤3 points):
-
-| team | balanced | turtle |
-|---|---|---|
-| Coco+Ellie+Luca | **81%** | **100%** |
-| James+Ellie+Luca | **77%** | 73% |
-| James+Coco+Ellie | 45% | 96% |
-| Coco+Rayman+Ellie | 17% | **100%** |
-| James+Coco+Luca | 13% | 99% |
-| Rayman+Ellie+Luca | 9% | 99% |
-| Coco+Rayman+Luca | 8% | **100%** |
-| James+Rayman+Luca | 2% | 99% |
-| James+Rayman+Ellie | 1% | 48% |
-| James+Coco+Rayman | 0% | **100%** |
-
-Three readings, in confidence order. (1) **At 3 players, turtling dominates, and now overwhelmingly** — eight of ten trios clear 96% under one shared camp while the same teams sit at 0–17% when they split up. That is a bigger gap than batch 4 recorded (75/86% at the top), because the Last Nerve valve pays out most to a team that never leaves a house. A strategy this dominant at one player count is a §20.1 risk in its own right. (2) **The batch-4 Rayman cliff was a policy artifact, not a roster verdict** — every Rayman trio now clears 99% under turtle where batch 4 measured ≤6%, so what collapses is Rayman *splitting up*, not Rayman. His costs (Big Appetite, Loud, tank-takes-all-counters) are fully modeled while his value (Defend, Court Master, Speed, Trophies) is mostly not, so read the `balanced` column as a floor for him. (3) **3p viability is still strongly composition-dependent under `balanced`** (0–81%), and every team above 17% there carries Coco or Luca. The design's "any 3 of 5" claim (§6.6) holds if the trio camps and fails if it spreads; the §20.1 risk is now about the strategy, not the roster.
+`--sweep3` (ten 3-character teams) and `--sweep-roster` (all sixteen 3-, 4- and
+5-character teams) both still run. The batch-5 `--sweep3` table that used to
+live here is superseded — it was measured against the hardcoded Loud, which
+flattered every camping trio. Current numbers, per Scenario and per path
+variant: [balance-scenarios.md](balance-scenarios.md) and
+[balance-map-and-rosters.md](balance-map-and-rosters.md). The reading that did
+survive: Rayman's costs are fully modeled and most of his value is not, so his
+rows are a floor, not a verdict.
 
 ## Model assumptions (documented in the script's docstring)
 
@@ -100,4 +128,12 @@ Three readings, in confidence order. (1) **At 3 players, turtling dominates, and
 
 ## Maintenance rule
 
-The sim mirrors constants from `lua/global.lua` and the design doc by hand (stats, Doom rates, thresholds, yields, boss schedule). **When a gameplay rule changes, update the sim to match and rerun both rulesets.** Keep `--rules old` frozen as the pre-2026-07 snapshot — it is the control group, not a second live ruleset.
+The sim mirrors constants from `lua/global.lua`, `lua/night.lua` and the design
+doc by hand (stats, Doom rates, thresholds, yields, per-tile threat rates, boss
+schedule), plus two setup dials in `scripts/sim_variants.py` (the eight
+`SCENARIOS` flag sets from `lua/setup.lua`, and the path variants from
+`scripts/path_layouts.py`). **When a gameplay rule changes, update the sim to
+match and rerun both rulesets.** `tests/test_sim.py` enforces every one of
+those mirrors, including that no Scenario flag is modeled and then never read.
+Keep `--rules old` frozen as the pre-2026-07 snapshot — it is the control
+group, not a second live ruleset.

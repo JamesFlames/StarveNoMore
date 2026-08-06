@@ -13,6 +13,10 @@ Usage:
   python scripts/simulate_balance.py --players 5 --policy turtle
   python scripts/simulate_balance.py --sweep3            # all ten 3-char teams
   python scripts/simulate_balance.py --no-defence        # location defence off
+  python scripts/simulate_balance.py --sweep-scenario    # all 8 Scenario cards
+  python scripts/simulate_balance.py --sweep-topology    # all 5 path variants
+  python scripts/simulate_balance.py --sweep-roster      # every 3/4/5-char team
+  python scripts/simulate_balance.py --matrix scenario   # team x scenario grid
 
 Rule sets:
   new — current design: deterministic escalating Charlie (2/1 +1 per
@@ -53,6 +57,16 @@ Rule sets:
         drain, Doom = phase rate only, fumble per natural 1, no salvage,
         no bed limit, no Treeguard, Doom 15 slows market (no craft effect).
 
+Setup dials (both drawn at random by startGame, so every real game has one
+of each — see scripts/sim_variants.py for the mirrored data):
+  scenario — one of eight week-long rules twists (--scenario, default
+        "none", which is the control group the historic baselines were
+        measured in and a state no table ever plays).
+  topology — one of five path variants (--topology, default Star). Star is
+        the sim's historic hop model ("1 action to the centre, 2 to anywhere
+        else"), so it keeps the old baselines comparable; the shipped board
+        defaults to Ring and setup draws uniformly from all five.
+
 Model simplifications (documented deliberately — this is a dynamics probe,
 not a rules engine):
   * Resources are a shared team pool (over-models trading; the design's
@@ -71,6 +85,22 @@ import argparse
 import random
 import statistics
 from collections import Counter
+
+from sim_variants import (
+    DEFAULT_TOPOLOGY,
+    SCENARIO_IDS,
+    SCENARIOS,
+    TOPOLOGIES,
+)
+from sim_variants import (
+    distance as map_distance,
+)
+from sim_variants import (
+    hunger_cost as map_hunger,
+)
+from sim_variants import (
+    path as map_path,
+)
 
 # ---------------------------------------------------------------------------
 # Static data (mirrors global.lua / the design doc)
@@ -124,6 +154,20 @@ LOCATION_DEFENSE = {
     "RaymanHouse":     1,
     "EllieLucaHouse":  0,
     "BasketballCourt": -1,
+    "BadmintonCourt":  1,
+}
+
+# Nightly threat draws per tile before any modifier. MIRRORS
+# LOCATION_THREAT_RATE in lua/night.lua (tests/test_sim.py enforces it).
+# Note: content/locations.csv gives the Badminton Court a threat_rate of 2
+# and §15 calls it "the highest threat-card draw rate at night", but the Lua
+# table — the thing the game actually rolls — has both courts at 1. The sim
+# mirrors the Lua, because that is what a player experiences.
+LOCATION_THREAT_RATE = {
+    "JamesHouse":      0,
+    "RaymanHouse":     0,
+    "EllieLucaHouse":  0,
+    "BasketballCourt": 1,
     "BadmintonCourt":  1,
 }
 
@@ -219,10 +263,17 @@ class Threat:
 
 class Game:
     def __init__(self, policy, players, rules, rng, roster=None, difficulty="standard",
-                 location_defence=True):
+                 location_defence=True, scenario="none", topology=DEFAULT_TOPOLOGY):
         self.policy = policy
         self.rules = rules          # "new" | "old"
         self.rng = rng
+        # Setup dials (§17.3 Scenarios, §7 path variants) — both drawn at
+        # random by startGame, so "none"/Star is a control group, not a game.
+        self.scenario = scenario
+        self.flags = SCENARIOS[scenario]["flags"]
+        self.topology = topology
+        self.shortcut = "shortcutPath" in self.flags
+        self.last_craft_day = -99   # Strict Rationing's slowMarket clock
         # Location defence is a NEW-rules mechanic; --no-defence turns it off
         # to reproduce the pre-d886c81 counter-attack for before/after diffs.
         self.location_defence = location_defence and rules == "new"
@@ -238,6 +289,17 @@ class Game:
         self.phase_for_day = d.get("phase_for_day") or PHASE_FOR_DAY
         self.chars = [Char(n) for n in (roster or ROSTERS[players])]
         self.players = players
+        # The Scorching Summer's -2 max Hunger is inline in onApply rather
+        # than a scenarioFlag, so it is keyed off the id (sim_variants.py).
+        if scenario == "SC_SUMMER":
+            for c in self.chars:
+                c.max["hunger"] = max(1, c.max["hunger"] - 2)
+                c.hunger = min(c.hunger, c.max["hunger"])
+        # Total Blackout: onlyFireLight means James's starting Flashlight is
+        # a dead prop (checkPlayerHasLight ignores it), so nobody starts lit.
+        if "onlyFireLight" in self.flags:
+            for c in self.chars:
+                c.flashlight = False
         self.doom = 0
         self.day = 1
         self.pool = Counter()       # shared team resource pool
@@ -285,6 +347,72 @@ class Game:
 
     def at(self, loc):
         return [c for c in self.alive() if c.location == loc]
+
+    # ---------------- map geometry (§11.1 / §11.3) ----------------
+    def dist(self, src, dst):
+        return map_distance(self.topology, self.shortcut, src, dst)
+
+    def walk(self, c, dst, max_tiles=None):
+        """Walk a character toward dst along the shortest path, at most
+        `max_tiles` tiles. Pays 1 Hunger per tile (SC_SHORTCUT's road is
+        free) and returns the tiles actually walked — a Move that runs out
+        of budget stops partway instead of teleporting."""
+        route = map_path(self.topology, self.shortcut, c.location, dst)
+        tiles = len(route) - 1 if max_tiles is None else min(len(route) - 1, max_tiles)
+        if tiles <= 0:
+            return 0
+        route = route[:tiles + 1]
+        c.lose("hunger", map_hunger(self.topology, self.shortcut, route))
+        c.location = route[-1]
+        if c.name == "Rayman":
+            self.rayman_tiles += tiles
+        return tiles
+
+    @staticmethod
+    def move_actions(c, tiles):
+        """Actions a Move of `tiles` costs — Rayman's Speed covers two tiles
+        per action (§6.3), everyone else one."""
+        if tiles <= 0:
+            return 0
+        return (tiles + 1) // 2 if c.name == "Rayman" else tiles
+
+    def commute(self, c, berth, actions):
+        """Bots do not strand themselves. The Dusk scramble is ONE tile
+        (§11.3) whatever the map looks like, so a character whose berth is
+        further than that has to walk the rest of the way during the day —
+        and does it with its last actions, once nothing cheaper is left."""
+        if not berth or actions <= 0:
+            return 0
+        tiles = self.dist(c.location, berth) - 1
+        if tiles <= 0 or self.move_actions(c, tiles) < actions:
+            return 0
+        budget = actions * (2 if c.name == "Rayman" else 1)
+        return self.move_actions(c, self.walk(c, berth, max_tiles=min(tiles, budget)))
+
+    def safe_berth(self, loc, home=None):
+        """Where a character standing at `loc` can actually sleep tonight.
+        The Dusk scramble is one tile, so the choice is this tile or a
+        neighbour: own bed first (regen), then any house (no threat rate,
+        and Coco's No Home penalty only bites outdoors), then stay put."""
+        reach = [dst for dst in YIELDS if self.dist(loc, dst) <= 1]
+        if home and home in reach:
+            return home
+        houses = [dst for dst in reach if dst in HOUSES]
+        if not houses:
+            return loc
+        # Deterministic: the busiest house wins (allies = the paired-sleep
+        # Sanity bonus), ties broken by the fixed HOUSES order.
+        return max(houses, key=lambda h: (len(self.at(h)), -HOUSES.index(h)))
+
+    def gather_yields(self, loc):
+        """The draw table at a tile after Scenario reshaping — mirrors the
+        sFlags block in doGather (lua/actions.lua)."""
+        table = list(YIELDS[loc])
+        if "noBatteries" in self.flags:
+            table = [r for r in table if r != "battery"] or list(YIELDS[loc])
+        if "clothBonus" in self.flags:
+            table.append("cloth")
+        return table
 
     def source_split_hp(self):
         """Mirrors getSourceSplitHP() in lua/global.lua."""
@@ -437,12 +565,28 @@ class Game:
             if fester_doom:
                 self.add_doom(fester_doom)
 
+        # The Rotting Autumn (foodSpoilsAtDawn): 1 Provisions spoils per
+        # occupied tile. Held Provisions are a shared pool here, so "per
+        # location" resolves to one ration per occupied tile (day_loop.lua).
+        if "foodSpoilsAtDawn" in self.flags:
+            for _ in {c.location for c in self.alive()}:
+                self.pool["food"] = max(0, self.pool["food"] - 1)
+
+        # Total Blackout: the one Battery left in the world is Coco's Spare
+        # Phone Battery (content/cards_starting.csv, arrives Day 2) — and the
+        # Telltale Heart revive needs a Battery, so on a Coco-less roster a
+        # Down character stays down all week. Modeled because it decides a
+        # roster question, and only under the flag, so no baseline moves.
+        if "noBatteries" in self.flags and self.day == 2 \
+           and any(c.name == "Coco" for c in self.chars):
+            self.pool["battery"] += 1
+
         # Moonlit Salvage (new rules)
         if self.rules == "new":
             for c in self.alive():
                 if c.location in COURTS:
                     for _ in range(2):
-                        self.pool[self.rng.choice(YIELDS[c.location])] += 1
+                        self.pool[self.rng.choice(self.gather_yields(c.location))] += 1
 
         # Haunted (new rules): personal threat for Sanity < 3
         if self.rules == "new":
@@ -499,7 +643,14 @@ class Game:
             return False
         return all(self.pool[k] >= v for k, v in cost.items())
 
+    def market_open(self):
+        """Strict Rationing (slowMarket): the shelf restocks one card every
+        two days, so a team can take one Market item every other day
+        (refillMarketSlot, lua/crafting.lua). Recipes are unaffected."""
+        return "slowMarket" not in self.flags or self.day - self.last_craft_day >= 2
+
     def craft(self, cost):
+        self.last_craft_day = self.day
         for k, v in cost.items():
             self.pool[k] -= v
         if self.rules == "new" and self.doom >= DOOM_THRESHOLDS["scarcity"]:
@@ -541,6 +692,7 @@ class Game:
     def day_actions(self):
         self.james_drank = False
         stations = self.policy.stations(self)
+        berths = self.policy.berths(self)
         for c in self.alive():
             actions = 3
             # All-Nighter (James's Signature): +3 actions for the endgame
@@ -550,39 +702,35 @@ class Game:
                 self.sig_used.add("James")
                 self.james_crash = True
                 actions += 3
-            # move to day station (1 hop = 1 action + 1 hunger; via center = 2)
+            # Move to the day station along the map's real shortest path
+            # (1 tile = 1 action + 1 Hunger; Rayman's Speed covers two tiles
+            # per action). A Move nobody can afford stops partway rather
+            # than teleporting, which is what makes Linear a different map.
             target = stations.get(c.name, c.location)
-            hops = 0 if target == c.location else (1 if CENTER in (target, c.location) else 2)
-            if c.name == "Rayman" and hops == 2:
-                hops_cost = 1   # Speed: 2 tiles per action (still 2 Hunger)
-                c.lose("hunger", 2)
-                actions -= hops_cost
-                c.location = target
-                self.rayman_tiles += 2
-            elif hops:
-                c.lose("hunger", hops)
-                actions -= hops
-                c.location = target
-                if c.name == "Rayman":
-                    self.rayman_tiles += hops
+            budget = actions * (2 if c.name == "Rayman" else 1)
+            actions -= self.move_actions(c, self.walk(c, target, max_tiles=budget))
             # free: eat uncooked to stay functional (not Ellie)
             while c.name != "Ellie" and c.hunger < 4 and self.pool["food"] > 0:
                 self.pool["food"] -= 1
                 c.gain("hunger", 1)
                 c.lose("sanity", 1)
                 self.check_down(c)
+            # The Scorching Summer (energyDrinkBonus): cold sugar in the heat
+            # is worth +1 Sanity more (doUseEnergyDrink, actions_social.lua).
+            sip = 2 + (1 if "energyDrinkBonus" in self.flags else 0)
             # free: James drinks (The Stash keeps him stocked)
             if c.name == "James" and self.pool["energy"] > 0:
                 self.pool["energy"] -= 1
-                c.gain("sanity", 2)
+                c.gain("sanity", sip)
                 self.james_drank = True
             # free: anyone shaky sips an Energy Drink (leave one for James)
             if c.sanity <= 4 and self.pool["energy"] > 1:
                 self.pool["energy"] -= 1
-                c.gain("sanity", 2)
+                c.gain("sanity", sip)
 
             while actions > 0 and not c.down:
-                actions -= self.policy.act(self, c)
+                spent = self.commute(c, berths.get(c.name), actions)
+                actions -= spent or self.policy.act(self, c)
         self.fire_signatures()
 
     def act_gather(self, c):
@@ -593,33 +741,50 @@ class Game:
         if loc == "JamesHouse" and self.pool["energy"] < 4:
             self.pool["energy"] += 2  # The Stash (§7.1 — any gatherer may)
             return
-        self.pool[self.rng.choice(YIELDS[loc])] += 1
+        # The Scorching Summer (courtGatherBonus): the long light turns up one
+        # more at a sport court. The Long Winter (foodGatherPenalty): the
+        # ground is frozen — a draw that comes up Provisions comes up empty,
+        # and the roll is still made (doGather, actions.lua).
+        draws = 2 if ("courtGatherBonus" in self.flags and loc in COURTS) else 1
+        table = self.gather_yields(loc)
+        for _ in range(draws):
+            got = self.rng.choice(table)
+            if "foodGatherPenalty" in self.flags and got == "food":
+                continue
+            self.pool[got] += 1
         if c.name == "Ellie" and loc == CENTER:
             self.pool["food"] += 1  # Knows the Pantry
 
+    def cook_cost(self, c):
+        """Provisions a cook costs. Crockpot Master halves it; Strict
+        Rationing's cheapRecipes takes one more, never below 1 (_discountOne,
+        lua/crafting.lua) — the two stack the way two discounts should."""
+        cost = 1 if c.name == "Ellie" else 2
+        if "cheapRecipes" in self.flags:
+            cost = max(1, cost - 1)
+        return cost
+
     def act_cook(self, c):
         self.action_counts["Cook"] += 1
-        cost_food = 1 if c.name == "Ellie" else 2  # Crockpot Master
-        self.pool["food"] -= cost_food
+        self.pool["food"] -= self.cook_cost(c)
         self.pool["wood"] -= 1
+        # The Rotting Autumn (recipeBonus): recipes yield +1 Hunger.
+        meal = 1 if "recipeBonus" in self.flags else 0
         for e in self.at(c.location):
             if e.name == "Ellie" and e.hunger == e.max["hunger"]:
                 continue
             bonus = 1 if (c.name == "Ellie" and e is not c) else 0
-            e.gain("hunger", 4 + bonus)
+            e.gain("hunger", 4 + bonus + meal)
             e.gain("sanity", 2 + bonus)
 
     # ---------------- night ----------------
     def dusk_and_night(self):
         berths = self.policy.berths(self)
         for c in self.alive():
-            target = berths.get(c.name, c.location)
-            if target != c.location:
-                # dusk scramble: 1 tile (through-center moves settled during day)
-                c.lose("hunger", 1)
-                c.location = target
-                if c.name == "Rayman":
-                    self.rayman_tiles += 1
+            # Dusk scramble: ONE tile, 1 Hunger (§11.3) — not a teleport.
+            # Anything further had to be walked during the day (Game.commute);
+            # a character who could not get there sleeps where they stand.
+            self.walk(c, berths.get(c.name, c.location), max_tiles=1)
 
         # Where the team actually SLEEPS is the sharpest read on whether a
         # location is doing work (§20.2 item 8): the standing prediction is
@@ -633,7 +798,13 @@ class Game:
         if self.rules == "new" and self.day == 4 and self.treeguard is None:
             self.treeguard = self.rng.choice(COURTS)
 
-        rayman_moved = True  # policies move him almost every day; Loud applies
+        # Loud (§6.2): the noise follows Rayman home if he moved AT ALL today
+        # — any Move, his Speed step, or the Dusk scramble. This used to be
+        # hardcoded True on the grounds that "policies move him almost every
+        # day", which was false for exactly the policy it mattered most to:
+        # a turtle camp never moves after Day 1, and the hardcode charged it
+        # an extra threat card every night for a week.
+        rayman_moved = self.rayman_tiles > 0
         # 3p Loud relief (batch 4 W2, §20.1): at 3 players Loud needs 3+
         # tiles moved, not any move — a short errand stays quiet.
         if self.rules == "new" and self.players == 3:
@@ -641,16 +812,26 @@ class Game:
 
         for loc in set(c.location for c in self.alive()):
             occupants = self.at(loc)
-            rate = 0 if loc in HOUSES else 1
+            rate = LOCATION_THREAT_RATE[loc]
             if self.doom >= DOOM_THRESHOLDS["night"]:
                 rate += 1
             if len(occupants) == 1 and loc in COURTS:
                 rate += 1
             if self.rules == "new" and rayman_moved and any(c.name == "Rayman" for c in occupants):
                 rate += 1
+            # The Shortcut (shortcutThreatBonus): something else uses the hole
+            # in the fence — +1 draw at both ends (threatRateFor, night.lua).
+            if "shortcutThreatBonus" in self.flags and loc in ("JamesHouse", "BadmintonCourt"):
+                rate += 1
             for _ in range(rate):
                 if self.rng.random() < 0.55:
                     self.threats.setdefault(loc, []).append(Threat(self.rng))
+                elif "softToHard" in self.flags:
+                    # The Full Moon: the atmospheric card is a monster now
+                    # (+2 HP, +1 Attack on a 0/0 Soft line — actions_combat).
+                    soft = Threat(self.rng)
+                    soft.name, soft.hp, soft.atk = "MoonlitSoft", 2, 1
+                    self.threats.setdefault(loc, []).append(soft)
                 else:
                     victim = self.rng.choice(occupants)
                     victim.lose("sanity", 1)
@@ -692,6 +873,13 @@ class Game:
             # fires at courts or where threats were drawn — a quiet house
             # is dark but sheltered.
             charlie_here = loc in COURTS or rate > 0
+            # Scenario overrides (night.lua): The Full Moon switches Charlie
+            # off for the week; The False Spring holds him back for three
+            # days and then puts him on EVERY tile (charlieEverywhere).
+            if "noCharlie" in self.flags:
+                charlie_here = False
+            elif "falseSpring" in self.flags:
+                charlie_here = self.day >= 4
             for c in occupants:
                 if c.down or c.name == "Coco":
                     continue
@@ -721,6 +909,10 @@ class Game:
                     floor.update(c.name for c in sleepers[2:])
         for c in self.alive():
             loc = c.location
+            # The Long Winter (housesSanityBonus): a roof is worth +1 Sanity
+            # this week, to anyone who got a bed (resolveSleep, night.lua).
+            if "housesSanityBonus" in self.flags and loc in HOUSES and c.name not in floor:
+                c.gain("sanity", 1)
             if c.name in floor:
                 pass
             elif c.home == loc:
@@ -747,6 +939,10 @@ class Game:
             if c.name == "Rayman" and self.players == 3 and self.rules == "new" \
                and not self.rayman_fought and self.rayman_tiles < 2:
                 hunger_loss = 1
+            # The Long Winter (hungerDecayX2): the cold eats twice as fast
+            # (tick_victory.lua).
+            if "hungerDecayX2" in self.flags:
+                hunger_loss *= 2
             sanity_loss = 1
             if self.doom >= DOOM_THRESHOLDS["tick"]:
                 sanity_loss += 1
@@ -848,18 +1044,24 @@ class Policy:
                     d.sanity = max(1, d.max["sanity"] // 2)
                 return 1
         # cook if at crockpot and stocked
-        cost_food = 1 if c.name == "Ellie" else 2
+        cost_food = g.cook_cost(c)
         hungry = any(e.hunger < e.max["hunger"] - 3 for e in g.at(c.location))
         if c.location == CENTER and g.pool["food"] >= cost_food and g.pool["wood"] >= 1 and hungry:
             g.act_cook(c)
             return 1
-        # craft flashlight for the lightless
-        if not c.flashlight and g.craft_cost_ok(Counter(metal=1, battery=1)):
-            g.craft(Counter(metal=1, battery=1))
+        # Light for the lightless. Total Blackout (noBatteries) makes the
+        # Flashlight unbuildable, so the light craft becomes the Lantern
+        # (2 Metal + 1 Wood, "counts as Fire") — the scenario's own answer to
+        # itself, and a pricier one (buyMarketItem, lua/crafting.lua).
+        light = Counter(metal=2, wood=1) if "noBatteries" in g.flags \
+            else Counter(metal=1, battery=1)
+        if not c.flashlight and g.market_open() and g.craft_cost_ok(light):
+            g.craft(light)
             c.flashlight = True
             return 1
         # weapon for the roster's best fighters
-        if c.name in top_fighters(g) and not c.weapon and g.craft_cost_ok(Counter(metal=2, wood=1)):
+        if c.name in top_fighters(g) and not c.weapon and g.market_open() \
+           and g.craft_cost_ok(Counter(metal=2, wood=1)):
             g.craft(Counter(metal=2, wood=1))
             c.weapon = True
             return 1
@@ -922,7 +1124,13 @@ class Turtle(Policy):
 
 
 class Spread(Policy):
-    """Gather at courts by day, everyone sleeps at their own home."""
+    """Gather within reach of your own bed, then sleep in it.
+
+    The boss-avoidance line. "Within reach" is a map question and not a
+    preference: the Dusk scramble is one tile (§11.3), so a character can
+    only work a tile adjacent to the house they mean to sleep in. On a Star
+    map no court is adjacent to Rayman's house, so he works his own; on the
+    open maps the same policy puts him on a court with the salvage."""
     name = "spread"
 
     def stations(self, g):
@@ -931,7 +1139,8 @@ class Spread(Policy):
             if c.name == "James":
                 s[c.name] = "JamesHouse"     # work The Stash + batteries
             elif c.name == "Rayman":
-                s[c.name] = COURTS[0]
+                courts = [ct for ct in COURTS if g.dist(c.home, ct) <= 1]
+                s[c.name] = courts[0] if courts else c.home
             else:
                 s[c.name] = CENTER
         return s
@@ -983,7 +1192,18 @@ class Balanced(Policy):
         if source_loc:
             return {c.name: source_loc for c in g.alive()}
         # Everyone defaults to their own home; homeless Coco joins the kitchen.
-        b = {c.name: (c.home or CENTER) for c in g.alive()}
+        # A berth further than one tile from where the day's work happens is
+        # not a berth — the Dusk scramble is a single tile (§11.3) — so a
+        # strike pair standing at a boss tile beds down next to the boss
+        # instead of pretending it can walk home. Which tiles those are is
+        # the map's business, so this is where the path variant bites.
+        stations = self.stations(g)
+        b = {}
+        for c in g.alive():
+            home = c.home or CENTER
+            station = stations.get(c.name, c.location)
+            b[c.name] = home if g.dist(station, home) <= 1 \
+                else g.safe_berth(station, home)
         # Rayman never sleeps alone — his Loud noise needs witnesses. Send the
         # spare body: Coco (homeless) > James > Luca (Ellie keeps the kitchen).
         # On the 4p/5p rosters this reproduces the original pairing exactly.
@@ -991,7 +1211,7 @@ class Balanced(Policy):
         if "Rayman" in names:
             for witness in ("Coco", "James", "Luca"):
                 if witness in names:
-                    b[witness] = "RaymanHouse"
+                    b[witness] = b["Rayman"]
                     break
         return b
 
@@ -1047,7 +1267,7 @@ POLICIES = {p.name: p for p in (Turtle(), Spread(), Balanced(), CourtCamper(),
 # ---------------------------------------------------------------------------
 
 def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="standard",
-             location_defence=True):
+             location_defence=True, scenario="none", topology=DEFAULT_TOPOLOGY):
     rng = random.Random(seed)
     wins = 0
     losses = Counter()
@@ -1056,7 +1276,8 @@ def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="s
     actions_total, nights_total, kills_total = Counter(), Counter(), Counter()
     for _ in range(sims):
         g = Game(POLICIES[policy_name], players, rules, random.Random(rng.random()),
-                 roster=roster, difficulty=difficulty, location_defence=location_defence)
+                 roster=roster, difficulty=difficulty, location_defence=location_defence,
+                 scenario=scenario, topology=topology)
         won = g.run()
         wins += won
         if not won:
@@ -1092,6 +1313,81 @@ def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="s
     )
 
 
+def rosters_of(sizes):
+    """Every team of each requested size, biggest first — 16 in total across
+    3/4/5 characters. Player count IS team size, so each row also carries its
+    own Doom rate (DOOM_RATES) and its own 3-player reliefs."""
+    from itertools import combinations
+    out = []
+    for size in sizes:
+        out.extend(list(combo) for combo in combinations(CHARACTERS, size))
+    return out
+
+
+def _roster_report(args, fixed):
+    """--sweep-roster (team x policy) and --matrix (team x scenario/topology).
+
+    Both answer the same §6.6 question — "is any subset of the five a real
+    team?" — but the matrix asks it once per setup draw, which is the only
+    way to see a composition that is fine on the average week and unplayable
+    under one particular Scenario or map."""
+    sizes = [int(s) for s in args.sizes.split(",") if s.strip()]
+    bad = [s for s in sizes if s not in DOOM_RATES]
+    if bad:
+        raise SystemExit(f"--sizes: no Doom rate for team size(s) {bad}; use 3, 4 or 5")
+    teams = rosters_of(sizes)
+    policies = [args.policy] if args.policy else list(POLICIES)
+
+    def best_win(roster, **over):
+        """Best win rate any policy in the set reaches with this team — the
+        team's ceiling, since a real table picks its own strategy."""
+        return max(simulate(p, len(roster), args.rules, args.sims, args.seed,
+                            roster=roster, **{**fixed, **over})["win"]
+                   for p in policies)
+
+    if args.matrix:
+        axis = args.matrix
+        values = SCENARIO_IDS if axis == "scenario" else list(TOPOLOGIES)
+        held = f"topology={fixed['topology']}" if axis == "scenario" \
+            else f"scenario={fixed['scenario']}"
+        how = f"policy={policies[0]}" if len(policies) == 1 \
+            else f"best of {len(policies)} policies"
+        print(f"Starve No More team x {axis} matrix — {args.sims} games/cell, "
+              f"{how}, {held}, mode={args.difficulty}")
+        print("Cell = what this team reaches under that strategy. Design target "
+              "is 40-50% on Standard.\n")
+        headers = [v.replace("SC_", "")[:9] for v in values]
+        print(f"{'team':<26}" + "".join(f"{h:>10}" for h in headers) + f"{'mean':>8}")
+        rows = []
+        for roster in teams:
+            wins = [best_win(roster, **{axis: v}) for v in values]
+            rows.append((roster, wins))
+        rows.sort(key=lambda rw: -statistics.mean(rw[1]))
+        for roster, wins in rows:
+            label = f"{len(roster)}p {'+'.join(n[:4] for n in roster)}"
+            print(f"{label:<26}" + "".join(f"{w*100:>9.0f}%" for w in wins)
+                  + f"{statistics.mean(wins)*100:>7.0f}%")
+        print(f"\ncolumn mean{'':<15}" + "".join(
+            f"{statistics.mean([w[i] for _, w in rows])*100:>9.0f}%"
+            for i in range(len(values))))
+        return
+
+    print(f"Starve No More roster sweep — {args.sims} games/cell, "
+          f"scenario={fixed['scenario']}, topology={fixed['topology']}, "
+          f"mode={args.difficulty}\n")
+    print(f"{'team':<26}" + "".join(f"{p:>14}" for p in policies) + f"{'best':>8}")
+    rows = []
+    for roster in teams:
+        wins = [simulate(p, len(roster), args.rules, args.sims, args.seed,
+                         roster=roster, **fixed)["win"] for p in policies]
+        rows.append((roster, wins))
+    rows.sort(key=lambda rw: -max(rw[1]))
+    for roster, wins in rows:
+        label = f"{len(roster)}p {'+'.join(n[:4] for n in roster)}"
+        print(f"{label:<26}" + "".join(f"{w*100:>13.1f}%" for w in wins)
+              + f"{max(wins)*100:>7.0f}%")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     ap.add_argument("--sims", type=int, default=2000)
@@ -1122,6 +1418,31 @@ def main():
                     help="run every mode and print them together — the check "
                          "that the difficulty ORDERING is monotonic. Per §26, "
                          "trust this ordering and playtest the magnitude.")
+    ap.add_argument("--scenario", default="none", choices=SCENARIO_IDS,
+                    help="which Scenario card is in play (§17.3). Setup draws "
+                         "one of the eight at random, so 'none' is a control "
+                         "group rather than a game anyone plays.")
+    ap.add_argument("--topology", default=DEFAULT_TOPOLOGY, choices=list(TOPOLOGIES),
+                    help="which path variant the map uses. Setup draws one of "
+                         "the five at random; Star is the sim's historic hop "
+                         "model, so it is the default for comparability.")
+    ap.add_argument("--sweep-scenario", action="store_true",
+                    help="every Scenario card x every policy — which twists "
+                         "are the hard ones, and which change the best line.")
+    ap.add_argument("--sweep-topology", action="store_true",
+                    help="every path variant x every policy — what the map's "
+                         "shape is worth.")
+    ap.add_argument("--sweep-roster", action="store_true",
+                    help="every 3-, 4- and 5-character team under each policy "
+                         "(--sizes to narrow). Character-count and composition "
+                         "viability in one table.")
+    ap.add_argument("--sizes", default="3,4,5",
+                    help="team sizes for --sweep-roster / --matrix (default 3,4,5)")
+    ap.add_argument("--matrix", default=None, choices=("scenario", "topology"),
+                    help="team x scenario (or x topology) grid: rows are "
+                         "rosters, columns are the setup draw, cells are the "
+                         "best win%% over the policy set. The composition "
+                         "question asked per Scenario / per map.")
     ap.add_argument("--no-defence", dest="defence", action="store_false",
                     help="switch off the per-location defence roll (§7.1-7.5) — "
                          "the control group for it, reproducing the flat "
@@ -1129,14 +1450,47 @@ def main():
                          "existed. Run both and diff.")
     args = ap.parse_args()
     defence = args.defence
+    # Every simulate() call in this function shares the same setup dials.
+    fixed = dict(difficulty=args.difficulty, location_defence=defence,
+                 scenario=args.scenario, topology=args.topology)
+
+    if args.sweep_scenario or args.sweep_topology:
+        axis = "scenario" if args.sweep_scenario else "topology"
+        values = SCENARIO_IDS if args.sweep_scenario else list(TOPOLOGIES)
+        names = [args.policy] if args.policy else list(POLICIES)
+        held = f"topology={args.topology}" if axis == "scenario" else f"scenario={args.scenario}"
+        print(f"Starve No More {axis} sweep — {args.sims} games/cell, "
+              f"{args.players} players, {held}, mode={args.difficulty}\n")
+        print(f"{axis:<22}{'best':>16}" + "".join(f"{n:>14}" for n in names))
+        for value in values:
+            cells, best = [], (None, -1)
+            for name in names:
+                r = simulate(name, args.players, args.rules, args.sims, args.seed,
+                             **{**fixed, axis: value})
+                cells.append(r["win"])
+                if r["win"] > best[1]:
+                    best = (name, r["win"])
+            label = SCENARIOS[value]["name"] if axis == "scenario" else value
+            print(f"{label:<22}{best[0]:>10} {best[1]*100:>4.0f}%"
+                  + "".join(f"{w*100:>13.1f}%" for w in cells))
+        if axis == "scenario":
+            print("\nEach row is a week-long twist drawn at setup; 'No Scenario' is the "
+                  "control\ngroup the historic baselines were measured in.")
+        else:
+            print("\nEach row is a path variant drawn at setup. Star is the sim's historic "
+                  "hop\nmodel; Ring is the shipped board's default.")
+        return
+
+    if args.sweep_roster or args.matrix:
+        _roster_report(args, fixed)
+        return
 
     if args.utilization:
         names = [args.policy] if args.policy else list(POLICIES)
         print(f"Option utilization — {args.sims} games/policy, {args.players} players, "
               f"mode={args.difficulty}\n")
         for name in names:
-            r = simulate(name, args.players, args.rules, args.sims, args.seed,
-                         difficulty=args.difficulty, location_defence=defence)
+            r = simulate(name, args.players, args.rules, args.sims, args.seed, **fixed)
             print(f"[{name}]  win {r['win']*100:.1f}%")
             acts = r["actions_per_game"]
             total = sum(acts.values()) or 1
@@ -1185,7 +1539,7 @@ def main():
             cells = []
             for name in names:
                 r = simulate(name, args.players, args.rules, args.sims, args.seed,
-                             difficulty=mode, location_defence=defence)
+                             **{**fixed, "difficulty": mode})
                 cells.append(f"{r['win']*100:>15.1f}%")
             print(f"{mode:<12}{d['days']:>6}{d['doom_limit']:>6}{d['source_hp']:>7}  "
                   + "".join(cells))
@@ -1201,7 +1555,7 @@ def main():
         rows = []
         for combo in combinations(CHARACTERS, 3):
             r = simulate(policy, 3, args.rules, args.sims, args.seed, roster=list(combo),
-                         difficulty=args.difficulty, location_defence=defence)
+                         **fixed)
             rows.append((combo, r))
         rows.sort(key=lambda cr: -cr[1]["win"])
         for combo, r in rows:
@@ -1213,8 +1567,7 @@ def main():
 
     if args.trace:
         g = Game(POLICIES[args.policy or "balanced"], args.players, args.rules,
-                 random.Random(args.seed), difficulty=args.difficulty,
-                 location_defence=defence)
+                 random.Random(args.seed), **fixed)
         g.trace = True
         won = g.run()
         print("RESULT:", "WIN" if won else f"LOSS ({g.loss})")
@@ -1223,13 +1576,13 @@ def main():
     names = [args.policy] if args.policy else list(POLICIES)
     print(f"Starve No More balance sim — {args.sims} games/policy, "
           f"{args.players} players, rules={args.rules}, mode={args.difficulty}, "
-          f"defence={'on' if defence else 'OFF'}\n")
+          f"defence={'on' if defence else 'OFF'}, scenario={args.scenario}, "
+          f"topology={args.topology}\n")
     print(f"{'policy':<14}{'win%':>7}{'loss:doom':>11}{'loss:down':>11}{'loss:source':>13}"
           f"{'avg doom':>10}{'avg downs':>11}{'fester/dawn':>13}{'late-loss%':>12}"
           f"{'blocked':>9}{'exposed':>9}")
     for name in names:
-        r = simulate(name, args.players, args.rules, args.sims, args.seed,
-                     difficulty=args.difficulty, location_defence=defence)
+        r = simulate(name, args.players, args.rules, args.sims, args.seed, **fixed)
         print(f"{name:<14}{r['win']*100:>6.1f}%{r['loss_doom']*100:>10.1f}%"
               f"{r['loss_all_down']*100:>10.1f}%{r['loss_source']*100:>12.1f}%{r['doom']:>10.1f}"
               f"{r['downs']:>11.2f}{r['fester']:>13.2f}{r['late_loss']*100:>11.1f}%"

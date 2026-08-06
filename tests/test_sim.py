@@ -115,6 +115,105 @@ def test_location_defence_matches(lua_globals):
         f"LOCATION_DEFENSE has {n_lua} tiles in lua, {len(sim.LOCATION_DEFENSE)} in the sim")
 
 
+def test_location_threat_rate_matches():
+    """LOCATION_THREAT_RATE lives in night.lua (not global.lua), so it is read
+    out of the source rather than evaluated. It decides whether a house is a
+    free night, which is the single biggest lever on whether camping works."""
+    src = read_text(os.path.join(LUA_DIR, "night.lua"))
+    body = _re.search(r"LOCATION_THREAT_RATE\s*=\s*\{(.*?)\n\}", src, _re.S).group(1)
+    lua_rates = {k: int(v) for k, v in _re.findall(r"(\w+)\s*=\s*(\d+)", body)}
+    assert lua_rates == sim.LOCATION_THREAT_RATE, (
+        f"threat rates drifted: lua={lua_rates} sim={sim.LOCATION_THREAT_RATE}")
+
+
+# ---------------------------------------------------------------------------
+# Setup dials: Scenario flags and the path variants (scripts/sim_variants.py)
+# ---------------------------------------------------------------------------
+
+def test_scenario_flags_mirror_setup_lua():
+    """Every Scenario the sim models must carry the exact scenarioFlags table
+    its onApply sets, under the same id and name. A scenario the sim invents
+    (or a clause it quietly drops) turns the §17.3 balance table into fiction."""
+    import sim_variants as sv
+
+    src = read_text(os.path.join(LUA_DIR, "setup.lua"))
+    body = _re.search(r"^SCENARIOS\s*=\s*\{(.*?)^\}", src, _re.S | _re.M).group(1)
+    blocks = _re.split(r"\n    (SC_\w+) = \{", body)[1:]
+    lua = {}
+    for scenario_id, block in zip(blocks[::2], blocks[1::2]):
+        name = _re.search(r'name\s*=\s*"([^"]+)"', block).group(1)
+        flags = _re.search(r"scenarioFlags\s*=\s*\{([^}]*)\}", block).group(1)
+        lua[scenario_id] = (name, frozenset(_re.findall(r"(\w+)\s*=\s*true", flags)))
+
+    modeled = {k: v for k, v in sv.SCENARIOS.items() if k != "none"}
+    assert set(lua) == set(modeled), (
+        f"scenario ids differ — lua {sorted(lua)} vs sim {sorted(modeled)}")
+    for scenario_id, (name, flags) in lua.items():
+        assert modeled[scenario_id]["name"] == name, scenario_id
+        assert modeled[scenario_id]["flags"] == flags, (
+            f"{scenario_id}: lua {sorted(flags)} vs sim "
+            f"{sorted(modeled[scenario_id]['flags'])}")
+
+
+def test_every_scenario_flag_is_read_by_the_sim():
+    """A flag nobody reads is a Scenario clause the sim silently ignores —
+    the same failure mode tests/test_lua_effect_flags.py guards in the game."""
+    import sim_variants as sv
+
+    src = read_text(os.path.join(SCRIPTS, "simulate_balance.py"))
+    unread = sorted(flag for spec in sv.SCENARIOS.values() for flag in spec["flags"]
+                    if f'"{flag}"' not in src)
+    assert not unread, (
+        f"scenarioFlags modeled but never read in simulate_balance.py: {unread}")
+
+
+def test_topologies_are_connected_and_shortcut_adds_one_road():
+    """Every path variant has to reach every tile — an unreachable location is
+    a map nobody can play — and SC_SHORTCUT adds exactly one road."""
+    import sim_variants as sv
+    from path_layouts import LOCATIONS
+
+    for variant in sv.TOPOLOGIES:
+        for src_loc in LOCATIONS:
+            for dst in LOCATIONS:
+                d = sv.distance(variant, False, src_loc, dst)
+                assert (d > 0) == (src_loc != dst), (variant, src_loc, dst)
+                assert d <= len(LOCATIONS) - 1, (variant, src_loc, dst, d)
+        plain = sv.adjacency(variant, False)
+        cut = sv.adjacency(variant, True)
+        added = sum(len(cut[loc]) - len(plain[loc]) for loc in LOCATIONS)
+        assert added in (0, 2), f"{variant}: shortcut added {added // 2} roads"
+        # Walking the shortcut is free (§17.3 The Shortcut).
+        assert sv.hunger_cost(variant, True, sv.SHORTCUT_EDGE) == 0
+        assert sv.hunger_cost(variant, False, ("EllieLucaHouse", "JamesHouse")) == 1
+
+
+def test_star_topology_reproduces_the_historic_hop_model():
+    """The sim used to price every move as '1 action to the centre, 2 to
+    anywhere else'. That is Star's distance table, and it stays the default
+    so the baselines in docs/agents/balance-simulation.md remain comparable."""
+    import sim_variants as sv
+
+    assert sv.DEFAULT_TOPOLOGY == "Star"
+    for a in sim.YIELDS:
+        for b in sim.YIELDS:
+            want = 0 if a == b else (1 if sim.CENTER in (a, b) else 2)
+            assert sv.distance("Star", False, a, b) == want, (a, b)
+
+
+def test_dusk_scramble_is_one_tile():
+    """§11.3: the Dusk scramble is a single tile. The sim used to teleport a
+    character to any berth for 1 Hunger, which made the map's shape free."""
+    import random
+
+    g = sim.Game(sim.POLICIES["spread"], 4, "new", random.Random(3), topology="Linear")
+    james = next(c for c in g.chars if c.name == "James")
+    james.location = "JamesHouse"
+    g.walk(james, "RaymanHouse", max_tiles=1)      # 4 tiles apart on Linear
+    assert g.dist("JamesHouse", "RaymanHouse") == 4
+    assert james.location == "BasketballCourt", james.location
+
+
 def test_defence_off_switch_is_a_true_control():
     """--no-defence must reproduce the pre-rule counter-attack exactly: no
     blocks rolled, no extra swings — otherwise the before/after diff in
@@ -254,21 +353,27 @@ def test_roster_override_sweep_smoke(policy):
 # ---------------------------------------------------------------------------
 # Win-rate regression bands
 #
-# Baselines (docs/agents/balance-simulation.md, 2026-07 batch 5 — batch 4 plus
-# the Last Nerve valve, per-location defence, and the 4p Phase-4 Doom knob
-# (+2 -> +3) taken to answer the valve; new rules, 4 players, 3000 sims):
-# turtle 40%, spread 42%, balanced 16%, court_camper 14%, net_camper 8%,
-# with ~100% of losses on Days 6-7 and the best lines back inside §20.2's
-# 40-50% band. Bands are generous — a failure means a rule constant changed
-# materially, not noise.
+# Baselines (docs/agents/balance-simulation.md, 2026-08 batch 6 — batch 5 plus
+# the movement model: real path variants, the one-tile Dusk scramble, and
+# Loud read off tracked movement instead of a hardcoded True; new rules,
+# 4 players, Star, no Scenario, 3000 sims): turtle 98%, spread 87%,
+# balanced 19%, court_camper 25%, net_camper 21%.
+#
+# The camping lines are FAR above §20.2's 40-50% band and that is the finding,
+# not a drift: batch 5's 40% turtle was charging a team that never moves for
+# Rayman's Loud every night. Applied as §6.2 writes it, a house camp draws no
+# threats at all until Doom 10. See balance-scenarios-topology.md; these bands
+# track the sim, and tightening them is the design's job, not the test's.
+# Bands are generous — a failure means a rule constant changed materially,
+# not noise.
 # ---------------------------------------------------------------------------
 
 WIN_BANDS = {
-    "turtle": (0.28, 0.52),
-    "spread": (0.28, 0.52),
-    "balanced": (0.05, 0.28),
-    "court_camper": (0.05, 0.28),
-    "net_camper": (0.02, 0.20),
+    "turtle": (0.90, 1.00),
+    "spread": (0.75, 0.97),
+    "balanced": (0.08, 0.32),
+    "court_camper": (0.12, 0.38),
+    "net_camper": (0.08, 0.34),
 }
 
 
