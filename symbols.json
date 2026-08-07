@@ -74,7 +74,7 @@
   "ACTIONS_PER_TURN": [
    {
     "file": "lua/global.lua",
-    "line": 168,
+    "line": 189,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -342,7 +342,7 @@
   "BROADCAST_COLORS": [
    {
     "file": "lua/global.lua",
-    "line": 402,
+    "line": 423,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -352,7 +352,7 @@
   "BROADCAST_STAGE_GAP": [
    {
     "file": "lua/global.lua",
-    "line": 426,
+    "line": 447,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -452,7 +452,7 @@
   "CLEANSE_COST": [
    {
     "file": "lua/global.lua",
-    "line": 190,
+    "line": 211,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -462,7 +462,7 @@
   "CLEANSE_REDUCTION": [
    {
     "file": "lua/global.lua",
-    "line": 191,
+    "line": 212,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -612,7 +612,7 @@
   "DEATH_NARRATIONS": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 192,
+    "line": 205,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -652,7 +652,7 @@
   "DIFFICULTY_PARAMS": [
    {
     "file": "lua/global.lua",
-    "line": 238,
+    "line": 259,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -662,7 +662,7 @@
   "DOOM_RATES": [
    {
     "file": "lua/global.lua",
-    "line": 301,
+    "line": 322,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -692,7 +692,7 @@
   "DOOM_THRESHOLDS": [
    {
     "file": "lua/global.lua",
-    "line": 175,
+    "line": 196,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -762,7 +762,7 @@
   "HEART_SUPPLY_MAX": [
    {
     "file": "lua/global.lua",
-    "line": 203,
+    "line": 224,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -842,7 +842,7 @@
   "LIGHT_SOURCES": [
    {
     "file": "lua/night.lua",
-    "line": 333,
+    "line": 338,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -879,14 +879,24 @@
     "doc": "Gather yields per location (Design §7-8). A Gather draws one resource picked uniformly from this list, so Provisions come up twice as often at Ellie & Luca's H…"
    }
   ],
-  "LOCATION_THREAT_RATE": [
+  "LOCATION_SANITY_MOD": [
    {
-    "file": "lua/night.lua",
-    "line": 12,
+    "file": "lua/global.lua",
+    "line": 181,
     "kind": "table",
     "params": null,
     "arity": null,
-    "doc": "Location threat rates"
+    "doc": "Per-location Sanity modifier at Tick, Design §7.1-7.5 (\"+1 (homey, warm)\", \"-1 (creepy at night, the building groans)\") and the §8 cost table's \"Sleeping at a …"
+   }
+  ],
+  "LOCATION_THREAT_RATE": [
+   {
+    "file": "lua/night.lua",
+    "line": 17,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "Location threat rates MIRRORS the `threat_rate` column of content/locations.csv (tests/test_cross_refs.py guards the pair). The Badminton Court was 1 here whil…"
    }
   ],
   "LOCATION_YIELDS": [
@@ -952,7 +962,7 @@
   "MARKET_SLOTS_DAY_ONE": [
    {
     "file": "lua/global.lua",
-    "line": 357,
+    "line": 378,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -962,7 +972,7 @@
   "MARKET_SLOTS_TOTAL": [
    {
     "file": "lua/global.lua",
-    "line": 356,
+    "line": 377,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1162,7 +1172,7 @@
   "REVIVE_HEALTH_COST": [
    {
     "file": "lua/global.lua",
-    "line": 198,
+    "line": 219,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1172,7 +1182,7 @@
   "ResolveNight": [
    {
     "file": "lua/night.lua",
-    "line": 36,
+    "line": 41,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1302,7 +1312,7 @@
   "SPAWN_DROP_Y": [
    {
     "file": "lua/global.lua",
-    "line": 339,
+    "line": 360,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1414,7 +1424,7 @@
   "TABLE_SURFACE_Y": [
    {
     "file": "lua/global.lua",
-    "line": 323,
+    "line": 344,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -2298,7 +2308,7 @@
   "broadcastEvent": [
    {
     "file": "lua/global.lua",
-    "line": 410,
+    "line": 431,
     "kind": "function",
     "params": [
      "category",
@@ -2370,7 +2380,7 @@
   "canCleanse": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 364,
+    "line": 377,
     "kind": "function",
     "params": [
      "color"
@@ -2608,7 +2618,7 @@
   "checkBonusVictories": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 476,
+    "line": 489,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2618,7 +2628,7 @@
   "checkDefeat": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 416,
+    "line": 429,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2638,7 +2648,7 @@
   "checkDownState": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 215,
+    "line": 228,
     "kind": "function",
     "params": [
      "color"
@@ -2650,7 +2660,7 @@
   "checkPlayerHasLight": [
    {
     "file": "lua/night.lua",
-    "line": 373,
+    "line": 378,
     "kind": "function",
     "params": [
      "color"
@@ -2674,7 +2684,7 @@
   "checkVictory": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 446,
+    "line": 459,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2946,7 +2956,7 @@
   "describeDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 383,
+    "line": 404,
     "kind": "function",
     "params": [
      "diff"
@@ -3007,7 +3017,7 @@
   "doCleanse": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 384,
+    "line": 397,
     "kind": "function",
     "params": [
      "color"
@@ -3335,7 +3345,7 @@
   "drawThreatsAt": [
    {
     "file": "lua/night.lua",
-    "line": 97,
+    "line": 102,
     "kind": "function",
     "params": [
      "location",
@@ -3641,7 +3651,7 @@
   "getDifficulty": [
    {
     "file": "lua/global.lua",
-    "line": 256,
+    "line": 277,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3651,7 +3661,7 @@
   "getDoomDelta": [
    {
     "file": "lua/global.lua",
-    "line": 312,
+    "line": 333,
     "kind": "function",
     "params": [
      "phase"
@@ -3663,7 +3673,7 @@
   "getDoomLimit": [
    {
     "file": "lua/global.lua",
-    "line": 261,
+    "line": 282,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3683,7 +3693,7 @@
   "getDoomRate": [
    {
     "file": "lua/global.lua",
-    "line": 373,
+    "line": 394,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3821,7 +3831,7 @@
   "getPhaseForDay": [
    {
     "file": "lua/global.lua",
-    "line": 279,
+    "line": 300,
     "kind": "function",
     "params": [
      "day"
@@ -3892,7 +3902,7 @@
   "getSourceMaxHP": [
    {
     "file": "lua/global.lua",
-    "line": 266,
+    "line": 287,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3902,7 +3912,7 @@
   "getSourceSplitHP": [
    {
     "file": "lua/global.lua",
-    "line": 274,
+    "line": 295,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3922,7 +3932,7 @@
   "getTotalDays": [
    {
     "file": "lua/global.lua",
-    "line": 260,
+    "line": 281,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3952,7 +3962,7 @@
   "ghostDrift": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 337,
+    "line": 350,
     "kind": "function",
     "params": [
      "color",
@@ -4080,7 +4090,7 @@
   "identifyThreatType": [
    {
     "file": "lua/night.lua",
-    "line": 476,
+    "line": 481,
     "kind": "function",
     "params": [
      "card"
@@ -4269,7 +4279,7 @@
   "marketOpenSlots": [
    {
     "file": "lua/global.lua",
-    "line": 359,
+    "line": 380,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4291,7 +4301,7 @@
   "marketSlotIsHidden": [
    {
     "file": "lua/global.lua",
-    "line": 369,
+    "line": 390,
     "kind": "function",
     "params": [
      "index"
@@ -4316,7 +4326,7 @@
   "migrateGameState": [
    {
     "file": "lua/global.lua",
-    "line": 452,
+    "line": 473,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5268,7 +5278,7 @@
   "onLoad": [
    {
     "file": "lua/global.lua",
-    "line": 523,
+    "line": 544,
     "kind": "function",
     "params": [
      "savedState"
@@ -5559,7 +5569,7 @@
   "onSave": [
    {
     "file": "lua/global.lua",
-    "line": 590,
+    "line": 611,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5862,7 +5872,7 @@
   "payLightFuel": [
    {
     "file": "lua/night.lua",
-    "line": 343,
+    "line": 348,
     "kind": "function",
     "params": [
      "color",
@@ -6169,7 +6179,7 @@
   "raymanLoudTonight": [
    {
     "file": "lua/night.lua",
-    "line": 25,
+    "line": 30,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6641,7 +6651,7 @@
   "resolveNightAtLocation": [
    {
     "file": "lua/night.lua",
-    "line": 165,
+    "line": 170,
     "kind": "function",
     "params": [
      "location",
@@ -6664,7 +6674,7 @@
   "resolveSleep": [
    {
     "file": "lua/night.lua",
-    "line": 545,
+    "line": 550,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6689,7 +6699,7 @@
   "resolveStorytelling": [
    {
     "file": "lua/night.lua",
-    "line": 518,
+    "line": 523,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6805,7 +6815,7 @@
   "reviveCharacter": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 270,
+    "line": 283,
     "kind": "function",
     "params": [
      "reviverColor",
@@ -7197,7 +7207,7 @@
   "spawnDropY": [
    {
     "file": "lua/global.lua",
-    "line": 344,
+    "line": 365,
     "kind": "function",
     "params": [
      "baseY"
@@ -7261,7 +7271,7 @@
   "stageBroadcasts": [
    {
     "file": "lua/global.lua",
-    "line": 428,
+    "line": 449,
     "kind": "function",
     "params": [
      "msgs",

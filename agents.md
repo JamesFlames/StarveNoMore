@@ -36,9 +36,10 @@ not the index.
 | [Printed-Rule Wiring Guards](docs/agents/content-wiring-guards.md) | does each card / location / trophy do what it prints? |
 | [Regression Guards](docs/agents/regression-guards.md) | the eight bug classes `test_regression_guards.py` pins |
 | [Balance Simulation](docs/agents/balance-simulation.md) | re-run the Monte Carlo after a rules change |
-| [Location Defence](docs/agents/balance-location-defence.md) | the batch-5 verdict on the §7.1-7.5 defence roll |
-| [Scenario Cards](docs/agents/balance-scenarios.md) | which Scenario is hard and which team survives it |
+| [Location Defence](docs/agents/balance-location-defence.md) | the batch-5 verdict on the defence roll |
+| [Scenario Cards](docs/agents/balance-scenarios.md) | which Scenario is hard, and who survives it |
 | [Map & Rosters](docs/agents/balance-map-and-rosters.md) | what the map, roster and player count are worth |
+| [Balance Recommendations](docs/agents/balance-recommendations.md) | priced rule changes, in order |
 | [UX Affordances](docs/agents/ux-affordances.md) | keep "the next legal action is always visible" true |
 | [Audio](docs/agents/audio.md) | add or change a sound |
 | [ComfyUI Workflow](docs/agents/comfyui.md) | regenerate card or board art |
@@ -56,13 +57,13 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 - [CLAUDE.md](CLAUDE.md) — the lean start-here card Claude Code auto-loads: project summary, build/test commands, the never-hand-edit list, and pointers to `TASKMAP.md` / `SYMBOLS.md` / this file. Per-directory `CLAUDE.md` stubs (`lua/`, `scripts/`, `tests/`, `content/`) carry the local conventions for scoped tasks.
 - [TASKMAP.md](TASKMAP.md) — the "job → files to open" routing table. Start here for "where do I change X?"; use `SYMBOLS.md` for "where is function X?".
 - [StarveNoMoreDesignConcept.md](StarveNoMoreDesignConcept.md) — **the canonical design doc**, now a thin index (Document Purpose + a Section → file jump table). The 20 numbered sections live one-topic-per-file under [docs/design/](docs/design/README.md): pitch/pillars, components/characters, locations/economy, decks, stats/turns, combat/crafting, week-arc/doom, victory/setup, TTS implementation, rationale/balancing. Open the specific `docs/design/*.md` for any rules or design question — prose cross-refs like "§6.7" map to files via the index table.
-- [README.md](README.md) — short orientation for the GitHub landing page, dev quickstart, and the script-by-script build table.
-- [CHANGELOG.md](CHANGELOG.md) — the rule-change history, one entry per design batch. The retired planning docs (improvements.md, design_batch1–4.md, and the rest) live on as these entries + git history. The 2026-07 design review — 17 findings against `Archive/PrinciplesOfGoodBoardGames.md`, all shipped — is the "Design review pass" entry below; read it for *why* a rule looks the way it does, never as the rule itself.
+- [README.md](README.md) — short orientation for the GitHub landing page, dev quickstart, and the build table.
+- [CHANGELOG.md](CHANGELOG.md) — the rule-change history, one entry per design batch. The retired planning docs (improvements.md, design_batch1–4.md) live on as these entries + git history. The 2026-07 design review — 17 findings against `Archive/PrinciplesOfGoodBoardGames.md`, all shipped — is the "Design review pass" entry below; read it for *why* a rule looks the way it does, never as the rule itself.
 - [SYMBOLS.md](SYMBOLS.md) — AUTO-GENERATED index of every Lua global (function/constant → file:line) **and every XML UI id** (id → file:line + onClick handler). Regenerate with `scripts/generate_symbol_index.py`.
 - [docs/tts-interface.md](docs/tts-interface.md) — how the mod talks to TTS: save format (Lua bundle + XML + ObjectStates), the Lua API surface rule (only call what exists), object-handle lifetime, the XML UI layer, and how to measure a running game. Read before calling an unfamiliar TTS API or debugging a runtime error.
 - [docs/tts-runtime.md](docs/tts-runtime.md) — the TTS physical contract: surface heights (`TABLE_SURFACE_Y`), mesh extents vs. artwork, rotation conventions, hiding objects. Read before placing or rotating anything.
 - [docs/achievements.md](docs/achievements.md) — the 24 achievements: where the roster lives (`content/achievements.csv` → `lua/achievement_data.lua`), where the unlock predicates live (`lua/achievement_rules.lua`), the four checkpoints that evaluate them, how the cross-game vault survives Restart, and why a TTS Workshop mod can't set a real Steam achievement (it ships `steam/achievements.json` for a future appid instead).
-- [docs/comfyui-achievement-icons.md](docs/comfyui-achievement-icons.md) — the run book for regenerating achievement art on a local ComfyUI, written to be handed to an agent verbatim.
+- [docs/comfyui-achievement-icons.md](docs/comfyui-achievement-icons.md) — the run book for regenerating achievement art on a local ComfyUI, to hand to an agent verbatim.
 - [docs/debugging.md](docs/debugging.md) — live-session forensics: what TTS autosaves contain, `scripts/inspect_save.py` (incl. `--error N`), the diagnosis flow.
 - [docs/gamestate.md](docs/gamestate.md) — AUTO-GENERATED `gameState` schema map: every field with its declared default, the files that write it and the files that read it. Start here for "add a field" or "who clears X?". Regenerate with `scripts/generate_gamestate_map.py`; a test fails if any field is in neither `migrateGameState()` nor the reviewed transient list.
 - [.claude/README.md](.claude/README.md) — the committed agent config: the `SessionStart` dependency hook, the `PostToolUse` symbol-index hook, the permission allowlist, and the `/verify` + `/newtask` commands.
@@ -74,7 +75,7 @@ Quick index of every Markdown doc in the repo, so you know which to open for whi
 > better for agents" task, so you do not re-derive what is already done or
 > re-measure numbers that are already recorded.
 - [PlayerRules.md](PlayerRules.md) / [PlayerRules.html](PlayerRules.html) — AUTO-GENERATED player rulebook (`scripts/generate_player_rules.py`), assembled from the same `content/` markdown as the in-game Notebook. **The same book is readable inside the game** as the Help panel's first tab, *Rulebook* (`rulebookText()` in `lua/ui_help_pages.lua`, paged); a cross-ref test keeps the two in step. (The in-TTS Player Rules **tablet** was removed 2026-07 — it defaulted to Google when the asset server wasn't running.)
-- [playtest/facilitator_script.md](playtest/facilitator_script.md) + [playtest/feedback_form.md](playtest/feedback_form.md) — the blind-playtest protocol and per-player form (batch 4 W4). Session data comes from the Week in Review panel's **Copy Session Log** button; logs collect in [playtest/sessions/](playtest/sessions/README.md) and aggregate via `scripts/analyze_sessions.py`.
+- [playtest/facilitator_script.md](playtest/facilitator_script.md) + [playtest/feedback_form.md](playtest/feedback_form.md) — the blind-playtest protocol and per-player form (batch 4 W4). Session data comes from the Week in Review panel's **Copy Session Log** button; logs collect in [playtest/sessions/](playtest/sessions/README.md), aggregated by `scripts/analyze_sessions.py`.
 - agents.md — this file.
 
 ### Archive/ — superseded reference material, kept for context

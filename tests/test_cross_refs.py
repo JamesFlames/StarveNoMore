@@ -828,6 +828,46 @@ def test_location_defense_mirrors_the_locations_csv():
         "must agree.")
 
 
+_LOCATION_CSV_KEY = {
+    "L_JAMES": "JamesHouse", "L_RAYMAN": "RaymanHouse",
+    "L_ELLIE_LUCA": "EllieLucaHouse", "L_BASKETBALL": "BasketballCourt",
+    "L_BADMINTON": "BadmintonCourt",
+}
+
+
+def _lua_int_table(filename, name):
+    src = read_text(os.path.join(LUA_DIR, filename))
+    body = re.search(rf"{name}\s*=\s*\{{(.*?)\n\}}", src, re.S)
+    assert body, f"{name} not found in lua/{filename}"
+    return {k: int(v) for k, v in re.findall(r"(\w+)\s*=\s*(-?\d+)", body.group(1))}
+
+
+def _csv_column(column):
+    return {_LOCATION_CSV_KEY[r["id"]]: int(r[column])
+            for r in read_csv_rows("locations.csv") if r["id"] in _LOCATION_CSV_KEY}
+
+
+def test_location_threat_rate_mirrors_the_locations_csv():
+    """LOCATION_THREAT_RATE (lua/night.lua) is what resolveNightAtLocation
+    actually draws. The CSV's `threat_rate` column, the board tooltip, the
+    at_badminton_court What-now hint and design §7.5 all call the Badminton
+    Court the highest-threat tile — it read 1, the same as the Basketball
+    Court, so the hazard the tile is named for was printed three times and
+    rolled nowhere."""
+    lua_rate = _lua_int_table("night.lua", "LOCATION_THREAT_RATE")
+    assert lua_rate == _csv_column("threat_rate"), (
+        f"threat-rate drift: lua={lua_rate} csv={_csv_column('threat_rate')}")
+
+
+def test_location_sanity_mod_mirrors_the_locations_csv():
+    """LOCATION_SANITY_MOD (lua/global.lua) is the Tick's tile term (§7.1-7.5,
+    and the §8 cost table's "Sleeping at a court -1 Sanity"). All five board
+    tooltips have printed this number since before anything read it."""
+    lua_mod = _lua_int_table("global.lua", "LOCATION_SANITY_MOD")
+    assert lua_mod == _csv_column("sanity_modifier"), (
+        f"sanity-modifier drift: lua={lua_mod} csv={_csv_column('sanity_modifier')}")
+
+
 def test_step2_has_a_you_line_for_every_seat():
     """Step 2's "this is you" line is one Text per seat colour, each visible
     only to that seat, because the panel is open to several seats at once and

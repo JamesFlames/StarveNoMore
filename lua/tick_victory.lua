@@ -42,6 +42,19 @@ function resolveTick()
                     stalker .. " Sanity lost at " .. (char.location or "?") .. ".")
             end
 
+            -- Where you slept (§7.1-7.5): the kitchen is warm, a court is
+            -- not. Added beside the Stalker rider so every tile-based Sanity
+            -- term lands before the Doom surcharge and the Deerclops
+            -- doubling, and the total is floored at 0 below.
+            local tileMod = (LOCATION_SANITY_MOD or {})[char.location or ""] or 0
+            if tileMod ~= 0 then
+                sanityLoss = sanityLoss - tileMod
+                if tileMod < 0 then
+                    broadcastEvent("warn", char.name .. " slept in the open at " ..
+                        (char.location or "?") .. " — " .. -tileMod .. " more Sanity.")
+                end
+            end
+
             -- Rayman's Big Appetite: -2 Hunger instead of -1.
             -- 3-player relief (§20.1, batch 4 W2): with only three characters
             -- absorbing his overheads, the big appetite only bites on days he

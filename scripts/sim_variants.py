@@ -119,6 +119,31 @@ SCENARIO_IDS = list(SCENARIOS)
 
 
 # ---------------------------------------------------------------------------
+# What-if knobs (`--knob`) — candidate rule changes, priced before anyone
+# writes one into lua/. None of these is a shipped rule; they exist so a
+# balance recommendation comes with a number attached, the way §20.1's
+# "ordered knobs, priced" table does. Each one is read in simulate_balance.py
+# and guarded by tests/test_sim.py, which fails if a knob changes nothing.
+# ---------------------------------------------------------------------------
+KNOBS = {
+    "crowd": "any tile with 3+ sleepers draws +1 Threat — the standing-rule "
+             "version of the crowdThreat Dawn card ('it is drawn to the "
+             "gathering'). The direct answer to camping.",
+    "night6": "the Doom threshold that puts +1 Threat on every tile drops "
+              "from 10 to 6, so houses stop being free three days earlier.",
+    "floorcost": "a crowded-floor sleeper loses 1 Sanity instead of merely "
+                 "regenerating nothing (§7 two beds per house).",
+    "kitchenflat": "the Kitchen's +1 Tick Sanity (LOCATION_SANITY_MOD) is "
+                   "removed, keeping the courts' -1 — the printed rule minus "
+                   "the half that rewards never leaving.",
+    "winterlite": "The Long Winter drops foodGatherPenalty, keeping doubled "
+                  "Hunger decay and the house Sanity bonus.",
+    "moonteeth": "The Full Moon draws +1 Threat at every tile, so softToHard "
+                 "has something to promote where the team actually sleeps.",
+}
+
+
+# ---------------------------------------------------------------------------
 # Map geometry
 # ---------------------------------------------------------------------------
 

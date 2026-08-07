@@ -88,6 +88,7 @@ from collections import Counter
 
 from sim_variants import (
     DEFAULT_TOPOLOGY,
+    KNOBS,
     SCENARIO_IDS,
     SCENARIOS,
     TOPOLOGIES,
@@ -158,17 +159,26 @@ LOCATION_DEFENSE = {
 }
 
 # Nightly threat draws per tile before any modifier. MIRRORS
-# LOCATION_THREAT_RATE in lua/night.lua (tests/test_sim.py enforces it).
-# Note: content/locations.csv gives the Badminton Court a threat_rate of 2
-# and §15 calls it "the highest threat-card draw rate at night", but the Lua
-# table — the thing the game actually rolls — has both courts at 1. The sim
-# mirrors the Lua, because that is what a player experiences.
+# LOCATION_THREAT_RATE in lua/night.lua (tests/test_sim.py enforces it), which
+# in turn mirrors the `threat_rate` column of content/locations.csv.
 LOCATION_THREAT_RATE = {
     "JamesHouse":      0,
     "RaymanHouse":     0,
     "EllieLucaHouse":  0,
     "BasketballCourt": 1,
-    "BadmintonCourt":  1,
+    "BadmintonCourt":  2,   # §7.5: the highest threat draw rate at Night
+}
+
+# Per-tile Sanity modifier at Tick (§7.1-7.5). MIRRORS LOCATION_SANITY_MOD in
+# lua/global.lua and the `sanity_modifier` column of content/locations.csv.
+# SUBTRACTED from the Tick's Sanity loss: the kitchen is a quiet night, a
+# court costs two.
+LOCATION_SANITY_MOD = {
+    "JamesHouse":      0,
+    "RaymanHouse":     0,
+    "EllieLucaHouse":  1,
+    "BasketballCourt": -1,
+    "BadmintonCourt":  -1,
 }
 
 DOOM_RATES = {3: [1, 1, 1, 1], 4: [1, 1, 1, 3], 5: [1, 1, 2, 2]}
@@ -263,14 +273,19 @@ class Threat:
 
 class Game:
     def __init__(self, policy, players, rules, rng, roster=None, difficulty="standard",
-                 location_defence=True, scenario="none", topology=DEFAULT_TOPOLOGY):
+                 location_defence=True, scenario="none", topology=DEFAULT_TOPOLOGY,
+                 knobs=()):
         self.policy = policy
         self.rules = rules          # "new" | "old"
         self.rng = rng
         # Setup dials (§17.3 Scenarios, §7 path variants) — both drawn at
         # random by startGame, so "none"/Star is a control group, not a game.
         self.scenario = scenario
+        # --knob: candidate rules being priced, not shipped (sim_variants.py).
+        self.knobs = frozenset(knobs)
         self.flags = SCENARIOS[scenario]["flags"]
+        if "winterlite" in self.knobs:
+            self.flags = self.flags - {"foodGatherPenalty"}
         self.topology = topology
         self.shortcut = "shortcutPath" in self.flags
         self.last_craft_day = -99   # Strict Rationing's slowMarket clock
@@ -813,7 +828,12 @@ class Game:
         for loc in set(c.location for c in self.alive()):
             occupants = self.at(loc)
             rate = LOCATION_THREAT_RATE[loc]
-            if self.doom >= DOOM_THRESHOLDS["night"]:
+            night_at = 6 if "night6" in self.knobs else DOOM_THRESHOLDS["night"]
+            if self.doom >= night_at:
+                rate += 1
+            if "crowd" in self.knobs and len(occupants) >= 3:
+                rate += 1
+            if "moonteeth" in self.knobs and "softToHard" in self.flags:
                 rate += 1
             if len(occupants) == 1 and loc in COURTS:
                 rate += 1
@@ -909,6 +929,9 @@ class Game:
                     floor.update(c.name for c in sleepers[2:])
         for c in self.alive():
             loc = c.location
+            if "floorcost" in self.knobs and c.name in floor:
+                c.lose("sanity", 1)
+                self.check_down(c)
             # The Long Winter (housesSanityBonus): a roof is worth +1 Sanity
             # this week, to anyone who got a bed (resolveSleep, night.lua).
             if "housesSanityBonus" in self.flags and loc in HOUSES and c.name not in floor:
@@ -943,7 +966,12 @@ class Game:
             # (tick_victory.lua).
             if "hungerDecayX2" in self.flags:
                 hunger_loss *= 2
-            sanity_loss = 1
+            # Where you slept (§7.1-7.5), then the Doom surcharge, then the
+            # Deerclops doubling — the Lua's order in tick_victory.lua.
+            tile_mod = LOCATION_SANITY_MOD[c.location]
+            if "kitchenflat" in self.knobs and tile_mod > 0:
+                tile_mod = 0
+            sanity_loss = max(0, 1 - tile_mod)
             if self.doom >= DOOM_THRESHOLDS["tick"]:
                 sanity_loss += 1
             if self.deerclops_alive:
@@ -1267,7 +1295,8 @@ POLICIES = {p.name: p for p in (Turtle(), Spread(), Balanced(), CourtCamper(),
 # ---------------------------------------------------------------------------
 
 def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="standard",
-             location_defence=True, scenario="none", topology=DEFAULT_TOPOLOGY):
+             location_defence=True, scenario="none", topology=DEFAULT_TOPOLOGY,
+             knobs=()):
     rng = random.Random(seed)
     wins = 0
     losses = Counter()
@@ -1277,7 +1306,7 @@ def simulate(policy_name, players, rules, sims, seed, roster=None, difficulty="s
     for _ in range(sims):
         g = Game(POLICIES[policy_name], players, rules, random.Random(rng.random()),
                  roster=roster, difficulty=difficulty, location_defence=location_defence,
-                 scenario=scenario, topology=topology)
+                 scenario=scenario, topology=topology, knobs=knobs)
         won = g.run()
         wins += won
         if not won:
@@ -1443,6 +1472,12 @@ def main():
                          "rosters, columns are the setup draw, cells are the "
                          "best win%% over the policy set. The composition "
                          "question asked per Scenario / per map.")
+    ap.add_argument("--knob", action="append", default=[], choices=list(KNOBS),
+                    metavar="NAME", dest="knobs",
+                    help="apply a candidate rule change and re-measure "
+                         "(repeatable). These are PRICING experiments, not "
+                         "shipped rules: " +
+                         "; ".join(f"{k} = {v}" for k, v in KNOBS.items()))
     ap.add_argument("--no-defence", dest="defence", action="store_false",
                     help="switch off the per-location defence roll (§7.1-7.5) — "
                          "the control group for it, reproducing the flat "
@@ -1452,7 +1487,8 @@ def main():
     defence = args.defence
     # Every simulate() call in this function shares the same setup dials.
     fixed = dict(difficulty=args.difficulty, location_defence=defence,
-                 scenario=args.scenario, topology=args.topology)
+                 scenario=args.scenario, topology=args.topology,
+                 knobs=tuple(args.knobs))
 
     if args.sweep_scenario or args.sweep_topology:
         axis = "scenario" if args.sweep_scenario else "topology"
@@ -1577,7 +1613,8 @@ def main():
     print(f"Starve No More balance sim — {args.sims} games/policy, "
           f"{args.players} players, rules={args.rules}, mode={args.difficulty}, "
           f"defence={'on' if defence else 'OFF'}, scenario={args.scenario}, "
-          f"topology={args.topology}\n")
+          f"topology={args.topology}"
+          + (f", knobs={'+'.join(args.knobs)}" if args.knobs else "") + "\n")
     print(f"{'policy':<14}{'win%':>7}{'loss:doom':>11}{'loss:down':>11}{'loss:source':>13}"
           f"{'avg doom':>10}{'avg downs':>11}{'fester/dawn':>13}{'late-loss%':>12}"
           f"{'blocked':>9}{'exposed':>9}")

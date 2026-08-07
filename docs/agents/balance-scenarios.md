@@ -26,20 +26,27 @@ only levies on a day he *moved*. Applied as written, a house camp draws
 **nothing at all** at night until Doom 10, because `LOCATION_THREAT_RATE`
 (night.lua) is 0 at all three houses.
 
-| policy | batch 5 (Loud hardcoded) | batch 6 (Loud as written) |
-|---|---|---|
-| turtle (everyone camps at Ellie & Luca's) | 40.3% | **97.9%** |
-| spread (gather near home, sleep at home) | 42.0% | **86.6%** |
-| balanced (engage the map, fight the bosses) | 16.2% | 18.9% |
-| court_camper | 13.9% | 24.9% |
-| net_camper | 8.2% | 20.9% |
+| policy | batch 5 (Loud hardcoded) | batch 6 (Loud as written) | batch 6b (+ printed-rule fixes) |
+|---|---|---|---|
+| turtle (everyone camps at Ellie & Luca's) | 40.3% | 97.9% | **99.9%** |
+| spread (gather near home, sleep at home) | 42.0% | 86.6% | **90.4%** |
+| balanced (engage the map, fight the bosses) | 16.2% | 18.9% | 33.8% |
+| court_camper | 13.9% | 24.9% | 37.4% |
+| net_camper | 8.2% | 20.9% | 34.1% |
 
 4 players, Star, no Scenario, 3000 games. The **entire** 40–50% calibration in
 [balance-simulation.md](balance-simulation.md) was resting on that hardcode: it
 was the only thing charging a stationary team anything. The design's stated
 anti-stacking pressure (crowded floor, festering bosses, §15.1) is real but
 nowhere near enough — a 4-player camp banks 25+ Provisions it never needs and
-loses only to the Doom clock, which it beats 98 times in 100.
+loses only to the Doom clock, which it beats 999 times in 1000.
+
+Batch 6b then wired two rules the board had been printing at players and
+nothing implemented (the Badminton Court's threat rate, and the per-tile Tick
+Sanity modifier — see
+[balance-map-and-rosters.md](balance-map-and-rosters.md)). Both were correct to
+fix and both pushed the same way: the Kitchen's printed **+1 Sanity at Tick**
+is a bonus for never leaving the tile the camp already sits on.
 
 Everything below is therefore reported **per strategy**, not as a single "win
 rate": the `turtle` column is what a table that discovers camping reaches, and
@@ -47,23 +54,25 @@ rate": the `turtle` column is what a table that discovers camping reaches, and
 between those two columns is the real balance problem; the columns themselves
 are the answer to "which Scenario / which map / which team is harder".
 
-Two knobs to price if you want the camp to cost something (neither measured —
-they are design decisions, not sim findings): a non-zero house threat rate once
-the Doom track opens, or making the crowded floor bite harder than "no regen".
+Priced answers, in the order to take them:
+[balance-recommendations.md](balance-recommendations.md). The short version is
+that there are *two* free strategies — one house (`turtle`) and one-per-house
+(`spread`) — and the crowd rule the game already owns as a Dawn-card effect
+answers only the first.
 
 ## Scenario × strategy (4 players, Star)
 
 | Scenario | turtle | spread | balanced | court_camper | net_camper |
 |---|---|---|---|---|---|
-| No Scenario *(control)* | 97.8% | 88.2% | 19.4% | 25.1% | 21.4% |
-| **The Long Winter** | **25.1%** | 59.0% | 1.1% | 1.2% | 0.7% |
-| The Scorching Summer | 97.4% | 86.8% | 9.7% | 14.4% | 10.3% |
-| The Rotting Autumn | 98.2% | 85.4% | 4.3% | 5.9% | 4.6% |
-| **The False Spring** | **43.5%** | 87.1% | 16.8% | 22.6% | 18.9% |
-| Total Blackout | 96.2% | 55.4% | 17.5% | 17.5% | 17.5% |
-| Strict Rationing | 97.6% | 77.1% | 20.6% | 26.0% | 22.7% |
-| **The Full Moon** | **100.0%** | 87.8% | 32.4% | 35.8% | 33.6% |
-| **The Shortcut** | 97.8% | **12.3%** | 6.5% | 9.0% | 6.5% |
+| No Scenario *(control)* | 99.9% | 90.5% | 34.0% | 37.5% | 34.2% |
+| **The Long Winter** | **44.4%** | 62.0% | 1.4% | 1.6% | 1.4% |
+| The Scorching Summer | 99.8% | 89.5% | 16.2% | 18.8% | 13.6% |
+| The Rotting Autumn | 99.9% | 90.0% | 6.2% | 7.4% | 6.0% |
+| The False Spring | 95.2% | 89.9% | 28.8% | 31.9% | 29.8% |
+| Total Blackout | 98.5% | 65.1% | 34.3% | 34.3% | 34.3% |
+| Strict Rationing | 99.9% | 82.1% | 36.0% | 39.5% | 36.8% |
+| **The Full Moon** | **100.0%** | 88.6% | 42.0% | 43.1% | 39.0% |
+| **The Shortcut** | 99.9% | **14.6%** | 10.7% | 12.2% | 10.7% |
 
 Five readings:
 
@@ -100,83 +109,71 @@ Five readings:
 
 ## Team × Scenario (the composition question, asked per card)
 
-`--matrix scenario`, 600 games/cell, Star. Two strategies, because they answer
-different questions: what a camping table gets away with, and which teams can
-actually play the map.
+`--matrix scenario`, 500 games/cell, Star. Under **camping** every team clears
+98–100% on eight of the nine columns, so only two columns discriminate at all:
 
-### Camping (`--policy turtle`)
+| team | WINTER | SPRING | other 7 |
+|---|---|---|---|
+| 3p Rayman+Ellie+Luca | 97% | **45%** | 100% |
+| 3p Coco+Ellie+Luca | 86% | 90% | 100% |
+| 3p James+Ellie+Luca | 75% | 87% | 99% |
+| 4p James+Coco+Ellie+Luca | 69% | 99% | 100% |
+| 4p Coco+Rayman+Ellie+Luca | 69% | 89% | 100% |
+| 5p all five | 67% | 97% | 100% |
+| 3p Coco+Rayman+Ellie | 66% | 100% | 100% |
+| 4p James+Rayman+Ellie+Luca | 65% | 89% | 100% |
+| 3p James+Coco+Ellie | 51% | 95% | 99% |
+| 4p James+Coco+Rayman+Ellie | 47% | 95% | 100% |
+| 3p James+Rayman+Ellie | 45% | 93% | 100% |
+| 3p Coco+Rayman+Luca | **0%** | 100% | 100% |
+| 4p James+Coco+Rayman+Luca | **0%** | 98% | 100% |
+| 3p James+Coco+Rayman | **0%** | 99% | 99% |
+| 3p James+Rayman+Luca | **0%** | 100% | 100% |
+| 3p James+Coco+Luca | **0%** | 96% | 99% |
 
-| team | none | WINTER | SPRING | FULL_MOON | other 5 (mean) | mean |
-|---|---|---|---|---|---|---|
-| 3p Coco+Ellie+Luca | 100% | 82% | 88% | 100% | 100% | 96% |
-| 4p James+Coco+Ellie+Luca | 100% | 60% | 100% | 100% | 100% | 96% |
-| 3p Coco+Rayman+Ellie | 100% | 63% | 87% | 100% | 100% | 94% |
-| 5p all five | 100% | 54% | 94% | 100% | 99% | 94% |
-| 4p Coco+Rayman+Ellie+Luca | 99% | 66% | 81% | 100% | 99% | 93% |
-| 3p Coco+Rayman+Luca | 100% | **0%** | 99% | 100% | 100% | 89% |
-| 3p James+Coco+Ellie | 95% | 33% | 93% | 99% | 95% | 88% |
-| 3p Rayman+Ellie+Luca | 99% | 96% | **2%** | 100% | 99% | 88% |
-| 4p James+Coco+Rayman+Luca | 100% | **0%** | 92% | 100% | 99% | 88% |
-| 3p James+Coco+Rayman | 100% | **0%** | 95% | 100% | 99% | 87% |
-| 3p James+Coco+Luca | 98% | **0%** | 93% | 99% | 97% | 86% |
-| 4p James+Coco+Rayman+Ellie | 98% | 28% | 44% | 100% | 97% | 84% |
-| 3p James+Rayman+Luca | 99% | **0%** | 19% | 100% | 98% | 79% |
-| 4p James+Rayman+Ellie+Luca | 90% | 32% | 14% | 99% | 89% | 76% |
-| 3p James+Ellie+Luca | 74% | 32% | 13% | 95% | 72% | 64% |
-| 3p James+Rayman+Ellie | 53% | 38% | **2%** | 100% | 45% | 46% |
+**The Long Winter is a roster gate, not a difficulty.** Every one of the five
+Ellie-less teams wins **0%**; every team with her wins 45–97%. Doubled Hunger
+decay plus `foodGatherPenalty` closes the food economy, and only Ellie (Knows
+the Pantry's guaranteed +1, Crockpot Master's 1-Provisions meal) beats both at
+once. §6.6 promises any three of the five are a team; this card voids that for
+a third of the rosters. Priced fixes:
+[balance-recommendations.md](balance-recommendations.md#recommendation-4--the-long-winter-is-not-a-difficulty-it-is-a-roster-gate).
 
-**Two hard composition gates, and each is a single character:**
-
-* **The Long Winter needs Ellie.** Every one of the five Ellie-less teams wins
-  **0%**; every team with her wins 28–96%. Doubled Hunger decay plus
-  `foodGatherPenalty` means raw Provisions cannot keep up, and Ellie is the
-  only character who makes the food economy work at the kitchen (Knows the
-  Pantry's guaranteed +1, and Crockpot Master's 1-Provisions meal). This is a
-  §6.6 "any 3 of the 5" violation with a hard edge: not "harder without her",
-  *impossible* without her.
-* **The False Spring needs Coco** (or a Flashlight nobody can build). From Day
-  4 Charlie checks every tile; a camp at the kitchen can never craft a
-  Flashlight, because the centre's draw table has no Metal and no Battery.
-  Coco is Charlie-immune and James starts with a light, so teams holding
-  neither collapse: Rayman+Ellie+Luca 2%, James+Rayman+Ellie 2%,
-  James+Ellie+Luca 13%, James+Rayman+Ellie+Luca 14%.
-
-Note that both gates are invisible on the "No Scenario" column, where 13 of 16
-teams sit at 98–100%. **Composition only matters once a Scenario is on the
-table** — which is always, since setup draws one.
+**The False Spring has a softer version of the same gate.** Charlie checks
+every tile from Day 4, and a camp at the Kitchen can never craft a Flashlight
+(the centre's draw table has no Metal and no Battery). Coco is Charlie-immune
+and James starts with a light, so the one team holding neither — Rayman+Ellie
++Luca — sits at 45% while everyone else clears 87%.
 
 ### Engaged play (`--policy balanced`)
 
-Column means: no Scenario 29%, Winter 5%, Summer 24%, Autumn 21%, Spring 22%,
-Blackout 29%, Rationing 29%, Full Moon 41%, Shortcut 20%.
+Column means: no Scenario 39%, Winter 7%, Summer 31%, Autumn 26%, Spring 29%,
+Blackout 37%, Rationing 39%, Full Moon 50%, Shortcut 29%.
 
 | team | none | WINTER | FULL_MOON | mean over all 9 |
 |---|---|---|---|---|
-| 4p James+Coco+Ellie+Luca | 88% | 45% | 89% | **79%** |
-| 3p Coco+Ellie+Luca | 79% | 5% | 85% | 67% |
-| 3p James+Ellie+Luca | 74% | 10% | 88% | 55% |
-| 5p all five | 64% | 7% | 83% | 50% |
-| 4p Coco+Rayman+Ellie+Luca | 48% | 4% | 80% | 43% |
-| 3p James+Coco+Ellie | 41% | 1% | 42% | 29% |
-| 3p Rayman+Ellie+Luca | 14% | 1% | 66% | 16% |
-| 4p James+Coco+Rayman+Ellie | 19% | 1% | 30% | 14% |
-| 3p Coco+Rayman+Ellie | 16% | 1% | 30% | 13% |
-| 3p James+Coco+Luca | 12% | 0% | 12% | 7% |
-| 4p James+Rayman+Ellie+Luca | 4% | 0% | 25% | 6% |
-| 3p Coco+Rayman+Luca | 6% | 0% | 7% | 5% |
-| 4p James+Coco+Rayman+Luca | 4% | 0% | 7% | 3% |
-| 3p James+Rayman+Luca | 1% | 0% | 5% | 1% |
-| 3p James+Rayman+Ellie | 1% | 1% | 5% | 1% |
+| 4p James+Coco+Ellie+Luca | 91% | 45% | 91% | **83%** |
+| 3p Coco+Ellie+Luca | 95% | 6% | 95% | 78% |
+| 3p James+Ellie+Luca | 83% | 16% | 92% | 67% |
+| 5p all five | 78% | 9% | 90% | 60% |
+| 4p Coco+Rayman+Ellie+Luca | 60% | 4% | 92% | 54% |
+| 3p James+Coco+Ellie | 49% | 1% | 50% | 35% |
+| 3p Rayman+Ellie+Luca | 41% | 2% | 83% | 34% |
+| 4p James+Coco+Rayman+Ellie | 37% | 2% | 42% | 24% |
+| 3p Coco+Rayman+Ellie | 30% | 2% | 40% | 22% |
+| 3p James+Rayman+Ellie | 15% | 18% | 34% | 15% |
+| 4p James+Rayman+Ellie+Luca | 9% | 3% | 63% | 15% |
+| 3p James+Coco+Luca | 12% | 0% | 12% | 8% |
+| 3p Coco+Rayman+Luca | 7% | 0% | 7% | 5% |
+| 3p James+Rayman+Luca | 6% | 0% | 9% | 5% |
+| 4p James+Coco+Rayman+Luca | 6% | 0% | 6% | 4% |
 | 3p James+Coco+Rayman | 0% | 0% | 0% | **0%** |
 
-The spread here is 0–79%, and it is **not** a player-count story: the best team
-is a 4p, the second and third are 3p, and the full 5p roster is fourth. It is a
-Rayman story, exactly as batch 5 recorded — every team in the bottom half
-carries him, and the top four are the four teams that do not. The standing
-caveat still applies and matters more than ever here: **his costs are fully
-modeled (Big Appetite, Loud, tank-takes-all-counters) and most of his value is
-not** (Defend, Court Master, Speed's tactical reach, Trophies). Read his rows
-as a floor, not a verdict — but note that Loud is now modeled *correctly*, and
-its correct form makes him worse in exactly the situations the old hardcode was
-hiding: he is the one character who cannot camp for free.
-
+The spread is 0–83% and it is **not** a player-count story: the best team is a
+4p, the second and third are 3p, and the full 5p roster is fourth. It is a
+Rayman story — every team in the bottom half carries him, and three of the top
+four do not. The standing caveat matters more than ever here: **his costs are
+fully modeled and most of his value is not** (Defend, Court Master, Speed's
+reach, Trophies), so read his rows as a floor. Loud is now modeled correctly,
+and its correct form makes him worse in precisely the case the old hardcode
+hid: he is the one character who cannot camp for free.

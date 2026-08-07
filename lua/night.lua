@@ -9,12 +9,17 @@
 -----------------------------------------------------------------------
 -- Location threat rates
 -----------------------------------------------------------------------
+-- MIRRORS the `threat_rate` column of content/locations.csv
+-- (tests/test_cross_refs.py guards the pair). The Badminton Court was 1 here
+-- while the CSV, its tooltip, its What-now hint and design §7.5 all called it
+-- "the highest threat draw rate at Night" — three places printed a hazard the
+-- night resolver never rolled, and the tile's whole identity is that hazard.
 LOCATION_THREAT_RATE = {
     JamesHouse       = 0,
     RaymanHouse      = 0,
     EllieLucaHouse   = 0,
     BasketballCourt  = 1,
-    BadmintonCourt   = 1,
+    BadmintonCourt   = 2,
 }
 
 -----------------------------------------------------------------------

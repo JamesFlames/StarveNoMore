@@ -165,6 +165,27 @@ LOCATION_DEFENSE = {
     BadmintonCourt  = 1,   -- The Net: the nets entangle attackers
 }
 
+-----------------------------------------------------------------------
+-- Per-location Sanity modifier at Tick, Design §7.1-7.5 ("+1 (homey, warm)",
+-- "-1 (creepy at night, the building groans)") and the §8 cost table's
+-- "Sleeping at a court -1 Sanity (location modifier)". MIRRORS the
+-- `sanity_modifier` column of content/locations.csv; tests/test_cross_refs.py
+-- guards the mirror.
+--
+-- Read by the Tick (tick_victory.lua): the modifier is SUBTRACTED from the
+-- Sanity loss, so +1 at the kitchen means a quiet night there and -1 at a
+-- court means the night costs two. All five board tooltips have printed this
+-- number since before anything read it — the courts said "-1 Sanity at Tick"
+-- and the Tick charged everyone the same 1 wherever they slept.
+-----------------------------------------------------------------------
+LOCATION_SANITY_MOD = {
+    JamesHouse      = 0,
+    RaymanHouse     = 0,
+    EllieLucaHouse  = 1,   -- the Kitchen: homey, warm
+    BasketballCourt = -1,  -- creepy at night, the building groans
+    BadmintonCourt  = -1,
+}
+
 ACTIONS_PER_TURN = 3
 
 -----------------------------------------------------------------------

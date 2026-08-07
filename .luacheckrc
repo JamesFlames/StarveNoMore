@@ -81,6 +81,7 @@ globals = {
     "LOCATION_ADJACENCY",
     "LOCATION_DEFENSE",
     "LOCATION_ORDER",
+    "LOCATION_SANITY_MOD",
     "LOCATION_THREAT_RATE",
     "LOCATION_YIELDS",
     "Lighting",

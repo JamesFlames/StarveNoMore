@@ -126,6 +126,17 @@ def test_location_threat_rate_matches():
         f"threat rates drifted: lua={lua_rates} sim={sim.LOCATION_THREAT_RATE}")
 
 
+def test_location_sanity_mod_matches(lua_globals):
+    """The Tick's per-tile Sanity term (§7.1-7.5). It decides what a night at
+    a court costs against a night at the kitchen, which is the whole positional
+    argument the Dusk scramble is about."""
+    for loc, value in sim.LOCATION_SANITY_MOD.items():
+        lua_value = lua_globals.eval(f"LOCATION_SANITY_MOD.{loc}")
+        assert lua_value is not None, f"{loc} missing from LOCATION_SANITY_MOD"
+        assert value == lua_value, (
+            f"LOCATION_SANITY_MOD.{loc}: sim={value} lua={lua_value}")
+
+
 # ---------------------------------------------------------------------------
 # Setup dials: Scenario flags and the path variants (scripts/sim_variants.py)
 # ---------------------------------------------------------------------------
@@ -165,6 +176,28 @@ def test_every_scenario_flag_is_read_by_the_sim():
                     if f'"{flag}"' not in src)
     assert not unread, (
         f"scenarioFlags modeled but never read in simulate_balance.py: {unread}")
+
+
+def test_every_knob_is_read_by_the_sim():
+    """`--knob` prices candidate rules for docs/agents/balance-recommendations.md.
+    A knob nobody reads prices nothing, and would quietly report "no effect"."""
+    import sim_variants as sv
+
+    src = read_text(os.path.join(SCRIPTS, "simulate_balance.py"))
+    unread = sorted(k for k in sv.KNOBS if f'"{k}"' not in src)
+    assert not unread, f"knobs defined but never read: {unread}"
+
+
+def test_the_crowd_knob_actually_prices_the_camp():
+    """The headline recommendation: 3+ sleepers on a tile draw +1 Threat. The
+    effect is enormous (turtle ~100% -> ~20%), so a small batch is enough —
+    and if it ever stops biting, the recommendation is stale."""
+    plain = sim.simulate("turtle", 4, "new", 300, 42)["win"]
+    knobbed = sim.simulate("turtle", 4, "new", 300, 42, knobs=("crowd",))["win"]
+    assert plain > 0.9, f"turtle no longer camps to {plain:.0%} — re-price the knobs"
+    assert knobbed < 0.45, (
+        f"the crowd knob took turtle to {knobbed:.0%}, not the ~20% "
+        "balance-recommendations.md quotes")
 
 
 def test_topologies_are_connected_and_shortcut_adds_one_road():
@@ -356,8 +389,10 @@ def test_roster_override_sweep_smoke(policy):
 # Baselines (docs/agents/balance-simulation.md, 2026-08 batch 6 — batch 5 plus
 # the movement model: real path variants, the one-tile Dusk scramble, and
 # Loud read off tracked movement instead of a hardcoded True; new rules,
-# 4 players, Star, no Scenario, 3000 sims): turtle 98%, spread 87%,
-# balanced 19%, court_camper 25%, net_camper 21%.
+# 4 players, Star, no Scenario, 3000 sims), then batch 6b's two printed-rule
+# fixes (the Badminton Court's threat_rate 1 -> 2, and LOCATION_SANITY_MOD
+# wired into the Tick): turtle 99.9%, spread 90%, balanced 34%,
+# court_camper 37%, net_camper 34%.
 #
 # The camping lines are FAR above §20.2's 40-50% band and that is the finding,
 # not a drift: batch 5's 40% turtle was charging a team that never moves for
@@ -369,11 +404,11 @@ def test_roster_override_sweep_smoke(policy):
 # ---------------------------------------------------------------------------
 
 WIN_BANDS = {
-    "turtle": (0.90, 1.00),
-    "spread": (0.75, 0.97),
-    "balanced": (0.08, 0.32),
-    "court_camper": (0.12, 0.38),
-    "net_camper": (0.08, 0.34),
+    "turtle": (0.95, 1.00),
+    "spread": (0.80, 0.98),
+    "balanced": (0.24, 0.45),
+    "court_camper": (0.26, 0.48),
+    "net_camper": (0.24, 0.45),
 }
 
 
@@ -433,11 +468,21 @@ def test_nightmare_is_winnable_but_only_just(lua_globals):
     magnitude needs a table (§20.2 item 10)."""
     import simulate_balance as sb
 
-    def best(mode, sims=400):
+    def best(mode, sims=400, policies=None):
         return max(sb.simulate(p, 4, "new", sims, 7, difficulty=mode)["win"]
-                   for p in sb.POLICIES)
+                   for p in (policies or sb.POLICIES))
 
-    story, standard, nightmare = best("story"), best("standard"), best("nightmare")
+    # The ladder is read off the lines that engage the game. `turtle` saturates
+    # every mode (100% / 100% / 90%), because a house camp is nearly free until
+    # Doom 10 — so the camping line cannot tell Story from Standard at all.
+    # That is the open balance problem (docs/agents/balance-scenarios.md), not
+    # a difficulty bug, and the ordering it hides is still there underneath.
+    engaged = ("balanced", "court_camper", "net_camper", "spread")
+    story, standard, nightmare = (best(m, policies=engaged)
+                                  for m in ("story", "standard", "nightmare"))
+    assert best("standard", policies=("turtle",)) > 0.9, (
+        "turtle no longer saturates Standard — re-read the camping finding "
+        "before adjusting this test; the ladder may be readable everywhere now")
     assert nightmare > 0.08, (
         f"Nightmare best line {nightmare:.1%} — that is unwinnable, not hard")
     assert nightmare < standard, (

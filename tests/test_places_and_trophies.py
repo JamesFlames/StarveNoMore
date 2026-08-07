@@ -20,6 +20,18 @@ supposed to be paid for with.
 hint, and its tooltip. There was no defence roll anywhere in the mod, and
 `locations.csv` carried a `defense` column that nothing read.
 
+**"-1 Sanity at Tick" / "+1 Sanity at Tick"** — every one of the five board
+tooltips prints the tile's Sanity modifier, design §7.1-7.5 gives each tile
+one, and the §8 cost table bills "sleeping at a court" for it. Nothing read
+`locations.csv`'s `sanity_modifier` column: the Tick charged the same 1
+wherever you slept, so the whole positional argument the Dusk scramble is
+about had no mechanical weight.
+
+**"Highest threat draw rate at Night"** — the Badminton Court's tooltip, its
+What-now hint and design §7.5. `LOCATION_THREAT_RATE` gave it 1, exactly like
+the Basketball Court, while `locations.csv` said 2. The tile's one distinctive
+hazard was printed three times and rolled nowhere.
+
 **"The Garage: Rest +1 Health"** — Rayman's House's tooltip, with no owner
 qualifier, because §7.2 puts the bonus on the *place*. The code gave +1 Health
 only at your own home, so the Garage did nothing for anyone except Rayman, for
@@ -284,3 +296,45 @@ def test_the_rules_panel_lists_the_powers_the_team_holds(env):
     body = lua_to_py(env.eval("TTS.ui"))["attrs"]["rulesBody"]["text"]
     assert "The Antler Sled" in body
     assert "The Watching Jar" not in body, "only the trophies actually earned"
+
+
+# ---------------------------------------------------------------------------
+# The tile you slept on (Design §7.1-7.5): the Tick's Sanity modifier and the
+# Badminton Court's threat rate. Both were printed on the board and nowhere
+# else — see this module's docstring.
+# ---------------------------------------------------------------------------
+
+
+class TestWhereYouSlept:
+    @pytest.mark.parametrize("location,expected", [
+        ("BasketballCourt", 8),    # -1 base, -1 the open court
+        ("BadmintonCourt", 8),
+        ("JamesHouse", 9),         # -1 base, no modifier
+        ("EllieLucaHouse", 10),    # -1 base, +1 the warm kitchen
+    ])
+    def test_tick_sanity_depends_on_the_tile(self, env, location, expected):
+        add_char(env, "Blue", "Luca", location=location, sanity=10)
+        env.globals().resolveTick()
+        assert env.eval("gameState.activeChars.Blue.sanity") == expected
+
+    def test_a_court_night_says_so(self, env):
+        add_char(env, "Blue", "Luca", location="BadmintonCourt", sanity=10)
+        env.globals().resolveTick()
+        assert any("slept in the open" in b for b in broadcasts(env))
+
+    def test_the_kitchen_never_gains_sanity(self, env):
+        """The modifier subtracts from a loss; it must not turn the Tick into
+        a heal, or the kitchen becomes a Sanity engine nobody would leave."""
+        add_char(env, "Blue", "Luca", location="EllieLucaHouse", sanity=4)
+        env.globals().resolveTick()
+        assert env.eval("gameState.activeChars.Blue.sanity") == 4
+
+    def test_badminton_is_the_highest_threat_tile(self, env):
+        rate = {loc: env.eval(f"LOCATION_THREAT_RATE.{loc}")
+                for loc in ("JamesHouse", "RaymanHouse", "EllieLucaHouse",
+                            "BasketballCourt", "BadmintonCourt")}
+        assert rate["BadmintonCourt"] > rate["BasketballCourt"], (
+            "the Badminton Court's tooltip, its What-now hint and §7.5 all call "
+            "it the highest threat draw rate at Night")
+        assert all(rate[house] == 0
+                   for house in ("JamesHouse", "RaymanHouse", "EllieLucaHouse"))

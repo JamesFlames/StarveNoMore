@@ -18,7 +18,8 @@ split at its natural seams. Open the topic, not this index.
 | [balance-simulation.md](balance-simulation.md) | 1.8k | re-run the Monte Carlo after a rules change |
 | [balance-location-defence.md](balance-location-defence.md) | 1.3k | read the batch-5 verdict on the §7.1-7.5 defence roll |
 | [balance-scenarios.md](balance-scenarios.md) | 2.5k | which Scenario card is hard, and which team survives it |
-| [balance-map-and-rosters.md](balance-map-and-rosters.md) | 1.8k | what the path variant, the roster and the player count are worth |
+| [balance-map-and-rosters.md](balance-map-and-rosters.md) | 2.2k | what the path variant, the roster and the player count are worth |
+| [balance-recommendations.md](balance-recommendations.md) | 2.1k | priced rule changes, in the order to take them |
 | [ux-affordances.md](ux-affordances.md) | 2.1k | keep "the next legal action is always visible" true |
 | [audio.md](audio.md) | 1.2k | add or change a sound |
 | [comfyui.md](comfyui.md) | 1.9k | regenerate card or board art |
