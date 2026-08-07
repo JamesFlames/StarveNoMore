@@ -149,3 +149,19 @@ The character briefing (§18.16 step 3) already ends with "Your first move," but
 **Risk: nearly none.** A suggestion is not a constraint, and it fires once. **Cost:** one scripted Dawn plus five one-line strings; no rules change.
 
 ---
+
+### 15.10 The Gathering
+
+**From Day 3, a tile where three or more characters spend the Night draws +1 Threat card — unless a boss is already standing there.** The broadcast is the one the crowd-drawn Dawn card already used: *"It is drawn to the gathering."*
+
+This exists because the strongest line in the game was to stop playing it. Houses draw no threats of their own (§7.1-7.3), so a team that spent every night in one room simply had no nights: the Monte Carlo probe measured that strategy at **~100% wins** against §20.2's 40-50% target, on every map, at every player count, and under seven of the eight Scenarios. Every pressure the design aims at huddling — the crowded floor's two beds, uncapped boss festering, §15.1's "ignoring the map is never the cheap line" — was priced against a team that still went outside sometimes. None of it reached a team that never did.
+
+Three limits keep it a nudge rather than a ban, and each is load-bearing:
+
+- **It waits for Phase 2.** Days 1-2 are the calm the week opens on (§13), and a Day-1 huddle while everyone finds their feet is fine. The rule arrives with Strange Days, when the neighbourhood starts noticing.
+- **It never fires where a boss stands.** The design spends the whole week telling the team to converge — on the Deerclops, on the Treeguard, and mandatorily on the Source (§16.3.3). Charging a Threat for obeying that would be the rule punishing its own climax. Gathering to fight is not hiding.
+- **It is one card, not a scaling penalty.** Three heads and five heads pay the same. A per-head cost priced the 5-player camp out of existence and made the rule a table-size tax rather than a positional one.
+
+Priced at 3000 games/cell: the camping line falls from **99.9% to 74%** at 4 players (57% at 3p, 93% at 5p — a bigger group fights the extra card off more easily, which is the intended shape of "you can still do this, it just costs something"). The lines that already engage the map move by 2-3 points. The 5-player number is the weakest part of the rule and the first thing to re-measure at a table.
+
+**What it does not fix.** One character per house is a *second* free strategy, and The Gathering cannot reach it — three separate houses never put three heads on a tile. That line still wins ~90%, and the priced answer to it (moving the Doom threshold that puts +1 Threat on every tile from 10 to 6) is recorded but unshipped: see [balance-recommendations.md](../agents/balance-recommendations.md).

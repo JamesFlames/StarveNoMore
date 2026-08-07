@@ -10,7 +10,8 @@ local setupState = {
     hostColor = nil,
     pickedPath = nil,
     rotationTurns = false, -- §11.2 rotation variant (1 action per visit)
-    randomScenario = false, -- §17.3 optional Scenario (applied at finalize)
+    randomScenario = false, -- §17.3 optional Scenario (drawn at 1.5, applied at finalize)
+    scenarioId = nil,       -- the card drawn at step 1.5, before character picks
     charPicks = {},       -- { [color] = charName }
     pendingColors = {},   -- colors still needing to pick
 }
@@ -238,7 +239,7 @@ function onToggleScenario(player, value, id)
     if isGhostSetupClick(1.5, player) then return end
     setupState.randomScenario = not setupState.randomScenario
     refreshVariantToggle("toggleScenario", setupState.randomScenario,
-        "Random Scenario: ON\n(a week-long twist like The Long Winter — revealed at setup)",
+        "Random Scenario: ON\n(a week-long twist like The Long Winter — drawn before you pick characters)",
         "Random Scenario: OFF\n(a week-long twist like The Long Winter — recommended after your first game)")
 end
 
@@ -353,8 +354,16 @@ function onVariantsContinue(player, value, id)
     -- that the Doom limit is known. applyPathVariant no-ops when the image is
     -- already the right one, so Standard costs nothing.
     safecall(function() applyPathVariant(gameState.pathVariant) end, "BoardForDifficulty")
-    -- The Scenario (if any) is applied in finalizeGuidedSetup, after the
-    -- characters exist (some scenarios modify character stats).
+    -- The Scenario is DRAWN here and APPLIED in finalizeGuidedSetup, once the
+    -- characters exist (SC_SUMMER edits their stats). Drawing it now is the
+    -- point: the balance probe measured The Long Winter as unwinnable without
+    -- Ellie, so a table picking its roster before seeing the card is answering
+    -- a question nobody has read out yet.
+    if setupState.randomScenario then
+        setupState.scenarioId = drawScenarioId()
+        announceScenario(setupState.scenarioId)
+        broadcastEvent("proc", "That is this week. Pick your characters knowing it.")
+    end
 
     setupState.step = 2
     showCharPickForNextPlayer()
@@ -953,7 +962,12 @@ local function runGuidedSetupFinalize()
     -- because some scenarios modify character stats (e.g. Summer's -2 max
     -- Hunger).
     if setupState.randomScenario then
-        safecall(function() applyRandomScenario() end, "Scenario")
+        -- The card was drawn and read out at step 1.5, before the character
+        -- picks; this is where it takes effect.
+        local drawn = setupState.scenarioId
+        safecall(function()
+            if drawn then applyScenario(drawn) else applyRandomScenario() end
+        end, "Scenario")
     end
 
     -- After the scenario, never before it: recordSetupInChronicle stamps

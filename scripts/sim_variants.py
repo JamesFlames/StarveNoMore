@@ -126,20 +126,26 @@ SCENARIO_IDS = list(SCENARIOS)
 # and guarded by tests/test_sim.py, which fails if a knob changes nothing.
 # ---------------------------------------------------------------------------
 KNOBS = {
-    "crowd": "any tile with 3+ sleepers draws +1 Threat — the standing-rule "
-             "version of the crowdThreat Dawn card ('it is drawn to the "
-             "gathering'). The direct answer to camping.",
+    "nogathering": "switch The Gathering OFF (§15.6, the shipped rule: 3+ "
+                   "characters on a tile draw +1 Threat from Day 3 unless a "
+                   "boss stands there). The control group for it.",
+    "crowd": "the unshipped, harsher form of The Gathering: no Day-3 delay "
+             "and no boss exemption, stacked on top of the shipped rule.",
     "night6": "the Doom threshold that puts +1 Threat on every tile drops "
-              "from 10 to 6, so houses stop being free three days earlier.",
+              "from 10 to 6, so houses stop being free three days earlier. "
+              "The answer to one-per-house, which The Gathering cannot reach.",
     "floorcost": "a crowded-floor sleeper loses 1 Sanity instead of merely "
                  "regenerating nothing (§7 two beds per house).",
     "kitchenflat": "the Kitchen's +1 Tick Sanity (LOCATION_SANITY_MOD) is "
                    "removed, keeping the courts' -1 — the printed rule minus "
                    "the half that rewards never leaving.",
-    "winterlite": "The Long Winter drops foodGatherPenalty, keeping doubled "
-                  "Hunger decay and the house Sanity bonus.",
-    "moonteeth": "The Full Moon draws +1 Threat at every tile, so softToHard "
-                 "has something to promote where the team actually sleeps.",
+    "winterpantry": "The Long Winter's foodGatherPenalty stops applying at "
+                    "Ellie & Luca's House.",
+    "winterlate": "The Long Winter's doubled Hunger decay starts on Day 4.",
+    "moonlit": "The Full Moon draws at least 1 Threat at every tile, so "
+               "softToHard has something to promote where teams sleep.",
+    "moonwake": "The Full Moon costs everyone 1 extra Sanity at Tick in place "
+                "of the Charlie attack it cancels.",
 }
 
 

@@ -38,30 +38,32 @@ a table state. The other cells: [balance-scenarios.md](balance-scenarios.md),
 | `court_camper` | Balanced + Rayman sleeps at a court for Moonlit Salvage (unless a boss is loose) | Whether the salvage gamble is a temptation or an exploit |
 | `net_camper` | court_camper with **one berth moved**: the salvage camp is the Badminton Court, not the Basketball Court | Whether The Net's +1 defence pays for the tile's threat rate — and the only policy that ever stands on the Badminton Court |
 
-## Current baseline (2026-08 batch 6, 3000 sims, 4 players, Star, no Scenario)
+## Current baseline (2026-08 batch 7, 3000 sims, 4 players, Star, no Scenario)
 
-Batch 6 is a **movement-model** batch: no rule changed, four modelling gaps
-closed — real path variants, the one-tile Dusk scramble, map-aware policies,
-and (the one that moves everything) Rayman's Loud read off tracked movement
-instead of a hardcoded `True`. Write-up:
-[balance-map-and-rosters.md](balance-map-and-rosters.md).
+| policy | batch 5 | batch 6 | batch 6b | **batch 7** |
+|---|---|---|---|---|
+| turtle | 40.3% | 97.9% | 99.9% | **73.8%** |
+| spread | 42.0% | 86.6% | 90.4% | **90.4%** |
+| balanced | 16.2% | 18.9% | 33.8% | 30.2% |
+| court_camper | 13.9% | 24.9% | 37.4% | 33.1% |
+| net_camper | 8.2% | 20.9% | 34.1% | 30.1% |
 
-| policy | batch 5 | **batch 6** | loss:doom | loss:down | late-loss% |
-|---|---|---|---|---|---|
-| turtle | 40.3% | **97.9%** | 2% | 0% | 100% |
-| spread | 42.0% | **86.6%** | 9% | 0% | 100% |
-| balanced | 16.2% | **18.9%** | 47% | 20% | 99% |
-| court_camper | 13.9% | **24.9%** | 41% | 18% | 99% |
-| net_camper | 8.2% | **20.9%** | 46% | 18% | 99% |
+* **Batch 6 — the movement model.** No rule changed; four modelling gaps
+  closed (real path variants, the one-tile Dusk scramble, map-aware policies,
+  and Loud read off tracked movement instead of a hardcoded `True`). The last
+  is why turtle moves 40% → 98%: §6.2 levies Loud only on a day Rayman moved,
+  and houses draw no threats, so a camp drew nothing until Doom 10. **The whole
+  batch-5 40-50% calibration was resting on that hardcode.**
+* **Batch 6b — two printed rules wired** (Badminton's threat rate 1 → 2;
+  `LOCATION_SANITY_MOD` at the Tick).
+* **Batch 7 — The Gathering (§15.10)**: from Day 3, three or more characters on
+  one tile draw +1 Threat unless a boss stands there. `--knob nogathering` is
+  its control.
 
-**The 40–50% band is not met, and the batch-5 table that said it was had the
-sim charging a stationary team for Loud every night.** §6.2 levies Loud only on
-a day Rayman moved, and `LOCATION_THREAT_RATE` (night.lua) is 0 at every house,
-so a camp draws nothing at all until Doom 10. Calibrating against the camping
-line now means pricing a new anti-stacking rule, not turning an existing knob —
-the priced knob list below moves the *fighting* lines, which were never the
-ones setting the ceiling. Everything below this line is the batch-5 record,
-kept because the knob prices and the `--rules old` control are still valid.
+**The band is still not met, and the open item is named:** `spread` — one
+character per house, ignore the map — is a *second* free line at 90%, and The
+Gathering cannot reach it. The priced answer is
+[balance-recommendations.md](balance-recommendations.md).
 
 ## Batch-5 results (2026-07, 3000 sims, 4 players — the historic record)
 

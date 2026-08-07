@@ -16,7 +16,7 @@ Survive 7 nights as a team. The Doom track must stay below 30. If everyone is Do
 1. **Dawn** — Doom advances — faster if threats (and especially bosses) were left on the map. A Dawn card flips. Read it; do what it says.
 2. **Day** — Each player takes **3 actions** in turn order: Move, Gather, Craft, Cook, Fight, Rest, or Cleanse.
 3. **Dusk** — Last chance to move: scramble 1 tile (costs 1 Hunger) or stay. You sleep where you stand.
-4. **Night** — Threats are drawn at each occupied tile. Fight or take damage. Sleep restores stats — but a house only sleeps two comfortably.
+4. **Night** — Threats are drawn at each occupied tile. Fight or take damage. Sleep restores stats — but a house only sleeps two comfortably, and from Day 3 a tile holding three or more of you draws an extra Threat.
 5. **Tick** — Everyone loses 1 Hunger and 1 Sanity. Day Counter advances.
 
 ## Three stats
@@ -85,7 +85,8 @@ Last chance to move: each character may **scramble 1 tile** (costs 1 Hunger, onc
 
 ### Night
 For each occupied tile, least-populated first:
-- Draw threats per the location's threat rate (modified by Doom thresholds).
+- Draw threats per the location's threat rate (modified by Doom thresholds). Houses draw none of their own; the Basketball Court draws 1 and the Badminton Court 2.
+- **The Gathering** — from **Day 3**, a tile where **three or more** of you spend the Night draws **1 extra Threat**. It does not apply where a boss is standing: converging to fight is not hiding.
 - Resolve combat or damage. Each drawn card is one of three kinds:
   - **Soft** — it does its printed thing once and is discarded. Nothing to fight.
   - **Hard** — it must be fought or fled. Left standing, it festers at Dawn. Read its Special: several charge Sanity for attacking them, hit the moment they arrive, tax the tile they stand on, or call in help when they die.
@@ -99,6 +100,7 @@ For each occupied tile, least-populated first:
 
 ### Tick
 - Every character loses 1 Hunger and 1 Sanity.
+- **Where you slept counts**: Ellie & Luca's House is warm (−1 less Sanity), and either sport court is not (−1 more).
 - Rayman loses 2 Hunger.
 - Coco's allies lose 1 less Sanity here. Luca's allies gain +1 Sanity. Ellie's house gains +1 Sanity.
 - Pass First Player.

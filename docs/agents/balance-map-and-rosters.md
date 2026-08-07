@@ -22,18 +22,17 @@ python scripts/simulate_balance.py --matrix topology --policy balanced --sims 60
 
 | Variant | roads | turtle | spread | balanced | court_camper | net_camper |
 |---|---|---|---|---|---|---|
-| Star | 4 | 99.9% | **89.6%** | 34.4% | 37.9% | 34.5% |
-| Ring *(shipped default)* | 5 | 100.0% | 52.0% | 34.0% | 28.3% | 17.2% |
-| Compact | 6 | 99.9% | 51.7% | 34.3% | 38.8% | 35.2% |
-| Sprawl | 10 | 99.9% | 52.0% | **48.2%** | 43.1% | 36.2% |
-| Linear | 4 | 99.9% | 51.7% | 42.1% | 40.2% | 35.3% |
+| Star | 4 | 72.8% | **89.9%** | 31.9% | 33.9% | 31.0% |
+| Ring *(shipped default)* | 5 | 72.7% | 52.9% | 34.8% | 28.1% | 17.7% |
+| Compact | 6 | 72.8% | 50.9% | 33.9% | 38.0% | 34.7% |
+| Sprawl | 10 | 72.8% | 52.9% | **47.2%** | 43.1% | 36.1% |
+| Linear | 4 | 73.8% | 50.9% | 38.3% | 37.5% | 31.4% |
 
-1. **The map is worth nothing to a camp and ~14 points to everyone else.**
-   Turtle is flat at 99.9% across all five variants — it walks once on Day 1
-   and then never moves, so the graph might as well not exist. `balanced`
-   swings 34% → 48%, and `net_camper` 17% → 36%. Any lever that makes the map
-   matter has to make *staying* cost something first
-   ([balance-recommendations.md](balance-recommendations.md)).
+1. **The map is worth nothing to a camp and ~15 points to everyone else.**
+   Turtle is flat at 72.8–73.8% across all five variants — it walks once on Day
+   1 and then never moves, so the graph might as well not exist. Even The
+   Gathering (§15.10) does not change that: it costs a camp the same extra card
+   on every map. `balanced` swings 32% → 47%, and `net_camper` 18% → 36%.
 2. **Sprawl and Linear are the easy maps** for engaged play. Sprawl is the
    intuitive direction (one move reaches anything); Linear is not, and it wins
    because its chain puts a court next to every house. Either way the effect is
@@ -58,21 +57,20 @@ python scripts/simulate_balance.py --matrix topology --policy balanced --sims 60
 
 `--matrix topology`, 500 games/cell, no Scenario.
 
-Camping is flat: every team clears 99% on every variant. **The map only speaks
-to a team that uses it** — under `balanced` the column means are Star 39%,
-Ring 19%, Compact 39%, Sprawl 46%, Linear 45%, and individual teams swing far
-harder than the column:
+**The map only speaks to a team that uses it** — under `balanced` the column
+means are Star 29%, Ring 17%, Compact 32%, Sprawl 42%, Linear 34%, and
+individual teams swing far harder than the column:
 
 | team | Star | Ring | Compact | Sprawl | Linear |
 |---|---|---|---|---|---|
-| 3p Coco+Ellie+Luca | 95% | **13%** | 95% | 95% | 75% |
-| 4p James+Coco+Ellie+Luca | 91% | 39% | 91% | 91% | 76% |
-| 3p Rayman+Ellie+Luca | 41% | 21% | 41% | 29% | **74%** |
-| 3p Coco+Rayman+Ellie | 30% | 24% | 28% | **57%** | 40% |
-| 4p James+Rayman+Ellie+Luca | 9% | 1% | 7% | **40%** | 40% |
+| 3p James+Ellie+Luca | 55% | 45% | **84%** | 86% | 76% |
+| 4p James+Coco+Ellie+Luca | 74% | **31%** | 72% | 74% | 65% |
+| 5p all five | 70% | 64% | 65% | 81% | 78% |
+| 4p Coco+Rayman+Ellie+Luca | 46% | **24%** | 46% | 66% | 50% |
+| 4p James+Coco+Rayman+Luca | 6% | 11% | 4% | 22% | **29%** |
 
-A kitchen team (Coco+Ellie+Luca) loses 82 points moving from Star to Ring; a
-Rayman team gains 33 moving from Star to Linear. **No team's ranking survives
+A kitchen team loses 43 points moving from Star to Ring; a Rayman team gains 23
+moving from Star to Linear. **No team's ranking survives
 the map draw**, which means a table that judges "is this trio any good?" is
 really judging the variant it happened to draw. If the design wants
 compositions to have stable identities, the variant should not be a blind
@@ -81,10 +79,13 @@ random draw at setup — or the variants need to be closer together than
 
 ## Player count
 
-Best line per count, no Scenario, Star: **3p, 4p and 5p all camp to 99–100%**.
-Under `balanced` the counts separate — 3p 81%, 4p 34%, 5p 77% — so the
-per-count Doom rates (`DOOM_RATES`) make 4 players the hardest count on the
-engaged line and no count hard at all on the camping one. The 4p row is the one
+Camping per count after The Gathering: **3p 57%, 4p 74%, 5p 93%** — a bigger
+group fights the extra card off more easily, so the rule bites hardest at the
+counts where a camp was most cramped anyway. The 5-player number is the rule's
+weak spot and the first thing to re-measure at a table. Under `balanced` the
+counts separate differently — 3p 41%, 4p 28%, 5p 69% — so the per-count Doom
+rates (`DOOM_RATES`) still make 4 players the hardest count on the engaged
+line. The 4p row is the one
 every historic baseline was measured at, so it is also the only one that has
 been tuned; 3p and 5p have never been tuned against a *correct* Loud.
 

@@ -164,6 +164,19 @@ function drawThreatsAt(location, count)
     end
 end
 
+-- The Gathering's first night (Design §15.10). Phase 2 opens on Day 3, so the
+-- two quiet days of Phase 1 stay quiet. The balance sim mirrors this constant.
+GATHERING_FROM_DAY = 3
+
+-- Is a boss (or the Treeguard) standing here? Read by The Gathering, which
+-- exempts a tile the team has been sent to converge on.
+local function bossStandsAt(location)
+    for _, target in ipairs(fightTargetsAt(location) or {}) do
+        if target.boss then return true end
+    end
+    return false
+end
+
 -----------------------------------------------------------------------
 -- Resolve threats at one location
 -----------------------------------------------------------------------
@@ -206,6 +219,24 @@ function resolveNightAtLocation(location, colors)
             baseRate = baseRate + 1
             broadcastEvent("warn", "It is drawn to the gathering at " .. location .. " — +1 Threat.")
         end
+    end
+
+    -- The Gathering (§15.10): from Day 3, three or more characters spending the
+    -- Night on one tile draw an extra Threat. Huddling was the strongest line
+    -- in the game by a distance — a house draws nothing of its own, so a camp
+    -- simply had no nights (the balance probe measured it at ~100% wins) — and
+    -- §15.1 says ignoring the map is never meant to be the cheap line.
+    --
+    -- Two deliberate limits keep it a nudge rather than a ban. It waits for
+    -- Phase 2, so the opening stays calm and a Day-1 huddle is still allowed;
+    -- and it never fires on a tile where a boss is already standing, because
+    -- converging on the Deerclops or the Source is the game asking you to
+    -- gather, not you hiding from it.
+    if #colors >= 3 and (gameState.day or 1) >= GATHERING_FROM_DAY
+        and not bossStandsAt(location) then
+        baseRate = baseRate + 1
+        broadcastEvent("warn", "It is drawn to the gathering at " .. location ..
+            " (" .. #colors .. " of you) — +1 Threat.")
     end
 
     -- Alone at a sport court: +1 extra threat

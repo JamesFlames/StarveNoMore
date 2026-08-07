@@ -338,3 +338,43 @@ class TestWhereYouSlept:
             "it the highest threat draw rate at Night")
         assert all(rate[house] == 0
                    for house in ("JamesHouse", "RaymanHouse", "EllieLucaHouse"))
+
+
+# ---------------------------------------------------------------------------
+# The Gathering (Design §15.10) — the anti-huddle rule. A house draws no
+# threats of its own, so before this existed a whole team could sleep in one
+# room for a week and simply have no nights: the balance probe measured that
+# line at ~100% wins against a 40-50% design target.
+# ---------------------------------------------------------------------------
+
+
+class TestTheGathering:
+    def _night(self, env, colors, day=4, location="EllieLucaHouse"):
+        env.execute(f"gameState.day = {day}")
+        for i, name in enumerate(("James", "Coco", "Ellie", "Luca")[:len(colors)]):
+            add_char(env, colors[i], name, location=location)
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": [f"Location:{location}"], "position": [0, 1, 0]}))
+        env.globals().resolveNightAtLocation(location, py_to_lua(env, colors))
+        return " ".join(broadcasts(env))
+
+    def test_three_in_one_room_draw_an_extra_threat(self, env):
+        assert "drawn to the gathering" in self._night(env, ["White", "Red", "Green"])
+
+    def test_two_is_a_pair_not_a_crowd(self, env):
+        assert "drawn to the gathering" not in self._night(env, ["White", "Red"])
+
+    def test_the_opening_stays_quiet(self, env):
+        """Phase 1 is the calm the week is supposed to open on, so the rule
+        waits for Day 3 — a Day-1 huddle is still allowed."""
+        said = self._night(env, ["White", "Red", "Green"], day=2)
+        assert "drawn to the gathering" not in said
+
+    def test_converging_on_a_boss_is_not_hiding(self, env):
+        """The design spends the whole week telling the team to gather on the
+        Source (§16.3.3). Charging them a Threat for obeying it would be the
+        rule punishing its own climax."""
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["Boss", "Boss:TheSource"], "position": [0, 1, 0]}))
+        said = self._night(env, ["White", "Red", "Green"])
+        assert "drawn to the gathering" not in said

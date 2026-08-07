@@ -2,6 +2,59 @@
 
 *The diff of the **game**, not the code. One entry per batch; newest first. Sim win rates are the 3000-game 4-player baseline (see agents.md for the full tables).*
 
+## The Gathering, and two rules the board printed but never rolled (2026-08)
+
+**Three rule changes and one setup change.** Sim win rates below are the
+3000-game 4-player baseline.
+
+**1. The Gathering (§15.10) — new rule.** *From Day 3, a tile where three or
+more characters spend the Night draws +1 Threat, unless a boss is already
+standing there.*
+
+Huddling was the strongest strategy in the game by a distance, and nothing in
+the rules reached it. Houses draw no threats of their own, so a team that spent
+every night in one room simply had no nights — the Monte Carlo probe measured
+that line at **99.9% wins** against §20.2's 40-50% target, on every map, at
+every player count, and under seven of the eight Scenarios. The crowded floor's
+two beds, uncapped boss festering and §15.1's "ignoring the map is never the
+cheap line" were all priced against a team that still went outside sometimes.
+
+The rule is deliberately a nudge, not a ban: **74%** at 4 players (57% at 3p,
+93% at 5p — a bigger group fights the extra card off more easily). It waits for
+Phase 2 so the opening stays calm, and it never fires where a boss stands,
+because converging on the Source is the game asking you to gather. The
+broadcast is the crowd-drawn Dawn card's own line: *"It is drawn to the
+gathering."*
+
+Not fixed by it: one character per house is a *second* free strategy the rule
+cannot reach (three separate houses never put three heads on a tile), and it
+still wins ~90%. The priced answer is recorded and unshipped —
+`docs/agents/balance-recommendations.md`.
+
+**2. The Badminton Court is now the highest-threat tile, as printed.** Its
+board tooltip, its What-now hint, `locations.csv` and design §7.5 all called it
+"the highest threat draw rate at Night". `LOCATION_THREAT_RATE` gave it **1** —
+exactly the Basketball Court's. Now **2**. The tile's one distinctive hazard
+was printed three times and rolled nowhere; The Net's +1 defence die was the
+compensation for a risk that did not exist.
+
+**3. Where you slept now counts at the Tick.** Every board tooltip prints a
+Sanity modifier per tile ("+1 Sanity at Tick" at the Kitchen, "−1" at both
+courts), design §7.1-7.5 gives every tile one, and the §8 cost table bills
+"sleeping at a court" for it. Nothing read the `sanity_modifier` column: the
+Tick charged the same 1 wherever you slept, so the whole positional argument
+the Dusk scramble exists for had no mechanical weight. It is now
+`LOCATION_SANITY_MOD`, subtracted from the Tick's Sanity loss and floored at 0
+so the Kitchen can never turn the Tick into a heal.
+
+**4. The Scenario is drawn before you pick characters.** It used to be drawn
+and announced at the *end* of setup, after the roster was locked. The
+composition gates live in the Scenario — the probe measures The Long Winter as
+unwinnable without Ellie, every Ellie-less team at 0% — so a table picking
+blind was answering a question nobody had read out. The card is now drawn and
+read at the variants step and *applied* after the characters exist (SC_SUMMER
+edits their stats, so applying early was never an option).
+
 ## Food is now Provisions, and Eat Raw is Eat Uncooked (2026-08)
 
 **Naming only — no rule, cost, or number moved.** The Food token is renamed

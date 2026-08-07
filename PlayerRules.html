@@ -49,7 +49,7 @@ hr.sep { border: none; border-top: 1px dashed #5a4a30; margin: 2.5em 0; }
 <li><strong>Dawn</strong> — Doom advances — faster if threats (and especially bosses) were left on the map. A Dawn card flips. Read it; do what it says.</li>
 <li><strong>Day</strong> — Each player takes <strong>3 actions</strong> in turn order: Move, Gather, Craft, Cook, Fight, Rest, or Cleanse.</li>
 <li><strong>Dusk</strong> — Last chance to move: scramble 1 tile (costs 1 Hunger) or stay. You sleep where you stand.</li>
-<li><strong>Night</strong> — Threats are drawn at each occupied tile. Fight or take damage. Sleep restores stats — but a house only sleeps two comfortably.</li>
+<li><strong>Night</strong> — Threats are drawn at each occupied tile. Fight or take damage. Sleep restores stats — but a house only sleeps two comfortably, and from Day 3 a tile holding three or more of you draws an extra Threat.</li>
 <li><strong>Tick</strong> — Everyone loses 1 Hunger and 1 Sanity. Day Counter advances.</li>
 </ol>
 <h3>Three stats</h3>
@@ -111,7 +111,8 @@ hr.sep { border: none; border-top: 1px dashed #5a4a30; margin: 2.5em 0; }
 <h3>Night</h3>
 <p>For each occupied tile, least-populated first:</p>
 <ul>
-<li>Draw threats per the location's threat rate (modified by Doom thresholds).</li>
+<li>Draw threats per the location's threat rate (modified by Doom thresholds). Houses draw none of their own; the Basketball Court draws 1 and the Badminton Court 2.</li>
+<li><strong>The Gathering</strong> — from <strong>Day 3</strong>, a tile where <strong>three or more</strong> of you spend the Night draws <strong>1 extra Threat</strong>. It does not apply where a boss is standing: converging to fight is not hiding.</li>
 <li>Resolve combat or damage. Each drawn card is one of three kinds:</li>
 <li><strong>Soft</strong> — it does its printed thing once and is discarded. Nothing to fight.</li>
 <li><strong>Hard</strong> — it must be fought or fled. Left standing, it festers at Dawn. Read its Special: several charge Sanity for attacking them, hit the moment they arrive, tax the tile they stand on, or call in help when they die.</li>
@@ -126,6 +127,7 @@ hr.sep { border: none; border-top: 1px dashed #5a4a30; margin: 2.5em 0; }
 <h3>Tick</h3>
 <ul>
 <li>Every character loses 1 Hunger and 1 Sanity.</li>
+<li><strong>Where you slept counts</strong>: Ellie &amp; Luca's House is warm (−1 less Sanity), and either sport court is not (−1 more).</li>
 <li>Rayman loses 2 Hunger.</li>
 <li>Coco's allies lose 1 less Sanity here. Luca's allies gain +1 Sanity. Ellie's house gains +1 Sanity.</li>
 <li>Pass First Player.</li>

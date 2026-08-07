@@ -188,16 +188,19 @@ def test_every_knob_is_read_by_the_sim():
     assert not unread, f"knobs defined but never read: {unread}"
 
 
-def test_the_crowd_knob_actually_prices_the_camp():
-    """The headline recommendation: 3+ sleepers on a tile draw +1 Threat. The
-    effect is enormous (turtle ~100% -> ~20%), so a small batch is enough —
-    and if it ever stops biting, the recommendation is stale."""
-    plain = sim.simulate("turtle", 4, "new", 300, 42)["win"]
-    knobbed = sim.simulate("turtle", 4, "new", 300, 42, knobs=("crowd",))["win"]
-    assert plain > 0.9, f"turtle no longer camps to {plain:.0%} — re-price the knobs"
-    assert knobbed < 0.45, (
-        f"the crowd knob took turtle to {knobbed:.0%}, not the ~20% "
-        "balance-recommendations.md quotes")
+def test_the_gathering_prices_the_camp():
+    """§15.10, the shipped anti-huddle rule: from Day 3, 3+ characters on a tile
+    draw +1 Threat unless a boss stands there. `--knob nogathering` is its
+    control group, and the gap between them is the rule's whole value — 100%
+    against ~74% on the camping line, which a small batch resolves easily."""
+    off = sim.simulate("turtle", 4, "new", 400, 42, knobs=("nogathering",))["win"]
+    on = sim.simulate("turtle", 4, "new", 400, 42)["win"]
+    assert off > 0.95, (
+        f"with The Gathering off, turtle wins {off:.0%} — it used to be ~100%, "
+        "so something else changed the camping line")
+    assert on < off - 0.15, (
+        f"The Gathering moved the camping line from {off:.0%} to {on:.0%}; "
+        "docs/agents/balance-recommendations.md quotes ~100% -> ~74%")
 
 
 def test_topologies_are_connected_and_shortcut_adds_one_road():
@@ -389,10 +392,10 @@ def test_roster_override_sweep_smoke(policy):
 # Baselines (docs/agents/balance-simulation.md, 2026-08 batch 6 — batch 5 plus
 # the movement model: real path variants, the one-tile Dusk scramble, and
 # Loud read off tracked movement instead of a hardcoded True; new rules,
-# 4 players, Star, no Scenario, 3000 sims), then batch 6b's two printed-rule
-# fixes (the Badminton Court's threat_rate 1 -> 2, and LOCATION_SANITY_MOD
-# wired into the Tick): turtle 99.9%, spread 90%, balanced 34%,
-# court_camper 37%, net_camper 34%.
+# 4 players, Star, no Scenario, 3000 sims), batch 6b's two printed-rule fixes
+# (the Badminton Court's threat_rate 1 -> 2, LOCATION_SANITY_MOD wired into
+# the Tick), and batch 7's The Gathering (§15.10): turtle 74%, spread 90%,
+# balanced 30%, court_camper 33%, net_camper 30%.
 #
 # The camping lines are FAR above §20.2's 40-50% band and that is the finding,
 # not a drift: batch 5's 40% turtle was charging a team that never moves for
@@ -404,11 +407,11 @@ def test_roster_override_sweep_smoke(policy):
 # ---------------------------------------------------------------------------
 
 WIN_BANDS = {
-    "turtle": (0.95, 1.00),
+    "turtle": (0.62, 0.86),
     "spread": (0.80, 0.98),
-    "balanced": (0.24, 0.45),
-    "court_camper": (0.26, 0.48),
-    "net_camper": (0.24, 0.45),
+    "balanced": (0.20, 0.42),
+    "court_camper": (0.22, 0.45),
+    "net_camper": (0.20, 0.42),
 }
 
 
@@ -472,17 +475,11 @@ def test_nightmare_is_winnable_but_only_just(lua_globals):
         return max(sb.simulate(p, 4, "new", sims, 7, difficulty=mode)["win"]
                    for p in (policies or sb.POLICIES))
 
-    # The ladder is read off the lines that engage the game. `turtle` saturates
-    # every mode (100% / 100% / 90%), because a house camp is nearly free until
-    # Doom 10 — so the camping line cannot tell Story from Standard at all.
-    # That is the open balance problem (docs/agents/balance-scenarios.md), not
-    # a difficulty bug, and the ordering it hides is still there underneath.
-    engaged = ("balanced", "court_camper", "net_camper", "spread")
-    story, standard, nightmare = (best(m, policies=engaged)
-                                  for m in ("story", "standard", "nightmare"))
-    assert best("standard", policies=("turtle",)) > 0.9, (
-        "turtle no longer saturates Standard — re-read the camping finding "
-        "before adjusting this test; the ladder may be readable everywhere now")
+    # Readable off the whole policy set again since §15.10 stopped the camping
+    # line saturating every mode. It briefly was not: with Loud modeled as
+    # written and no anti-huddle rule, turtle sat at 100% on Story AND
+    # Standard, and the ladder could only be read off the engaged lines.
+    story, standard, nightmare = (best(m) for m in ("story", "standard", "nightmare"))
     assert nightmare > 0.08, (
         f"Nightmare best line {nightmare:.1%} — that is unwinnable, not hard")
     assert nightmare < standard, (

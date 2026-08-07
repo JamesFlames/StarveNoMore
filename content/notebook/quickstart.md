@@ -7,7 +7,7 @@ Survive 7 nights as a team. The Doom track must stay below 30. If everyone is Do
 1. **Dawn** — Doom advances — faster if threats (and especially bosses) were left on the map. A Dawn card flips. Read it; do what it says.
 2. **Day** — Each player takes **3 actions** in turn order: Move, Gather, Craft, Cook, Fight, Rest, or Cleanse.
 3. **Dusk** — Last chance to move: scramble 1 tile (costs 1 Hunger) or stay. You sleep where you stand.
-4. **Night** — Threats are drawn at each occupied tile. Fight or take damage. Sleep restores stats — but a house only sleeps two comfortably.
+4. **Night** — Threats are drawn at each occupied tile. Fight or take damage. Sleep restores stats — but a house only sleeps two comfortably, and from Day 3 a tile holding three or more of you draws an extra Threat.
 5. **Tick** — Everyone loses 1 Hunger and 1 Sanity. Day Counter advances.
 
 ## Three stats

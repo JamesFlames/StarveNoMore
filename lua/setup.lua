@@ -564,14 +564,33 @@ SCENARIOS = {
     },
 }
 
-function applyRandomScenario()
+-- Draw a Scenario id without applying it. Split from applyRandomScenario so
+-- setup can DRAW the card before the characters are picked and APPLY it after
+-- they exist: the composition gates are in the Scenario (the balance probe
+-- measured The Long Winter as unwinnable without Ellie), so a table that picks
+-- its roster blind is answering a question it has not been shown. Applying
+-- early is not an option — SC_SUMMER edits character stats.
+--
+-- `table.sort` for the same reason applyPathVariant sorts: `pairs` order is
+-- undefined, and gameRoll must index a stable list or the "same seed, same
+-- draw" property the test suite relies on quietly stops holding.
+function drawScenarioId()
     local keys = {}
     for k, _ in pairs(SCENARIOS) do table.insert(keys, k) end
-    local pick = keys[gameRoll(#keys)]
-    local scenario = SCENARIOS[pick]
-    broadcastEvent("phase", "Drawing Scenario Card: " .. scenario.name)
+    table.sort(keys)
+    return keys[gameRoll(#keys)]
+end
+
+-- Read the card out to the table without changing anything.
+function announceScenario(scenarioId)
+    local scenario = SCENARIOS[scenarioId]
+    if not scenario then return end
+    broadcastEvent("phase", "Scenario Card: " .. scenario.name)
     broadcastEvent("proc", scenario.description)
-    scenario.onApply()
+end
+
+function applyRandomScenario()
+    applyScenario(drawScenarioId())
 end
 
 -- Force a named scenario, e.g. applyScenario("SC_WINTER") — a console-only

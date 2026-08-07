@@ -181,6 +181,12 @@ LOCATION_SANITY_MOD = {
     "BadmintonCourt":  -1,
 }
 
+# The Gathering (§15.10). MIRRORS GATHERING_FROM_DAY in lua/night.lua and the
+# `#colors >= 3` test beside it: from Phase 2, three or more characters on one
+# tile at Night draw +1 Threat unless a boss is standing there.
+GATHERING_FROM_DAY = 3
+GATHERING_MIN = 3
+
 DOOM_RATES = {3: [1, 1, 1, 1], 4: [1, 1, 1, 3], 5: [1, 1, 2, 2]}
 PHASE_FOR_DAY = {1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 4, 7: 4}
 
@@ -764,7 +770,8 @@ class Game:
         table = self.gather_yields(loc)
         for _ in range(draws):
             got = self.rng.choice(table)
-            if "foodGatherPenalty" in self.flags and got == "food":
+            if "foodGatherPenalty" in self.flags and got == "food" \
+               and not ("winterpantry" in self.knobs and loc == CENTER):
                 continue
             self.pool[got] += 1
         if c.name == "Ellie" and loc == CENTER:
@@ -831,10 +838,18 @@ class Game:
             night_at = 6 if "night6" in self.knobs else DOOM_THRESHOLDS["night"]
             if self.doom >= night_at:
                 rate += 1
-            if "crowd" in self.knobs and len(occupants) >= 3:
+            # The Gathering (§15.10): from Day 3 a tile holding three or more
+            # characters draws +1 Threat, unless a boss already stands there.
+            # MIRRORS resolveNightAtLocation (night.lua) and GATHERING_FROM_DAY.
+            # --knob nogathering is the control group for it.
+            if "nogathering" not in self.knobs and len(occupants) >= GATHERING_MIN \
+               and self.day >= GATHERING_FROM_DAY \
+               and not any(t.boss for t in self.threats.get(loc, [])):
                 rate += 1
-            if "moonteeth" in self.knobs and "softToHard" in self.flags:
-                rate += 1
+            if "crowd" in self.knobs and len(occupants) >= GATHERING_MIN:
+                rate += 1   # the always-on, no-exemption version, for pricing
+            if "moonlit" in self.knobs and "softToHard" in self.flags:
+                rate = max(rate, 1)
             if len(occupants) == 1 and loc in COURTS:
                 rate += 1
             if self.rules == "new" and rayman_moved and any(c.name == "Rayman" for c in occupants):
@@ -964,7 +979,8 @@ class Game:
                 hunger_loss = 1
             # The Long Winter (hungerDecayX2): the cold eats twice as fast
             # (tick_victory.lua).
-            if "hungerDecayX2" in self.flags:
+            if "hungerDecayX2" in self.flags and not (
+                    "winterlate" in self.knobs and self.day < 4):
                 hunger_loss *= 2
             # Where you slept (§7.1-7.5), then the Doom surcharge, then the
             # Deerclops doubling — the Lua's order in tick_victory.lua.
@@ -973,6 +989,8 @@ class Game:
                 tile_mod = 0
             sanity_loss = max(0, 1 - tile_mod)
             if self.doom >= DOOM_THRESHOLDS["tick"]:
+                sanity_loss += 1
+            if "moonwake" in self.knobs and "noCharlie" in self.flags:
                 sanity_loss += 1
             if self.deerclops_alive:
                 sanity_loss *= 2
