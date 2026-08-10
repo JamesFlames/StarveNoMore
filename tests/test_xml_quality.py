@@ -234,15 +234,47 @@ def test_top_anchored_panels_clear_the_phase_banner():
         + "\n  remember offsetXY sets the CENTRE — the top edge is offsetY + height/2 up.")
 
 
-def test_phase_banner_is_flush_with_the_top():
-    """The status bar sits ON the top edge of the screen, with no margin above
-    it. offsetXY sets the CENTRE, so this only holds while offsetY is exactly
-    -height/2 — nudge either number alone and a gap reappears."""
+# TTS draws its own turn plate at the top-centre of the screen whenever Turns
+# are on, which in Hotseat is always — it re-enables itself however often the
+# script switches it off, and there is no API to move or hide built-in chrome.
+# The plate carries the End Turn button (tooltip "Click to End turn"), the
+# control a hotseat driver uses to hand the seat on. Measured in a running
+# game at 1920x1080: ~120px wide, y=30..57. The box below is that with margin.
+TTS_TURN_PLATE = (1920 / 2 - 90, 20, 1920 / 2 + 90, 64)
+
+# What the phase banner's offsetY is set from. The banner is UpperCenter and
+# offsetXY sets the CENTRE, so its top edge is at this y exactly.
+TTS_TURN_PLATE_CLEARANCE = 72
+
+
+def test_phase_banner_clears_the_tts_turn_plate():
+    """The banner used to be flush with y=0, which buried TTS's turn plate: an
+    opaque bar over the End Turn button, so in hotseat it was neither findable
+    nor clickable. The top strip of the screen is TTS's now."""
     root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, "hud.xml")) + "</root>")
     banner = _rect(_panels(root)["phaseBanner"])
-    assert banner[1] == 0, (
-        f"phase banner top edge is at y={banner[1]:.0f}, not 0 — it should be "
-        "flush with the top of the screen (set offsetY to -height/2)")
+    assert banner[1] == TTS_TURN_PLATE_CLEARANCE, (
+        f"phase banner top edge is at y={banner[1]:.0f}, not "
+        f"{TTS_TURN_PLATE_CLEARANCE} — it has to start below TTS's turn plate "
+        "(offsetY = -(clearance + height/2)); anything less puts an opaque bar "
+        "back over the End Turn button in hotseat")
+
+
+def test_nothing_covers_the_tts_turn_plate():
+    """...and the same goes for every other panel we anchor to the top."""
+    problems = []
+    for filename in sorted(f for f in os.listdir(XML_DIR) if f.endswith(".xml")):
+        root = ET.fromstring("<root>" + read_text(os.path.join(XML_DIR, filename)) + "</root>")
+        for pid, el in _panels(root).items():
+            if "Upper" not in el.get("rectAlignment", ""):
+                continue
+            r = _rect(el)
+            if _overlap(r, TTS_TURN_PLATE):
+                problems.append(f"{filename}: {pid} {tuple(round(v) for v in r)}")
+    assert not problems, (
+        "top-anchored UI drawn over TTS's turn plate "
+        f"{tuple(round(v) for v in TTS_TURN_PLATE)} — its End Turn button is what "
+        "hotseat uses to pass the seat on:\n  " + "\n  ".join(problems))
 
 
 def test_panel_heights_match_their_contents():

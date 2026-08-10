@@ -83,6 +83,22 @@ end
 BTN_DARK_PLATE = "#B9C9B4FF"   -- the standard button plate (light sage)
 BTN_ON_DARK    = "#12180F"     -- readable label on that plate
 
+-- The "yes, do it" green. ONE pair, because a second one that is merely close
+-- does not read as the same control: the confirm mirrored onto an action-bar
+-- button wore its own #AEFFAE, and a pale mint label on a dark plate in a bar
+-- of bright sage buttons reads as GREYED OUT — "Take the Stash" looked
+-- disabled while it was the live answer. Any button that means yes/committed
+-- wears these, and they match confirmYes in xml/dialogs.xml (and "Got it" in
+-- xml/msglog.xml) exactly; test_confirm_green_is_one_colour is the guard.
+BTN_YES_TEXT  = "#88FF88"      -- bright green label + tick
+BTN_YES_PLATE = "#1E501EE6"    -- the dark green plate it sits on
+
+-- Face up for a resource token. Their PNGs are pre-rotated 180° by
+-- generate_assets.py so the label reads upright at rotY=0 (docs/tts-runtime.md,
+-- "Rotations"), and rotZ=0 is the face that carries it — a token settling on
+-- rotZ=180 shows the same art from behind, i.e. mirrored.
+TOKEN_FACE_UP = { 0, 0, 0 }
+
 function setButtonLabel(id, text, textColor, color)
     if not UI then return end
     UI.setAttributes(id, {
@@ -210,6 +226,13 @@ local function _spawnVisualTokens(charName, resType, qty)
                     base.x - 2.6 + (n % 6) * 0.42,
                     spawnDropY(base.y),
                     base.z - 1.2 - slot * 0.55 - math.floor(n / 6) * 0.30),
+                -- TOKEN_FACE_UP, not "whatever the bag was holding". A token is
+                -- a flat disc with the same art on both faces, so one that
+                -- lands on its back shows the label MIRRORED — Metal, Cloth and
+                -- Energy Drink were all reading backwards on one table. Spawned
+                -- without a rotation they inherit the bag's and then settle
+                -- whichever way the drop bounces them.
+                rotation = TOKEN_FACE_UP,
                 smooth   = true,
             })
             _tagResource(tok, resType)
@@ -269,6 +292,7 @@ function spawnResourceAtTile(locName, resType, qty)
         local ok = safecall(function()
             local tok = bag.takeObject({
                 position = base + Vector(-1.2 + (i % 3) * 1.2, 3, 2 + math.floor((i - 1) / 3) * 1.0),
+                rotation = TOKEN_FACE_UP,   -- see _spawnVisualTokens
                 smooth   = true,
             })
             _tagResource(tok, resType)

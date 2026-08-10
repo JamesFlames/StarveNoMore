@@ -76,12 +76,34 @@ function doCraft(color, marketSlotIndex)
     local card = marketCardAtSlot(marketSlotIndex)
 
     if not card then
-        broadcastEvent("damage", "No card at market slot " .. marketSlotIndex .. ".")
+        -- Says what to do about it: the usual cause is two cards merged into a
+        -- deck on one shelf, and "No card at market slot 2" is a baffling thing
+        -- to read while looking straight at one.
+        broadcastEvent("damage", "Nothing buyable on Market slot " .. marketSlotIndex ..
+            " — if there is a card sitting there, it has merged with another. " ..
+            "Drag them apart and try again. (No action spent.)")
         char.actionsLeft = char.actionsLeft + 1
         return
     end
 
-    local itemName = card.getNickname() or "Unknown Item"
+    -- safeNickname, not card.getNickname(): a raw read here THREW twice in one
+    -- live game — "cannot access field getNickname of userdata<LuaObject>", the
+    -- dead-handle error of docs/tts-interface.md Rule 2, when the card on the
+    -- slot had merged with the one refilled onto it. The action was already
+    -- spent, so `safecall` printed "(Edge case in Craft — continuing.)" and the
+    -- player was charged for a card they never got, on a shelf that was never
+    -- refilled. Nothing in doCraft may touch a handle unguarded.
+    local itemName = safeNickname(card)
+    if itemName == "" then
+        if not isLiveObject(card) then
+            broadcastToColor("That Market card can't be picked up — it has merged with " ..
+                "another card on the shelf. Drag them apart and try again.",
+                color, BROADCAST_COLORS.damage)
+            char.actionsLeft = char.actionsLeft + 1   -- refund: nothing happened
+            return
+        end
+        itemName = "Unknown Item"
+    end
 
     -- Cost is paid automatically from the held count (resources are virtual
     -- now — no dropping tokens on a tray). Build the cost, add the Scarcity
@@ -128,15 +150,34 @@ function doCraft(color, marketSlotIndex)
     -- anyone ever actually craft?
     safecall(function() recordUsage("crafted", itemName) end, "Usage")
 
-    -- Move card to the player's hand zone
+    -- Into the player's HAND — deal(), not a position.
+    --
+    -- This used to setPositionSmooth the card to the hand zone's position plus
+    -- one unit of clearance, and a hand zone only captures an object that comes
+    -- to REST inside it: released above the zone, the card fell straight
+    -- through and landed on the table. A live save had two crafted cards lying
+    -- at (24.7, 1.0, -1.8) — past the hand, past even the padded box round the
+    -- player board that getPlayerCarriedObjects counts as "carried", so the
+    -- game could not see them either. "Dealt to your hand" was a card on the
+    -- floor that no rule could reach: Use Item never offered it, the night
+    -- light check never counted it, the weapon check never found it.
+    -- deck.deal(1, color) is how the Echoes bonus and the Dawn draw already put
+    -- cards in hands (actions.lua, day_loop.lua); it works on a loose card too.
     stripMarketHelp(card)
-    local handZone = getHandZone(color)
-    if handZone then
-        card.setPositionSmooth(handZone.getPosition() + Vector(0, 1, 0))
+    local delivered = safecall(function() card.deal(1, color) end, "CraftToHand")
+    if not delivered then
+        -- Last resort: put it where the player can at least pick it up, next to
+        -- their own board, which getPlayerCarriedObjects does read.
+        safecall(function()
+            local board = getPlayerBoard(char.name)
+            if board then card.setPositionSmooth(board.getPosition() + Vector(0, 2, 0)) end
+        end, "CraftToBoard")
     end
 
-    -- Refill market slot from the deck
-    refillMarketSlot(slot)
+    -- Refill market slot from the deck. safecall, and AFTER the card has been
+    -- handed over: a throw in here is a shelf that stays empty, and it must not
+    -- also swallow the purchase the player has already paid for.
+    safecall(function() refillMarketSlot(slot) end, "MarketRefill")
 end
 
 -- Scarcity surcharge picks the resource the player holds most of (that
@@ -160,10 +201,20 @@ function marketCardAtSlot(index)
     if not slot then return nil end
     local slotPos = slot.getPosition()
     for _, obj in ipairs(findAllByTag("MarketCard")) do
-        if obj.type == "Card" then
+        -- Guarded, and not for tidiness: this scan is where a live Craft died,
+        -- twice in one game — "cannot access field getNickname of
+        -- userdata<LuaObject>", reported at the call site in doCraft. When the
+        -- card refilled onto a shelf merges with the one already there, TTS
+        -- destroys both and leaves a Deck; the handles this scan is holding are
+        -- dead, and reading .type or .getPosition() on one throws out of
+        -- doCraft entirely — past the refund, past the refill, with the action
+        -- already spent (docs/tts-interface.md Rule 2).
+        local ok, near = pcall(function()
+            if obj.type ~= "Card" then return false end
             local d = objDistance(obj.getPosition(), slotPos)
-            if d and d < 2 then return obj end
-        end
+            return d ~= nil and d < 2
+        end)
+        if ok and near then return obj end
     end
     return nil
 end

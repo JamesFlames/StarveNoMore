@@ -118,6 +118,27 @@ end
 -- Every number here is already tracked. Nothing new is recorded at the
 -- table, which is the §16.5 constraint.
 -----------------------------------------------------------------------
+-- One line, in plain words, saying whether the team won or lost and what
+-- decided it. Every ending routes through gameState.gameOverCause (endGame,
+-- tick_victory.lua), so there is no fifth case to miss.
+function verdictLine()
+    local limit = getDoomLimit()
+    local cause = gameState.gameOverCause
+    local day = gameState.day or "?"
+    if cause == "victory" then
+        return "YOU WON. Seven nights survived with Doom at " ..
+               (gameState.doom or 0) .. " / " .. limit .. " — short of the end of the track."
+    elseif cause == "defeat_doom" then
+        return "YOU LOST. Doom reached " .. limit .. " / " .. limit .. " on Day " .. day ..
+               " — the track ran out before the week did."
+    elseif cause == "defeat_all_down" then
+        return "YOU LOST. Every one of you was Down at once, on Day " .. day .. "."
+    elseif cause == "defeat_source" then
+        return "YOU LOST. The Source was still standing at the end of Day " .. day .. "."
+    end
+    return "The week ended on Day " .. day .. "."
+end
+
 function weekMarginLines()
     local out = {}
     local limit = getDoomLimit()
@@ -228,6 +249,17 @@ function showWeekInReview()
 
     local ch = ensureChronicle()
     local lines = {}
+
+    -- Did we win? Say so, in those words, first.
+    --
+    -- The panel opened on "THE WEEK THAT TOOK YOU" and a THE MARGIN line
+    -- reading "the Doom track ran out on Day 7", and a player who had just
+    -- reached Day 7 — the number they were told to survive to — read that as
+    -- ambiguous and asked which it was. Reaching Day 7 is not the win
+    -- condition; reaching it with Doom still short of the limit is. Nothing
+    -- else in the panel states the verdict outright, so this does.
+    table.insert(lines, verdictLine())
+    table.insert(lines, "")
 
     for day = 1, 7 do
         local d = ch.days[day]

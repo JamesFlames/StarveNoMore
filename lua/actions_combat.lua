@@ -9,7 +9,10 @@
 -- lands here and resolves through beginCombat (combat.lua) with real
 -- statlines — THREAT_STATS for cards, boss standlines for standees.
 -----------------------------------------------------------------------
-local FIGHT_RADIUS = 7   -- same "at this tile" radius as festering / Pry
+-- Global, not local: "at this tile" has to mean one distance everywhere, and
+-- night.lua now needs it too — it lays each new threat card on its own spot and
+-- must not put one down outside the radius that makes it fightable.
+FIGHT_RADIUS = 7   -- same "at this tile" radius as festering / Pry
 
 -- Phase-boss statlines, mirroring the standee descriptions baked by
 -- build_save.py (bosses list) and the balance sim's BOSSES table. The

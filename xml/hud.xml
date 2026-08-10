@@ -6,12 +6,22 @@
 <!-- G.1  PHASE BANNER — persistent top-of-screen status bar            -->
 <!-- Design §18.11: Day / Phase / Doom / Active player / Next action    -->
 <!-- ================================================================== -->
-<!-- offsetXY sets the CENTRE, so offsetY = -height/2 puts the top edge exactly
-     on y=0 — the bar is flush with the top of the screen, no margin above it.
-     Guard: test_xml_quality.py::test_phase_banner_is_flush_with_the_top. -->
+<!-- The bar used to be flush with y=0, and that put it directly on top of the
+     one piece of TTS chrome we cannot move: its turn plate, which Hotseat
+     draws at the top-CENTRE of the screen (measured y=30..57, ~120px wide) and
+     re-enables itself however often the script switches it off. Our panel is
+     drawn over it, so the plate's End Turn button — tooltip "Click to End
+     turn", the thing a hotseat driver uses to hand the seat on — was both
+     invisible and unclickable behind an opaque bar.
+     So the top strip belongs to TTS now: offsetXY sets the CENTRE, and
+     offsetY = -(TTS_TURN_PLATE_CLEARANCE + height/2) starts the bar at y=72,
+     15px clear of the plate. Everything else anchored to the top of the screen
+     moved down with it. Guards:
+     test_xml_quality.py::test_phase_banner_clears_the_tts_turn_plate and
+     ::test_nothing_covers_the_tts_turn_plate. -->
 <Panel id="phaseBanner"
        rectAlignment="UpperCenter"
-       offsetXY="0 -32"
+       offsetXY="0 -104"
        width="1470" height="64"
        color="#000000BF"
        outline="#50B4DC66"
@@ -57,6 +67,11 @@
          our "James's turn (Blue)" over a ghosted "Raymanx". Doom takes the
          centre now — a yellow "Doom 12 / 30" with a name behind it is noise,
          not a contradiction.
+         The bar has since moved down clear of the plate (see the panel comment
+         above), so nothing ghosts through it at the measured size. The order
+         stays: the plate is TTS chrome and grows with the player's interface
+         scale, and if it ever reaches down this far, Doom is still the field
+         that can afford to share the space.
          Widening this field to name the player as well was tried first and
          does not fit: the row is 1462px of the 1470px panel once the three
          buttons are counted, and an overflowing Text draws over its neighbour.
@@ -146,9 +161,11 @@
 <!-- DAY-CYCLE STRIP — Dawn ▸ Day ▸ Dusk ▸ Night ▸ Tick, current lit    -->
 <!-- Updated by refreshCycleStrip() in ui_rules.lua                     -->
 <!-- ================================================================== -->
+<!-- -180, not -108: it keeps its 32px of air under the phase banner, which
+     moved down 72px to clear TTS's turn plate. -->
 <Panel id="cycleStrip"
        rectAlignment="UpperCenter"
-       offsetXY="0 -108"
+       offsetXY="0 -180"
        width="640" height="24"
        color="#00000099"
        active="false"
@@ -205,10 +222,12 @@
      bar". Height is now its real content height (22 title + 5x38 buttons +
      5x6 spacing + 16 padding = 258) and the centre is far enough down that
      the top clears the banner. Guard:
-     test_xml_quality.py::test_top_anchored_panels_clear_the_phase_banner. -->
+     test_xml_quality.py::test_top_anchored_panels_clear_the_phase_banner.
+     -302, not -230: the banner moved down 72px to clear TTS's turn plate, and
+     this keeps the same 34px of air under it. -->
 <Panel id="hostControls"
        rectAlignment="UpperLeft"
-       offsetXY="360 -230"
+       offsetXY="360 -302"
        width="200" height="264"
        color="#000000B2"
        outline="#FFC8644C"
@@ -575,17 +594,30 @@
        active="false">
   <VerticalLayout spacing="4" padding="8 8 8 8"
                   childForceExpandHeight="false">
-    <Text id="statCharName" fontSize="16" fontStyle="Bold" color="#FFFFFF"
-          text="—" preferredHeight="22" />
+    <!-- Title row + collapse. This panel is MiddleLeft and the Rules-in-effect
+         panel sits directly under it, so a full-height stat box buries the
+         rules a player is trying to read. Same affordance as rulesToggle, same
+         handler shape (onStatToggle, ui_actionbar_display.lua). -->
+    <HorizontalLayout spacing="4" preferredHeight="22">
+      <Text id="statCharName" fontSize="16" fontStyle="Bold" color="#FFFFFF"
+            text="—" />
+      <Button id="statToggle"
+              onClick="onStatToggle"
+              fontSize="12" color="#28323CE6" textColor="#BBDDFF"
+              preferredWidth="24"
+              tooltip="Collapse / expand this panel — the Rules in effect are underneath it."
+              text="–" />
+    </HorizontalLayout>
     <!-- Who is playing this character. The single most-asked question at a
          real table was "who is what character", because the game names
          characters everywhere and TTS names humans everywhere and nothing
          joined the two up. Set by refreshStatDisplay. -->
     <Text id="statPlayerName" fontSize="12" fontStyle="Italic" color="#A8B8C8"
           text="" preferredHeight="16" />
+    <!-- Everything below here is hidden while the panel is collapsed. -->
 
     <!-- Health -->
-    <HorizontalLayout spacing="4" preferredHeight="28">
+    <HorizontalLayout id="statRowHP" spacing="4" preferredHeight="28">
       <Text fontSize="14" color="#FF6666" text="HP" preferredWidth="28"
             tooltip="Health — physical damage. At 0 you go Down (a ghost) until&#10;revived with a Telltale Heart. Below 3: Move costs +1 action."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
@@ -597,7 +629,7 @@
     </HorizontalLayout>
 
     <!-- Hunger -->
-    <HorizontalLayout spacing="4" preferredHeight="28">
+    <HorizontalLayout id="statRowHU" spacing="4" preferredHeight="28">
       <Text fontSize="14" color="#FFAA44" text="HU" preferredWidth="28"
             tooltip="Hunger — your stomach. It drops every night at Tick; at 0 you&#10;lose Health instead. Below 3: you cannot Fight (you may always&#10;Flee). Eat food or Rest to refill."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
@@ -609,7 +641,7 @@
     </HorizontalLayout>
 
     <!-- Sanity -->
-    <HorizontalLayout spacing="4" preferredHeight="28">
+    <HorizontalLayout id="statRowSA" spacing="4" preferredHeight="28">
       <Text fontSize="14" color="#66BBFF" text="SA" preferredWidth="28"
             tooltip="Sanity — your mind. Drained by darkness, isolation and weird&#10;events. At 0 you go Down (lost). Below 3: Haunted — each Dawn&#10;a Threat appears at your tile that only you can face."
             tooltipPosition="Right" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />

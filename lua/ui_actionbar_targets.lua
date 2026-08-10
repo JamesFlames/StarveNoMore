@@ -80,18 +80,28 @@ function _armTargetTimeout()
 end
 
 -- createButton's `rotation` is in the object's LOCAL frame, so a button at
--- {0,0,0} inherits whatever yaw its object has. Threat cards are dealt face
--- up at rotY=180 (that is what "face up" is for a Card in this mod), so FIGHT
--- and TOGETHER came out mirrored — printed backwards across the card, which
--- is how a player reported them. Location tiles sit at rotY=0, which is why
--- MOVE HERE always looked fine and this went unnoticed.
+-- {0,0,0} inherits whatever yaw its object has, and the yaw it needs is NOT
+-- zero. Flat art in TTS renders 180° round in the default view, so everything
+-- printed on this table is authored at rotY=180 to come out upright
+-- (docs/tts-runtime.md, "Rotations"), and engine-drawn button text obeys the
+-- same convention: world yaw 180 reads upright, world yaw 0 reads upside down.
 --
--- Cancelling the object's own yaw makes every target button read the same way
--- up, whatever it is stuck to.
-local function _uprightYaw(obj)
+-- This used to cancel the object's yaw instead — world yaw 0 — on the belief
+-- that "location tiles sit at rotY=0". They do not. `inspect_save.py --live`
+-- on a real game says every one of them is (0 180 0), as are the market slots,
+-- the market cards and the dealt threat cards, so cancelling the yaw turned
+-- EVERY target button upside down. CRAFT is how it got reported.
+--
+-- Pinning to the table's reading direction rather than to the object's own yaw
+-- also survives a card a player has spun: the label stays readable from the
+-- seats, whatever the thing under it is doing.
+-- Global (signatures.lua puts POSTERIZE on a threat card the same way).
+TABLE_READING_YAW = 180
+
+function uprightYaw(obj)
     local yaw = 0
     pcall(function() yaw = (obj.getRotation() or {}).y or 0 end)
-    return (360 - (yaw % 360)) % 360
+    return (TABLE_READING_YAW - yaw) % 360
 end
 
 local function _spawnTargetButton(obj, label, fnName, tooltip, wide, pos)
@@ -100,7 +110,7 @@ local function _spawnTargetButton(obj, label, fnName, tooltip, wide, pos)
         function_owner  = Global,
         label           = label,
         position        = pos or {0, 0.4, 0},
-        rotation        = {0, _uprightYaw(obj), 0},
+        rotation        = {0, uprightYaw(obj), 0},
         width           = wide and 2000 or 1200,
         height          = wide and 560 or 420,
         font_size       = wide and 240 or 180,

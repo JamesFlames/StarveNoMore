@@ -63,6 +63,13 @@ TRANSIENT_FIELDS = {
         # a declared default would make every other phase look like a Night
         # step. Set and cleared by ResolveNight.
         ["nightStage",
+         # nightResolving: true only while ResolveNight's chain of Wait.time
+         # callbacks is in flight, cleared by the last one. It exists to stop a
+         # second click starting a second night on top of the first, so nil
+         # ("no night running") is the only correct value for a restored save —
+         # its callbacks did not survive the reload, and a declared `false`
+         # would be a second name for the same state.
+         "nightResolving",
          "raymanMovedToday", "raymanFoughtToday", "raymanBonusMove",
          "raymanDefending", "jamesEnergyDrinkUsed", "jamesPeekUsed",
          "jamesRerollUsed", "lucaRallyUsed", "dayStartStats", "dawnChecklist",

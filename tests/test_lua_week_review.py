@@ -114,3 +114,37 @@ def test_nothing_new_is_tracked_at_the_table():
     ui = lua_to_py(env.eval("TTS.ui"))
     body = ui["attrs"]["weekReviewBody"]["text"]
     assert "THE MARGIN" in body and "NEXT TIME" in body
+
+
+class TestVerdict:
+    """"It was day 7, but we were on 30 doom. So I don't know?" — the panel
+    said THE WEEK THAT TOOK YOU and "the Doom track ran out on Day 7", and a
+    player who had just reached the day they were told to survive to could not
+    tell which it was. Reaching Day 7 is not the win condition; reaching it
+    with Doom short of the limit is."""
+
+    def _verdict(self, env, cause, **state):
+        env.execute(f'gameState.gameOverCause = "{cause}"')
+        for k, v in state.items():
+            env.execute(f"gameState.{k} = {v}")
+        return env.globals().verdictLine()
+
+    def test_a_doom_loss_says_lost(self, env):
+        line = self._verdict(env, "defeat_doom", day=7, doom=30)
+        assert line.startswith("YOU LOST"), line
+        assert "Day 7" in line and "30" in line
+
+    def test_a_win_says_won(self, env):
+        line = self._verdict(env, "victory", day=7, doom=22)
+        assert line.startswith("YOU WON"), line
+
+    def test_every_ending_states_a_verdict(self, env):
+        for cause in ("defeat_doom", "defeat_all_down", "defeat_source", "victory"):
+            line = self._verdict(env, cause, day=7, doom=12)
+            assert line.startswith(("YOU WON", "YOU LOST")), (cause, line)
+
+    def test_the_verdict_is_the_first_thing_in_the_panel(self, env):
+        env.execute('gameState.gameOverCause = "defeat_doom"; gameState.day = 7')
+        env.globals().showWeekInReview()
+        body = env.eval('UI.getAttribute("weekReviewBody", "text")')
+        assert body.splitlines()[0].startswith("YOU LOST"), body[:200]

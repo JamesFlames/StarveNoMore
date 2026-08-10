@@ -57,7 +57,7 @@
           preferredHeight="520" />
     <Button id="summaryClose"
             onClick="onSummaryClose"
-            fontSize="16" color="#282828E6" textColor="#AAAAAA"
+            fontSize="16" color="#B9C9B4FF" textColor="#12180F"
             preferredHeight="36"
             text="Continue" />
   </VerticalLayout>
@@ -68,9 +68,14 @@
 <!-- The week's story, read back: headlines, the darkest night, the     -->
 <!-- best kill, who kept everyone fed. Shown at victory or defeat.      -->
 <!-- ================================================================== -->
+<!-- 640x680, not 640x460: the body is the whole week — seven headlines, the
+     roll of honour, the margin and the hook — and at 330px it ran out
+     mid-sentence, cutting the hook (the one line that tells you what to do
+     differently) off at "Charlie hits harder every one of". The old numbers
+     did not even add up to the panel: 476px of content in a 460px box. -->
 <Panel id="weekReviewPanel"
        rectAlignment="MiddleCenter"
-       width="640" height="460"
+       width="640" height="680"
        color="#08060CF5"
        outline="#DCB45A8C"
        outlineSize="2"
@@ -81,7 +86,7 @@
           text="THE WEEK" preferredHeight="30" />
     <Text id="weekReviewBody" fontSize="14" color="#DDCCAA"
           text=""
-          preferredHeight="330" />
+          preferredHeight="510" />
     <Button id="btnCopyLog"
             onClick="onCopySessionLog"
             fontSize="14" color="#192837E6" textColor="#88CCEE"
@@ -90,7 +95,7 @@
             text="Copy Session Log" />
     <Button id="weekReviewClose"
             onClick="onWeekReviewClose"
-            fontSize="16" color="#282828E6" textColor="#AAAAAA"
+            fontSize="16" color="#B9C9B4FF" textColor="#12180F"
             preferredHeight="38"
             text="Close the book" />
   </VerticalLayout>
@@ -181,7 +186,7 @@
     <!-- Close -->
     <Button id="helpClose"
             onClick="onHelpClose"
-            fontSize="14" color="#282828E6" textColor="#AAAAAA"
+            fontSize="14" color="#B9C9B4FF" textColor="#12180F"
             preferredHeight="28"
             text="Close" />
   </VerticalLayout>
@@ -653,7 +658,7 @@
     <Button id="duskReadyBtn"
             onClick="onDuskReadyClick"
             fontSize="14" fontStyle="Bold"
-            color="#192D23F2" textColor="#AAFFCC"
+            color="#192D23F2" textColor="#88FF88"
             preferredHeight="38"
             tooltip="Click when you're settled for the night. Night begins&#10;automatically once every seated player is ready. Click again&#10;to un-ready."
             text="I'm settled — Ready for Night" />

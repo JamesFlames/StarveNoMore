@@ -99,7 +99,7 @@ function onActCook(player, value, id)
     safecall(function() n = _showCookDialog(color) end, "CookDialog")
     if n == 0 then
         gameState.pendingAction = nil
-        broadcastToColor(cookShortfallMessage(), color, BROADCAST_COLORS.damage)
+        broadcastToColor(cookShortfallMessage(color), color, BROADCAST_COLORS.damage)
         return
     end
     -- Same shape as Craft and Cleanse: the highlight lives beside theirs in
@@ -140,6 +140,52 @@ local function _cookBlockedBy(color, id, recipe)
         return "needs " .. (recipe.actionCost or 1) .. " actions"
     end
     return nil
+end
+
+-- Why the Telltale Heart is not on the list, said in full.
+--
+-- It is the only way a Down character comes back, it is a RECIPE rather than a
+-- Market card, and nothing in the game ever named its ingredients unless you
+-- already had them — so a table with someone down went looking for it in the
+-- Market, which will never have it. A missing recipe is normally fine to leave
+-- silent; this one is the thing they are most likely to need and least likely
+-- to find. Returns nil when it IS on the list (then it speaks for itself).
+--
+-- The cost is the live one, so Ellie's Crockpot Master discount is already in
+-- the number a player is being told to go and gather.
+function heartHint(color)
+    local recipe = RECIPE_DATA and RECIPE_DATA.R_TELLTALE_HEART
+    if not recipe then return nil end
+    for _, id in ipairs(_cookDialogIds or {}) do
+        if id == "R_TELLTALE_HEART" then return nil end
+    end
+
+    local cost = recipeIngredientCost(color, recipe)
+    local blocked = _cookBlockedBy(color, "R_TELLTALE_HEART", recipe)
+    local why
+    if blocked then
+        why = blocked
+    else
+        -- Fixed resource order, not pairs(): the shopping list a player is
+        -- about to act on must not reshuffle between two openings of the same
+        -- dialog. Oxford-free "a, b and c" rather than "a and b and c".
+        local have, missing = getPlayerResources(color), {}
+        for _, r in ipairs({"Provisions", "Wood", "Cloth", "Metal", "EnergyDrink", "Battery"}) do
+            local short = (cost[r] or 0) - (have[r] or 0)
+            if short > 0 then missing[#missing + 1] = short .. " more " .. _resLabel(r) end
+        end
+        if #missing == 0 then
+            why = "not available right now"
+        elseif #missing == 1 then
+            why = "you need " .. missing[1]
+        else
+            why = "you need " .. table.concat(missing, ", ", 1, #missing - 1) ..
+                  " and " .. missing[#missing]
+        end
+    end
+    return "TELLTALE HEART (the only way to revive a Down character) is a recipe, " ..
+           "not a Market card: " .. formatIngredientCost(cost) ..
+           ", 1 action, and the cook pays 2 Health. Not on this list — " .. why .. "."
 end
 
 function _showCookDialog(color)
@@ -193,7 +239,8 @@ function _showCookDialog(color)
     UI.setAttribute("cookDialogHint", "text",
         "Ingredients are paid automatically from what you hold. The meal is eaten "
         .. "immediately — it restores stats right now and is not stored."
-        .. (hidden > 0 and ("  (" .. hidden .. " more you could cook are not shown)") or ""))
+        .. (hidden > 0 and ("  (" .. hidden .. " more you could cook are not shown)") or "")
+        .. (heartHint(color) and ("\n" .. heartHint(color)) or ""))
     UI.show("cookDialog")
     return shown
 end
@@ -202,20 +249,26 @@ end
 -- resource instead of shrugging.
 _cookShortOf = {}
 
-function cookShortfallMessage()
+-- `color` is optional, and only used to append the Telltale Heart's shopping
+-- list — a player standing at the pot with nothing cookable is the single most
+-- likely person to be hunting for it.
+function cookShortfallMessage(color)
     local names = {}
     for _, r in ipairs({"Provisions", "Wood", "Cloth", "Metal", "EnergyDrink", "Battery"}) do
         if (_cookShortOf or {})[r] then names[#names + 1] = _resLabel(r) end
     end
+    local msg
     if #names == 0 then
-        return "Nothing you can cook right now — the recipes you can pay for are blocked " ..
-               "(no Crockpot here, already cooked once, or not enough actions)."
+        msg = "Nothing you can cook right now — the recipes you can pay for are blocked " ..
+              "(no Crockpot here, already cooked once, or not enough actions)."
+    elseif (_cookShortOf or {}).Provisions then
+        msg = "Nothing you can cook right now — you hold no Provisions, and every recipe needs them. " ..
+              "Gather at a house, or buy food from the Market."
+    else
+        msg = "Nothing you can cook right now — you are short of " .. table.concat(names, ", ") .. "."
     end
-    if (_cookShortOf or {}).Provisions then
-        return "Nothing you can cook right now — you hold no Provisions, and every recipe needs them. " ..
-               "Gather at a house, or buy food from the Market."
-    end
-    return "Nothing you can cook right now — you are short of " .. table.concat(names, ", ") .. "."
+    local heart = color and heartHint(color)
+    return heart and (msg .. "  " .. heart) or msg
 end
 
 function onCookOptionClick(player, value, id)
@@ -225,6 +278,15 @@ function onCookOptionClick(player, value, id)
     gameState.pendingAction = nil
     if not recipeId then return end
     doCook(player.color, recipeId)
+    -- Repaint, like every other action handler (onCraftTargetClick,
+    -- onMoveTargetClick, _resolveFightClick). Cooking was the one verb that
+    -- resolved without one: the log said "Cook (Comfort Soup). (2 left)" and
+    -- "James gains +3 hunger, +3 sanity", while the bar still showed three
+    -- action cubes and the party panel still showed everyone's pre-meal bars.
+    -- Reported as two bugs — "the cook was free" and "the others were not
+    -- buffed" — and it was neither: it was one missing refresh.
+    refreshPhaseBanner()
+    updateActivePlayerIndicator()
 end
 
 function onCookCancel(player)

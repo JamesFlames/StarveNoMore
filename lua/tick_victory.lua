@@ -225,6 +225,20 @@ DEATH_NARRATIONS = {
     },
 }
 
+-- A ghost is never the active player, so the Action Bar is not theirs any more
+-- and refreshActionBar hides it (ui_actionbar_display.lua). Their one remaining
+-- decision — drift — lives in the Reactions panel instead, which is correct and
+-- was also invisible to the person who needed it: "they are supposed to be able
+-- to move, but there is no action bar". Say where it went, to the player it
+-- happened to, at the moment it happens.
+local function _sayWhereDriftLives(color)
+    broadcastToColor(
+        "You are a ghost now. Your Action Bar is gone, but you still get ONE move a " ..
+        "round: find \"drift to another tile\" in the Reactions panel, then click a " ..
+        "FREE MOVE button on the tile you want.",
+        color, BROADCAST_COLORS.proc)
+end
+
 function checkDownState(color)
     local char = gameState.activeChars[color]
     if not char or char.down then return end
@@ -239,6 +253,7 @@ function checkDownState(color)
         end
         broadcastEvent("damage", char.name .. " is DOWN — their standee falls where they stood.")
         broadcastEvent("proc", char.name .. " cannot act, cannot gather, cannot fight. Ghost drifts 1 free move/round.")
+        _sayWhereDriftLives(color)
         wentDown = true
     elseif char.sanity <= 0 then
         char.down = true
@@ -249,6 +264,7 @@ function checkDownState(color)
         end
         broadcastEvent("damage", char.name .. " is LOST — their standee falls where they stood.")
         broadcastEvent("proc", char.name .. " cannot act. Ghost drifts. One whispered word per round.")
+        _sayWhereDriftLives(color)
         wentDown = true
     end
 

@@ -51,6 +51,9 @@ def deal(rt, cards):
             "tags": [card_id, "MarketCard"],
             "nickname": card_id,
             "position": [SLOT_X, CARD_Y, SLOT_Z[i]],
+            # dealMarketCard's own rotation, and the one a live table reports
+            # for every card, slot and tile on it (inspect_save.py --live).
+            "rotation": [0, 180, 0],
         }))
 
 
@@ -79,6 +82,35 @@ def test_craft_offers_a_button_on_every_dealt_card(env):
     deal(env, ["M_BANDAGE", "M_SHARPENED_SPOON", "M_FIRST_AID"])
     assert env.globals()._spawnCraftButtons() == 3
     assert set(craft_buttons(env)) == {"M_BANDAGE", "M_SHARPENED_SPOON", "M_FIRST_AID"}
+
+
+def button_world_yaw(rt, nickname):
+    """A button's rotation is LOCAL, so what a player reads is object + button."""
+    world = rt.eval("TTS.world")
+    for obj in dict(world).values():
+        if obj.getNickname() != nickname:
+            continue
+        for b in dict(obj.getButtons()).values():
+            return (dict(obj.getRotation())["y"] + dict(b["rotation"])[2]) % 360
+    raise AssertionError(f"no button on {nickname}")
+
+
+def test_target_buttons_read_the_way_the_table_does(env):
+    """Flat art renders 180° round in TTS, so everything printed on this table
+    is authored at rotY=180 and world yaw 180 is what "upright" means here
+    (docs/tts-runtime.md). This used to cancel the object's yaw instead — on
+    the belief that the tiles sat at rotY=0, which a live save says they never
+    did — and every CRAFT / MOVE HERE / COOK / FIGHT label came out upside
+    down."""
+    deal(env, ["M_BANDAGE"])
+    env.globals()._spawnCraftButtons()
+    assert button_world_yaw(env, "M_BANDAGE") == 180, "CRAFT is upside down"
+
+    # ...and it stays readable on a card somebody has spun.
+    env.execute("for _, o in ipairs(TTS.world) do if o.hasTag('M_BANDAGE') then "
+                "o.clearButtons(); o.setRotation({0, 42, 0}) end end")
+    env.globals()._spawnCraftButtons()
+    assert button_world_yaw(env, "M_BANDAGE") == 180
 
 
 def test_the_action_reports_the_real_reason_when_it_cannot(env):
@@ -120,6 +152,55 @@ def test_a_purchase_you_cannot_afford_costs_nothing(env):
     assert env.eval('gameState.resources.White.Cloth') == 1, "resources were taken anyway"
     assert env.eval('gameState.activeChars.White.actionsLeft') == 3, (
         "the refused purchase kept the action")
+
+
+def test_the_card_you_bought_ends_up_in_your_hand(env):
+    """"Dealt to your hand" used to setPositionSmooth the card to the hand
+    zone's position — and a hand zone captures only what comes to REST inside
+    it, so the card fell through onto the table. A live save had two crafted
+    cards lying past the hand AND past the padded box round the player board,
+    so getPlayerCarriedObjects could not see them either: Use Item never
+    offered them, the light check never counted them."""
+    deal(env, ["M_BANDAGE"])
+    give(env, "White", Cloth=2)
+    env.globals().doCraft("White", 1)
+    flush(env)
+
+    hand = env.eval('Player["White"].getHandObjects()')
+    assert [o.getNickname() for o in dict(hand).values()] == ["M_BANDAGE"], (
+        "the crafted card is not in the buyer's hand")
+    # The property that actually matters: the rules can now see it.
+    carried = env.eval('getPlayerCarriedObjects("White", "James")')
+    assert "M_BANDAGE" in [o.getNickname() for o in dict(carried).values()], (
+        "the card is in hand but does not count as carried")
+
+
+def test_the_slot_is_restocked_after_a_purchase(env):
+    deal(env, ["M_BANDAGE"])
+    give(env, "White", Cloth=2)
+    env.globals().doCraft("White", 1)
+    flush(env)
+    assert "Market refilled" in " ".join(broadcasts(env)), (
+        "the shelf the card came off was left empty:\n" + "\n".join(broadcasts(env)))
+
+
+def test_a_card_whose_handle_died_refunds_instead_of_eating_the_action(env):
+    """A card that merged with the one refilled onto it leaves a dead handle,
+    and the raw card.getNickname() threw on it — twice in one live game. The
+    action was already spent, so `safecall` logged "(Edge case in Craft —
+    continuing.)" and the player paid for a card they never got."""
+    deal(env, ["M_BANDAGE"])
+    give(env, "White", Cloth=2)
+    # Kill the handle the way TTS does: the object is gone, the handle is not.
+    env.execute("for _, o in ipairs(TTS.world) do if o.hasTag('M_BANDAGE') then "
+                "o.getNickname = function() error('cannot access field getNickname') end "
+                "o.getPosition = function() error('dead handle') end end end")
+    env.globals().doCraft("White", 1)
+    flush(env)
+
+    assert env.eval('gameState.activeChars.White.actionsLeft') == 3, (
+        "the player was charged an action for a card they could not be given")
+    assert env.eval('gameState.resources.White.Cloth') == 2, "and charged the Cloth too"
 
 
 def test_an_empty_slot_refunds_the_action(env):

@@ -806,3 +806,85 @@ class TestFestering:
         self._threat(env, [wx, 1.63, wz + 0.6], type_="Deck", count=9)
         threats, _ = env.eval("countFesteringThreats")()
         assert threats == 3, f"ordinary threats cap at 3 per Dawn; got {threats}"
+
+
+class TestNightIsNotReentrant:
+    """The Night is a chain of Wait.time callbacks — one per occupied tile,
+    then storytelling, sleep, Tick — and the sub-phase stays "Night" for all of
+    it, so the button that starts it is live throughout. A second click used to
+    schedule a SECOND complete chain over the first: every tile drawn twice,
+    two Ticks, and the second chain's cleanup landing mid-way through the
+    first, which from the table looks like the night stopping halfway."""
+
+    def _dusk(self, env):
+        add_char(env, "White", "James", location="JamesHouse")
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["Location:JamesHouse"], "position": [0, 1, 0]}))
+        env.execute('gameState.started = true; gameState.subPhase = "Night"')
+
+    def test_a_second_click_is_refused_while_the_night_runs(self, env):
+        self._dusk(env)
+        env.globals().ResolveNight()
+        assert env.eval("gameState.nightResolving") is True
+
+        env.execute("TTS.broadcasts = {}")
+        env.globals().onHostResolveNight(env.eval('Player["White"]'), None, "btnResolveNight")
+        said = " ".join(broadcasts(env))
+        assert "still resolving" in said, said
+
+    def test_the_button_is_taken_away_while_it_runs(self, env):
+        self._dusk(env)
+        env.globals().ResolveNight()
+        env.globals().refreshHostControls()
+        assert env.eval('UI.getAttribute("btnResolveNight", "active")') == "false", (
+            "the button that starts the night is still clickable while it runs")
+
+    def test_the_flag_clears_when_the_night_finishes(self, env):
+        self._dusk(env)
+        env.globals().ResolveNight()
+        flush(env)
+        assert env.eval("gameState.nightResolving") is None, (
+            "nightResolving was never released — the next night could not start")
+
+
+class TestRosterShowsWhoHasGone:
+    """"Somewhere it should clearly show who has had their turn and who is yet
+    to go." The banner named the current player and nothing named the rest, so
+    the only way to answer it was to count action cubes on five boards."""
+
+    def _label(self, env, name):
+        return env.eval(f'UI.getAttribute("rosterName_{name}", "text")')
+
+    def _day(self, env):
+        add_char(env, "White", "James", location="JamesHouse")
+        add_char(env, "Green", "Rayman", location="RaymanHouse")
+        add_char(env, "Red", "Coco", location="EllieLucaHouse")
+        env.execute('gameState.started = true; gameState.subPhase = "Day"; '
+                    'gameState.activeColor = "Green"')
+
+    def test_now_done_and_yet_to_go_are_all_distinguishable(self, env):
+        self._day(env)
+        env.execute("gameState.activeChars.White.actionsLeft = 0")   # has been
+        env.execute("gameState.activeChars.Red.actionsLeft = 3")     # still to come
+        env.globals().refreshCharRoster()
+
+        assert self._label(env, "Rayman").startswith("▶"), self._label(env, "Rayman")
+        assert self._label(env, "James").startswith("✓"), self._label(env, "James")
+        assert "3" in self._label(env, "Coco"), self._label(env, "Coco")
+        # ...and the three are not the same string, which is the whole point.
+        labels = {self._label(env, n) for n in ("James", "Rayman", "Coco")}
+        assert len(labels) == 3, labels
+
+    def test_a_down_character_reads_as_down_not_as_done(self, env):
+        self._day(env)
+        env.execute("gameState.activeChars.White.down = true; "
+                    "gameState.activeChars.White.actionsLeft = 0")
+        env.globals().refreshCharRoster()
+        assert "down" in self._label(env, "James"), self._label(env, "James")
+
+    def test_nobody_is_up_outside_the_day(self, env):
+        self._day(env)
+        env.execute('gameState.subPhase = "Night"')
+        env.globals().refreshCharRoster()
+        for n in ("James", "Rayman", "Coco"):
+            assert not self._label(env, n).startswith("▶"), (n, self._label(env, n))

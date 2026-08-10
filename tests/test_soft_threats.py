@@ -134,6 +134,18 @@ class TestSoftResolution:
         assert env.eval("gameState.activeChars.White.health") == 7
         assert env.eval("gameState.activeChars.Yellow.health") == 8
 
+    def test_the_doorbell_is_heard_indoors_and_nowhere_else(self, env):
+        """It used to read "the player at the front-most house tile" — no such
+        tile exists, so the card asked the table to invent one. Everyone in a
+        house hears it; the courts do not."""
+        add_char(env, "White", "James", location="JamesHouse", sanity=8)
+        add_char(env, "Green", "Ellie", location="EllieLucaHouse", sanity=8)
+        add_char(env, "Yellow", "Rayman", location="BadmintonCourt", sanity=8)
+        env.globals().resolveSoftThreat("T_RUNG_DOORBELL", "JamesHouse", "The Doorbell Rang", None)
+        assert env.eval("gameState.activeChars.White.sanity") == 7
+        assert env.eval("gameState.activeChars.Green.sanity") == 7
+        assert env.eval("gameState.activeChars.Yellow.sanity") == 8
+
     def test_voices_charges_one_per_ally_elsewhere(self, env):
         add_char(env, "White", "James", location="JamesHouse", sanity=8)
         add_char(env, "Green", "Ellie", location="RaymanHouse", sanity=8)
@@ -192,3 +204,55 @@ class TestSoftResolution:
         card = self._card(env, "T_NOT_A_REAL_CARD")
         env.globals().resolveSoftThreat("T_NOT_A_REAL_CARD", "JamesHouse", "???", card)
         assert env.eval("__card.getPosition()")["x"] < -10
+
+
+# ---------------------------------------------------------------------------
+# Placement: two threats at one tile must not become one Deck.
+# ---------------------------------------------------------------------------
+
+
+def test_threats_at_one_tile_land_on_separate_spots(env):
+    """Cards dropped within a card's own footprint of each other MERGE in TTS,
+    and the engine replaces both with a Deck. fightTargetsAt only accepts
+    `obj.type == "Card"`, so a merged threat cannot be fought — while
+    countFesteringThreats still charges Doom for it every Dawn. A live game
+    ended with three of these piles (one holding six cards), "Threats
+    defeated: 0", and Doom at 30/30 on Day 7."""
+    env.eval("TTS.addObject")(py_to_lua(env, {
+        "tags": ["Location:BasketballCourt"], "position": [0, 1, 0]}))
+
+    spots = []
+    for n in range(6):
+        p = dict(env.globals().threatSpotAt("BasketballCourt", n))
+        spots.append((p["x"], p["z"]))
+
+    # A TTS card is ~2.4 x 3.4; closer than that in BOTH axes and they merge.
+    for i, a in enumerate(spots):
+        for b in spots[i + 1:]:
+            assert abs(a[0] - b[0]) >= 2.4 or abs(a[1] - b[1]) >= 3.4, (
+                f"threat spots {a} and {b} overlap — TTS will merge those cards "
+                "into an unfightable Deck")
+
+    # ...and every one is still close enough to the tile to BE a threat:
+    # fightTargetsAt only sees cards within FIGHT_RADIUS of the tile centre.
+    r = env.eval("FIGHT_RADIUS")
+    for x, z in spots:
+        assert (x * x + z * z) ** 0.5 <= r, (
+            f"spot ({x}, {z}) is outside FIGHT_RADIUS {r} — a card there cannot "
+            "be fought, only festered")
+
+
+def test_the_next_threat_counts_the_ones_already_there(env):
+    """The old offset was indexed by the LOOP counter, so a second call at the
+    same tile — the Eye of Terror's Dawn stare, or simply the next night —
+    started over at spot 0 and dropped a card straight onto the last one."""
+    env.eval("TTS.addObject")(py_to_lua(env, {
+        "tags": ["Location:BasketballCourt"], "position": [0, 1, 0]}))
+    assert env.globals().threatsPlacedAt("BasketballCourt") == 0
+
+    first = dict(env.globals().threatSpotAt("BasketballCourt", 0))
+    env.execute('TTS.addObject({tags = {"ThreatCard"}, type = "Card", '
+                'nickname = "T1", position = {%g, %g, %g}})'
+                % (first["x"], first["y"], first["z"]))
+    assert env.globals().threatsPlacedAt("BasketballCourt") == 1, (
+        "a card already on the tile was not counted, so the next one lands on it")

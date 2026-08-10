@@ -50,8 +50,11 @@ local function _mirrorConfirmOntoButton(id, yesLabel)
         -- Wear the dialog's own Yes label where there is one: on the Stash
         -- offer that is "Take the Stash", which says what the click does.
         text      = yesLabel and (CONFIRM_MIRROR_PREFIX .. yesLabel) or CONFIRM_MIRROR_LABEL,
-        color     = "#1E501EF2",
-        textColor = "#AEFFAE",
+        -- The dialog's own Yes colours, not a near-miss of them (helpers.lua):
+        -- the tick and the label have to read as the same bright green the
+        -- dialog is offering, or the button looks disabled instead of live.
+        color     = BTN_YES_PLATE,
+        textColor = BTN_YES_TEXT,
     })
 end
 
@@ -93,7 +96,7 @@ function showConfirm(title, body, onConfirm, onCancel, sourceButtonId, labels)
     UI.setAttribute("confirmBody", "text", body)
     labels = labels or {}
     setButtonLabel("confirmYes", labels.yes or CONFIRM_DEFAULT_LABELS.yes,
-                   "#88FF88", "#1E501EE6")
+                   BTN_YES_TEXT, BTN_YES_PLATE)
     setButtonLabel("confirmNo", labels.no or CONFIRM_DEFAULT_LABELS.no,
                    "#FF8888", "#501E1EE6")
     pendingConfirmCallback = onConfirm
@@ -244,7 +247,10 @@ function refreshHostControls()
         btnSetup        = not gameState.started
                           and not (isGuidedSetupRunning and isGuidedSetupRunning()),
         btnBeginDay     = gameState.started and sp == "PreDawn",
-        btnResolveNight = sp == "Dusk" or sp == "Night",
+        -- ...but not while the night is actually running: the surest way to
+        -- stop a player double-clicking it is for there to be nothing there.
+        btnResolveNight = (sp == "Dusk" or sp == "Night")
+                          and not gameState.nightResolving,
         btnEndTurn      = sp == "Day" and gameState.activeColor ~= nil,
         btnRestart      = gameState.started or sp == "GameOver",
     }
@@ -296,6 +302,15 @@ function onHostBeginDay(player, value, id)
 end
 
 function onHostResolveNight(player, value, id)
+    -- The night runs on a chain of Wait.time callbacks and the sub-phase does
+    -- not move until the last one, so this button is still live throughout.
+    -- ResolveNight refuses re-entry too; this is the half that says why to the
+    -- person who clicked, rather than to the room.
+    if gameState.nightResolving then
+        broadcastToColor("The night is still resolving — give it a moment.",
+            player.color, BROADCAST_COLORS.damage)
+        return
+    end
     if gameState.subPhase == "Dusk" then
         -- Close the scramble window and start the Night phase.
         safecall(function() beginNight() end, "BeginNight")

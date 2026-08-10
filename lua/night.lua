@@ -38,7 +38,23 @@ end
 -----------------------------------------------------------------------
 -- Main Night resolver (called from day_loop.lua → beginNight)
 -----------------------------------------------------------------------
+-- The Night is not a function call, it is a five-to-thirty second CHAIN of
+-- Wait.time callbacks — one per occupied tile, then storytelling, sleep and the
+-- Tick. The button that starts it stays live for all of it (btnResolveNight
+-- shows while subPhase is "Dusk" or "Night", and the sub-phase does not move
+-- until the last callback runs), so a second click scheduled a SECOND complete
+-- chain over the top of the first: every tile drawn twice, two Ticks, and the
+-- second chain's cleanup firing in the middle of the first — which from the
+-- table looks like the night stopping halfway through. Reported as exactly
+-- that. One night at a time.
 function ResolveNight()
+    if gameState.nightResolving then
+        broadcastEvent("warn", "The night is already resolving — let it finish. " ..
+            "(Clicking again would run the whole night a second time.)")
+        return
+    end
+    gameState.nightResolving = true
+    safecall(function() refreshHostControls() end, "HostControls")
     broadcastEvent("phase", "--- NIGHT PHASE ---")
 
     -- Build a list of occupied locations sorted by population (ascending)
@@ -91,6 +107,10 @@ function ResolveNight()
         -- Clear barricades (single-use per night)
         gameState.barricades = {}
         gameState.nightStage = nil
+        -- Released on the last step of the chain, not the first: everything
+        -- above is still scheduled work, and the whole point of the flag is
+        -- that the button must not restart it while it runs.
+        gameState.nightResolving = nil
         resolveTick()
     end, delay + 5.0)
 end
@@ -99,14 +119,66 @@ end
 -- Draw N threat cards onto a location tile. Shared by the Night
 -- resolver below and the Eye of Terror's each-Dawn stare (day_loop.lua).
 -----------------------------------------------------------------------
+-- Where the nth threat card at a tile goes (n is 0-based).
+--
+-- Two cards dropped within a card's own footprint of each other do not sit in a
+-- neat pile in TTS — they MERGE, and the engine replaces both with a Deck. A
+-- merged threat is not a threat any more: fightTargetsAt only accepts
+-- `obj.type == "Card"`, so the Deck is unfightable, while countFesteringThreats
+-- still charges Doom for it every Dawn. One live game ended with three of these
+-- (one holding six cards) sitting on the board, "Threats defeated: 0", and Doom
+-- at 30/30 on Day 7 — a whole week of threats that could not be fought at all.
+--
+-- The old offset was `Vector(2, 1, t * 0.3)`, which fails twice over: 0.3 is a
+-- tenth of a card, and `t` is the loop counter, so two SEPARATE calls (tonight's
+-- draw, the Eye of Terror's Dawn stare, a second night at the same tile) both
+-- start at the same spot. The index now comes from what is already on the tile,
+-- and the step clears a card in both directions: TTS cards are ~2.4 x 3.4, so
+-- two columns 2.8 apart and two rows 3.6 apart never touch.
+-- Six spots, and every one of them is inside FIGHT_RADIUS of the tile centre.
+-- That is the second constraint and it is the tighter one: a card spaced far
+-- enough out to avoid merging but past radius 7 is not a fightable threat any
+-- more, it is a Doom tax you cannot reach. Columns are 2.8 apart (a card is
+-- ~2.4 wide), rows 3.6 (a card is ~3.4 long), and the furthest spot sits at 6.0.
+-- Six is more threats than one tile has ever drawn in a night; past that they
+-- cycle and the seventh may merge, which is the least-bad end of the trade.
+THREAT_SPOTS = {
+    { 2.0,  3.6 }, { 2.0,  0.0 }, { 2.0, -3.6 },
+    { 4.8,  3.6 }, { 4.8,  0.0 }, { 4.8, -3.6 },
+}
+
+function threatSpotAt(location, n)
+    local tile = getLocationTile(location)
+    if not tile then return Vector(0, 2, 0) end
+    local spot = THREAT_SPOTS[(n % #THREAT_SPOTS) + 1]
+    return tile.getPosition() + Vector(spot[1], 1, spot[2])
+end
+
+-- How many threat cards (or merged piles of them) are already at this tile, so
+-- the next one lands on its own spot rather than on top of them.
+function threatsPlacedAt(location)
+    local tile = getLocationTile(location)
+    if not tile then return 0 end
+    local tp, n = tile.getPosition(), 0
+    for _, obj in ipairs(findAllByTag("ThreatCard")) do
+        pcall(function()
+            local p = obj.getPosition()
+            local dx, dz = p.x - tp.x, p.z - tp.z
+            if (dx * dx + dz * dz) <= (FIGHT_RADIUS * FIGHT_RADIUS) then n = n + 1 end
+        end)
+    end
+    return n
+end
+
 function drawThreatsAt(location, count)
     local threatDeck = getThreatDeck()
     if not threatDeck then return end
-    for t = 1, count do
+    local placed = threatsPlacedAt(location)
+    for _ = 1, count do
         local qty = threatDeck.getQuantity and threatDeck.getQuantity() or 0
         if qty > 0 then
-            local tile = getLocationTile(location)
-            local targetPos = tile and (tile.getPosition() + Vector(2, 1, t * 0.3)) or Vector(0, 2, 0)
+            local targetPos = threatSpotAt(location, placed)
+            placed = placed + 1
             threatDeck.takeObject({
                 position = targetPos,
                 rotation = {0, 180, 0},

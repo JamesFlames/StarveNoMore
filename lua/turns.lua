@@ -343,10 +343,13 @@ function refreshDuskReadyLabel()
             label = label .. "\nStill to settle: " .. table.concat(waiting, ", ") ..
                     "  ·  clicking again un-settles you"
         end
-        setButtonLabel("duskReadyBtn", label, "#AAFFCC", "#192D23F2")
+        -- The yes-green, not a mint of its own (helpers.lua): this is a commit
+        -- button like the confirm's Yes, and the paler shade it used to wear
+        -- read as a disabled button rather than a live one.
+        setButtonLabel("duskReadyBtn", label, BTN_YES_TEXT, "#192D23F2")
     else
         setButtonLabel("duskReadyBtn", "Host: click Resolve Night when settled",
-            "#AAFFCC", "#192D23F2")
+            BTN_YES_TEXT, "#192D23F2")
     end
 end
 

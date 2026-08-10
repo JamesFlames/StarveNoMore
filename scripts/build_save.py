@@ -1153,12 +1153,21 @@ characters = [
 # Matches CHARACTER_COLORS in lua/global.lua — a player's seat colour is
 # determined by the character they pick, and the standee holder wears the
 # same colour.
+#
+# These ARE stringToColorTint's five tints (lua/helpers.lua), value for value,
+# and they have to be: setStandeePosture repaints a standee from that table on
+# every down and every revive, so any other set here is the colour a base wears
+# only until the first time its character falls over. The two drifted, and the
+# one that showed was Rayman's — a 0.19/0.70/0.17 forest green on a moulded
+# plastic base, under night lighting, reads as silver, which is exactly how it
+# was reported. The runtime green (0.3/0.9/0.3) does not.
+# Guard: test_standee_tints_match_the_runtime_ones.
 STANDEE_COLORS = {
-    "James":  {"r": 0.12, "g": 0.53, "b": 1.00},   # Blue
-    "Coco":   {"r": 1.00, "g": 1.00, "b": 1.00},   # White
-    "Rayman": {"r": 0.19, "g": 0.70, "b": 0.17},   # Green
-    "Ellie":  {"r": 0.91, "g": 0.88, "b": 0.17},   # Yellow
-    "Luca":   {"r": 0.86, "g": 0.10, "b": 0.09},   # Red
+    "James":  {"r": 0.30, "g": 0.50, "b": 0.90},   # Blue
+    "Coco":   {"r": 0.90, "g": 0.90, "b": 0.90},   # White
+    "Rayman": {"r": 0.30, "g": 0.90, "b": 0.30},   # Green
+    "Ellie":  {"r": 0.90, "g": 0.90, "b": 0.30},   # Yellow
+    "Luca":   {"r": 0.90, "g": 0.30, "b": 0.30},   # Red
 }
 
 CHAR_HOME_TILE = {"James": "JamesHouse", "Rayman": "RaymanHouse",

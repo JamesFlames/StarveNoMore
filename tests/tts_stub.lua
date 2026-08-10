@@ -231,7 +231,20 @@ local function makeObject(spec)
     o.highlightOff = function(...) record("highlightOff", ...); return true end
     o.flip = function() record("flip"); return true end
     o.shuffle = function() record("shuffle"); return true end
-    o.deal = function(...) record("deal", ...); return true end
+    -- Real TTS puts the dealt object in that player's HAND — that is the whole
+    -- point of the call. The stub used only to record it, so no test could tell
+    -- "dealt to your hand" from "dropped on the floor near it", which is
+    -- precisely the bug doCraft shipped with (see the module docstring of
+    -- test_lua_market_purchase.py: a stub gap that hides a feature IS the
+    -- finding). The object stays in TTS.world, as a hand card does in TTS.
+    o.deal = function(count, color, ...)
+        record("deal", count, color, ...)
+        if color then
+            TTS.hands[color] = TTS.hands[color] or {}
+            table.insert(TTS.hands[color], o)
+        end
+        return true
+    end
     o.randomize = function() record("randomize"); return true end
     o.setColorTint = function(...) record("setColorTint", ...); return true end
     o.setScale = function(...) record("setScale", ...); return true end

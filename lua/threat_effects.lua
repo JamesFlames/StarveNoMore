@@ -158,6 +158,25 @@ SOFT_THREAT_EFFECTS = {
         end
     end,
 
+    -- The card used to read "the player at the front-most house tile", and
+    -- there is no front on this map — five tiles in a ring, no near edge, no
+    -- reading order. It was in MANUAL_SOFT telling the table to "agree which
+    -- house that is", which is not a rule, it is an argument; a player asked
+    -- what it meant and there was no answer to give them.
+    -- A doorbell is on a house and everybody indoors hears it, so that is what
+    -- it does now: no judgement to make, and it stays in its severity-2 band
+    -- next to The Furnace (1 Health at house tiles).
+    T_RUNG_DOORBELL = function()
+        for color, ch in pairs(gameState.activeChars) do
+            if not ch.down and not isSportCourt(ch.location or "") then
+                ch.sanity = math.max(0, ch.sanity - 1)
+                broadcastEvent("damage", ch.name ..
+                    " loses 1 Sanity — the doorbell, and nobody at the door.")
+                checkDownState(color)
+            end
+        end
+    end,
+
     T_ROACHES = function()
         for color, ch in pairs(gameState.activeChars) do
             if not ch.down and ch.location == "EllieLucaHouse" then
@@ -180,7 +199,6 @@ SOFT_THREAT_EFFECTS = {
 -- basis to make. They still resolve and discard; the instruction is announced
 -- so it does not scroll past as flavour. Guarded by tests/test_soft_threats.py.
 MANUAL_SOFT = {
-    T_RUNG_DOORBELL = "The player at the front-most house tile loses 2 Sanity — agree which house that is.",
     T_LOST_MEMORIES = "The player here discards a random Item card from their hand.",
     T_FRIEND_BLOOD  = "The player here chooses: lose 2 Health to ignore it, or 4 Sanity to walk past.",
     T_ECHO          = "Repeat the last Soft threat this week resolved. If there wasn't one, everyone loses 1 Sanity.",

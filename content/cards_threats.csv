@@ -7,7 +7,7 @@ T_ROOMMATE,Your Roommate (Wrong),Hard,5,2,3,Sanity costs to fight: 1 Sanity per 
 T_THE_NEIGHBOR,The Neighbor,Hard,6,2,4,Cannot be attacked at range.,Suburban man in a robe with a cleaver,
 T_HOWLING,A Howling Outside,Soft,0,0,2,Atmospheric. All players lose 1 Sanity. Discard.,Open mouth blackness,
 T_POWER_FLICKER,The Power Flickers,Soft,0,0,2,All Battery-powered Items disabled this Night. Discard.,Wall socket sparking,
-T_RUNG_DOORBELL,The Doorbell Rang,Soft,0,0,2,The player at the front-most house tile loses 2 Sanity.,A doorbell button glowing,
+T_RUNG_DOORBELL,The Doorbell Rang,Soft,0,0,2,Each player at a house tile loses 1 Sanity. Discard.,A doorbell button glowing,
 T_FOOD_GONE_WRONG,Food Gone Wrong,Soft,0,0,2,Discard 1 Provisions at this tile (if any).,Maggot-spotted apple,
 T_WHISPERS,Whispers Behind the Walls,Soft,0,0,2,Each player at this tile loses 1 Sanity.,Wall with mouths,
 T_LOST_MEMORIES,Lost Memories,Soft,0,0,3,The player here discards a random Item card. Discard.,Polaroid blurring,

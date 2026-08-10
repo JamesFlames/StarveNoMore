@@ -484,6 +484,26 @@ class TestCookIngredients:
         assert env.eval("gameState.activeChars.Green.hunger") == start_hunger  # no effect
         assert self._held(env)["Provisions"] == 1   # nothing spent
 
+    def test_cooking_repaints_the_bar_and_the_party_panel(self, env):
+        """Cooking was the one verb whose handler resolved without a refresh.
+        The log said "(2 left)" and "+3 hunger, +3 sanity" for everybody at the
+        tile; the screen kept three action cubes and the party's pre-meal bars.
+        It was reported as two bugs — "the cook was free", "the others were not
+        buffed" — and it was neither."""
+        self._cook_world(env, "Rayman")
+        env.execute('gameState.started = true; gameState.subPhase = "Day"; '
+                    'gameState.activeColor = "Green"')
+        env.globals().giveResource("Green", "Provisions", 2)
+        env.globals().giveResource("Green", "Wood", 1)
+        env.globals()._cookDialogIds = py_to_lua(env, ["R_HOT_STEW"])
+
+        env.globals().onCookOptionClick(env.eval('Player["Green"]'), None, "cookOpt1")
+
+        assert env.eval("gameState.activeChars.Green.actionsLeft") == 2
+        assert env.eval('UI.getAttribute("cubeLabel", "text")') == "2 remaining", (
+            "the action cubes still show the pre-cook count: "
+            + str(env.eval('UI.getAttribute("cubeLabel", "text")')))
+
     def test_ellie_crockpot_master_pays_one_fewer(self, env):
         self._cook_world(env, "Ellie")
         env.globals().giveResource("Green", "Provisions", 2)   # 2 Provisions + 1 Wood, minus 1 = 1 Provisions + 1 Wood

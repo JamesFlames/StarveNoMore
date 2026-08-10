@@ -98,6 +98,38 @@ function refreshActionBar()
     end
 end
 
+-----------------------------------------------------------------------
+-- Collapsing the stat panel.
+--
+-- statDisplay is MiddleLeft and the Rules-in-effect panel sits directly
+-- underneath it, so at full height the stat box covers the rules a player is
+-- reading — reported as exactly that. Collapsed, it keeps the two lines that
+-- answer "whose panel is this" and gives the rest of the column back. Same
+-- shape as onRulesToggle (ui_rules.lua).
+-----------------------------------------------------------------------
+local _statCollapsed = false
+local STAT_PANEL_BODY = { "statRowHP", "statRowHU", "statRowSA",
+                          "statLocation", "statResources", "statPerks" }
+STAT_PANEL_H, STAT_PANEL_H_COLLAPSED = 320, 58
+
+function refreshStatPanelCollapse()
+    if not UI then return end
+    local shown = _statCollapsed and "false" or "true"
+    for _, id in ipairs(STAT_PANEL_BODY) do
+        UI.setAttribute(id, "active", shown)
+    end
+    UI.setAttribute("statDisplay", "height",
+        tostring(_statCollapsed and STAT_PANEL_H_COLLAPSED or STAT_PANEL_H))
+    -- setButtonLabel, not a bare text attribute: setting a Button's text
+    -- resets its styling (docs/tts-interface.md).
+    setButtonLabel("statToggle", _statCollapsed and "+" or "–", "#BBDDFF", "#28323CE6")
+end
+
+function onStatToggle(player, value, id)
+    _statCollapsed = not _statCollapsed
+    refreshStatPanelCollapse()
+end
+
 function setActionCubes(remaining)
     local colors = {"#66FF66", "#66FF66", "#66FF66"}
     for i = remaining + 1, 3 do
@@ -307,6 +339,10 @@ function refreshStatDisplay()
 
     local char = gameState.activeChars[showColor]
     if not char then return end
+
+    -- Re-assert the collapse on every repaint: a player who folded the panel
+    -- away must not have it spring back open on the next stat change.
+    safecall(function() refreshStatPanelCollapse() end, "StatCollapse")
 
     UI.setAttribute("statCharName", "text", char.name .. (char.down and " [DOWN]" or ""))
     -- ...and who is playing them. Falls back to the seat colour when the chair

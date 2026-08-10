@@ -165,8 +165,22 @@ end
 -- are the conditional single-use ones whose text means nothing until you know
 -- the rule it hooks into (Pantry Key, Whistle, Toolbox, Spare Battery). Same
 -- total power over the week, a third of the reading up front.
-STARTING_ROW_DIST     = 3.2   -- distance out from the board: today's items
-STARTING_RESERVE_DIST = 4.6   -- ...and the face-down "not yet" row behind them
+-- Distance OUT from the board's centre. 2.6/3.7, not 3.2/4.6: the boards are
+-- already pushed as far out as the table allows (_south_z / _side_x in
+-- build_save.py are both hard against a limit), so a row 4.6 past the centre of
+-- Coco's south board lands on the wooden rim outside the felt — "Coco's
+-- starting cards landed in a silly position", and they had. Half a board is
+-- 1.78, so 2.6 tucks today's row against its outer edge and 3.7 puts the
+-- face-down row behind that, both still on the felt.
+STARTING_ROW_DIST     = 2.6   -- distance out from the board: today's items
+STARTING_RESERVE_DIST = 3.7   -- ...and the face-down "not yet" row behind them
+
+-- The yaw a card must wear to read the same way up as this player board.
+local function _boardYaw(board)
+    local y = 180
+    pcall(function() y = (board.getRotation() or {}).y or 180 end)
+    return y % 360
+end
 
 -- One slot in a row laid along the board's long edge, pushed OUTWARD (away
 -- from the map) so the cards never cover the board or the play area.
@@ -251,7 +265,15 @@ function dealStartingHands()
                 -- rz 0 = face up, 180 = face down. These cards carry
                 -- HideWhenFaceDown, so a reserve card shows nothing but its
                 -- "STARTING" back until its day comes.
-                local rot = {0, 180, faceUp and 0 or 180}
+                --
+                -- The yaw is the BOARD's, not a flat 180. Player boards carry
+                -- their own quarter turns so each one faces its seat (ry 90 /
+                -- 270 / 0 + the half turn, build_save.py), and boards and cards
+                -- share the same art convention — artwork upright, the object
+                -- carries the turn — so matching the board's yaw is what makes
+                -- a card read the same way up as the board it belongs to. At a
+                -- flat 180 the east and west seats got their hand sideways.
+                local rot = {0, _boardYaw(board), faceUp and 0 or 180}
                 -- pcall: the safecall below wraps the take, not this, and by
                 -- the time it runs the handle can already be dead.
                 local function dress(c)

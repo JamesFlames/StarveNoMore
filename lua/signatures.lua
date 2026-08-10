@@ -202,7 +202,10 @@ function spawnPosterizeTargets(color)
             function_owner  = Global,
             label           = "POSTERIZE",
             position        = { 0, 0.4, 0 },
-            rotation        = { 0, 0, 0 },
+            -- The table's reading direction, not the card's (ui_actionbar_targets.lua).
+            -- {0,0,0} was right only for as long as the card stays at the rotY=180
+            -- it was dealt at.
+            rotation        = { 0, uprightYaw(tcard), 0 },
             width           = 1200,
             height          = 420,
             font_size       = 180,

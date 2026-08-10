@@ -239,14 +239,29 @@ function refreshCharRoster()
         else
             shown = shown + 1
             UI.setAttribute(rowId, "active", "true")
-            -- Dim the row if Down.
+            -- Who has been, who is up, who is still to come.
+            --
+            -- The banner names the current player and nothing named the rest,
+            -- so "whose turn is it, and who is left?" — the question a table
+            -- asks every few minutes — could only be answered by counting
+            -- action cubes on five separate player boards. Read off actions
+            -- rather than turnIndex on purpose: it is true under BOTH turn
+            -- styles, including "rotate", where the order comes back round to
+            -- someone who still has actions banked.
+            local mark, tint = name, "#14141480"
             if char.down then
-                UI.setAttribute(rowId, "color", "#280A0A99")
-                UI.setAttribute("rosterName_" .. name, "text", name .. " ✗")
+                mark, tint = name .. "  ✗ down", "#280A0A99"
+            elseif gameState.subPhase ~= "Day" then
+                mark, tint = name, "#14141480"       -- nobody is "up" outside the Day
+            elseif color == gameState.activeColor then
+                mark, tint = "▶ " .. name .. "  (now)", "#1E501E99"
+            elseif (char.actionsLeft or 0) <= 0 then
+                mark, tint = "✓ " .. name .. "  (done)", "#14141455"
             else
-                UI.setAttribute(rowId, "color", "#14141480")
-                UI.setAttribute("rosterName_" .. name, "text", name)
+                mark, tint = name .. "  (" .. char.actionsLeft .. " to spend)", "#2A2A18AA"
             end
+            UI.setAttribute(rowId, "color", tint)
+            UI.setAttribute("rosterName_" .. name, "text", mark)
             UI.setAttribute("rosterHealth_" .. name, "percentage", _pct(char.health, char.maxHealth))
             UI.setAttribute("rosterHealthVal_" .. name, "text", char.health .. "/" .. char.maxHealth)
             UI.setAttribute("rosterHunger_" .. name, "percentage", _pct(char.hunger, char.maxHunger))

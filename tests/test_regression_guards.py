@@ -1004,3 +1004,31 @@ def test_locked_table_level_tiles_rest_on_the_table_rather_than_hover():
         + "\n  ".join(problems)
         + "\n  a locked object never settles — author posY as "
           "TABLE_SURFACE_Y + thickness/2 (that is what SURFACE_Y is)")
+
+
+def test_standee_tints_match_the_runtime_ones():
+    """setStandeePosture repaints a standee from stringToColorTint on every
+    down and every revive, so STANDEE_COLORS in the build is only the colour a
+    base wears until the first time its character falls over. The two drifted:
+    the build gave Rayman a 0.19/0.70/0.17 forest green, which on a moulded
+    plastic base under night lighting was reported as silver."""
+    build = read_text(os.path.join(ROOT, "scripts", "build_save.py"))
+    body = build.split("STANDEE_COLORS = {", 1)[1].split("}\n", 1)[0]
+    built = {m[0]: tuple(round(float(v), 2) for v in m[1:])
+             for m in re.findall(
+                 r'"(\w+)":\s*\{"r":\s*([\d.]+),\s*"g":\s*([\d.]+),\s*"b":\s*([\d.]+)\}', body)}
+
+    banner = read_text(os.path.join(LUA_DIR, "ui_banner.lua"))
+    tints = banner.split("function stringToColorTint", 1)[1].split("end", 1)[0]
+    runtime = {m[0]: tuple(round(float(v), 2) for v in m[1:])
+               for m in re.findall(
+                   r"(\w+)\s*=\s*\{([\d.]+),\s*([\d.]+),\s*([\d.]+)\}", tints)}
+
+    colors = {"James": "Blue", "Coco": "White", "Rayman": "Green",
+              "Ellie": "Yellow", "Luca": "Red"}
+    mismatched = {name: (built.get(name), runtime.get(seat))
+                  for name, seat in colors.items()
+                  if built.get(name) != runtime.get(seat)}
+    assert not mismatched, (
+        "standee tints differ between the build and stringToColorTint — the "
+        f"base changes colour the first time the character goes down: {mismatched}")

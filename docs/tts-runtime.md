@@ -143,6 +143,16 @@ from a screenshot.
   reads correctly at `ry=0`. The Quick Start notecard was upside down for
   weeks because it carried the card convention.
 - Flat 3DText labels: `rx=90, ry=0`.
+- **`createButton` labels follow the flat-art convention, not the gadget one**,
+  and their `rotation` is in the object's LOCAL frame — so a button reads
+  upright at **world** yaw 180, and a button that cancels its object's yaw
+  comes out upside down. Every tile, market slot, market card and dealt threat
+  card on this table is at `ry=180` (check with `inspect_save.py --live` before
+  believing otherwise — a comment here once claimed the tiles were at `ry=0`
+  and every CRAFT / MOVE HERE / COOK / FIGHT label was printed upside down on
+  the strength of it). Use `uprightYaw(obj)` (`ui_actionbar_targets.lua`),
+  which pins the label to `TABLE_READING_YAW` whatever the object is doing.
+  Guard: `test_target_buttons_read_the_way_the_table_does`.
 - `rotZ=180` = face-down (cards); rotY is yaw, rotZ is flip.
 
 #### Diagnosing "everything is 180° out"
@@ -201,6 +211,16 @@ screenshot, so it gets forgotten until cards start disappearing.
 - Locked objects should be immune (they can't be picked up at all, so
   nothing can put them in a hand) — but that is inference, not a
   measurement, so don't lean on it: keep them inside the line anyway.
+- **To put a card IN a hand, call `obj.deal(1, color)` — never move it to the
+  zone's position.** A zone captures what comes to *rest* inside it, and the
+  slab's floor is `y = 4.5 − 6/2 = 1.5`, which is **above** the table surface:
+  a card released at the zone and left to gravity falls straight through and
+  lands at `y ≈ 1.0`, outside the zone by half a unit. `doCraft` did exactly
+  that, and a live save had two bought cards lying on the table past the hand
+  *and* past the padded box round the player board that
+  `getPlayerCarriedObjects` reads — so "dealt to your hand" was a card no rule
+  in the mod could see. `deal` works on a loose card, not just a deck.
+  Guard: `test_the_card_you_bought_ends_up_in_your_hand`.
 - **Seats are derived from the zones**, so moving a zone moves that player's
   camera. Prefer moving the furniture, not the zone.
 - Guard: `test_player_boards_are_square_to_the_board_and_face_it` measures

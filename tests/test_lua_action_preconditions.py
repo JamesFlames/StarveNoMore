@@ -8,8 +8,20 @@ Cleanse button, spent an action on it, and had the action handed back with a
 refusal; from their seat that reads as the game changing its mind, or as
 having successfully cleansed. Trade did the same with nobody in reach.
 """
+import os
+import re
+
 import pytest
-from conftest import add_char, lua52, make_env, populate_full_world
+from conftest import (
+    XML_DIR,
+    add_char,
+    broadcasts,
+    lua52,
+    make_env,
+    populate_full_world,
+    py_to_lua,
+    read_text,
+)
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
 
@@ -219,6 +231,46 @@ def test_a_cancel_that_does_something_says_what(env):
     assert _label(env, "confirmYes") == "Take the Stash"
 
 
+def _style(rt, button):
+    return (rt.eval(f'(function() return UI.getAttribute("{button}", "textColor") end)()'),
+            rt.eval(f'(function() return UI.getAttribute("{button}", "color") end)()'))
+
+
+# Every button that means "yes, do it". A second green that is merely close to
+# the dialog's does not read as the same control: the mirrored confirm wore its
+# own #AEFFAE and "Take the Stash" looked disabled — a pale mint label on a dark
+# plate, in a bar of bright sage buttons — while it was the live answer.
+YES_BUTTONS = {
+    "dialogs.xml": ["confirmYes", "duskReadyBtn"],
+    "msglog.xml":  ["whatNowClose"],
+}
+
+
+def test_confirm_green_is_one_colour(env):
+    """The yes-green is defined once (BTN_YES_TEXT/BTN_YES_PLATE, helpers.lua)
+    and every affirmative button wears it — the XML defaults included, because
+    that is what shows before Lua ever repaints the button."""
+    text, plate = env.eval("BTN_YES_TEXT"), env.eval("BTN_YES_PLATE")
+
+    for filename, ids in YES_BUTTONS.items():
+        xml = read_text(os.path.join(XML_DIR, filename))
+        for button_id in ids:
+            m = re.search(r'<Button\b[^>]*\bid="%s"[^>]*>' % button_id, xml, re.S)
+            assert m, f"{button_id} vanished from xml/{filename}"
+            got = re.search(r'textColor="([^"]+)"', m.group(0))
+            assert got and got.group(1) == text, (
+                f"{button_id} in xml/{filename} is {got and got.group(1)}, not the "
+                f"yes-green {text} — a near-miss reads as a disabled button")
+
+    # ...and the confirm mirrored onto the button that raised it (ui_controls.lua)
+    add_char(env, "White", "James", location="JamesHouse")
+    env.globals().onActGather(env.eval('Player["White"]'), None, "actGather")
+    assert _style(env, "actGather") == (text, plate), (
+        f"the mirrored confirm wears {_style(env, 'actGather')}, not the dialog's "
+        f"own Yes colours {(text, plate)}")
+    assert _style(env, "confirmYes") == (text, plate)
+
+
 def test_an_ordinary_confirm_still_says_confirm_and_cancel(env):
     """...and a dialog whose Cancel really is "never mind" is left alone."""
     add_char(env, "White", "James")
@@ -226,3 +278,54 @@ def test_an_ordinary_confirm_still_says_confirm_and_cancel(env):
     env.globals().onActCleanse(env.eval('Player["White"]'), None, "actCleanse")
     assert _label(env, "confirmYes") == "Confirm"
     assert _label(env, "confirmNo") == "Cancel"
+
+
+# --------------------------------------------- the Telltale Heart's shopping list
+
+def _cook_world(rt, name="Rayman", color="White"):
+    add_char(rt, color, name, location="EllieLucaHouse")
+    add = rt.eval("TTS.addObject")
+    add(py_to_lua(rt, {"tags": ["Location:EllieLucaHouse"], "position": [0, 1, 0]}))
+    add(py_to_lua(rt, {"tags": ["Crockpot"], "position": [0, 1, 0]}))
+    add(py_to_lua(rt, {"tags": [f"PlayerBoard:{name}"], "position": [20, 1, 20]}))
+
+
+def test_a_missing_telltale_heart_names_its_ingredients(env):
+    """It is the only way a Down character comes back, it is a RECIPE and not a
+    Market card, and nothing named its ingredients unless you already had them
+    — so a table with someone down went looking for it in the Market, which
+    will never stock it."""
+    _cook_world(env)
+    hint = env.globals().heartHint("White")
+    assert hint, "no hint at all when the heart is uncookable"
+    for word in ("Cloth", "Battery", "Provisions"):
+        assert word in hint, f"{word} missing from: {hint}"
+    assert "2 Health" in hint, hint
+    assert "not a Market card" in hint, hint
+
+
+def test_the_hint_says_what_you_are_short_of(env):
+    _cook_world(env)
+    env.globals().giveResource("White", "Cloth", 1)
+    env.globals().giveResource("White", "Provisions", 1)
+    hint = env.globals().heartHint("White")
+    assert "1 more Battery" in hint, hint
+
+
+def test_no_hint_once_the_heart_is_on_the_list(env):
+    """When it IS offered it speaks for itself; a second copy of the rules
+    beside a button that says the same thing is noise."""
+    _cook_world(env)
+    for res in ("Cloth", "Battery", "Provisions"):
+        env.globals().giveResource("White", res, 2)
+    env.globals()._showCookDialog("White")
+    assert env.globals().heartHint("White") is None, env.globals().heartHint("White")
+
+
+def test_the_nothing_cookable_message_carries_it_too(env):
+    """The player standing at the pot with nothing cookable is the likeliest
+    person to be hunting for it, and that path never opens the dialog."""
+    _cook_world(env)
+    env.globals().onActCook(py_to_lua(env, {"color": "White"}), None, "actCook")
+    said = " ".join(broadcasts(env))
+    assert "TELLTALE HEART" in said, said
