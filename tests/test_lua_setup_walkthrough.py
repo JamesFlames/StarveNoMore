@@ -315,6 +315,78 @@ def test_a_full_table_is_not_warned_about_its_size():
     assert "CHARACTER game" not in " ".join(messages(env))
 
 
+# ---------------------------------------------------------------------------
+# The Solo toggle vs. the seats it actually needs
+#
+# "It said it would let me pick 3 characters but it only let me pick 1 and then
+# I had Begin Day." The toggle read "one player runs 3 characters" and never
+# counted the seated colours the pick queue is built from, so at one seat it
+# promised three, dealt one, and the start-of-setup size warning had long
+# scrolled away. Solo cannot seat the other two itself — Hotseat is a TTS
+# client setting — so the toggle has to tell the truth instead.
+# ---------------------------------------------------------------------------
+
+def begin_solo(env, names):
+    """Reach the variants panel and flip Solo on, without continuing."""
+    populate_full_world(env)
+    env.globals().onLoad("")
+    flush(env)
+    colors = [SEAT_FOR[n] for n in names]
+    env.execute("TTS.seated = {%s}" % ", ".join(f'"{c}"' for c in colors))
+    host = colors[0]
+    env.execute(f'onHostSetupGuided(Player["{host}"])')
+    env.execute(f'onPickPath(Player["{host}"], "-1", "pickCompact")')
+    env.execute(f'onToggleSolo(Player["{host}"], "-1", "toggleSolo")')
+    flush(env)
+    return host
+
+
+def solo_label(env):
+    return env.eval('UI.getAttribute("toggleSolo", "text")')
+
+
+def test_solo_at_one_seat_admits_it_is_a_one_character_game():
+    env = make_env()
+    begin_solo(env, ["Coco"])
+    assert "1-character game" in solo_label(env), (
+        "the Solo toggle still promises 3 characters at a table that will be "
+        "asked for 1: " + solo_label(env))
+    said = " ".join(messages(env))
+    assert "Hotseat" in said, "nothing told them how to actually get three seats"
+
+
+def test_solo_at_three_seats_promises_three():
+    env = make_env()
+    begin_solo(env, ["Coco", "James", "Rayman"])
+    assert "runs 3 characters" in solo_label(env)
+    assert "Solo needs" not in " ".join(messages(env))
+
+
+def test_starting_solo_short_handed_says_how_many_characters():
+    """The last honest moment: the pick queue is built the instant the
+    variants panel closes."""
+    env = make_env()
+    host = begin_solo(env, ["Coco"])
+    env.execute(f'onVariantsContinue(Player["{host}"], "-1", "variantsContinue")')
+    flush(env)
+    said = " ".join(messages(env))
+    assert "SOLO MODE with 1 coloured seat" in said
+    assert "one player, 3 characters" not in said
+    # The half of Solo that does work at one seat is still on, and still said.
+    assert "no ghost word-limit" in said
+    assert env.eval("gameState.solo") is True
+
+
+def test_starting_solo_with_three_seats_announces_three():
+    env = make_env()
+    host = begin_solo(env, ["Coco", "James", "Rayman"])
+    env.execute(f'onVariantsContinue(Player["{host}"], "-1", "variantsContinue")')
+    flush(env)
+    said = " ".join(messages(env))
+    assert "SOLO MODE: one player, 3 characters" in said
+    assert "SOLO MODE with" not in said
+
+
 def test_multiplayer_each_player_picks_on_their_own_turn():
     """Multiplayer: everyone clicks their own card when the panel names them."""
     env = make_env()

@@ -260,9 +260,27 @@ end
 -- anti-alpha mechanism is anti-SOLO by definition — private hands, the ghost
 -- word-limit and Secret Dusk are all meaningless or merely annoying with one
 -- brain — so the mode's actual content is suspending them.
+SOLO_SEATS_NEEDED = 3
+
+-- The toggle is a promise the toggle cannot keep on its own. Characters come
+-- from SEATED COLOURS — showCharPickForNextPlayer builds the pick queue from
+-- getActivePlayerColors() — so Solo at one seat is a ONE-character game, and
+-- the mode's own label was cheerfully advertising three. A player switched it
+-- on, was told twice they were running three characters, picked exactly one,
+-- and landed on Begin Day. Solo cannot seat the other two itself: TTS Hotseat
+-- is a client setting, not something a script can turn on. So the toggle says
+-- what will actually happen instead, at the moment the choice is made rather
+-- than in a warning that scrolled past before this panel existed.
+local function _soloSeatShortfall()
+    local seats = #getActivePlayerColors()
+    if seats >= SOLO_SEATS_NEEDED then return nil end
+    return seats
+end
+
 function onToggleSolo(player, value, id)
     if isGhostSetupClick(1.5, player) then return end
     setupState.solo = not setupState.solo
+    local short = _soloSeatShortfall()
     if setupState.solo then
         -- Secrecy against yourself is pure friction. Turning it off with the
         -- toggle (rather than silently ignoring it later) keeps the setup
@@ -271,9 +289,22 @@ function onToggleSolo(player, value, id)
         refreshVariantToggle("toggleDuskSecret", false,
             "Secret Dusk: ON\n(argue freely, then commit your night in secret — all revealed at once)",
             "Secret Dusk: OFF\n(standard — you declare where you sleep out loud, in turn order)")
+        if short then
+            broadcastEvent("warn", "Solo needs " .. SOLO_SEATS_NEEDED ..
+                " coloured seats and only " .. short .. " is taken — you will be asked to pick " ..
+                short .. " character(s), not " .. SOLO_SEATS_NEEDED .. ".")
+            broadcastEvent("proc", "Turn on Tabletop Simulator's Hotseat (main menu > Games > Hotseat), " ..
+                "sit " .. SOLO_SEATS_NEEDED .. " coloured seats with the one keyboard, then restart setup. " ..
+                "The rules half of Solo (hands open, no ghost word-limit, no Dusk secrecy) is on either way.")
+        end
     end
-    refreshVariantToggle("toggleSolo", setupState.solo,
-        "Solo: ON\n(one player runs 3 characters — hands open, no ghost word-limit, no Dusk secrecy)",
+    local onLabel = "Solo: ON\n(one player runs 3 characters — hands open, no ghost word-limit, no Dusk secrecy)"
+    if setupState.solo and short then
+        onLabel = "Solo: ON — but only " .. short .. " coloured seat(s) taken, so this is a " ..
+                  short .. "-character game.\nHotseat " .. SOLO_SEATS_NEEDED ..
+                  " colours and restart setup to run " .. SOLO_SEATS_NEEDED .. "."
+    end
+    refreshVariantToggle("toggleSolo", setupState.solo, onLabel,
         "Solo: OFF\n(a normal 3-5 player game)")
 end
 
@@ -328,7 +359,18 @@ function onVariantsContinue(player, value, id)
     end
     gameState.solo = setupState.solo or false
     if gameState.solo then
-        broadcastEvent("proc", "SOLO MODE: one player, three characters. Play every hand face up, ignore the ghost's one-word limit, and skip Dusk secrecy — those rules exist to stop one player driving everyone, which is the whole point here.")
+        -- The last honest moment: the pick queue is built from the seated
+        -- colours the instant this function returns, so "three characters" is
+        -- either true now or it is never going to be.
+        local soloSeats = #getActivePlayerColors()
+        if soloSeats >= SOLO_SEATS_NEEDED then
+            broadcastEvent("proc", "SOLO MODE: one player, " .. soloSeats .. " characters. Play every hand face up, ignore the ghost's one-word limit, and skip Dusk secrecy — those rules exist to stop one player driving everyone, which is the whole point here.")
+        else
+            broadcastEvent("warn", "SOLO MODE with " .. soloSeats .. " coloured seat(s): you are about to pick " ..
+                soloSeats .. " character(s), not " .. SOLO_SEATS_NEEDED ..
+                ". Hotseat " .. SOLO_SEATS_NEEDED .. " colours and restart setup for the real thing.")
+            broadcastEvent("proc", "The rules half is still on: hands face up, no ghost word-limit, no Dusk secrecy.")
+        end
     end
     gameState.difficulty = setupState.difficulty or "standard"
     if gameState.difficulty ~= "standard" then

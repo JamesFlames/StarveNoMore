@@ -672,7 +672,7 @@
   "DIFFICULTY_BLURBS": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 298,
+    "line": 329,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -682,7 +682,7 @@
   "DIFFICULTY_CYCLE": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 297,
+    "line": 328,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1282,7 +1282,7 @@
   "SEAT_COLORS_ALL": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 388,
+    "line": 430,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1347,6 +1347,16 @@
     "params": null,
     "arity": null,
     "doc": ""
+   }
+  ],
+  "SOLO_SEATS_NEEDED": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 263,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "Solo (§20.3 → an official mode). One player runs three characters. Every anti-alpha mechanism is anti-SOLO by definition — private hands, the ghost word-limit …"
    }
   ],
   "SOURCE_MAX_HP": [
@@ -1664,7 +1674,7 @@
   "WELCOME_PAGES": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1070,
+    "line": 1112,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -2870,7 +2880,7 @@
   "closeWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1148,
+    "line": 1190,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3520,7 +3530,7 @@
   "dumpSetupState": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 448,
+    "line": 490,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3606,7 +3616,7 @@
   "finalizeGuidedSetup": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1028,
+    "line": 1070,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5125,7 +5135,7 @@
   "onBriefBack": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 780,
+    "line": 822,
     "kind": "function",
     "params": [
      "player",
@@ -5139,7 +5149,7 @@
   "onBriefDismiss": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 801,
+    "line": 843,
     "kind": "function",
     "params": [
      "player",
@@ -5473,7 +5483,7 @@
   "onHostSetupGuided": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1212,
+    "line": 1254,
     "kind": "function",
     "params": [
      "player",
@@ -5610,7 +5620,7 @@
   "onPickChar": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 660,
+    "line": 702,
     "kind": "function",
     "params": [
      "player",
@@ -5858,7 +5868,7 @@
   "onToggleDifficulty": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 305,
+    "line": 336,
     "kind": "function",
     "params": [
      "player",
@@ -5914,7 +5924,7 @@
   "onToggleSolo": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 263,
+    "line": 280,
     "kind": "function",
     "params": [
      "player",
@@ -5922,7 +5932,7 @@
      "id"
     ],
     "arity": 3,
-    "doc": "Solo (§20.3 → an official mode). One player runs three characters. Every anti-alpha mechanism is anti-SOLO by definition — private hands, the ghost word-limit …"
+    "doc": ""
    }
   ],
   "onTradeCancel": [
@@ -5984,7 +5994,7 @@
   "onVariantsContinue": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 318,
+    "line": 349,
     "kind": "function",
     "params": [
      "player",
@@ -6012,7 +6022,7 @@
   "onWelcomeBack": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1164,
+    "line": 1206,
     "kind": "function",
     "params": [
      "player",
@@ -6026,7 +6036,7 @@
   "onWelcomeNext": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1153,
+    "line": 1195,
     "kind": "function",
     "params": [
      "player",
@@ -6040,7 +6050,7 @@
   "onWelcomeSkip": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1170,
+    "line": 1212,
     "kind": "function",
     "params": [
      "player",
@@ -7279,7 +7289,7 @@
   "showCharBriefing": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 752,
+    "line": 794,
     "kind": "function",
     "params": [
      "color",
@@ -7292,7 +7302,7 @@
   "showCharPickForNextPlayer": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 470,
+    "line": 512,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7411,7 +7421,7 @@
   "showWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1174,
+    "line": 1216,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7987,7 +7997,7 @@
   "welcomeBody": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1126,
+    "line": 1168,
     "kind": "function",
     "params": [
      "page"
