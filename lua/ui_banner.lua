@@ -458,20 +458,44 @@ end
 STANDEE_JIGGLE_STEPS    = { 14, -11, 8, -5, 0 }
 STANDEE_JIGGLE_INTERVAL = 0.09
 
-function jiggleStandee(charName)
-    local standee = getCharacterStandee(charName)
-    if not isLiveObject(standee) then return end
-    local base = standee.getRotation()
+-- Taking a hit shakes HARDER and rings longer than doing something does.
+--
+-- The two have to be told apart at a glance or the feedback is worse than
+-- none: if "I acted" and "I just lost a Health" look the same, the shake
+-- stops carrying information and becomes decoration. Roughly double the
+-- amplitude, one more oscillation, and a slightly faster interval so it
+-- reads as a snap rather than a wobble.
+STANDEE_HIT_JIGGLE_STEPS    = { 30, -26, 21, -15, 9, -4, 0 }
+STANDEE_HIT_JIGGLE_INTERVAL = 0.07
+
+-- The shake itself, on any object. Bosses are Figurine_Custom like the
+-- characters and threats are cards, but all three are just handles with a
+-- rotation, so nothing here needs to know which it got.
+function jiggleObject(obj, steps, interval)
+    if not isLiveObject(obj) then return end
+    steps = steps or STANDEE_JIGGLE_STEPS
+    local base = obj.getRotation()
     local step = 0
     Wait.time(function()
         step = step + 1
         -- Re-checked every tick, not just once up front: an action can move,
         -- merge or destroy the piece while the shake is still running (Move
-        -- re-parents it to another tile), and a dead handle throws.
-        if not isLiveObject(standee) then return end
-        standee.setRotationSmooth(
-            {base.x, base.y, STANDEE_JIGGLE_STEPS[step] or 0}, false, false)
-    end, STANDEE_JIGGLE_INTERVAL, #STANDEE_JIGGLE_STEPS)
+        -- re-parents it to another tile, a killed boss goes back in the pool),
+        -- and a dead handle throws.
+        if not isLiveObject(obj) then return end
+        obj.setRotationSmooth(
+            {base.x, base.y, steps[step] or 0}, false, false)
+    end, interval or STANDEE_JIGGLE_INTERVAL, #steps)
+end
+
+function jiggleStandee(charName)
+    jiggleObject(getCharacterStandee(charName))
+end
+
+-- A character took damage: the louder shake.
+function jiggleCharacterHit(charName)
+    jiggleObject(getCharacterStandee(charName),
+                 STANDEE_HIT_JIGGLE_STEPS, STANDEE_HIT_JIGGLE_INTERVAL)
 end
 
 function stopStandeeBob()

@@ -107,6 +107,8 @@ AUDIO.SFX.character_death = { url = "http://localhost:8080/sounds/sfx/Character_
 AUDIO.SFX.character_meet = { url = "http://localhost:8080/sounds/sfx/Character_Meet_Sound.ogg", duration = 0.99, name = "Character_Meet_Sound.ogg" }
 AUDIO.SFX.character_talktrade = { url = "http://localhost:8080/sounds/sfx/Character_TalkTrade_Sound.ogg", duration = 1.91, name = "Character_TalkTrade_Sound.ogg" }
 AUDIO.SFX.character_walk = { url = "http://localhost:8080/sounds/sfx/Character_Walk_Sound.ogg", duration = 2.43, name = "Character_Walk_Sound.ogg" }
+AUDIO.SFX.hit_land = { url = "http://localhost:8080/sounds/sfx/Hit_Land_Sound.wav", duration = 0.22, name = "Hit_Land_Sound.wav" }
+AUDIO.SFX.hit_taken = { url = "http://localhost:8080/sounds/sfx/Hit_Taken_Sound.wav", duration = 0.44, name = "Hit_Taken_Sound.wav" }
 AUDIO.SFX.night_growl = { url = "http://localhost:8080/sounds/sfx/night_growl.wav", duration = 2.20, name = "night_growl.wav" }
 AUDIO.SFX.tick_chime = { url = "http://localhost:8080/sounds/sfx/tick_chime.wav", duration = 1.60, name = "tick_chime.wav" }
 AUDIO.SFX.turn_ping = { url = "http://localhost:8080/sounds/sfx/Turn_Ping_Sound.wav", duration = 0.52, name = "Turn_Ping_Sound.wav" }

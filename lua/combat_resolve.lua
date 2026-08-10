@@ -198,6 +198,7 @@ function applyCounterAttack()
                 if c.name == "Rayman" and not c.down then defenderColor = color break end
             end
         end
+        local struck, struckOrder = {}, {}
         for i = 1, defResult.hits do
             local color = ctx.colors[((i - 1) % #ctx.colors) + 1]
             if defenderColor then
@@ -213,7 +214,25 @@ function applyCounterAttack()
             if c then
                 c.health = math.max(0, c.health - 1)
                 broadcastEvent("damage", c.name .. " takes 1 counter-attack damage. Health: " .. c.health)
+                if not struck[c.name] then
+                    struck[c.name] = true
+                    table.insert(struckOrder, c.name)
+                end
                 if color == defenderColor then checkDownState(color) end
+            end
+        end
+        -- One cue for the whole volley, one shake per person hit. Three hits
+        -- on one character is one thud and one shake, not three of each: the
+        -- single MusicPlayer would only restart the clip anyway, and the log
+        -- lines above already carry the count.
+        --
+        -- Deliberately BEFORE the checkDownState sweep. Going Down plays its
+        -- own sound, and taking the last point of Health should end on that,
+        -- not on the generic hit thud.
+        if #struckOrder > 0 then
+            safecall(function() Audio.playHitTaken() end, "HitSFX")
+            for _, name in ipairs(struckOrder) do
+                safecall(function() jiggleCharacterHit(name) end, "HitJiggle")
             end
         end
         for _, color in ipairs(ctx.colors) do checkDownState(color) end
@@ -318,6 +337,8 @@ function beginCombat(colors, threatData)
     if atkResult.hits > 0 then
         broadcastEvent("gain", atkResult.hits .. " hit(s)! " .. threatName .. " HP: " .. math.max(0, threatHP))
         syncThreatHP(threatData, threatHP)
+        safecall(function() Audio.playHitLand() end, "HitSFX")
+        safecall(function() jiggleThreat(threatData) end, "HitJiggle")
     end
 
     -- Fumble: only on a complete whiff (no hits at all), max 1, to the healthiest.
@@ -326,6 +347,9 @@ function beginCombat(colors, threatData)
         local c = gameState.activeChars[tank]
         c.health = math.max(0, c.health - 1)
         broadcastEvent("damage", c.name .. " whiffs completely and fumbles! Takes 1 self-damage. Health: " .. c.health)
+        -- A fumble is damage taken, not damage dealt: same cue as being hit.
+        safecall(function() Audio.playHitTaken() end, "HitSFX")
+        safecall(function() jiggleCharacterHit(c.name) end, "HitJiggle")
         checkDownState(tank)
     elseif atkResult.fumbles > 0 then
         broadcastEvent("proc", "A 1 was rolled, but a hit landed — no fumble damage.")
@@ -441,6 +465,8 @@ function pressAttack(color, confirmed)
         ctx.hits = ctx.hits + 1
         broadcastEvent("gain", "Press lands! " .. (ctx.threat.name or "Threat") .. " HP: " .. math.max(0, ctx.threatHP))
         syncThreatHP(ctx.threat, ctx.threatHP)
+        safecall(function() Audio.playHitLand() end, "HitSFX")
+        safecall(function() jiggleThreat(ctx.threat) end, "HitJiggle")
         checkDownState(color)   -- pressing to 0 Sanity goes Down mid-fight
         if ctx.threatHP <= 0 then
             safecall(function() recordBeat("pressKill") end, "Telemetry")
@@ -493,6 +519,10 @@ function resolveCharlieAttack(color)
     char.health = math.max(0, char.health - healthLoss)
     char.charlieStreak = streak + 1
     char.charlieHitTonight = true
+    -- Charlie has no piece on the table to shake — she is the dark itself —
+    -- so the feedback lands entirely on her victim.
+    safecall(function() Audio.playHitTaken() end, "HitSFX")
+    safecall(function() jiggleCharacterHit(char.name) end, "HitJiggle")
     safecall(function() recordCharlieInChronicle(char.name, char.charlieStreak) end, "Chronicle")
 
     if streak > 0 then

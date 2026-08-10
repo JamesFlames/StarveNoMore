@@ -74,6 +74,7 @@ Run a stage on its own only when you are debugging *that stage*.
 | `art/tiles/<name>.png` | `normalize_tile_art.py` | `art/tiles/<name>_tile.png` |
 | `art/characters/<name>.png` | `normalize_standee_art.py` | `art/characters/<name>_standee.png` |
 | `art/achievements/src/<base>.png` | `generate_achievement_icons.py` | `art/achievements/<base>.png` + `steam/*.jpg` |
+| the impact-sound shapes in `generate_hit_sfx.py` | `generate_hit_sfx.py` | `sounds/sfx/Hit_{Land,Taken}_Sound.wav` (then rerun `generate_audio_manifest.py`) |
 
 `ASSET_MAP` loads the **derived** files, so new art that skips this step never
 appears in the game. TTS reshapes both families before the player sees them (a
@@ -83,6 +84,11 @@ tile is cropped to a circle; a standee's whole image is multiplied by its
 
 ## Debug / deploy tools (not generators)
 
+- `inspect_art.py` — measure art the way the pipeline sees it: size/mode/file
+  size, dead alpha channels, border spread, and **whether a derived
+  `_standee.png` / `_tile.png` is stale**. `--standees`, `--tiles`, or paths.
+  Run it after dropping art in; a stale derived file is invisible in-game and
+  fails nothing.
 - `inspect_save.py` — read any TTS save like a debugger: `--live` (newest
   autosave: gameState + object positions), `--band` (objects sunk in the
   tabletop), `--error N` (decode an in-TTS `<Global:N>` error to

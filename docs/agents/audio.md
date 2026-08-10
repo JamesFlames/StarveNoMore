@@ -29,6 +29,8 @@ sounds/
     ├── Character_TalkTrade_Sound.mp3  <-- played on Trade
     ├── Character_Death_Sound.mp3  <-- played when a character flips to Down
     ├── Turn_Ping_Sound.wav         <-- synthesized E5→A5 ping on turn start (Audio.playTurnPing)
+    ├── Hit_Land_Sound.wav          <-- synthesized bright impact: your blow connected (Audio.playHitLand)
+    ├── Hit_Taken_Sound.wav         <-- synthesized dull double-thud: something hit YOU (Audio.playHitTaken)
     └── night_growl.wav             <-- synthesized low growl: Night Sounds (Audio.playGrowl, fires at Dusk when the top Threat card is Hard)
 ```
 
@@ -61,6 +63,20 @@ silently and ambient continues.
   - `Audio.playTradeChat()` at the end of `doTrade`.
   - `Audio.playDeath()` from `checkDownState` when a character flips to Down.
   - All four go through `Audio.playSFX(<key>)`, which uses the same brief-interrupt-then-resume machinery as `playChime()`.
+- **Combat impacts (`combat_resolve.lua`):** a matched pair, shaped to be told
+  apart across the table — `playHitLand()` is bright and short (you connected),
+  `playHitTaken()` is darker, longer and sags (something connected with you).
+  - `playHitLand()` + `jiggleThreat()` when an attack or a press lands.
+  - `playHitTaken()` + `jiggleCharacterHit()` on a counter-attack, a fumble's
+    self-damage, and a Charlie attack.
+  - **Once per damage EVENT, never per point.** There is one `MusicPlayer`, so
+    a per-point call in a 3-hit counter just restarts the clip and you hear one
+    truncated thud instead of a volley. `applyCounterAttack` collects who was
+    struck and fires one cue plus one shake each.
+  - The cue is fired **before** the `checkDownState` sweep, so a hit that puts
+    someone Down ends on the death sound rather than the generic thud.
+  - Both are synthesized by `scripts/generate_hit_sfx.py` (deterministic —
+    re-running produces byte-identical files).
 
 Single-channel constraint: TTS has only one global `MusicPlayer`. One-shots
 (chime, character SFX, boss roar) interrupt the ambient track for their

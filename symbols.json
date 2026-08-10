@@ -173,6 +173,26 @@
     "doc": ""
    }
   ],
+  "Audio.playHitLand": [
+   {
+    "file": "lua/audio.lua",
+    "line": 312,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Combat impacts. A matched pair on purpose: bright-and-short means you connected, dark-and-sagging means something connected with you, so a fight is followable …"
+   }
+  ],
+  "Audio.playHitTaken": [
+   {
+    "file": "lua/audio.lua",
+    "line": 313,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": ""
+   }
+  ],
   "Audio.playMeet": [
    {
     "file": "lua/audio.lua",
@@ -1349,6 +1369,26 @@
     "doc": "...and the colour drains out of them. This is the automated version of \"flip the standee to its ghost side\", an instruction the game printed for a long time an…"
    }
   ],
+  "STANDEE_HIT_JIGGLE_INTERVAL": [
+   {
+    "file": "lua/ui_banner.lua",
+    "line": 469,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
+  "STANDEE_HIT_JIGGLE_STEPS": [
+   {
+    "file": "lua/ui_banner.lua",
+    "line": 468,
+    "kind": "table",
+    "params": null,
+    "arity": null,
+    "doc": "Taking a hit shakes HARDER and rings longer than doing something does. The two have to be told apart at a glance or the feedback is worse than none: if \"I acte…"
+   }
+  ],
   "STANDEE_JIGGLE_INTERVAL": [
    {
     "file": "lua/ui_banner.lua",
@@ -2217,7 +2257,7 @@
   "beginCombat": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 265,
+    "line": 284,
     "kind": "function",
     "params": [
      "colors",
@@ -2694,7 +2734,7 @@
   "checkSourcePhase": [
    {
     "file": "lua/combat.lua",
-    "line": 190,
+    "line": 220,
     "kind": "function",
     "params": [
      "hp"
@@ -2738,7 +2778,7 @@
   "clearHighlight": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 503,
+    "line": 527,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3537,7 +3577,7 @@
   "finishCombat": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 462,
+    "line": 488,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3547,7 +3587,7 @@
   "flashSplitLighting": [
    {
     "file": "lua/combat.lua",
-    "line": 201,
+    "line": 231,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3831,7 +3871,7 @@
   "getNextCTA": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 548,
+    "line": 572,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4110,7 +4150,7 @@
   "highlightCTA": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 517,
+    "line": 541,
     "kind": "function",
     "params": [
      "ids"
@@ -4226,16 +4266,54 @@
     "doc": "Sport court vs. house. The two sport courts are the only non-house tiles, and a dozen rules key off the distinction (threat rates, sleep regen, rain, Coco's No…"
    }
   ],
+  "jiggleCharacterHit": [
+   {
+    "file": "lua/ui_banner.lua",
+    "line": 496,
+    "kind": "function",
+    "params": [
+     "charName"
+    ],
+    "arity": 1,
+    "doc": "A character took damage: the louder shake."
+   }
+  ],
+  "jiggleObject": [
+   {
+    "file": "lua/ui_banner.lua",
+    "line": 474,
+    "kind": "function",
+    "params": [
+     "obj",
+     "steps",
+     "interval"
+    ],
+    "arity": 3,
+    "doc": "The shake itself, on any object. Bosses are Figurine_Custom like the characters and threats are cards, but all three are just handles with a rotation, so nothi…"
+   }
+  ],
   "jiggleStandee": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 461,
+    "line": 491,
     "kind": "function",
     "params": [
      "charName"
     ],
     "arity": 1,
     "doc": ""
+   }
+  ],
+  "jiggleThreat": [
+   {
+    "file": "lua/combat.lua",
+    "line": 166,
+    "kind": "function",
+    "params": [
+     "threat"
+    ],
+    "arity": 1,
+    "doc": "Shake whatever is physically representing this threat, so a landed hit is visible at the piece the players are looking at rather than only in the log. Two shap…"
    }
   ],
   "lockdownCriticalObjects": [
@@ -4276,7 +4354,7 @@
   "markBossDefeated": [
    {
     "file": "lua/combat.lua",
-    "line": 269,
+    "line": 299,
     "kind": "function",
     "params": [
      "threatName",
@@ -4345,7 +4423,7 @@
   "maybeJamesReroll": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 235,
+    "line": 254,
     "kind": "function",
     "params": [
      "participants",
@@ -6154,7 +6232,7 @@
   "pressAttack": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 410,
+    "line": 434,
     "kind": "function",
     "params": [
      "color",
@@ -6167,7 +6245,7 @@
   "pulseHandZone": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 585,
+    "line": 609,
     "kind": "function",
     "params": [
      "color"
@@ -6607,7 +6685,7 @@
   "resolveCharlieAttack": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 476,
+    "line": 502,
     "kind": "function",
     "params": [
      "color"
@@ -6619,7 +6697,7 @@
   "resolveCombat": [
    {
     "file": "lua/combat_resolve.lua",
-    "line": 400,
+    "line": 424,
     "kind": "function",
     "params": [
      "color",
@@ -6835,7 +6913,7 @@
   "revealTrophy": [
    {
     "file": "lua/combat.lua",
-    "line": 338,
+    "line": 368,
     "kind": "function",
     "params": [
      "key"
@@ -7229,7 +7307,7 @@
   "sourceSplitIntoBeaks": [
    {
     "file": "lua/combat.lua",
-    "line": 214,
+    "line": 244,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7360,7 +7438,7 @@
   "stopStandeeBob": [
    {
     "file": "lua/ui_banner.lua",
-    "line": 477,
+    "line": 501,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7419,7 +7497,7 @@
   "syncBossHP": [
    {
     "file": "lua/combat.lua",
-    "line": 166,
+    "line": 196,
     "kind": "function",
     "params": [
      "threatName",
@@ -7432,7 +7510,7 @@
   "syncSourceHP": [
    {
     "file": "lua/combat.lua",
-    "line": 156,
+    "line": 186,
     "kind": "function",
     "params": [
      "threatName",
@@ -7445,7 +7523,7 @@
   "syncThreatHP": [
    {
     "file": "lua/combat.lua",
-    "line": 182,
+    "line": 212,
     "kind": "function",
     "params": [
      "threat",

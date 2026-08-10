@@ -9,8 +9,10 @@ import pytest
 from conftest import (
     add_char,
     broadcasts,
+    flush,
     lua52,
     lua_to_py,
+    populate_full_world,
     py_to_lua,
     script_dice,
 )
@@ -406,3 +408,77 @@ class TestBossPlacement:
         env.globals().doFightTarget("White", standee, False)
         env.globals().finishCombat()
         assert env.eval("gameState.bossHP.deerclops") == 5  # 6 - 1, remembered
+
+
+class TestCombatFeedback:
+    """Hit feedback: a cue you hear and a shake you see, at the piece.
+
+    A fight used to be dice text scrolling past in silence. These pin the two
+    halves of that, plus the one property the whole thing rests on — that
+    being HIT looks different from ACTING. If the two shakes ever converge the
+    feedback stops carrying information and becomes decoration.
+    """
+
+    @staticmethod
+    def _tilt(env, char):
+        """The standee's current lean. One flush runs the shake's first step,
+        so this is that step's angle — which says WHICH shake was used."""
+        return lua_to_py(env.eval(
+            f'(function() local s = getCharacterStandee("{char}") '
+            'if not s then return nil end return s.getRotation().z end)()'))
+
+    def test_a_hit_shakes_harder_than_an_action(self, env):
+        """The user-visible requirement, pinned as a number rather than a
+        promise: the hit shake must out-swing the action shake."""
+        act = max(abs(v) for v in lua_to_py(env.eval("STANDEE_JIGGLE_STEPS")))
+        hit = max(abs(v) for v in lua_to_py(env.eval("STANDEE_HIT_JIGGLE_STEPS")))
+        assert hit > act, (
+            f"hit jiggle peaks at {hit} deg, action jiggle at {act} — being hit "
+            "must be the bigger motion or the two read as the same event")
+
+    def test_taking_a_counter_attack_shakes_the_victim_with_the_hit_jiggle(self, env):
+        populate_full_world(env)
+        add_char(env, "White", "James")
+        assert self._tilt(env, "James") == 0, "standee should start upright"
+        script_dice(env, [2, 6])   # attack whiffs, then the counter connects
+        env.globals().resolveCombat(
+            "White", py_to_lua(env, {"name": "T", "hp": 3, "attack": 1}))
+        flush(env)
+        tilt = self._tilt(env, "James")
+        assert tilt != 0, "the standee never moved — a counter-attack landed unseen"
+        assert tilt == lua_to_py(env.eval("STANDEE_HIT_JIGGLE_STEPS"))[0], (
+            f"first tilt was {tilt}, expected the hit jiggle's opening swing — "
+            "the victim got the ACTION jiggle, not the louder hit one")
+
+    def test_a_hit_taken_plays_the_hurt_cue(self, env):
+        add_char(env, "White", "James")
+        before = env.eval("#MusicPlayer.clips")
+        script_dice(env, [2, 6])
+        env.globals().resolveCombat(
+            "White", py_to_lua(env, {"name": "T", "hp": 3, "attack": 1}))
+        assert env.eval("#MusicPlayer.clips") > before, "taking a hit made no sound"
+
+    def test_landing_a_hit_plays_the_connect_cue(self, env):
+        add_char(env, "White", "James")
+        before = env.eval("#MusicPlayer.clips")
+        script_dice(env, [6])
+        env.globals().resolveCombat(
+            "White", py_to_lua(env, {"name": "T", "hp": 5, "attack": 0}))
+        assert env.eval("#MusicPlayer.clips") > before, "landing a hit made no sound"
+
+    def test_a_multi_hit_volley_is_one_cue_not_one_per_point(self, env):
+        """One MusicPlayer: a per-point call would restart the same clip and
+        you would hear one truncated thud instead of the volley."""
+        add_char(env, "White", "James")
+        before = env.eval("#MusicPlayer.clips")
+        script_dice(env, [2, 6, 6, 6])   # whiff, then a 3-hit counter
+        env.globals().resolveCombat(
+            "White", py_to_lua(env, {"name": "T", "hp": 3, "attack": 3}))
+        assert env.eval("gameState.activeChars.White.health") < 10, "no hits landed"
+        assert env.eval("#MusicPlayer.clips") == before + 1, (
+            "a 3-hit counter should be ONE cue")
+
+    def test_jiggling_a_threat_with_no_object_is_harmless(self, env):
+        """Most threats resolved in tests (and Charlie) have no piece at all."""
+        env.globals().jiggleThreat(py_to_lua(env, {"name": "Nothing"}))
+        env.globals().jiggleThreat(None)

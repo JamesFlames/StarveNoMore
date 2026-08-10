@@ -303,3 +303,11 @@ function Audio.playTradeChat()   Audio.playSFX("character_talktrade") end
 function Audio.playMeet()        Audio.playSFX("character_meet")      end
 function Audio.playDeath()       Audio.playSFX("character_death")     end
 function Audio.playGrowl()       Audio.playSFX("night_growl")         end
+-- Combat impacts. A matched pair on purpose: bright-and-short means you
+-- connected, dark-and-sagging means something connected with you, so a fight
+-- is followable without reading the log. Fired once per damage EVENT, never
+-- per point — there is one MusicPlayer, so a per-point call in a 3-hit
+-- counter-attack just restarts the same clip twice and you hear one truncated
+-- thud instead of three hits.
+function Audio.playHitLand()     Audio.playSFX("hit_land")            end
+function Audio.playHitTaken()    Audio.playSFX("hit_taken")           end

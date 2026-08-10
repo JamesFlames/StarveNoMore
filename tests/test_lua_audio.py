@@ -131,3 +131,41 @@ def test_a_short_clip_is_not_watched(env):
     env.globals().Audio.playBossLoop("bearger")
     assert env.eval("Audio.state.watchHandle") is None
     assert played(env) == 1, "the roar itself must still play"
+
+
+# --------------------------------------------------------------------------
+# The convenience names must resolve to clips that actually exist.
+#
+# Audio.playSFX returns early when AUDIO.SFX[key] is missing, by design — a
+# missing sound must never break a turn. The cost of that is total silence
+# with no error anywhere: rename a file under sounds/sfx/ and the manifest
+# key changes, Audio.playHitLand() quietly no-ops, and the only symptom is
+# that combat sounds like nothing. This is the test that notices.
+
+
+def _convenience_keys(lua_sources):
+    """Every `function Audio.playX() Audio.playSFX("key")` pair in audio.lua."""
+    import re
+    src = lua_sources["audio.lua"]
+    return dict(re.findall(
+        r'function\s+(Audio\.play\w+)\s*\(\s*\)\s*Audio\.playSFX\(\s*"([^"]+)"',
+        src))
+
+
+def test_every_sfx_convenience_name_resolves_to_a_real_clip(env, lua_sources):
+    pairs = _convenience_keys(lua_sources)
+    assert pairs, "found no Audio.playX -> playSFX pairs; did audio.lua change shape?"
+    missing = [f"{fn}() -> {key}" for fn, key in pairs.items()
+               if env.eval(f'AUDIO.SFX["{key}"] == nil')]
+    assert not missing, (
+        "these play helpers point at SFX keys with no clip in the manifest, so "
+        "they silently do nothing: " + ", ".join(sorted(missing)) +
+        "\nAdd the file under sounds/sfx/ and rerun generate_audio_manifest.py")
+
+
+@pytest.mark.parametrize("fn", ["playHitLand", "playHitTaken"])
+def test_the_combat_impacts_actually_play(env, fn):
+    """The two new cues, end to end: helper -> manifest -> MusicPlayer."""
+    before = played(env)
+    getattr(env.globals().Audio, fn)()
+    assert played(env) == before + 1, f"Audio.{fn}() played nothing"

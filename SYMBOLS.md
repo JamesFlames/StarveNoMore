@@ -129,7 +129,7 @@
 |---|---|---|
 | 6 | table | `AUDIO` |
 
-## lua/audio.lua (15 symbols)
+## lua/audio.lua (17 symbols)
 
 | line | kind | symbol |
 |---|---|---|
@@ -148,6 +148,8 @@
 | 303 | function | `Audio.playMeet` |
 | 304 | function | `Audio.playDeath` |
 | 305 | function | `Audio.playGrowl` |
+| 312 | function | `Audio.playHitLand` |
+| 313 | function | `Audio.playHitTaken` |
 
 ## lua/whatnow_hints.lua (1 symbols)
 
@@ -290,7 +292,7 @@
 | 63 | table | `DAWN_MANUAL_STEPS` |
 | 85 | function | `dispatchDawnEffect` |
 
-## lua/combat.lua (17 symbols)
+## lua/combat.lua (18 symbols)
 
 | line | kind | symbol |
 |---|---|---|
@@ -303,14 +305,15 @@
 | 136 | value | `SOURCE_MAX_HP` |
 | 137 | value | `SOURCE_SPLIT_HP` |
 | 146 | function | `bossKeyForName` |
-| 156 | function | `syncSourceHP` |
-| 166 | function | `syncBossHP` |
-| 182 | function | `syncThreatHP` |
-| 190 | function | `checkSourcePhase` |
-| 201 | function | `flashSplitLighting` |
-| 214 | function | `sourceSplitIntoBeaks` |
-| 269 | function | `markBossDefeated` |
-| 338 | function | `revealTrophy` |
+| 166 | function | `jiggleThreat` |
+| 186 | function | `syncSourceHP` |
+| 196 | function | `syncBossHP` |
+| 212 | function | `syncThreatHP` |
+| 220 | function | `checkSourcePhase` |
+| 231 | function | `flashSplitLighting` |
+| 244 | function | `sourceSplitIntoBeaks` |
+| 299 | function | `markBossDefeated` |
+| 368 | function | `revealTrophy` |
 
 ## lua/combat_resolve.lua (9 symbols)
 
@@ -319,12 +322,12 @@
 | 26 | function | `getAttackDice` |
 | 98 | function | `applyThreatDefeat` |
 | 148 | function | `applyCounterAttack` |
-| 235 | function | `maybeJamesReroll` |
-| 265 | function | `beginCombat` |
-| 400 | function | `resolveCombat` |
-| 410 | function | `pressAttack` |
-| 462 | function | `finishCombat` |
-| 476 | function | `resolveCharlieAttack` |
+| 254 | function | `maybeJamesReroll` |
+| 284 | function | `beginCombat` |
+| 424 | function | `resolveCombat` |
+| 434 | function | `pressAttack` |
+| 488 | function | `finishCombat` |
+| 502 | function | `resolveCharlieAttack` |
 
 ## lua/clues.lua (8 symbols)
 
@@ -599,7 +602,7 @@
 | 127 | function | `exportAchievementCode` |
 | 136 | function | `importAchievementCode` |
 
-## lua/ui_banner.lua (24 symbols)
+## lua/ui_banner.lua (28 symbols)
 
 | line | kind | symbol |
 |---|---|---|
@@ -621,12 +624,16 @@
 | 425 | function | `startStandeeBob` |
 | 458 | table | `STANDEE_JIGGLE_STEPS` |
 | 459 | value | `STANDEE_JIGGLE_INTERVAL` |
-| 461 | function | `jiggleStandee` |
-| 477 | function | `stopStandeeBob` |
-| 503 | function | `clearHighlight` |
-| 517 | function | `highlightCTA` |
-| 548 | function | `getNextCTA` |
-| 585 | function | `pulseHandZone` |
+| 468 | table | `STANDEE_HIT_JIGGLE_STEPS` |
+| 469 | value | `STANDEE_HIT_JIGGLE_INTERVAL` |
+| 474 | function | `jiggleObject` |
+| 491 | function | `jiggleStandee` |
+| 496 | function | `jiggleCharacterHit` |
+| 501 | function | `stopStandeeBob` |
+| 527 | function | `clearHighlight` |
+| 541 | function | `highlightCTA` |
+| 572 | function | `getNextCTA` |
+| 609 | function | `pulseHandZone` |
 
 ## lua/ui_actionbar_core.lua (14 symbols)
 
@@ -985,6 +992,8 @@
 | `Audio.playChime` | lua/audio.lua | 299 |
 | `Audio.playDeath` | lua/audio.lua | 304 |
 | `Audio.playGrowl` | lua/audio.lua | 305 |
+| `Audio.playHitLand` | lua/audio.lua | 312 |
+| `Audio.playHitTaken` | lua/audio.lua | 313 |
 | `Audio.playMeet` | lua/audio.lua | 303 |
 | `Audio.playSFX` | lua/audio.lua | 276 |
 | `Audio.playTradeChat` | lua/audio.lua | 302 |
@@ -1102,6 +1111,8 @@
 | `SPAWN_DROP_Y` | lua/global.lua | 360 |
 | `STANDEE_DOWN_PITCH` | lua/helpers.lua | 326 |
 | `STANDEE_DOWN_TINT` | lua/helpers.lua | 341 |
+| `STANDEE_HIT_JIGGLE_INTERVAL` | lua/ui_banner.lua | 469 |
+| `STANDEE_HIT_JIGGLE_STEPS` | lua/ui_banner.lua | 468 |
 | `STANDEE_JIGGLE_INTERVAL` | lua/ui_banner.lua | 459 |
 | `STANDEE_JIGGLE_STEPS` | lua/ui_banner.lua | 458 |
 | `STARTING_ARRIVAL` | lua/market_data.lua | 132 |
@@ -1182,7 +1193,7 @@
 | `auditObjectCount` | lua/audit.lua | 7 |
 | `auditObjectFootprints` | lua/audit.lua | 408 |
 | `auditTooltips` | lua/audit.lua | 175 |
-| `beginCombat` | lua/combat_resolve.lua | 265 |
+| `beginCombat` | lua/combat_resolve.lua | 284 |
 | `beginDayPhase` | lua/turns.lua | 40 |
 | `beginDusk` | lua/day_loop.lua | 524 |
 | `beginNight` | lua/day_loop.lua | 674 |
@@ -1223,11 +1234,11 @@
 | `checkDoomThresholds` | lua/day_loop.lua | 289 |
 | `checkDownState` | lua/tick_victory.lua | 228 |
 | `checkPlayerHasLight` | lua/night.lua | 409 |
-| `checkSourcePhase` | lua/combat.lua | 190 |
+| `checkSourcePhase` | lua/combat.lua | 220 |
 | `checkVictory` | lua/tick_victory.lua | 459 |
 | `checkWrongnessEntry` | lua/effects/dawn_effects_phase2.lua | 123 |
 | `clearActionTargets` | lua/ui_actionbar_targets.lua | 57 |
-| `clearHighlight` | lua/ui_banner.lua | 503 |
+| `clearHighlight` | lua/ui_banner.lua | 527 |
 | `clearSignatureTargets` | lua/signatures.lua | 179 |
 | `clearablePersistentsAt` | lua/threat_persistent.lua | 354 |
 | `closeWelcomeSequence` | lua/ui_setup.lua | 1148 |
@@ -1294,8 +1305,8 @@
 | `findAllByTag` | lua/helpers.lua | 9 |
 | `findCarriedItem` | lua/helpers.lua | 517 |
 | `findOneByTag` | lua/helpers.lua | 19 |
-| `finishCombat` | lua/combat_resolve.lua | 462 |
-| `flashSplitLighting` | lua/combat.lua | 201 |
+| `finishCombat` | lua/combat_resolve.lua | 488 |
+| `flashSplitLighting` | lua/combat.lua | 231 |
 | `flashVictoryLighting` | lua/combat.lua | 109 |
 | `formatIngredientCost` | lua/ui_actionbar_targets.lua | 355 |
 | `gameRoll` | lua/helpers.lua | 648 |
@@ -1321,7 +1332,7 @@
 | `getMainBoard` | lua/helpers.lua | 96 |
 | `getMarketDeck` | lua/helpers.lua | 99 |
 | `getMarketSlots` | lua/helpers.lua | 127 |
-| `getNextCTA` | lua/ui_banner.lua | 548 |
+| `getNextCTA` | lua/ui_banner.lua | 572 |
 | `getNextDoomThreshold` | lua/ui_banner.lua | 290 |
 | `getPhaseDeck` | lua/helpers.lua | 106 |
 | `getPhaseForDay` | lua/global.lua | 300 |
@@ -1345,7 +1356,7 @@
 | `hardThreatTickSanity` | lua/threat_hard.lua | 306 |
 | `hasLastNerve` | lua/helpers.lua | 497 |
 | `helpTabContent` | lua/ui_help.lua | 153 |
-| `highlightCTA` | lua/ui_banner.lua | 517 |
+| `highlightCTA` | lua/ui_banner.lua | 541 |
 | `identifyThreatType` | lua/night.lua | 512 |
 | `importAchievementCode` | lua/achievements.lua | 136 |
 | `isAchievementUnlocked` | lua/achievements.lua | 37 |
@@ -1355,17 +1366,20 @@
 | `isGuidedSetupRunning` | lua/ui_setup.lua | 20 |
 | `isLiveObject` | lua/helpers.lua | 36 |
 | `isSportCourt` | lua/helpers.lua | 509 |
-| `jiggleStandee` | lua/ui_banner.lua | 461 |
+| `jiggleCharacterHit` | lua/ui_banner.lua | 496 |
+| `jiggleObject` | lua/ui_banner.lua | 474 |
+| `jiggleStandee` | lua/ui_banner.lua | 491 |
+| `jiggleThreat` | lua/combat.lua | 166 |
 | `lockdownCriticalObjects` | lua/audit.lua | 25 |
 | `logMessage` | lua/ui_msglog.lua | 24 |
 | `lowestStatPlayer` | lua/effects/dawn_effects.lua | 53 |
-| `markBossDefeated` | lua/combat.lua | 269 |
+| `markBossDefeated` | lua/combat.lua | 299 |
 | `markTurnStart` | lua/telemetry.lua | 89 |
 | `marketCardAtSlot` | lua/crafting.lua | 158 |
 | `marketOpenSlots` | lua/global.lua | 380 |
 | `marketSlotIndex` | lua/crafting.lua | 174 |
 | `marketSlotIsHidden` | lua/global.lua | 390 |
-| `maybeJamesReroll` | lua/combat_resolve.lua | 235 |
+| `maybeJamesReroll` | lua/combat_resolve.lua | 254 |
 | `migrateGameState` | lua/global.lua | 473 |
 | `moveDoomMarker` | lua/setup.lua | 451 |
 | `nextDuskSeat` | lua/turns.lua | 356 |
@@ -1500,8 +1514,8 @@
 | `popAchievementToast` | lua/ui_achievements.lua | 159 |
 | `popFirst` | lua/helpers.lua | 708 |
 | `populateNotebook` | lua/ui_help.lua | 673 |
-| `pressAttack` | lua/combat_resolve.lua | 410 |
-| `pulseHandZone` | lua/ui_banner.lua | 585 |
+| `pressAttack` | lua/combat_resolve.lua | 434 |
+| `pulseHandZone` | lua/ui_banner.lua | 609 |
 | `quickStartCardText` | lua/ui_help.lua | 651 |
 | `quickStartTextForVariant` | lua/ui_help.lua | 626 |
 | `rallyTargets` | lua/actions_social.lua | 287 |
@@ -1541,8 +1555,8 @@
 | `refreshStatDisplay` | lua/ui_actionbar_display.lua | 287 |
 | `removeVisualTokens` | lua/helpers.lua | 247 |
 | `reshowSetupStep` | lua/ui_setup.lua | 72 |
-| `resolveCharlieAttack` | lua/combat_resolve.lua | 476 |
-| `resolveCombat` | lua/combat_resolve.lua | 400 |
+| `resolveCharlieAttack` | lua/combat_resolve.lua | 502 |
+| `resolveCombat` | lua/combat_resolve.lua | 424 |
 | `resolveEchoes` | lua/actions.lua | 571 |
 | `resolveHardThreatDefeat` | lua/threat_hard.lua | 285 |
 | `resolveHardThreatDraw` | lua/threat_hard.lua | 172 |
@@ -1561,7 +1575,7 @@
 | `revealLastDawn` | lua/day_loop.lua | 343 |
 | `revealMarketSlotsForToday` | lua/crafting.lua | 187 |
 | `revealScheduledStartingItems` | lua/setup.lua | 321 |
-| `revealTrophy` | lua/combat.lua | 338 |
+| `revealTrophy` | lua/combat.lua | 368 |
 | `reviveCharacter` | lua/tick_victory.lua | 283 |
 | `rollAttackDice` | lua/combat.lua | 10 |
 | `rulebookText` | lua/ui_help_pages.lua | 105 |
@@ -1593,7 +1607,7 @@
 | `showWelcomeSequence` | lua/ui_setup.lua | 1174 |
 | `sledCandidates` | lua/trophies.lua | 51 |
 | `snapshotForUndo` | lua/actions.lua | 7 |
-| `sourceSplitIntoBeaks` | lua/combat.lua | 214 |
+| `sourceSplitIntoBeaks` | lua/combat.lua | 244 |
 | `spawnDropY` | lua/global.lua | 365 |
 | `spawnPosterizeTargets` | lua/signatures.lua | 188 |
 | `spawnResourceAtTile` | lua/helpers.lua | 261 |
@@ -1604,14 +1618,14 @@
 | `startIdleWatcher` | lua/turns.lua | 32 |
 | `startStandeeBob` | lua/ui_banner.lua | 425 |
 | `stopIdleWatcher` | lua/turns.lua | 37 |
-| `stopStandeeBob` | lua/ui_banner.lua | 477 |
+| `stopStandeeBob` | lua/ui_banner.lua | 501 |
 | `stringToColorTint` | lua/ui_banner.lua | 411 |
 | `stripMarketHelp` | lua/crafting.lua | 39 |
 | `substitutePlaceholders` | lua/ui_help.lua | 532 |
 | `suggestedOpening` | lua/ui_banner.lua | 49 |
-| `syncBossHP` | lua/combat.lua | 166 |
-| `syncSourceHP` | lua/combat.lua | 156 |
-| `syncThreatHP` | lua/combat.lua | 182 |
+| `syncBossHP` | lua/combat.lua | 196 |
+| `syncSourceHP` | lua/combat.lua | 186 |
+| `syncThreatHP` | lua/combat.lua | 212 |
 | `syncTtsTurnColor` | lua/ui_banner.lua | 358 |
 | `tableOrientationMessages` | lua/setup.lua | 407 |
 | `takeClueFromMarketDeck` | lua/clues.lua | 159 |

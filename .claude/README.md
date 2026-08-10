@@ -16,9 +16,15 @@ of dying with the container.
 
 - **Personal overrides** go in `settings.local.json` (gitignored) — never edit
   `settings.json` for a machine-specific path or a one-off permission.
-- **Add a permission** when you find yourself approving the same command twice.
-  The allowlist is deliberately narrow: read-only git, the generators, the test
-  suite. It does not include `git push`, `rm`, or anything that leaves the repo.
+- **Running anything *in* the project needs no approval.** Every script under
+  `scripts/` (by wildcard, so a new generator is covered the day it is added),
+  the test suite, the linters and `./iwanttoplay`, in either shell. This
+  replaced a per-script list that had to be extended each time a generator
+  landed — and silently prompted until someone did.
+- **The boundary is the repo, not the command.** Still not allowed: `git push`,
+  `rm`, inline code (`python -c`), and anything that reaches outside the
+  checkout. Add a permission when you approve the same command twice, but keep
+  it on the running-a-project-file side of that line.
 - **Hooks must be idempotent and silent on the happy path.** Both current hooks
   no-op when they have nothing to do.
 - The hooks are a *fast path*, not a guarantee — the equivalent checks are all

@@ -152,6 +152,36 @@ function bossKeyForName(name)
     return nil
 end
 
+-- Shake whatever is physically representing this threat, so a landed hit is
+-- visible at the piece the players are looking at rather than only in the log.
+--
+-- Two shapes, because a threat is two different objects depending on what it
+-- is: a boss is a standee on the map (found by tag), an ordinary Threat is
+-- the card itself (found by the GUID syncThreatHP already tracks damage
+-- against). Bosses are checked FIRST — a boss also has a card, and the
+-- standee is the thing on the table that the players are watching.
+--
+-- Silently does nothing when neither exists, which is the right answer for a
+-- threat resolved with no object on the table at all (tests, Charlie).
+function jiggleThreat(threat)
+    if not threat then return end
+    local key = bossKeyForName(threat.name)
+    local standee = nil
+    if key == "treeguard" then
+        -- Not via BOSS_STANDEE_TAG: that table drives the pooling in
+        -- markBossDefeated, which never sets key = "treeguard" (the Treeguard
+        -- has its own defeat path in treeguard.lua). Adding it there to save
+        -- this branch would widen a table whose job is something else.
+        standee = getTreeguardStandee()
+    elseif key and BOSS_STANDEE_TAG[key] then
+        standee = findOneByTag(BOSS_STANDEE_TAG[key])
+    end
+    if not standee and threat.cardGuid then
+        standee = getObjectFromGUID(threat.cardGuid)
+    end
+    jiggleObject(standee, STANDEE_HIT_JIGGLE_STEPS, STANDEE_HIT_JIGGLE_INTERVAL)
+end
+
 -- Mirror applied damage onto the persistent record + check the phase beat.
 function syncSourceHP(threatName, hp)
     if not isSourceName(threatName) then return end
