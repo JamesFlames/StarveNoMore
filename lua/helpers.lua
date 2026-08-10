@@ -93,11 +93,16 @@ BTN_ON_DARK    = "#12180F"     -- readable label on that plate
 BTN_YES_TEXT  = "#88FF88"      -- bright green label + tick
 BTN_YES_PLATE = "#1E501EE6"    -- the dark green plate it sits on
 
--- Face up for a resource token. Their PNGs are pre-rotated 180° by
--- generate_assets.py so the label reads upright at rotY=0 (docs/tts-runtime.md,
--- "Rotations"), and rotZ=0 is the face that carries it — a token settling on
--- rotZ=180 shows the same art from behind, i.e. mirrored.
-TOKEN_FACE_UP = { 0, 0, 0 }
+-- Face up and the right way round for a token. Two separate things:
+--   rotZ=0  is the FACE. A token is a flat disc with no back image, so one
+--           settling on rotZ=180 shows the same art from behind, i.e. mirrored.
+--   rotY=180 is the TURN. Token art is authored upright and the object carries
+--           the half turn flat art needs on the felt (build_save.TOKEN_ZOOM_ROT)
+--           — done that way round so Alt-zoom, which TTS draws in the object's
+--           LOCAL frame, magnifies the label upright instead of upside down.
+-- Keep the 180 in step with TOKEN_ZOOM_ROT; test_cross_refs compares them.
+-- Full rationale: docs/tts-runtime.md, "Rotations".
+TOKEN_FACE_UP = { 0, 180, 0 }
 
 function setButtonLabel(id, text, textColor, color)
     if not UI then return end
@@ -231,7 +236,8 @@ local function _spawnVisualTokens(charName, resType, qty)
                 -- lands on its back shows the label MIRRORED — Metal, Cloth and
                 -- Energy Drink were all reading backwards on one table. Spawned
                 -- without a rotation they inherit the bag's and then settle
-                -- whichever way the drop bounces them.
+                -- whichever way the drop bounces them. The yaw in it matters
+                -- just as much: it is what keeps the label upright.
                 rotation = TOKEN_FACE_UP,
                 smooth   = true,
             })

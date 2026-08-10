@@ -102,6 +102,66 @@ def test_doom_marker_height_mirrors_lua(built_save):
     )
 
 
+def _every_object(save):
+    """Every object in the save, including the ones inside bags — the six
+    resource tokens and the five Telltale Hearts only exist as templates in
+    their supply bags until a script pulls one out."""
+    stack = list(save["ObjectStates"])
+    while stack:
+        o = stack.pop()
+        yield o
+        stack.extend(o.get("ContainedObjects") or [])
+
+
+def test_tokens_carry_the_half_turn_on_the_object(built_save):
+    """Flat art renders half a turn round in the table view, and there are two
+    ways to cancel it: pre-rotate the PNG, or turn the OBJECT. Only the second
+    survives Alt-zoom, which TTS draws in the object's LOCAL frame — art
+    pre-rotated to suit the felt magnifies upside down. A token is 0.4 scale,
+    so hovering is the only way anyone ever reads its label ("hovering over the
+    token Cloth shows it reversed"), which makes the object the only correct
+    place to put the turn. Same trade as PLAYER_BOARD_ZOOM_ROT.
+
+    Three things have to agree: the built objects, build_save.TOKEN_ZOOM_ROT,
+    and the TOKEN_FACE_UP that scripted respawns hand to takeObject.
+    """
+    build_src = open(os.path.join(SCRIPTS, "build_save.py"), encoding="utf-8").read()
+    rot = float(re.search(r"^TOKEN_ZOOM_ROT\s*=\s*([\d.]+)", build_src, re.M).group(1))
+
+    helpers = open(os.path.join(ROOT, "lua", "helpers.lua"), encoding="utf-8").read()
+    m = re.search(r"^TOKEN_FACE_UP\s*=\s*\{\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\}",
+                  helpers, re.M)
+    assert m, "TOKEN_FACE_UP not found in lua/helpers.lua"
+    face_x, face_y, face_z = (float(g) for g in m.groups())
+    assert face_y % 360 == rot % 360, (
+        f"TOKEN_FACE_UP yaw is {face_y} but build_save.TOKEN_ZOOM_ROT is {rot} — "
+        "every token a script respawns would read 180 out from the ones the "
+        "build placed")
+    assert (face_x, face_z) == (0.0, 0.0), (
+        f"TOKEN_FACE_UP has rotX/rotZ ({face_x}, {face_z}) — a token with no "
+        "back image shows its art MIRRORED when it lands on rotZ=180")
+
+    save = json.loads(built_save["fresh"])
+    offenders = [
+        (o.get("Nickname") or o["Name"], o["Transform"]["rotY"])
+        for o in _every_object(save)
+        if o["Name"] == "Custom_Token" and o["Transform"]["rotY"] % 360 != rot % 360
+    ]
+    assert not offenders, (
+        f"Custom_Tokens not spawned at TOKEN_ZOOM_ROT ({rot}): {offenders}. Their "
+        "art is authored upright (generate_assets.py), so at any other yaw the "
+        "label prints turned round on the table")
+
+    # The Doom marker is the one token a script re-pins after every move, so it
+    # is the one that can silently drift back to a bare {0,0,0}.
+    setup = open(os.path.join(ROOT, "lua", "setup.lua"), encoding="utf-8").read()
+    body = setup[setup.index("function moveDoomMarker"):]
+    body = body[:body.index("\nend")]
+    assert "setRotation(TOKEN_FACE_UP)" in body, (
+        "moveDoomMarker must re-pin the marker at TOKEN_FACE_UP — pinning it "
+        "flat at {0,0,0} prints DOOM upside down on the track")
+
+
 def test_build_emits_no_warnings(built_save):
     warnings = [line for line in built_save["stdout"].splitlines() if line.startswith("WARNING")]
     assert not warnings, "build_save.py warnings:\n" + "\n".join(warnings)

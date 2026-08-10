@@ -302,7 +302,7 @@
   "BENCH_POSITION": [
    {
     "file": "lua/helpers.lua",
-    "line": 407,
+    "line": 413,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -472,7 +472,7 @@
   "CHAR_SLOT_INDEX": [
    {
     "file": "lua/helpers.lua",
-    "line": 330,
+    "line": 336,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -602,7 +602,7 @@
   "CROCKPOT_HOME": [
    {
     "file": "lua/helpers.lua",
-    "line": 601,
+    "line": 607,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -882,7 +882,7 @@
   "LAST_NERVE_THRESHOLD": [
    {
     "file": "lua/helpers.lua",
-    "line": 519,
+    "line": 525,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1212,7 +1212,7 @@
   "RESOURCE_ROW_INDEX": [
    {
     "file": "lua/helpers.lua",
-    "line": 197,
+    "line": 202,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1222,7 +1222,7 @@
   "RESOURCE_TYPES_LIST": [
    {
     "file": "lua/helpers.lua",
-    "line": 166,
+    "line": 171,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1252,7 +1252,7 @@
   "SCENARIOS": [
    {
     "file": "lua/setup.lua",
-    "line": 508,
+    "line": 511,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1382,7 +1382,7 @@
   "STANDEE_DOWN_PITCH": [
    {
     "file": "lua/helpers.lua",
-    "line": 350,
+    "line": 356,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1392,7 +1392,7 @@
   "STANDEE_DOWN_TINT": [
    {
     "file": "lua/helpers.lua",
-    "line": 365,
+    "line": 371,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1574,11 +1574,11 @@
   "TOKEN_FACE_UP": [
    {
     "file": "lua/helpers.lua",
-    "line": 100,
+    "line": 105,
     "kind": "table",
     "params": null,
     "arity": null,
-    "doc": "Face up for a resource token. Their PNGs are pre-rotated 180° by generate_assets.py so the label reads upright at rotY=0 (docs/tts-runtime.md, \"Rotations\"), an…"
+    "doc": "Face up and the right way round for a token. Two separate things:   rotZ=0  is the FACE. A token is a flat disc with no back image, so one           settling o…"
    }
   ],
   "TOOLTIP_DATA": [
@@ -2101,7 +2101,7 @@
   "adjacentLocations": [
    {
     "file": "lua/helpers.lua",
-    "line": 571,
+    "line": 577,
     "kind": "function",
     "params": [
      "loc"
@@ -2175,7 +2175,7 @@
   "announceScenario": [
    {
     "file": "lua/setup.lua",
-    "line": 607,
+    "line": 610,
     "kind": "function",
     "params": [
      "scenarioId"
@@ -2209,7 +2209,7 @@
   "applyRandomScenario": [
    {
     "file": "lua/setup.lua",
-    "line": 614,
+    "line": 617,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2219,7 +2219,7 @@
   "applyScenario": [
    {
     "file": "lua/setup.lua",
-    "line": 622,
+    "line": 625,
     "kind": "function",
     "params": [
      "scenarioId"
@@ -2360,7 +2360,7 @@
   "benchUnusedBoards": [
    {
     "file": "lua/helpers.lua",
-    "line": 435,
+    "line": 441,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2370,7 +2370,7 @@
   "benchUnusedCharacters": [
    {
     "file": "lua/helpers.lua",
-    "line": 409,
+    "line": 415,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2716,7 +2716,7 @@
   "charHasCompany": [
    {
     "file": "lua/helpers.lua",
-    "line": 631,
+    "line": 637,
     "kind": "function",
     "params": [
      "color"
@@ -2900,7 +2900,7 @@
   "colorToCharacter": [
    {
     "file": "lua/helpers.lua",
-    "line": 656,
+    "line": 662,
     "kind": "function",
     "params": [
      "color"
@@ -2982,7 +2982,7 @@
   "consumeCarriedItem": [
    {
     "file": "lua/helpers.lua",
-    "line": 559,
+    "line": 565,
     "kind": "function",
     "params": [
      "obj"
@@ -3038,7 +3038,7 @@
   "crockpotAt": [
    {
     "file": "lua/helpers.lua",
-    "line": 603,
+    "line": 609,
     "kind": "function",
     "params": [
      "loc"
@@ -3317,7 +3317,7 @@
   "doPry": [
    {
     "file": "lua/actions_social.lua",
-    "line": 489,
+    "line": 490,
     "kind": "function",
     "params": [
      "color"
@@ -3381,7 +3381,7 @@
   "doStabilize": [
    {
     "file": "lua/actions_social.lua",
-    "line": 515,
+    "line": 516,
     "kind": "function",
     "params": [
      "color",
@@ -3469,7 +3469,7 @@
   "drawScenarioId": [
    {
     "file": "lua/setup.lua",
-    "line": 599,
+    "line": 602,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3547,7 +3547,7 @@
   "ensurePlayerResources": [
    {
     "file": "lua/helpers.lua",
-    "line": 169,
+    "line": 174,
     "kind": "function",
     "params": [
      "color"
@@ -3613,7 +3613,7 @@
   "findCarriedItem": [
    {
     "file": "lua/helpers.lua",
-    "line": 541,
+    "line": 547,
     "kind": "function",
     "params": [
      "color",
@@ -3681,7 +3681,7 @@
   "gameRoll": [
    {
     "file": "lua/helpers.lua",
-    "line": 672,
+    "line": 678,
     "kind": "function",
     "params": [
      "a",
@@ -3718,7 +3718,7 @@
   "getActivePlayerColors": [
    {
     "file": "lua/helpers.lua",
-    "line": 643,
+    "line": 649,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3740,7 +3740,7 @@
   "getBossPool": [
    {
     "file": "lua/helpers.lua",
-    "line": 118,
+    "line": 123,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3750,7 +3750,7 @@
   "getCharSlotPosition": [
    {
     "file": "lua/helpers.lua",
-    "line": 332,
+    "line": 338,
     "kind": "function",
     "params": [
      "tile",
@@ -3763,7 +3763,7 @@
   "getCharacterStandee": [
    {
     "file": "lua/helpers.lua",
-    "line": 131,
+    "line": 136,
     "kind": "function",
     "params": [
      "name"
@@ -3775,7 +3775,7 @@
   "getDayCounter": [
    {
     "file": "lua/helpers.lua",
-    "line": 114,
+    "line": 119,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3817,7 +3817,7 @@
   "getDoomMarker": [
    {
     "file": "lua/helpers.lua",
-    "line": 113,
+    "line": 118,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3837,7 +3837,7 @@
   "getHandZone": [
    {
     "file": "lua/helpers.lua",
-    "line": 139,
+    "line": 144,
     "kind": "function",
     "params": [
      "color"
@@ -3849,7 +3849,7 @@
   "getHeartSupply": [
    {
     "file": "lua/helpers.lua",
-    "line": 119,
+    "line": 124,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3891,7 +3891,7 @@
   "getLocationTile": [
    {
     "file": "lua/helpers.lua",
-    "line": 127,
+    "line": 132,
     "kind": "function",
     "params": [
      "name"
@@ -3903,7 +3903,7 @@
   "getMainBoard": [
    {
     "file": "lua/helpers.lua",
-    "line": 112,
+    "line": 117,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3913,7 +3913,7 @@
   "getMarketDeck": [
    {
     "file": "lua/helpers.lua",
-    "line": 115,
+    "line": 120,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3923,7 +3923,7 @@
   "getMarketSlots": [
    {
     "file": "lua/helpers.lua",
-    "line": 143,
+    "line": 148,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3953,7 +3953,7 @@
   "getPhaseDeck": [
    {
     "file": "lua/helpers.lua",
-    "line": 122,
+    "line": 127,
     "kind": "function",
     "params": [
      "phase"
@@ -3977,7 +3977,7 @@
   "getPlayerBoard": [
    {
     "file": "lua/helpers.lua",
-    "line": 135,
+    "line": 140,
     "kind": "function",
     "params": [
      "name"
@@ -3989,7 +3989,7 @@
   "getPlayerCarriedObjects": [
    {
     "file": "lua/helpers.lua",
-    "line": 460,
+    "line": 466,
     "kind": "function",
     "params": [
      "color",
@@ -4014,7 +4014,7 @@
   "getResourceBag": [
    {
     "file": "lua/helpers.lua",
-    "line": 152,
+    "line": 157,
     "kind": "function",
     "params": [
      "resType"
@@ -4026,7 +4026,7 @@
   "getSeverityLegend": [
    {
     "file": "lua/helpers.lua",
-    "line": 120,
+    "line": 125,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4056,7 +4056,7 @@
   "getThreatDeck": [
    {
     "file": "lua/helpers.lua",
-    "line": 116,
+    "line": 121,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4086,7 +4086,7 @@
   "getVisitorDeck": [
    {
     "file": "lua/helpers.lua",
-    "line": 117,
+    "line": 122,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4109,7 +4109,7 @@
   "giveResource": [
    {
     "file": "lua/helpers.lua",
-    "line": 274,
+    "line": 280,
     "kind": "function",
     "params": [
      "color",
@@ -4187,7 +4187,7 @@
   "hasLastNerve": [
    {
     "file": "lua/helpers.lua",
-    "line": 521,
+    "line": 527,
     "kind": "function",
     "params": [
      "color"
@@ -4272,7 +4272,7 @@
   "isAdjacent": [
    {
     "file": "lua/helpers.lua",
-    "line": 588,
+    "line": 594,
     "kind": "function",
     "params": [
      "from",
@@ -4331,7 +4331,7 @@
   "isSportCourt": [
    {
     "file": "lua/helpers.lua",
-    "line": 533,
+    "line": 539,
     "kind": "function",
     "params": [
      "loc"
@@ -4603,7 +4603,7 @@
   "nudgeSpectatorsToSitDown": [
    {
     "file": "lua/helpers.lua",
-    "line": 752,
+    "line": 758,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -4613,7 +4613,7 @@
   "objDistance": [
    {
     "file": "lua/helpers.lua",
-    "line": 714,
+    "line": 720,
     "kind": "function",
     "params": [
      "a",
@@ -6239,7 +6239,7 @@
   "placeCharacterAtTile": [
    {
     "file": "lua/helpers.lua",
-    "line": 385,
+    "line": 391,
     "kind": "function",
     "params": [
      "charName",
@@ -6298,7 +6298,7 @@
   "popFirst": [
    {
     "file": "lua/helpers.lua",
-    "line": 732,
+    "line": 738,
     "kind": "function",
     "params": [
      "list"
@@ -6759,7 +6759,7 @@
   "removeVisualTokens": [
    {
     "file": "lua/helpers.lua",
-    "line": 270,
+    "line": 276,
     "kind": "function",
     "params": [
      "color",
@@ -7105,7 +7105,7 @@
   "safecall": [
    {
     "file": "lua/helpers.lua",
-    "line": 772,
+    "line": 778,
     "kind": "function",
     "params": [
      "fn",
@@ -7178,7 +7178,7 @@
   "setButtonLabel": [
    {
     "file": "lua/helpers.lua",
-    "line": 102,
+    "line": 107,
     "kind": "function",
     "params": [
      "id",
@@ -7229,7 +7229,7 @@
   "setStandeePosture": [
    {
     "file": "lua/helpers.lua",
-    "line": 367,
+    "line": 373,
     "kind": "function",
     "params": [
      "charName",
@@ -7439,7 +7439,7 @@
   "spawnResourceAtTile": [
    {
     "file": "lua/helpers.lua",
-    "line": 284,
+    "line": 290,
     "kind": "function",
     "params": [
      "locName",
@@ -7466,7 +7466,7 @@
   "sportCourtSurcharge": [
    {
     "file": "lua/helpers.lua",
-    "line": 624,
+    "line": 630,
     "kind": "function",
     "params": [
      "from",
@@ -7667,7 +7667,7 @@
   "takeResourceFromPlayer": [
    {
     "file": "lua/helpers.lua",
-    "line": 312,
+    "line": 318,
     "kind": "function",
     "params": [
      "color",
@@ -7811,7 +7811,7 @@
   "trim": [
    {
     "file": "lua/helpers.lua",
-    "line": 693,
+    "line": 699,
     "kind": "function",
     "params": [
      "s"

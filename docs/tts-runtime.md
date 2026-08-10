@@ -124,15 +124,29 @@ from a screenshot.
 
 ### Rotations (two conventions, don't mix them)
 
-- **Flat art objects** (Custom_Tile, Custom_Board, cards/decks): at
-  `rotY=0` TTS renders the image rotated 180° in the default view. So
-  either the object carries `ry=180` (tiles, cards) **or** its PNG is
-  pre-rotated 180° by the generator (main board, player boards, tokens —
-  see `board_geometry.py`'s docstring for the pixel↔world mapping).
+- **Flat art objects** (Custom_Tile, Custom_Board, Custom_Token, cards/decks):
+  at `rotY=0` TTS renders the image rotated 180° in the default view. So
+  either the object carries `ry=180` (tiles, cards, tokens) **or** its PNG is
+  pre-rotated 180° by the generator (the main board — see `board_geometry.py`'s
+  docstring for the pixel↔world mapping).
   Do **both** and they cancel into a 180° error: the main board shipped
   with `ry=180` on top of its pre-rotated PNG and the whole printed map
   turned about its centre — the DAY COUNTER frame ended up opposite the
   gadget, every location ring opposite its tile.
+- **Prefer turning the object; pre-rotate the PNG only when you can't.**
+  The two look identical on the felt and are *not* identical in the
+  magnifier: **TTS draws Alt-zoom in the object's LOCAL frame**, so art
+  pre-rotated to suit the table reads upside down the moment anyone hovers
+  it, and the object's own `ry` is undone. All five player boards were like
+  that (`PLAYER_BOARD_ZOOM_ROT`), and so was every token
+  (`TOKEN_ZOOM_ROT` + `TOKEN_FACE_UP`) — for a 0.4-scale token, hovering is
+  the *only* way a player ever reads the label: "hovering over the token
+  Cloth shows it reversed". The local frame is also the tell: all five
+  boards were wrong by the same 180° despite sitting at four different table
+  rotations. The main board is the exception, and only because it carries
+  snap points (next bullet) — its own zoom is upside down and stays that way.
+  Guards: `test_tokens_carry_the_half_turn_on_the_object`,
+  `test_player_boards_are_square_to_the_board_and_face_it`.
 - **Anything carrying AttachedSnapPoints must stay at `rotY=0`.** Snaps are
   object-LOCAL, so the object's rotation moves them too, while the pieces
   they line up with are authored in absolute world coordinates. A board at

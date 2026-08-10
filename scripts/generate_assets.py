@@ -352,8 +352,14 @@ def generate_resource_token(name, color, symbol):
     label = RESOURCE_LABELS[name]
     centered_text(draw, 128, 192, label, FONT_SM, color)
 
-    img = img.rotate(180)   # tokens at rotY=0 render 180° in the default view
-
+    # NOT rotated 180 here. A Custom_Token at rotY=0 does render its image half
+    # a turn round on the felt, and this used to pre-rotate the PNG to cancel
+    # that — which reads fine on the table and upside down in the magnifier,
+    # because TTS draws Alt-zoom in the object's LOCAL frame. A token is 0.4
+    # scale, so hovering is the ONLY way anyone reads its label: "hovering over
+    # the token Cloth shows it reversed". The half turn lives on the object
+    # instead (build_save.TOKEN_ZOOM_ROT, lua TOKEN_FACE_UP) — same as the
+    # player boards, which lost their pre-rotation for the same reason.
     img.save(os.path.join(DIRS["tokens"], f"resource_{name}.png"))
     return img
 
@@ -397,8 +403,9 @@ def generate_stat_tokens():
         label = name.upper()
         centered_text(draw, 128, 200, label, FONT_SM, color)
 
-        img = img.rotate(180)   # tokens at rotY=0 render 180° in the default view
-
+        # Upright like the rest of the token art (see generate_resource_token).
+        # Nothing spawns these three as objects today — they are only URLs in
+        # lua/assets.lua — and upright is what a UI <Image> would want anyway.
         img.save(os.path.join(DIRS["icons"], f"icon_{name}.png"))
         print(f"  Stat token: icon_{name}.png")
 
@@ -429,10 +436,9 @@ def generate_doom_marker():
 
     centered_text(draw, 128, 200, "DOOM", FONT_MD, (200, 50, 40))
 
-    # The marker is locked at rotY=0 by moveDoomMarker, so its art carries
-    # the 180° pre-rotation (same convention as the board).
-    img = img.rotate(180)
-
+    # Upright, not pre-rotated: moveDoomMarker re-pins the marker at
+    # TOKEN_ZOOM_ROT, so the half turn is on the object where Alt-zoom can
+    # undo it (see generate_resource_token).
     img.save(os.path.join(DIRS["tokens"], "doom_marker.png"))
     print("  Doom marker: doom_marker.png")
 
@@ -455,8 +461,8 @@ def generate_heart_token():
     centered_text(draw, 128, 195, "TELLTALE", FONT_SM, (200, 150, 100))
     centered_text(draw, 128, 215, "HEART", FONT_SM, (200, 150, 100))
 
-    img = img.rotate(180)   # tokens at rotY=0 render 180° in the default view
-
+    # Upright, not pre-rotated — the half turn is on the object
+    # (build_save.TOKEN_ZOOM_ROT); see generate_resource_token.
     img.save(os.path.join(DIRS["tokens"], "telltale_heart.png"))
     print("  Heart token: telltale_heart.png")
 

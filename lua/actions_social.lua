@@ -449,6 +449,7 @@ local function _deliverSealedReward(color, reward, locName)
                 if bag and pos then
                     safecall(function()
                         bag.takeObject({ position = { pos.x + (i % 3) * 1.2 - 1.2, pos.y + 3, pos.z + 2 },
+                                         rotation = TOKEN_FACE_UP,   -- see _spawnVisualTokens
                                          smooth = true })
                     end, "PryLoot")
                 end

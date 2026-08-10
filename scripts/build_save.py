@@ -223,6 +223,17 @@ BOARD_PIECE_Y = round(BOARD_SURFACE_Y + 0.01, 3)   # flat pieces on the board
 # so they should read as ink on the board, not as counters standing on it.
 BOARD_PIECE_THICKNESS = 0.02
 
+# Every Custom_Token's artwork is authored upright and the OBJECT carries the
+# half turn that flat art needs to render the right way up on the felt — the
+# same trade PLAYER_BOARD_ZOOM_ROT makes, for the same reason. Pre-rotating
+# the PNG instead is what shipped, and it costs you Alt-zoom: TTS draws the
+# magnifier in the object's LOCAL frame, so art turned to suit the table comes
+# out upside down the moment anyone hovers it ("hovering over the token Cloth
+# shows it reversed"). Keep this in step with TOKEN_FACE_UP (lua/helpers.lua),
+# which is the rotation scripted spawns hand to takeObject; a cross-ref test
+# compares the two.
+TOKEN_ZOOM_ROT = 180
+
 _guid_counter = [0]
 def guid():
     _guid_counter[0] += 1
@@ -685,7 +696,8 @@ _doom_x, _doom_z = board_geometry.doom_step_world(0)
 # world units wide, so the original
 # 1.6 (sized when the board was rendering nine times too big) covered four
 # cells at once — "the doom marker is ridiculously large".
-doom = base_obj("Custom_Token", tf(_doom_x, BOARD_PIECE_Y, _doom_z, sx=0.3375, sy=0.3375, sz=0.3375),
+doom = base_obj("Custom_Token", tf(_doom_x, BOARD_PIECE_Y, _doom_z, ry=TOKEN_ZOOM_ROT,
+                                  sx=0.3375, sy=0.3375, sz=0.3375),
                 nickname="Doom Marker",
                 desc="Doom track marker. Moves itself each time Doom changes — you never place it by hand.",
                 tags=["DoomMarker"],
@@ -1015,7 +1027,11 @@ for res_name, token_url, color, x, y, z in resources:
     # Create the token template
     # Scale 0.4: at scale 1 a token is roughly a fifth of a location tile —
     # "the energy drink token is too large" once the board was fixed.
-    token = base_obj("Custom_Token", tf(sx=0.4, sy=0.4, sz=0.4),
+    # ry on BOTH the template and the bag below: a scripted takeObject that
+    # passes no rotation (Pry loot) and a player pulling one out by hand each
+    # follow a different one of the two, and the token has to come out the
+    # right way up either way.
+    token = base_obj("Custom_Token", tf(ry=TOKEN_ZOOM_ROT, sx=0.4, sy=0.4, sz=0.4),
                      nickname=res_name.replace("EnergyDrink", "Energy Drink"),
                      desc=f"{res_name} resource token.",
                      tags=["Resource", f"Resource:{res_name}"])
@@ -1026,7 +1042,7 @@ for res_name, token_url, color, x, y, z in resources:
         "CustomToken": {"Thickness": 0.15, "MergeDistancePixels": 15, "StandUp": False, "Stackable": True}
     }
 
-    bag = base_obj("Infinite_Bag", tf(x, y, z),
+    bag = base_obj("Infinite_Bag", tf(x, y, z, ry=TOKEN_ZOOM_ROT),
                    nickname=f"{res_name.replace('EnergyDrink', 'Energy Drink')} Supply",
                    desc=f"Supply of {res_name.replace('EnergyDrink', 'Energy Drink')} tokens. Fully automated — Gather, salvage, dawn deliveries, and scripted costs/rewards pay tokens in and out for you. No need to touch it.",
                    tags=["ResourceBag", f"ResourceBag:{res_name}"],
@@ -1333,14 +1349,14 @@ basement = base_obj("BlockSquare",
 basement["ColorDiffuse"] = {"r": 0.28, "g": 0.22, "b": 0.15}
 objects.append(basement)
 
-heart_bag = base_obj("Bag", tf(SUPPLY_SHELF_X, LIBRARY_Y, -8),
+heart_bag = base_obj("Bag", tf(SUPPLY_SHELF_X, LIBRARY_Y, -8, ry=TOKEN_ZOOM_ROT),
                      nickname="Telltale Heart Supply",
                      desc="5 Telltale Hearts. Cook to create; spend to revive a Down character.",
                      tags=["TelltaleHeartSupply"],
                      locked=True)
 heart_bag["ContainedObjects"] = []
 for hi in range(5):
-    heart = base_obj("Custom_Token", tf(sx=0.4, sy=0.4, sz=0.4),
+    heart = base_obj("Custom_Token", tf(ry=TOKEN_ZOOM_ROT, sx=0.4, sy=0.4, sz=0.4),
                      nickname="Telltale Heart",
                      desc="Use at a Down character's location to revive them. Reviver pays 2 Health. Revived returns at half max stats.",
                      tags=["TelltaleHeart"])

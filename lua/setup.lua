@@ -496,7 +496,10 @@ function moveDoomMarker(targetStep)
         local m = getDoomMarker()
         if m then
             m.setPosition(worldPos)
-            m.setRotation({0, 0, 0})
+            -- TOKEN_FACE_UP, not {0,0,0}: the marker's art is authored upright
+            -- and the object carries the half turn (see helpers.lua). Pinning
+            -- it flat at zero here would print DOOM upside down on the track.
+            m.setRotation(TOKEN_FACE_UP)
             m.setLock(true)
         end
     end, 1.0)

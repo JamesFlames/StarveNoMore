@@ -565,6 +565,7 @@ function cookTelltaleHeart(color)
         if tile then
             supply.takeObject({
                 position = tile.getPosition() + Vector(0, 1.5, 1),
+                rotation = TOKEN_FACE_UP,   -- see _spawnVisualTokens (helpers.lua)
                 smooth = true,
             })
         end
