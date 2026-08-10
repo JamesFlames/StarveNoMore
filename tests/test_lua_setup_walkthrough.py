@@ -26,7 +26,7 @@ try:
 except ImportError:  # pragma: no cover
     lua52 = None
 
-from conftest import flush, lua_to_py, make_env, populate_full_world
+from conftest import confirm_roster, flush, lua_to_py, make_env, populate_full_world
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
 
@@ -38,7 +38,8 @@ SEAT_FOR = {"James": "Blue", "Coco": "White", "Rayman": "Green",
 # path has its own coverage in test_full_campaign.py.
 ROSTER = ["Coco", "James", "Rayman", "Ellie", "Luca"]
 
-SETUP_PANELS = ("setupStep1", "setupStepVariants", "setupStep2", "charBriefing")
+SETUP_PANELS = ("setupStep1", "setupStepVariants", "setupStep2",
+                "setupRosterConfirm", "charBriefing")
 
 
 def begin(env, names):
@@ -65,6 +66,8 @@ def pick(env, name, as_color=None):
 def dismiss(env, color):
     env.execute(f'onBriefDismiss(Player["{color}"], "-1", "briefDismiss")')
     flush(env)
+    # The last dismiss lands on the roster confirmation, not on a built table.
+    confirm_roster(env, color)
 
 
 def visible(env, panel):
@@ -174,7 +177,8 @@ def test_the_host_can_click_through_for_everyone():
     """The hotseat path: one person at the keyboard, driving every seat.
 
     This is the case the whole design exists for. One click per character, in
-    the order the panel names, with no seat switching and no confirmation step
+    the order the panel names, with no seat switching and nothing to confirm
+    per pick (the roster confirmation comes once, at the end)
     — the host clause in onPickChar is what allows it, and the seat a pick
     lands on comes from the queue rather than from whichever player TTS
     happens to have active. Under the old model this same sequence assigned
@@ -325,6 +329,89 @@ def test_a_full_table_is_not_warned_about_its_size():
 # scrolled away. Solo cannot seat the other two itself — Hotseat is a TTS
 # client setting — so the toggle has to tell the truth instead.
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# The roster confirmation (Step 2.5)
+#
+# Setup used to be built by the last briefing click. A hotseat player named
+# their seats after the characters they meant to play, picked Ellie while the
+# panel was picking for the seat named Jamesx, and could not reconstruct it
+# afterwards — finalize renames every seat to its character's colour, so the
+# evidence was gone by the time the table looked. The last click shows the
+# roster now, and Pick again costs nothing because nothing has been placed.
+# ---------------------------------------------------------------------------
+
+def reach_roster_confirm(env, names):
+    """Pick every character but do NOT confirm — stop on the roster panel."""
+    host = begin(env, names)
+    for n in names:
+        pick(env, n)
+        env.execute(f'onBriefDismiss(Player["{SEAT_FOR[n]}"], "-1", "briefDismiss")')
+        flush(env)
+    return host
+
+
+def roster_body(env):
+    return env.eval('UI.getAttribute("rosterConfirmBody", "text")')
+
+
+def test_the_last_click_shows_the_roster_instead_of_building_the_table():
+    env = make_env()
+    reach_roster_confirm(env, ["Coco", "James"])
+    assert visible(env, "setupRosterConfirm")
+    assert env.eval("gameState.started") is not True, (
+        "the table was built before anyone confirmed the roster")
+    body = roster_body(env)
+    assert "Coco" in body and "James" in body, body
+    assert "White seat" in body and "Blue seat" in body, (
+        "the summary has to name the SEAT each character landed on — the seat "
+        "is what the player recognises before finalize renames it: " + body)
+
+
+def test_confirming_builds_the_table():
+    env = make_env()
+    host = reach_roster_confirm(env, ["Coco", "James"])
+    env.execute(f'onRosterConfirm(Player["{host}"], "-1", "rosterConfirm")')
+    flush(env)
+    assert env.eval("gameState.started") is True
+    assert roster(env) == {"White": "Coco", "Blue": "James"}
+    assert not visible(env, "setupRosterConfirm")
+
+
+def test_pick_again_clears_every_pick_not_just_the_last():
+    """The table cannot tell which click was the wrong one — that is the whole
+    reason the panel exists — so Pick again resets the lot."""
+    env = make_env()
+    host = reach_roster_confirm(env, ["Coco", "James"])
+    env.execute(f'onRosterRedo(Player["{host}"], "-1", "rosterRedo")')
+    flush(env)
+
+    assert env.eval("gameState.started") is not True
+    assert not visible(env, "setupRosterConfirm")
+    assert visible(env, "setupStep2"), "Pick again did not reopen the pick step"
+    waiting = env.eval("dumpSetupState()")
+    assert "White=" in waiting.split("waiting:")[1].split("| picked")[0]
+    assert "Blue=" in waiting.split("waiting:")[1].split("| picked")[0]
+    assert "picked: nobody" in waiting, (
+        "Pick again left an old choice behind: " + waiting)
+
+
+def test_picking_again_can_choose_a_different_roster():
+    """The bug that prompted this: the wrong character on the first seat."""
+    env = make_env()
+    host = reach_roster_confirm(env, ["Coco", "James"])
+    env.execute(f'onRosterRedo(Player["{host}"], "-1", "rosterRedo")')
+    flush(env)
+
+    # Same seats, different characters — and the seats are free again, so the
+    # duplicate-pick refusal must not fire on the characters just released.
+    pick(env, "Coco", as_color="White")
+    dismiss(env, "White")
+    pick(env, "James", as_color="Blue")
+    dismiss(env, "Blue")
+    assert env.eval("gameState.started") is True
+    assert roster(env) == {"White": "Coco", "Blue": "James"}
+
 
 def begin_solo(env, names):
     """Reach the variants panel and flip Solo on, without continuing."""

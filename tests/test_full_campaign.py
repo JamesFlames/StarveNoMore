@@ -20,7 +20,7 @@ try:
 except ImportError:  # pragma: no cover
     lua52 = None
 
-from conftest import flush, lua_to_py, make_env, populate_full_world
+from conftest import confirm_roster, flush, lua_to_py, make_env, populate_full_world
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
 
@@ -238,6 +238,7 @@ def test_guided_setup_reseats_players_to_character_colors():
     env.execute('onPickChar(Player["Blue"], "-1", "pickCoco")')
     env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
     flush(env)
+    confirm_roster(env)
 
     assert env.eval("gameState.started") is True
     chars = lua_to_py(env.eval("gameState.activeChars"))
@@ -278,6 +279,7 @@ def _run_guided_setup(env):
     env.execute('onPickChar(Player["Blue"], "-1", "pickCoco")')
     env.execute('onBriefDismiss(Player["Blue"], "-1", "briefDismiss")')
     flush(env)
+    confirm_roster(env)
 
 
 def _visible(env, panel):
@@ -412,9 +414,16 @@ def test_a_player_leaving_mid_setup_does_not_hang_the_walkthrough():
     env.execute('TTS.seated = {"White"}')      # the Blue player quits
     env.execute('onBriefDismiss(Player["White"], "-1", "briefDismiss")')
     flush(env)
+    # The queue reconciled the empty seat away and ran on to the roster
+    # confirmation — which is the point of showing it on this path too: the
+    # table that just lost a player is the one that wants to see who is left.
+    assert env.eval('TTS.ui.visible["setupRosterConfirm"]') is True, (
+        "setup hung waiting on a seat nobody is sitting in")
+    confirm_roster(env)
 
     assert env.eval("gameState.started") is True, (
-        "setup hung waiting on a seat nobody is sitting in")
+        "the roster confirmation could not finish a walkthrough whose last "
+        "queued player had quit")
     party = sorted(c["name"] for c in lua_to_py(env.eval("gameState.activeChars")).values())
     assert party == ["Coco"], party
 

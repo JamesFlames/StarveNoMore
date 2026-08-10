@@ -259,6 +259,21 @@ def broadcasts(rt):
     return [b["message"] for b in lua_to_py(rt.eval("TTS.broadcasts"))]
 
 
+def confirm_roster(rt, color="White"):
+    """Click Start on the roster confirmation, if it is open.
+
+    The guided walkthrough does not finalize on the last briefing click any
+    more — it shows the roster first (ui_setup.showRosterConfirm), because a
+    hotseat table could not otherwise tell which pick had gone where. Every
+    helper that drives setup to a started game goes through here, so the extra
+    step is in one place rather than at eight call sites.
+    """
+    rt.execute(
+        'if TTS.ui.visible["setupRosterConfirm"] then '
+        f'onRosterConfirm(Player["{color}"], "-1", "rosterConfirm") end')
+    flush(rt)
+
+
 def script_dice(rt, rolls):
     """Make gameRoll — the gameplay RNG seam (helpers.lua) — return this exact
     sequence (asserts if exhausted). math.random itself is left alone, so the

@@ -41,6 +41,7 @@ local function syncSetupPanels()
     set("setupStep1", s == 1)
     set("setupStepVariants", s == 1.5)
     set("setupStep2", s == 2)
+    set("setupRosterConfirm", s == 2.5)
     set("charBriefing", s == 3)
 end
 
@@ -74,6 +75,7 @@ function reshowSetupStep()
     if s == 1 then UI.show("setupStep1")
     elseif s == 1.5 then UI.show("setupStepVariants")
     elseif s == 2 then showCharPickForNextPlayer()
+    elseif s == 2.5 then showRosterConfirm()
     elseif s == 3 then UI.show("charBriefing")
     end
 end
@@ -515,8 +517,11 @@ function showCharPickForNextPlayer()
     -- but a stuck table's autosave has to carry it.
     if logMessage then safecall(function() dumpSetupState() end, "SetupDump") end
     if #setupState.pendingColors == 0 then
-        -- All players picked — finalize setup
-        finalizeGuidedSetup()
+        -- Nobody left to pick — show the roster for confirmation. Reached the
+        -- normal way (everyone picked) and the ugly way (the last seat in the
+        -- queue quit the table), and the ugly way is exactly when a table
+        -- wants to see who it ended up with before the game is built.
+        showRosterConfirm()
         return
     end
 
@@ -857,13 +862,77 @@ function onBriefDismiss(player, value, id)
         gameState.activeChars[color].briefed = true
     end
 
-    -- Continue to next player's character pick or finalize
+    -- Continue to next player's character pick, or show the roster for a last
+    -- look before it is built.
     if #setupState.pendingColors > 0 then
         setupState.step = 2
         showCharPickForNextPlayer()
     else
-        finalizeGuidedSetup()
+        showRosterConfirm()
     end
+end
+
+-----------------------------------------------------------------------
+-- Step 2.5 — the roster, before it is locked in
+--
+-- Setup used to finalize on the last briefing dismissal: the table was built
+-- on that click, with no summary of what had been chosen and no way back.
+--
+-- That is fine when the picks were obvious and awful when they were not, and
+-- hotseat is where they are not. A player named their three seats after the
+-- characters they meant to play (Jamesx, Raymanx, Cocox), clicked Ellie while
+-- the panel was picking for the seat named Jamesx, and finished setup with
+-- Ellie in a Yellow seat, James not in the game, and no idea which click had
+-- done it — the reseat to character colours (§H.2) had renamed the evidence.
+-- The picks are all in the log, but the log is not where anyone is looking.
+--
+-- So the last click shows the roster instead of consuming it. Pick again
+-- clears every choice and re-runs the queue; nothing physical has been placed
+-- yet, so it costs nothing but the clicks.
+-----------------------------------------------------------------------
+function showRosterConfirm()
+    setupState.step = 2.5
+    if not UI then
+        -- Headless (selftest, tests that drive setup directly): there is
+        -- nobody to confirm, and setup must still finish.
+        finalizeGuidedSetup()
+        return
+    end
+
+    local lines = {}
+    for _, c in ipairs(SEAT_COLORS_ALL) do
+        local charName = setupState.charPicks[c]
+        if charName then
+            lines[#lines + 1] = "    " .. _seatLabel(c) .. "  (" .. c .. " seat)" ..
+                                "   plays   " .. charName
+        end
+    end
+    if #lines == 0 then lines[1] = "    (nobody picked a character)" end
+
+    UI.setAttribute("rosterConfirmBody", "text", table.concat(lines, "\n"))
+    UI.show("setupRosterConfirm")
+    dumpSetupState()
+end
+
+function onRosterConfirm(player, value, id)
+    if isGhostSetupClick(2.5, player) then return end
+    UI.hide("setupRosterConfirm")
+    finalizeGuidedSetup()
+end
+
+function onRosterRedo(player, value, id)
+    if isGhostSetupClick(2.5, player) then return end
+    UI.hide("setupRosterConfirm")
+    -- Every pick, not just the last one: the whole point is that the table
+    -- cannot tell which click was the wrong one. reconcilePendingColors
+    -- rebuilds the queue from the seated colours the moment charPicks is
+    -- empty, so clearing it is the whole reset.
+    setupState.charPicks = {}
+    setupState.pendingColors = {}
+    setupState.step = 2
+    broadcastEvent("proc", "Roster cleared — picking again from the top. " ..
+        "The panel title names the seat each card goes to.")
+    showCharPickForNextPlayer()
 end
 
 -----------------------------------------------------------------------

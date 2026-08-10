@@ -265,6 +265,45 @@
 </Panel>
 
 <!-- ================================================================== -->
+<!-- H.1b  ROSTER CONFIRM — the last look before the table is built     -->
+<!-- Setup used to finalize on the final briefing click, with no summary -->
+<!-- and no way back: a hotseat player picked Ellie for the seat named   -->
+<!-- Jamesx and could not tell afterwards what had happened, because     -->
+<!-- finalize renames every seat to its character's colour.              -->
+<!-- ================================================================== -->
+<Panel id="setupRosterConfirm"
+       rectAlignment="MiddleCenter"
+       width="560" height="360"
+       color="#F5EEDDF7"
+       outline="#54788CCC"
+       outlineSize="2"
+       active="false">
+  <VerticalLayout spacing="8" padding="16 16 14 14"
+                  childForceExpandHeight="false">
+    <Text id="rosterConfirmTitle" fontSize="22" fontStyle="Bold" color="#4A3208"
+          text="This is your table" preferredHeight="30" />
+    <Text id="rosterConfirmBody" fontSize="15" color="#2E2A22"
+          alignment="UpperLeft" text="" preferredHeight="176" />
+    <Text id="rosterConfirmNote" fontSize="12" color="#6B5B43"
+          text="Nothing has been placed yet. Starting sets each seat's colour to match its character, so the names above are your last look at who chose what."
+          preferredHeight="52" />
+    <HorizontalLayout spacing="10" childForceExpandWidth="true"
+                      preferredHeight="44">
+      <Button id="rosterRedo"
+              onClick="onRosterRedo"
+              fontSize="14" color="#E4D5BEFF" textColor="#6B4326"
+              preferredWidth="200"
+              tooltip="Clears every pick and runs the whole character choice again.&#10;Costs nothing — no piece has been placed yet."
+              text="Pick again" />
+      <Button id="rosterConfirm"
+              onClick="onRosterConfirm"
+              fontSize="16" fontStyle="Bold" color="#CFE6C2FF" textColor="#1E5A1E"
+              text="Start the game" />
+    </HorizontalLayout>
+  </VerticalLayout>
+</Panel>
+
+<!-- ================================================================== -->
 <!-- H.2  CHARACTER BRIEFING — one-time popup after pick                -->
 <!-- ================================================================== -->
 <Panel id="charBriefing"

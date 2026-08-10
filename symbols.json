@@ -672,7 +672,7 @@
   "DIFFICULTY_BLURBS": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 329,
+    "line": 331,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -682,7 +682,7 @@
   "DIFFICULTY_CYCLE": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 328,
+    "line": 330,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1282,7 +1282,7 @@
   "SEAT_COLORS_ALL": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 430,
+    "line": 432,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1352,7 +1352,7 @@
   "SOLO_SEATS_NEEDED": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 263,
+    "line": 265,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1674,7 +1674,7 @@
   "WELCOME_PAGES": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1112,
+    "line": 1181,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -2716,7 +2716,7 @@
   "cancelGuidedSetup": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 82,
+    "line": 84,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2880,7 +2880,7 @@
   "closeWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1190,
+    "line": 1259,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3530,7 +3530,7 @@
   "dumpSetupState": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 490,
+    "line": 492,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3616,7 +3616,7 @@
   "finalizeGuidedSetup": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1070,
+    "line": 1139,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5135,7 +5135,7 @@
   "onBriefBack": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 822,
+    "line": 827,
     "kind": "function",
     "params": [
      "player",
@@ -5149,7 +5149,7 @@
   "onBriefDismiss": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 843,
+    "line": 848,
     "kind": "function",
     "params": [
      "player",
@@ -5483,7 +5483,7 @@
   "onHostSetupGuided": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1254,
+    "line": 1323,
     "kind": "function",
     "params": [
      "player",
@@ -5620,7 +5620,7 @@
   "onPickChar": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 702,
+    "line": 707,
     "kind": "function",
     "params": [
      "player",
@@ -5634,7 +5634,7 @@
   "onPickPath": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 198,
+    "line": 200,
     "kind": "function",
     "params": [
      "player",
@@ -5771,6 +5771,34 @@
     "doc": ""
    }
   ],
+  "onRosterConfirm": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 917,
+    "kind": "function",
+    "params": [
+     "player",
+     "value",
+     "id"
+    ],
+    "arity": 3,
+    "doc": ""
+   }
+  ],
+  "onRosterRedo": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 923,
+    "kind": "function",
+    "params": [
+     "player",
+     "value",
+     "id"
+    ],
+    "arity": 3,
+    "doc": ""
+   }
+  ],
   "onRulesToggle": [
    {
     "file": "lua/ui_rules.lua",
@@ -5868,7 +5896,7 @@
   "onToggleDifficulty": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 336,
+    "line": 338,
     "kind": "function",
     "params": [
      "player",
@@ -5882,7 +5910,7 @@
   "onToggleDuskSecret": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 251,
+    "line": 253,
     "kind": "function",
     "params": [
      "player",
@@ -5896,7 +5924,7 @@
   "onToggleRotation": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 230,
+    "line": 232,
     "kind": "function",
     "params": [
      "player",
@@ -5910,7 +5938,7 @@
   "onToggleScenario": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 238,
+    "line": 240,
     "kind": "function",
     "params": [
      "player",
@@ -5924,7 +5952,7 @@
   "onToggleSolo": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 280,
+    "line": 282,
     "kind": "function",
     "params": [
      "player",
@@ -5994,7 +6022,7 @@
   "onVariantsContinue": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 349,
+    "line": 351,
     "kind": "function",
     "params": [
      "player",
@@ -6022,7 +6050,7 @@
   "onWelcomeBack": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1206,
+    "line": 1275,
     "kind": "function",
     "params": [
      "player",
@@ -6036,7 +6064,7 @@
   "onWelcomeNext": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1195,
+    "line": 1264,
     "kind": "function",
     "params": [
      "player",
@@ -6050,7 +6078,7 @@
   "onWelcomeSkip": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1212,
+    "line": 1281,
     "kind": "function",
     "params": [
      "player",
@@ -6808,7 +6836,7 @@
   "reshowSetupStep": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 72,
+    "line": 73,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7289,7 +7317,7 @@
   "showCharBriefing": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 794,
+    "line": 799,
     "kind": "function",
     "params": [
      "color",
@@ -7302,7 +7330,7 @@
   "showCharPickForNextPlayer": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 512,
+    "line": 514,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7380,6 +7408,16 @@
     "doc": ""
    }
   ],
+  "showRosterConfirm": [
+   {
+    "file": "lua/ui_setup.lua",
+    "line": 893,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Step 2.5 — the roster, before it is locked in Setup used to finalize on the last briefing dismissal: the table was built on that click, with no summary of what…"
+   }
+  ],
   "showSignatureTargetDialog": [
    {
     "file": "lua/signatures.lua",
@@ -7421,7 +7459,7 @@
   "showWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1216,
+    "line": 1285,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7543,7 +7581,7 @@
   "startGuidedSetup": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 91,
+    "line": 93,
     "kind": "function",
     "params": [
      "hostColor"
@@ -7997,7 +8035,7 @@
   "welcomeBody": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1168,
+    "line": 1237,
     "kind": "function",
     "params": [
      "page"
@@ -8574,25 +8612,25 @@
   },
   "briefBack": {
    "file": "xml/setup.xml",
-   "line": 286,
+   "line": 325,
    "element": "Button",
    "onClick": "onBriefBack"
   },
   "briefBody": {
    "file": "xml/setup.xml",
-   "line": 281,
+   "line": 320,
    "element": "Text",
    "onClick": ""
   },
   "briefDismiss": {
    "file": "xml/setup.xml",
-   "line": 292,
+   "line": 331,
    "element": "Button",
    "onClick": "onBriefDismiss"
   },
   "briefTitle": {
    "file": "xml/setup.xml",
-   "line": 279,
+   "line": 318,
    "element": "Text",
    "onClick": ""
   },
@@ -8664,7 +8702,7 @@
   },
   "charBriefing": {
    "file": "xml/setup.xml",
-   "line": 270,
+   "line": 309,
    "element": "Panel",
    "onClick": ""
   },
@@ -9400,6 +9438,30 @@
    "element": "Button",
    "onClick": "onRestSanity"
   },
+  "rosterConfirm": {
+   "file": "xml/setup.xml",
+   "line": 298,
+   "element": "Button",
+   "onClick": "onRosterConfirm"
+  },
+  "rosterConfirmBody": {
+   "file": "xml/setup.xml",
+   "line": 285,
+   "element": "Text",
+   "onClick": ""
+  },
+  "rosterConfirmNote": {
+   "file": "xml/setup.xml",
+   "line": 287,
+   "element": "Text",
+   "onClick": ""
+  },
+  "rosterConfirmTitle": {
+   "file": "xml/setup.xml",
+   "line": 283,
+   "element": "Text",
+   "onClick": ""
+  },
   "rosterHealthVal_Coco": {
    "file": "xml/hud.xml",
    "line": 744,
@@ -9550,6 +9612,12 @@
    "element": "Text",
    "onClick": ""
   },
+  "rosterRedo": {
+   "file": "xml/setup.xml",
+   "line": 292,
+   "element": "Button",
+   "onClick": "onRosterRedo"
+  },
   "rosterRow_Coco": {
    "file": "xml/hud.xml",
    "line": 733,
@@ -9657,6 +9725,12 @@
    "line": 291,
    "element": "Button",
    "onClick": "onRulesToggle"
+  },
+  "setupRosterConfirm": {
+   "file": "xml/setup.xml",
+   "line": 274,
+   "element": "Panel",
+   "onClick": ""
   },
   "setupStep1": {
    "file": "xml/setup.xml",
