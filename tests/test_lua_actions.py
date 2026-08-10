@@ -419,13 +419,19 @@ class TestGatherAutomation:
         held = self._held(env, "Blue")
         assert sum(held.values()) == 1   # one JamesHouse yield, delivered automatically
 
-    def test_ellie_pantry_picker_delivers_her_choice(self, env):
+    def test_ellie_pantry_delivers_provisions_not_a_shopping_list(self, env):
+        """It is a PANTRY (design §6.4: "a specific Provisions or Cooking
+        Ingredient"). The perk used to open the full six-way picker, which
+        made knowing where the soup is also produce Metal and Batteries on
+        demand — 2 of ANY resource, every turn, at the tile she starts on."""
         self._world(env, "Yellow", "Ellie", "EllieLucaHouse")
         env.globals().doGather("Yellow")
-        assert env.eval('TTS.ui.visible["resourcePickerDialog"]') is True
-        env.globals().onResourcePickClick(py_to_lua(env, {"color": "Yellow"}), "Battery", "")
+        assert env.eval('TTS.ui.visible["resourcePickerDialog"]') is not True, (
+            "one legal choice is not a choice — the picker is pure friction now")
         held = self._held(env, "Yellow")
-        assert held["Battery"] == 2 and sum(held.values()) == 2   # pantry: 2, her pick
+        assert held["Provisions"] == 2 and sum(held.values()) == 2
+        assert env.eval("gameState.activeChars.Yellow.actionsLeft") == 2, (
+            "the pantry gather cost something other than its one action")
 
     def test_gather_blocked_at_treeguard_lair(self, env):
         self._world(env, "Green", "Rayman", "BadmintonCourt")

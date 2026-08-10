@@ -545,45 +545,6 @@
 </Panel>
 
 <!-- ================================================================== -->
-<!-- RESOURCE PICKER — "pick any resource" moments (Ellie's pantry).    -->
-<!-- Delivers the chosen token(s) straight to the board; no bag rummage. -->
-<!-- ================================================================== -->
-<Panel id="resourcePickerDialog"
-       rectAlignment="MiddleCenter"
-       width="380" height="330"
-       color="#0A0A0AEB"
-       outline="#C8C86480"
-       outlineSize="2"
-       active="false">
-  <VerticalLayout spacing="6" padding="14 14 14 14"
-                  childForceExpandHeight="false">
-    <Text id="resourcePickTitle" fontSize="18" fontStyle="Bold" color="#FFDD88"
-          text="Take which resource?" preferredHeight="26" />
-    <Text id="resourcePickBody" fontSize="12" color="#AABBAA" preferredHeight="18"
-          text="Choose a resource — tokens go straight to your board." />
-    <HorizontalLayout spacing="6" childForceExpandWidth="true" preferredHeight="34">
-      <Button id="resPickWood" onClick="onResourcePickClick(Wood)"
-              fontSize="14" color="#3A2A18E6" textColor="#E0C090" text="Wood" />
-      <Button id="resPickMetal" onClick="onResourcePickClick(Metal)"
-              fontSize="14" color="#26262CE6" textColor="#C8C8D0" text="Metal" />
-      <Button id="resPickCloth" onClick="onResourcePickClick(Cloth)"
-              fontSize="14" color="#2C2C2CE6" textColor="#EEEEEE" text="Cloth" />
-    </HorizontalLayout>
-    <HorizontalLayout spacing="6" childForceExpandWidth="true" preferredHeight="34">
-      <Button id="resPickFood" onClick="onResourcePickClick(Provisions)"
-              fontSize="14" color="#3A1818E6" textColor="#FFAAAA" text="Provisions" />
-      <Button id="resPickEnergy" onClick="onResourcePickClick(EnergyDrink)"
-              fontSize="14" color="#3A3A18E6" textColor="#FFFF99" text="Energy Drink" />
-      <Button id="resPickBattery" onClick="onResourcePickClick(Battery)"
-              fontSize="14" color="#18243AE6" textColor="#AAC8FF" text="Battery" />
-    </HorizontalLayout>
-    <Button id="resPickCancel" onClick="onResourcePickCancel"
-            fontSize="14" color="#321E1EE6" textColor="#FFAAAA"
-            preferredHeight="30" text="Cancel (take a random draw)" />
-  </VerticalLayout>
-</Panel>
-
-<!-- ================================================================== -->
 <!-- COMBAT PANEL — Press the Attack (Design §12.5)                     -->
 <!-- Shown while a press window is open; any fighter in the combat may  -->
 <!-- press for 1 Sanity, or finish to let the enemy strike back.        -->

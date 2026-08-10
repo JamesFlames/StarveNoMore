@@ -612,7 +612,7 @@
   "CUSTOM_UI_PANELS": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 191,
+    "line": 141,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1594,7 +1594,7 @@
   "TOOLTIP_DATA": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 470,
+    "line": 420,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1815,7 +1815,7 @@
   "_highlightCleanseTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 570,
+    "line": 632,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1825,7 +1825,7 @@
   "_highlightCookTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 565,
+    "line": 627,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1835,7 +1835,7 @@
   "_highlightCraftTargets": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 530,
+    "line": 592,
     "kind": "function",
     "params": [
      "color"
@@ -2254,7 +2254,7 @@
   "applyTooltips": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 501,
+    "line": 451,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3060,7 +3060,7 @@
   "customUIHidden": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 189,
+    "line": 139,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -3380,7 +3380,7 @@
   "doRest": [
    {
     "file": "lua/actions.lua",
-    "line": 601,
+    "line": 618,
     "kind": "function",
     "params": [
      "color",
@@ -5231,7 +5231,7 @@
   "onCraftTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 488,
+    "line": 544,
     "kind": "function",
     "params": [
      "obj",
@@ -5315,7 +5315,7 @@
   "onFightTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 522,
+    "line": 584,
     "kind": "function",
     "params": [
      "obj",
@@ -5329,7 +5329,7 @@
   "onFightTogetherClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 526,
+    "line": 588,
     "kind": "function",
     "params": [
      "obj",
@@ -5427,7 +5427,7 @@
   "onHostBeginDay": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 287,
+    "line": 237,
     "kind": "function",
     "params": [
      "player",
@@ -5441,7 +5441,7 @@
   "onHostEndTurn": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 326,
+    "line": 276,
     "kind": "function",
     "params": [
      "player",
@@ -5455,7 +5455,7 @@
   "onHostResolveNight": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 304,
+    "line": 254,
     "kind": "function",
     "params": [
      "player",
@@ -5469,7 +5469,7 @@
   "onHostRestart": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 344,
+    "line": 294,
     "kind": "function",
     "params": [
      "player",
@@ -5509,7 +5509,7 @@
   "onMoveTargetClick": [
    {
     "file": "lua/ui_actionbar_targets.lua",
-    "line": 423,
+    "line": 478,
     "kind": "function",
     "params": [
      "obj",
@@ -5517,7 +5517,7 @@
      "altClick"
     ],
     "arity": 3,
-    "doc": "Target-button click handlers (createButton click_functions)"
+    "doc": ""
    }
   ],
   "onMsgLogClear": [
@@ -5715,34 +5715,6 @@
     "doc": ""
    }
   ],
-  "onResourcePickCancel": [
-   {
-    "file": "lua/ui_controls.lua",
-    "line": 171,
-    "kind": "function",
-    "params": [
-     "player",
-     "value",
-     "id"
-    ],
-    "arity": 3,
-    "doc": ""
-   }
-  ],
-  "onResourcePickClick": [
-   {
-    "file": "lua/ui_controls.lua",
-    "line": 156,
-    "kind": "function",
-    "params": [
-     "player",
-     "value",
-     "id"
-    ],
-    "arity": 3,
-    "doc": ""
-   }
-  ],
   "onRestHunger": [
    {
     "file": "lua/ui_actionbar_handlers.lua",
@@ -5868,7 +5840,7 @@
   "onSummaryClose": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 462,
+    "line": 412,
     "kind": "function",
     "params": [
      "player",
@@ -5882,7 +5854,7 @@
   "onToggleCustomUI": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 198,
+    "line": 148,
     "kind": "function",
     "params": [
      "player",
@@ -6698,7 +6670,7 @@
   "refreshDynamicTooltips": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 523,
+    "line": 473,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6720,7 +6692,7 @@
   "refreshHostControls": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 240,
+    "line": 190,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6871,7 +6843,7 @@
   "resolveEchoes": [
    {
     "file": "lua/actions.lua",
-    "line": 571,
+    "line": 588,
     "kind": "function",
     "params": [
      "color",
@@ -7373,7 +7345,7 @@
   "showEndOfDaySummary": [
    {
     "file": "lua/ui_controls.lua",
-    "line": 396,
+    "line": 346,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7392,20 +7364,6 @@
     ],
     "arity": 3,
     "doc": "The answer goes into a per-player PANEL, never a broadcast. Broadcasts render behind the Phase Banner and fade in seconds (docs/tts-interface.md), so the whole…"
-   }
-  ],
-  "showResourcePicker": [
-   {
-    "file": "lua/ui_controls.lua",
-    "line": 140,
-    "kind": "function",
-    "params": [
-     "color",
-     "count",
-     "prompt"
-    ],
-    "arity": 3,
-    "doc": ""
    }
   ],
   "showRosterConfirm": [
@@ -8744,13 +8702,13 @@
   },
   "combatPanel": {
    "file": "xml/dialogs.xml",
-   "line": 591,
+   "line": 552,
    "element": "Panel",
    "onClick": ""
   },
   "combatStatus": {
    "file": "xml/dialogs.xml",
-   "line": 599,
+   "line": 560,
    "element": "Text",
    "onClick": ""
   },
@@ -8984,49 +8942,49 @@
   },
   "duskBadmintonCourt": {
    "file": "xml/dialogs.xml",
-   "line": 651,
+   "line": 612,
    "element": "Button",
    "onClick": "onDuskMoveClick"
   },
   "duskBasketballCourt": {
    "file": "xml/dialogs.xml",
-   "line": 646,
+   "line": 607,
    "element": "Button",
    "onClick": "onDuskMoveClick"
   },
   "duskEllieLucaHouse": {
    "file": "xml/dialogs.xml",
-   "line": 636,
+   "line": 597,
    "element": "Button",
    "onClick": "onDuskMoveClick"
   },
   "duskJamesHouse": {
    "file": "xml/dialogs.xml",
-   "line": 631,
+   "line": 592,
    "element": "Button",
    "onClick": "onDuskMoveClick"
   },
   "duskPanel": {
    "file": "xml/dialogs.xml",
-   "line": 618,
+   "line": 579,
    "element": "Panel",
    "onClick": ""
   },
   "duskRaymanHouse": {
    "file": "xml/dialogs.xml",
-   "line": 641,
+   "line": 602,
    "element": "Button",
    "onClick": "onDuskMoveClick"
   },
   "duskReadyBtn": {
    "file": "xml/dialogs.xml",
-   "line": 658,
+   "line": 619,
    "element": "Button",
    "onClick": "onDuskReadyClick"
   },
   "finishCombatBtn": {
    "file": "xml/dialogs.xml",
-   "line": 606,
+   "line": 567,
    "element": "Button",
    "onClick": "onFinishCombat"
   },
@@ -9290,7 +9248,7 @@
   },
   "pressAttackBtn": {
    "file": "xml/dialogs.xml",
-   "line": 602,
+   "line": 563,
    "element": "Button",
    "onClick": "onPressAttack"
   },
@@ -9357,66 +9315,6 @@
   "reactionsPanel": {
    "file": "xml/hud.xml",
    "line": 539,
-   "element": "Panel",
-   "onClick": ""
-  },
-  "resPickBattery": {
-   "file": "xml/dialogs.xml",
-   "line": 577,
-   "element": "Button",
-   "onClick": "onResourcePickClick"
-  },
-  "resPickCancel": {
-   "file": "xml/dialogs.xml",
-   "line": 580,
-   "element": "Button",
-   "onClick": "onResourcePickCancel"
-  },
-  "resPickCloth": {
-   "file": "xml/dialogs.xml",
-   "line": 569,
-   "element": "Button",
-   "onClick": "onResourcePickClick"
-  },
-  "resPickEnergy": {
-   "file": "xml/dialogs.xml",
-   "line": 575,
-   "element": "Button",
-   "onClick": "onResourcePickClick"
-  },
-  "resPickFood": {
-   "file": "xml/dialogs.xml",
-   "line": 573,
-   "element": "Button",
-   "onClick": "onResourcePickClick"
-  },
-  "resPickMetal": {
-   "file": "xml/dialogs.xml",
-   "line": 567,
-   "element": "Button",
-   "onClick": "onResourcePickClick"
-  },
-  "resPickWood": {
-   "file": "xml/dialogs.xml",
-   "line": 565,
-   "element": "Button",
-   "onClick": "onResourcePickClick"
-  },
-  "resourcePickBody": {
-   "file": "xml/dialogs.xml",
-   "line": 562,
-   "element": "Text",
-   "onClick": ""
-  },
-  "resourcePickTitle": {
-   "file": "xml/dialogs.xml",
-   "line": 560,
-   "element": "Text",
-   "onClick": ""
-  },
-  "resourcePickerDialog": {
-   "file": "xml/dialogs.xml",
-   "line": 551,
    "element": "Panel",
    "onClick": ""
   },
@@ -10160,43 +10058,43 @@
   },
   "welcomeBack": {
    "file": "xml/dialogs.xml",
-   "line": 697,
+   "line": 658,
    "element": "Button",
    "onClick": "onWelcomeBack"
   },
   "welcomeBody": {
    "file": "xml/dialogs.xml",
-   "line": 689,
+   "line": 650,
    "element": "Text",
    "onClick": ""
   },
   "welcomeNext": {
    "file": "xml/dialogs.xml",
-   "line": 707,
+   "line": 668,
    "element": "Button",
    "onClick": "onWelcomeNext"
   },
   "welcomePanel": {
    "file": "xml/dialogs.xml",
-   "line": 678,
+   "line": 639,
    "element": "Panel",
    "onClick": ""
   },
   "welcomeSkip": {
    "file": "xml/dialogs.xml",
-   "line": 702,
+   "line": 663,
    "element": "Button",
    "onClick": "onWelcomeSkip"
   },
   "welcomeStep": {
    "file": "xml/dialogs.xml",
-   "line": 693,
+   "line": 654,
    "element": "Text",
    "onClick": ""
   },
   "welcomeTitle": {
    "file": "xml/dialogs.xml",
-   "line": 687,
+   "line": 648,
    "element": "Text",
    "onClick": ""
   },

@@ -103,7 +103,7 @@ The kitchen is your domain. You feed the team.
 **Strengths**
 - Crockpot Master: recipes need 1 fewer ingredient (min 1).
 - Comfort Food: shared meals give +1 extra Hunger and Sanity.
-- Knows the Pantry: at your house, pick a specific resource.
+- Knows the Pantry: at your house, Gather always yields 2 Provisions (never random).
 
 **Constraint**
 - Particular Eater: cannot eat uncooked food. Must cook first.

@@ -81,7 +81,7 @@ Declare its default in `migrateGameState()` (`lua/global.lua`) — that is the o
 | `scenario` | — | nil is the default | `setup.lua` | `telemetry.lua`, `ui_rules.lua`, `ui_setup.lua` |
 | `scenarioFlags` | `{}` | declared | `selftest.lua`, `setup.lua` | `actions.lua`, `actions_combat.lua`, `actions_social.lua`, `crafting.lua`, `day_loop.lua`, `helpers.lua`, `night.lua`, `tick_victory.lua` |
 | `sledUsedThisTurn` | `{}` | declared | `trophies.lua`, `turns.lua` | `trophies.lua` |
-| `solo` | `false` | declared | `ui_setup.lua` | `achievement_rules.lua`, `telemetry.lua`, `ui_rules.lua`, `ui_setup.lua` |
+| `solo` | `false` | declared | `ui_setup.lua` | `achievement_rules.lua`, `telemetry.lua`, `ui_actionbar_targets.lua`, `ui_rules.lua`, `ui_setup.lua` |
 | `sourceSplit` | — | world state | `combat.lua`, `effects/dawn_effects_phase4.lua`, `setup.lua`, `ui_setup.lua` | `combat.lua`, `ui_rules.lua` |
 | `started` | `false` | declared | `selftest.lua`, `setup.lua`, `ui_setup.lua` | `global.lua`, `selftest.lua`, `setup.lua`, `ui_actionbar_display.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_reactions.lua`, `ui_rules.lua`, `ui_setup.lua` |
 | `subPhase` | `"PreGame"` | declared | `day_loop.lua`, `selftest.lua`, `setup.lua`, `tick_victory.lua`, `turns.lua`, `ui_setup.lua` | `actions.lua`, `audio.lua`, `selftest.lua`, `tick_victory.lua`, `turns.lua`, `ui_actionbar_display.lua`, `ui_actionbar_handlers.lua`, `ui_actionbar_situational.lua`, `ui_actionbar_targets.lua`, `ui_banner.lua`, `ui_controls.lua`, `ui_help.lua`, `ui_reactions.lua`, `ui_rules.lua` |

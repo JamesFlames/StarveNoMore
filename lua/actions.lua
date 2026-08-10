@@ -496,10 +496,27 @@ function doGather(color)
             color, BROADCAST_COLORS.gain)
     end
 
-    -- Ellie's perk: "Knows the Pantry" (§6.4) — at her own house she picks
-    -- exactly what she needs (no random draw), and takes 1 extra.
+    -- Ellie's perk: "Knows the Pantry" (§6.4) — at her own house she takes
+    -- what she needs from the food shelf instead of drawing at random, and
+    -- takes 1 extra.
+    --
+    -- It is a PANTRY. Design §6.4 grants "a specific Provisions or Cooking
+    -- Ingredient", and Cooking Ingredients ARE Provisions in this game's
+    -- vocabulary (content/locations.csv). This used to open the full six-way
+    -- resource picker, so knowing where the soup is also produced Metal and
+    -- Batteries on demand — a guaranteed 2 of ANY resource, every turn, at
+    -- the tile she starts on, which is a better version of every other
+    -- character's house. Picking anything at all is the Pantry Key's job
+    -- (S_PANTRY_KEY, single-use, and it works for whoever holds it).
+    --
+    -- With one legal choice there is nothing to choose, so the tokens are
+    -- simply delivered — no dialog to click through on the way to Cook.
     if char.name == "Ellie" and loc == "EllieLucaHouse" then
-        showResourcePicker(color, 2 + extra, "Ellie knows the pantry — take any resources you want:")
+        local n = 2 + extra
+        giveResource(color, "Provisions", n)
+        broadcastEvent("gain", char.name .. " knows the pantry: " .. n ..
+            " Provisions, straight off the shelf (delivered to your board).")
+        announceInventory(color)
         return
     end
 

@@ -420,14 +420,70 @@ end
 -----------------------------------------------------------------------
 -- Target-button click handlers (createButton click_functions)
 -----------------------------------------------------------------------
+-- Who is allowed to click a target button.
+--
+-- `clickerColor` is the seat TTS says the click came from, and in hotseat that
+-- is not a fact about intent: one person drives several seats and the engine
+-- alone decides which one a click carries. The setup walkthrough learned this
+-- three times over and stopped inferring from it (showCharPickForNextPlayer,
+-- ui_setup.lua). The target buttons still did — so a solo player on Rayman's
+-- turn clicked MOVE HERE and nothing happened, over and over, because the
+-- engine was calling those clicks Yellow.
+--
+-- The button is already proof of intent. It exists only because the acting
+-- player armed the action seconds ago, it is labelled with their character's
+-- name, and it vanishes on cancel or after TARGET_TIMEOUT. So: the acting
+-- seat, the host (who is the one driving a hotseat), and any seat at a solo
+-- table may click it. A stranger in a real multiplayer game still may not.
+local function _mayClickTarget(clickerColor, pa)
+    if clickerColor == pa.color then return true end
+    if gameState.solo then return true end
+    local isHost = false
+    pcall(function()
+        isHost = (clickerColor and Player[clickerColor] and Player[clickerColor].host) or false
+    end)
+    return isHost
+end
+
+-- Refusals go to the log as well as to the clicking seat.
+--
+-- broadcastToColor is TTS's own, and it reaches exactly one seat: the one the
+-- ENGINE named. In hotseat that can easily be a seat nobody is looking at, and
+-- then a refused click is indistinguishable from a dead button. The message
+-- log panel is on screen for everyone, all the time.
+local function _refuseTargetClick(msg, clickerColor)
+    pcall(function() broadcastToColor(msg, clickerColor, BROADCAST_COLORS.damage) end)
+    if logMessage then pcall(function() logMessage("damage", msg) end) end
+end
+
+-- A target button whose action has already ended (turn over, cancelled, timed
+-- out). Doing nothing leaves a live-looking control sitting on the table, so
+-- take the buttons away and say why.
+--
+-- The clicked object is cleared DIRECTLY as well as through the tracked list,
+-- because the two can disagree: _targetButtonObjs is a file-local and does not
+-- survive a save/reload, while the buttons themselves are saved with their
+-- objects. After a reload the list is empty and the table is still covered in
+-- MOVE HERE buttons that nothing is tracking — and the object under the
+-- pointer is the one piece of evidence that cannot be lost.
+local function _staleTargetClick(obj, clickerColor, what)
+    _clearTargetButtons()
+    if isLiveObject(obj) then
+        pcall(function() obj.clearButtons() end)
+    end
+    _refuseTargetClick("That " .. what .. " button belonged to an action that has " ..
+        "already finished — the buttons are cleared; take the action again.", clickerColor)
+end
+
 function onMoveTargetClick(obj, clickerColor, altClick)
     local pa = gameState.pendingAction
     if not (pa and (pa.type == "move" or pa.type == "bonusmove"
                     or pa.type == "drift" or pa.type == "flee")) then
+        _staleTargetClick(obj, clickerColor, "MOVE")
         return
     end
-    if clickerColor ~= pa.color then
-        broadcastToColor("Only the moving player may choose the destination.", clickerColor, BROADCAST_COLORS.damage)
+    if not _mayClickTarget(clickerColor, pa) then
+        _refuseTargetClick("Only the moving player may choose the destination.", clickerColor)
         return
     end
     local loc = nil
@@ -487,9 +543,12 @@ end
 
 function onCraftTargetClick(obj, clickerColor, altClick)
     local pa = gameState.pendingAction
-    if not (pa and pa.type == "craft") then return end
-    if clickerColor ~= pa.color then
-        broadcastToColor("Only the crafting player may pick the card.", clickerColor, BROADCAST_COLORS.damage)
+    if not (pa and pa.type == "craft") then
+        _staleTargetClick(obj, clickerColor, "CRAFT")
+        return
+    end
+    if not _mayClickTarget(clickerColor, pa) then
+        _refuseTargetClick("Only the crafting player may pick the card.", clickerColor)
         return
     end
     local slotIndex = _craftSlotByGuid[obj.getGUID()]
@@ -504,9 +563,12 @@ end
 
 local function _resolveFightClick(obj, clickerColor, together)
     local pa = gameState.pendingAction
-    if not (pa and pa.type == "fight") then return end
-    if clickerColor ~= pa.color then
-        broadcastToColor("Only the fighting player may pick the target.", clickerColor, BROADCAST_COLORS.damage)
+    if not (pa and pa.type == "fight") then
+        _staleTargetClick(obj, clickerColor, "FIGHT")
+        return
+    end
+    if not _mayClickTarget(clickerColor, pa) then
+        _refuseTargetClick("Only the fighting player may pick the target.", clickerColor)
         return
     end
     local target = _fightTargetByGuid[obj.guid]

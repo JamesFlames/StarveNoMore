@@ -201,7 +201,7 @@ Three of your starting items are laid face up beside your board at Setup; the re
 - Stats: Health 8 / Hunger 10 / Sanity 8
 - **Crockpot Master:** Recipes need 1 fewer ingredient (min 1).
 - **Comfort Food:** when Ellie shares cooked food, eaters gain +1 extra Hunger and +1 extra Sanity.
-- **Knows the Pantry:** at her own house, pick the exact resources you want (no random draw) — the picker delivers them to your board.
+- **Knows the Pantry:** at her own house, Gather takes 2 Provisions straight off the shelf instead of drawing at random — no dice, no picker. It is a pantry, so it is food: for anything else at that tile, use the Pantry Key.
 - **The Feast (Signature, 1×):** at a Crockpot, cook any number of recipes in a single action (ingredients still required); consumes ALL your held Provisions.
 - **Particular Eater (constraint):** cannot eat uncooked food.
 - Starting hand: Crockpot, Cooking Knife, Apron, Soup Recipe (Day 2), Pantry Key (Day 3).
