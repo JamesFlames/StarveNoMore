@@ -62,6 +62,47 @@ function lowestStatPlayer(stat)
 end
 
 -----------------------------------------------------------------------
+-- "Choose one player" — the Dawn cards that print a choice.
+--
+-- They used to print one and take one: the handler quietly targeted the
+-- lowest Sanity and the card still said "Choose one player", so the table
+-- watched a decision it was invited to make get made for it ("It says
+-- choose one player... I didn't choose anyone?"). Printed rules are the
+-- spec here; if the card offers a choice, the table gets the choice.
+--
+-- `onChosen(char)` always runs exactly once, so a Dawn can never stall:
+-- with no UI (headless), nobody standing, or the table declining, it runs
+-- with the old automatic pick — lowest `fallbackStat`, which may be nil if
+-- everyone is Down.
+-----------------------------------------------------------------------
+function dawnChooseCharacter(title, note, fallbackStat, onChosen)
+    local seats = {}
+    for color, ch in pairs(gameState.activeChars or {}) do
+        if not ch.down then table.insert(seats, color) end
+    end
+
+    local function fallback()
+        onChosen(lowestStatPlayer(fallbackStat))
+    end
+
+    if not UI or #seats == 0 then
+        fallback()
+        return
+    end
+
+    local statLabel = fallbackStat:sub(1, 1):upper() .. fallbackStat:sub(2)
+    showDawnPickTargets(title, note, seats,
+        function(ch)
+            return ch.name .. "  (" .. statLabel .. " " .. (ch[fallbackStat] or 0) ..
+                   "/" .. (ch["max" .. statLabel] or 0) .. ")"
+        end,
+        function(color)
+            local ch = color and gameState.activeChars[color]
+            if ch and not ch.down then onChosen(ch) else fallback() end
+        end)
+end
+
+-----------------------------------------------------------------------
 -- Boss arrivals place their own standee (the Boss Pool bag's stated
 -- purpose). On the map it festers, blocks victory (the Source), and can
 -- be fought; in the bag it is none of those things — so arrival cards

@@ -697,7 +697,7 @@
         <Text id="rosterName_James" fontSize="12" fontStyle="Bold"
               color="#4C9DFF" text="James" preferredHeight="14" />
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10"
+          <Text fontSize="9" color="#FF6666" text="HP" preferredWidth="20"
                 tooltip="Health — at 0 this character goes Down (ghost) until revived&#10;with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_James" percentage="100"
@@ -707,7 +707,7 @@
                 text="8/8" preferredWidth="38" />
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10"
+          <Text fontSize="9" color="#FFAA44" text="HU" preferredWidth="20"
                 tooltip="Hunger — drops each night; at 0 they lose Health instead.&#10;Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_James" percentage="100"
@@ -717,7 +717,7 @@
                 text="6/6" preferredWidth="38" />
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10"
+          <Text fontSize="9" color="#66BBFF" text="SA" preferredWidth="20"
                 tooltip="Sanity — drained by darkness and horrors; at 0 they go Down&#10;(lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_James" percentage="100"
@@ -735,7 +735,7 @@
         <Text id="rosterName_Coco" fontSize="12" fontStyle="Bold"
               color="#FFFFFF" text="Coco" preferredHeight="14" />
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10"
+          <Text fontSize="9" color="#FF6666" text="HP" preferredWidth="20"
                 tooltip="Health — at 0 this character goes Down (ghost) until revived&#10;with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Coco" percentage="100"
@@ -745,7 +745,7 @@
                 text="6/6" preferredWidth="38" />
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10"
+          <Text fontSize="9" color="#FFAA44" text="HU" preferredWidth="20"
                 tooltip="Hunger — drops each night; at 0 they lose Health instead.&#10;Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Coco" percentage="100"
@@ -755,7 +755,7 @@
                 text="8/8" preferredWidth="38" />
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10"
+          <Text fontSize="9" color="#66BBFF" text="SA" preferredWidth="20"
                 tooltip="Sanity — drained by darkness and horrors; at 0 they go Down&#10;(lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Coco" percentage="100"
@@ -773,7 +773,7 @@
         <Text id="rosterName_Rayman" fontSize="12" fontStyle="Bold"
               color="#5AC766" text="Rayman" preferredHeight="14" />
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10"
+          <Text fontSize="9" color="#FF6666" text="HP" preferredWidth="20"
                 tooltip="Health — at 0 this character goes Down (ghost) until revived&#10;with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Rayman" percentage="100"
@@ -783,7 +783,7 @@
                 text="12/12" preferredWidth="38" />
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10"
+          <Text fontSize="9" color="#FFAA44" text="HU" preferredWidth="20"
                 tooltip="Hunger — drops each night; at 0 they lose Health instead.&#10;Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Rayman" percentage="100"
@@ -793,7 +793,7 @@
                 text="10/10" preferredWidth="38" />
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10"
+          <Text fontSize="9" color="#66BBFF" text="SA" preferredWidth="20"
                 tooltip="Sanity — drained by darkness and horrors; at 0 they go Down&#10;(lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Rayman" percentage="100"
@@ -811,7 +811,7 @@
         <Text id="rosterName_Ellie" fontSize="12" fontStyle="Bold"
               color="#E8E44D" text="Ellie" preferredHeight="14" />
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10"
+          <Text fontSize="9" color="#FF6666" text="HP" preferredWidth="20"
                 tooltip="Health — at 0 this character goes Down (ghost) until revived&#10;with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Ellie" percentage="100"
@@ -821,7 +821,7 @@
                 text="8/8" preferredWidth="38" />
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10"
+          <Text fontSize="9" color="#FFAA44" text="HU" preferredWidth="20"
                 tooltip="Hunger — drops each night; at 0 they lose Health instead.&#10;Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Ellie" percentage="100"
@@ -831,7 +831,7 @@
                 text="10/10" preferredWidth="38" />
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10"
+          <Text fontSize="9" color="#66BBFF" text="SA" preferredWidth="20"
                 tooltip="Sanity — drained by darkness and horrors; at 0 they go Down&#10;(lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Ellie" percentage="100"
@@ -849,7 +849,7 @@
         <Text id="rosterName_Luca" fontSize="12" fontStyle="Bold"
               color="#FF5C5C" text="Luca" preferredHeight="14" />
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#FF6666" text="H" preferredWidth="10"
+          <Text fontSize="9" color="#FF6666" text="HP" preferredWidth="20"
                 tooltip="Health — at 0 this character goes Down (ghost) until revived&#10;with a Telltale Heart."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHealth_Luca" percentage="100"
@@ -859,7 +859,7 @@
                 text="7/7" preferredWidth="38" />
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#FFAA44" text="U" preferredWidth="10"
+          <Text fontSize="9" color="#FFAA44" text="HU" preferredWidth="20"
                 tooltip="Hunger — drops each night; at 0 they lose Health instead.&#10;Below 3 they cannot Fight."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterHunger_Luca" percentage="100"
@@ -869,7 +869,7 @@
                 text="8/8" preferredWidth="38" />
         </HorizontalLayout>
         <HorizontalLayout spacing="2" preferredHeight="12">
-          <Text fontSize="9" color="#66BBFF" text="S" preferredWidth="10"
+          <Text fontSize="9" color="#66BBFF" text="SA" preferredWidth="20"
                 tooltip="Sanity — drained by darkness and horrors; at 0 they go Down&#10;(lost). Below 3: Haunted."
                 tooltipPosition="Left" tooltipBackgroundColor="#000000FF" tooltipTextColor="#FFFFFF" />
           <ProgressBar id="rosterSanity_Luca" percentage="100"

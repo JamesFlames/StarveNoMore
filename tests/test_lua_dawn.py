@@ -5,8 +5,11 @@ stub. The bundle harness (env fixture, add_char, script_dice, ...) lives in
 tests/conftest.py; split out of the former monolithic test_lua_runtime.py.
 """
 
+import sys
+
 import pytest
 from conftest import (
+    SCRIPTS,
     add_char,
     broadcasts,
     flush,
@@ -14,6 +17,9 @@ from conftest import (
     lua_to_py,
     py_to_lua,
 )
+
+sys.path.insert(0, SCRIPTS)
+import board_geometry  # noqa: E402  — the printed Dawn slots are authored there
 
 pytestmark = pytest.mark.skipif(lua52 is None, reason="lupa (pip install lupa) required")
 
@@ -334,6 +340,135 @@ class TestDawnRevealSurvivesDeadHandles:
         msgs = broadcasts(env)
         assert any("landed oddly" in m for m in msgs), msgs
         assert env.eval("gameState.activeDawn") is None
+
+
+class TestTodaysDawnCardReachesAlreadyPlayed:
+    """The board prints two Dawn slots, TODAY and ALREADY PLAYED, and a live
+    table found both captions lying: "A Stray Cat Arrives" and "An Old Friend
+    Calls" were stacked on TODAY with ALREADY PLAYED still empty.
+
+    The card used to be moved by remembered GUID, and the scripted First and
+    Last Dawns record no GUID at all — so that day's card stayed put, the next
+    one landed on top of it, and TTS merged the two. A merge destroys both card
+    handles, so from then on nothing could move the pile: it only grew. The
+    sweep goes by POSITION now, which a merged Deck cannot hide from.
+    """
+
+    REVEAL_X, REVEAL_Z = board_geometry.DAWN_REVEAL_WORLD
+    DISCARD_X, DISCARD_Z = board_geometry.DAWN_DISCARD_WORLD
+
+    def _on_today(self, env, name, extra_tags=(), contained=None):
+        spec = {
+            "nickname": name,
+            "tags": ["PhaseCard"] + list(extra_tags),
+            "position": [self.REVEAL_X, 1.9, self.REVEAL_Z],
+        }
+        if contained is not None:
+            spec["contained"] = contained
+        return env.eval("TTS.addObject")(py_to_lua(env, spec))
+
+    def _x_of(self, obj):
+        return lua_to_py(obj.getPosition())["x"]
+
+    def test_the_card_moves_when_the_day_ends(self, env):
+        card = self._on_today(env, "Yesterday's Dawn")
+        env.globals().moveDawnCardToAlreadyPlayed()
+        assert self._x_of(card) == pytest.approx(self.DISCARD_X)
+
+    def test_a_merged_pile_moves_too(self, env):
+        """The failure that stranded the live table: what sits on TODAY after a
+        merge is a Deck, not a Card. It carries the same PhaseCard tag, so a
+        position sweep moves it — the old GUID lookup could not."""
+        pile = self._on_today(env, "", contained=[
+            {"nickname": "A Stray Cat Arrives", "tags": ["P1_STRAY_CAT"]},
+            {"nickname": "An Old Friend Calls", "tags": ["P1_OLD_FRIEND_VISIT"]},
+        ])
+        env.globals().moveDawnCardToAlreadyPlayed()
+        assert self._x_of(pile) == pytest.approx(self.DISCARD_X)
+
+    def test_the_sweep_never_eats_a_draw_deck(self, env):
+        """The four phase decks carry PhaseCard too. They live under the table,
+        but tag them out as well — a sweep that swallowed a deck would end the
+        game's Dawns outright."""
+        deck = env.eval("TTS.addObject")(py_to_lua(env, {
+            "nickname": "Phase 1: Dusk of the Week",
+            "tags": ["PhaseCard", "PhaseCard:P1", "PhaseCardDeck"],
+            "position": [self.REVEAL_X, 1.9, self.REVEAL_Z]}))
+        env.globals().moveDawnCardToAlreadyPlayed()
+        assert self._x_of(deck) == pytest.approx(self.REVEAL_X)
+
+    def test_the_day_ending_is_what_moves_it(self, env):
+        """Not the next Dawn drawing over the top of it, which is what used to
+        happen — a finished day's card sat under "TODAY" all night."""
+        add_char(env, "White", "James")
+        card = self._on_today(env, "Today's Dawn")
+        env.execute("gameState.day = 3")
+        env.globals().resolveTick()
+        flush(env)
+        assert self._x_of(card) == pytest.approx(self.DISCARD_X)
+
+
+class TestDawnCardsThatPrintAChoice:
+    """"It says Choose one player, they gain 1 sanity. I didn't choose anyone?"
+    — they didn't: the handler targeted the lowest Sanity and said nothing
+    about it. Printed rules are the spec, so the card now asks the table."""
+
+    def _two_players(self, env):
+        add_char(env, "White", "James")
+        add_char(env, "Blue", "Coco")
+        env.execute("gameState.activeChars.White.sanity = 5")
+        env.execute("gameState.activeChars.Blue.sanity = 2")   # the old default
+
+    def test_the_table_is_asked_and_its_pick_is_honoured(self, env):
+        self._two_players(env)
+        env.globals().DAWN_EFFECTS["P1_OLD_FRIEND_VISIT"].onReveal(None)
+        assert env.eval('TTS.ui.visible["downedDialog"]') is True
+
+        # James, NOT the lowest-Sanity Coco the script used to pick for them.
+        env.globals().onDownedTargetClick(py_to_lua(env, {"color": "Blue"}), "White", "")
+        flush(env)
+        assert env.eval("gameState.activeChars.White.sanity") == 7    # 5 + 2
+        assert env.eval("gameState.activeChars.Blue.sanity") == 2
+
+    def test_any_seat_may_answer_for_the_table(self, env):
+        """There is no active player at Dawn. The card addresses the table, so
+        the pick has no owner — unlike Revive, which belongs to its caller."""
+        self._two_players(env)
+        env.globals().DAWN_EFFECTS["P1_OLD_FRIEND_VISIT"].onReveal(None)
+        env.globals().onDownedTargetClick(py_to_lua(env, {"color": "Green"}), "White", "")
+        flush(env)
+        assert env.eval("gameState.activeChars.White.sanity") == 7
+
+    def test_declining_falls_back_to_whoever_needs_it_most(self, env):
+        """A Dawn cannot stall on a table that doesn't feel like choosing."""
+        self._two_players(env)
+        env.globals().DAWN_EFFECTS["P1_OLD_FRIEND_VISIT"].onReveal(None)
+        env.globals().onDownedCancel(py_to_lua(env, {"color": "White"}), "", "")
+        flush(env)
+        assert env.eval("gameState.activeChars.Blue.sanity") == 4    # 2 + 2
+        assert env.eval("gameState.activeChars.White.sanity") == 5
+
+    def test_nobody_standing_still_resolves(self, env):
+        add_char(env, "White", "James")
+        env.execute("gameState.activeChars.White.down = true")
+        env.globals().DAWN_EFFECTS["P1_OLD_FRIEND_VISIT"].onReveal(None)
+        flush(env)
+        assert any("nobody picks up" in m for m in broadcasts(env))
+
+    def test_the_photograph_asks_too_and_still_warns_everyone(self, env):
+        """Its Threat-deck peek is not part of the choice and must not wait
+        on it."""
+        self._two_players(env)
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["ThreatCardDeck"], "position": [50, 1, 50],
+            "contained": [{"nickname": "The Stalker", "guid": "t1"}]}))
+        env.globals().DAWN_EFFECTS["P1_PHOTO_FOUND"].onReveal(None)
+        flush(env)
+        assert any("The Stalker" in m for m in broadcasts(env))
+
+        env.globals().onDownedTargetClick(py_to_lua(env, {"color": "White"}), "White", "")
+        flush(env)
+        assert env.eval("gameState.activeChars.White.sanity") == 6    # 5 + 1
 
 
 class TestPathVariants:

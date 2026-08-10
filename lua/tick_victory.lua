@@ -188,6 +188,13 @@ function resolveTick()
     -- it. (Game-over runs its own check from showWeekInReview.)
     safecall(function() checkAchievements("dayEnd") end, "Achievements")
 
+    -- Today's Dawn card is spent, so it leaves the printed TODAY slot for
+    -- ALREADY PLAYED now — when the day ends, which is what the two captions
+    -- promise a player reading the board. It used to wait until the NEXT
+    -- Dawn drew over the top of it, so a finished day's card sat under
+    -- "TODAY" all through the night.
+    safecall(moveDawnCardToAlreadyPlayed, "DawnDiscard")
+
     -- Advance to next day
     gameState.day = gameState.day + 1
     gameState.subPhase = "PreDawn"

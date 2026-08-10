@@ -86,15 +86,22 @@ DAWN_EFFECTS["P1_SCHOOL_CLOSED"] = {
 
 DAWN_EFFECTS["P1_OLD_FRIEND_VISIT"] = {
     onReveal = function(card)
-        -- Scripted default: the call goes to whoever needs it most.
-        local target = lowestStatPlayer("sanity")
-        if target then
-            target.sanity = math.min(target.maxSanity, target.sanity + 2)
-            broadcastEvent("gain", "An old friend calls " .. target.name ..
-                " (lowest Sanity): +2 Sanity. (Now " .. target.sanity .. ")")
-        else
-            broadcastEvent("proc", "An old friend calls... but nobody picks up.")
-        end
+        -- The card prints "Choose one player", so the table chooses
+        -- (dawn_effects.lua, dawnChooseCharacter). Declining hands it to
+        -- whoever needs it most, which is what this always did silently.
+        dawnChooseCharacter(
+            "An Old Friend Calls",
+            "Who picks up the phone? They gain +2 Sanity. (Cancel: it goes to whoever needs it most.)",
+            "sanity",
+            function(target)
+                if not target then
+                    broadcastEvent("proc", "An old friend calls... but nobody picks up.")
+                    return
+                end
+                target.sanity = math.min(target.maxSanity, target.sanity + 2)
+                broadcastEvent("gain", "An old friend calls " .. target.name ..
+                    ": +2 Sanity. (Now " .. target.sanity .. ")")
+            end)
     end,
 }
 
@@ -222,14 +229,19 @@ DAWN_EFFECTS["P1_STRANGE_RADIO"] = {
 
 DAWN_EFFECTS["P1_PHOTO_FOUND"] = {
     onReveal = function(card)
-        -- Scripted default: comfort goes to whoever needs it most, and the
-        -- photo's warning is read out for everyone.
-        local target = lowestStatPlayer("sanity")
-        if target then
-            target.sanity = math.min(target.maxSanity, target.sanity + 1)
-            broadcastEvent("gain", "An old photograph steadies " .. target.name ..
-                " (lowest Sanity): +1 Sanity. (Now " .. target.sanity .. ")")
-        end
+        -- Same printed choice as An Old Friend Calls, so the same dialog.
+        -- The photo's warning is read out for everyone either way, and it
+        -- does not wait on the pick.
+        dawnChooseCharacter(
+            "An Old Photograph",
+            "Who finds it? They gain +1 Sanity. (Cancel: it goes to whoever needs it most.)",
+            "sanity",
+            function(target)
+                if not target then return end
+                target.sanity = math.min(target.maxSanity, target.sanity + 1)
+                broadcastEvent("gain", "An old photograph steadies " .. target.name ..
+                    ": +1 Sanity. (Now " .. target.sanity .. ")")
+            end)
         local deck = getThreatDeck()
         local top = deck and deck.getObjects and deck.getObjects()[1]
         if top then

@@ -196,10 +196,17 @@ end
 -----------------------------------------------------------------------
 local DOWNED_SEATS = {"White", "Red", "Yellow", "Green", "Blue"}
 
+-- Every kind this panel can resolve. The click handler checks membership
+-- rather than a chain of `~=`, which is how "sled" was nearly forgotten.
+local SEAT_PICK_KINDS = { revive = true, stabilize = true, sled = true, dawnpick = true }
+
 -- `seats` is the eligible seat list; the panel is otherwise identical for
 -- every verb that picks one ally, so the Antler Sled reuses it rather than
 -- adding a third five-button panel to the XML.
-local function showSeatTargets(color, kind, title, note, seats, extra)
+-- `labelFor(ch)` is optional: a location is the useful thing to read when
+-- you are picking someone to reach, and the wrong thing when you are picking
+-- who gets a stat back.
+local function showSeatTargets(color, kind, title, note, seats, extra, labelFor)
     local eligible = {}
     for _, c in ipairs(seats) do eligible[c] = true end
     for _, c in ipairs(DOWNED_SEATS) do
@@ -207,7 +214,8 @@ local function showSeatTargets(color, kind, title, note, seats, extra)
         local ch = gameState.activeChars[c]
         if eligible[c] and ch then
             UI.setAttribute(btn, "active", "true")
-            setButtonLabel(btn, ch.name .. "  (at " .. (ch.location or "?") .. ")")
+            setButtonLabel(btn, labelFor and labelFor(ch)
+                or (ch.name .. "  (at " .. (ch.location or "?") .. ")"))
         else
             UI.setAttribute(btn, "active", "false")
         end
@@ -225,6 +233,23 @@ end
 -- arrived, so only "who comes too" is left to decide).
 function showSledTargets(color, toLoc, candidates, title, note)
     showSeatTargets(color, "sled", title, note, candidates, { toLoc = toLoc })
+end
+
+-- The Dawn cards that print "Choose one player" (effects/dawn_effects.lua,
+-- dawnChooseCharacter). Two things differ from every other user of this
+-- panel, and both come from Dawn having no active player:
+--   * nobody owns the click. pendingAction.color stays nil and ANY seat may
+--     answer — the card addresses the table, the way the Offering's confirm
+--     does, not one player's turn.
+--   * the callback lives here in a file-local, not in gameState. gameState is
+--     JSON-encoded into LuaScriptState on every save; a function in it does
+--     not survive the round trip. pendingConfirmCallback (ui_controls.lua)
+--     keeps its callback out of gameState for the same reason.
+local pendingDawnPick = nil
+
+function showDawnPickTargets(title, note, seats, labelFor, onPick)
+    pendingDawnPick = onPick
+    showSeatTargets(nil, "dawnpick", title, note, seats, nil, labelFor)
 end
 
 local function showDownedTargets(color, kind, title, note)
@@ -275,9 +300,20 @@ end
 function onDownedTargetClick(player, value, id)
     UI.hide("downedDialog")
     local pa = gameState.pendingAction
-    if not (pa and pa.color == player.color) then return end
-    if pa.type ~= "revive" and pa.type ~= "stabilize" and pa.type ~= "sled" then return end
+    if not pa or not SEAT_PICK_KINDS[pa.type] then return end
+    -- A Dawn pick is the table's, so it has no owner colour and any seat may
+    -- answer it. Everything else belongs to the player who opened it.
+    if pa.type ~= "dawnpick" and pa.color ~= player.color then return end
     gameState.pendingAction = nil
+
+    if pa.type == "dawnpick" then
+        local cb = pendingDawnPick
+        pendingDawnPick = nil
+        if cb then safecall(function() cb(value) end, "DawnPick") end
+        refreshPhaseBanner()
+        updateActivePlayerIndicator()
+        return
+    end
 
     local color = pa.color
     if pa.type == "sled" then
@@ -304,10 +340,20 @@ end
 function onDownedCancel(player, value, id)
     UI.hide("downedDialog")
     local pa = gameState.pendingAction
-    if pa and (pa.type == "revive" or pa.type == "stabilize" or pa.type == "sled") then
+    if pa and SEAT_PICK_KINDS[pa.type] then
         -- Declining the Sled does NOT spend it: nobody came along, so the
         -- once-per-turn window is still open for a later Move this turn.
         gameState.pendingAction = nil
+    end
+    -- A Dawn card, though, must always resolve — the day cannot stall on a
+    -- table that doesn't feel like choosing. Waving it away hands the pick
+    -- back to the script's default (whoever needs it most).
+    if pa and pa.type == "dawnpick" then
+        local cb = pendingDawnPick
+        pendingDawnPick = nil
+        if cb then safecall(function() cb(nil) end, "DawnPickDeclined") end
+        refreshPhaseBanner()
+        updateActivePlayerIndicator()
     end
 end
 

@@ -652,7 +652,7 @@
   "DEATH_NARRATIONS": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 205,
+    "line": 212,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1332,7 +1332,7 @@
   "SITUATIONAL_ACTIONS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 450,
+    "line": 496,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1634,7 +1634,7 @@
   "USE_ITEM_DIALOG_SLOTS": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 355,
+    "line": 401,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -1716,7 +1716,7 @@
   "_cardSnapshot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 458,
+    "line": 485,
     "kind": "function",
     "params": [
      "obj"
@@ -1768,7 +1768,7 @@
   "_dawnCardRevealed": [
    {
     "file": "lua/day_loop.lua",
-    "line": 485,
+    "line": 512,
     "kind": "function",
     "params": [
      "card",
@@ -1781,7 +1781,7 @@
   "_findCardAtDawnRevealSpot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 474,
+    "line": 501,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -1909,7 +1909,7 @@
   "_useItemDialogIds": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 356,
+    "line": 402,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -2340,7 +2340,7 @@
   "beginDusk": [
    {
     "file": "lua/day_loop.lua",
-    "line": 524,
+    "line": 552,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2350,7 +2350,7 @@
   "beginNight": [
    {
     "file": "lua/day_loop.lua",
-    "line": 674,
+    "line": 702,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2502,7 +2502,7 @@
   "canCleanse": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 393,
+    "line": 400,
     "kind": "function",
     "params": [
      "color"
@@ -2740,7 +2740,7 @@
   "checkBonusVictories": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 505,
+    "line": 512,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2750,7 +2750,7 @@
   "checkDefeat": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 445,
+    "line": 452,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2770,7 +2770,7 @@
   "checkDownState": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 242,
+    "line": 249,
     "kind": "function",
     "params": [
      "color"
@@ -2806,7 +2806,7 @@
   "checkVictory": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 475,
+    "line": 482,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3057,6 +3057,21 @@
     "doc": "Custom-UI toggle: one always-visible button hides/shows every panel this mod draws, so the default TTS controls underneath (chat, drawing tools, object context…"
    }
   ],
+  "dawnChooseCharacter": [
+   {
+    "file": "lua/effects/dawn_effects.lua",
+    "line": 78,
+    "kind": "function",
+    "params": [
+     "title",
+     "note",
+     "fallbackStat",
+     "onChosen"
+    ],
+    "arity": 4,
+    "doc": "\"Choose one player\" — the Dawn cards that print a choice. They used to print one and take one: the handler quietly targeted the lowest Sanity and the card stil…"
+   }
+  ],
   "dealMarketDisplay": [
    {
     "file": "lua/setup.lua",
@@ -3141,7 +3156,7 @@
   "doCleanse": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 413,
+    "line": 420,
     "kind": "function",
     "params": [
      "color"
@@ -4096,7 +4111,7 @@
   "ghostDrift": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 366,
+    "line": 373,
     "kind": "function",
     "params": [
      "color",
@@ -4517,6 +4532,16 @@
     "doc": "Lifecycle (F.1 + F.14) Save migration: every field a restored save might be missing gets its default HERE, in one place, instead of `or {}` scattered per read …"
    }
   ],
+  "moveDawnCardToAlreadyPlayed": [
+   {
+    "file": "lua/day_loop.lua",
+    "line": 350,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Everything on the printed TODAY slot moves to ALREADY PLAYED. By POSITION, not by a remembered GUID. The old version looked up activeDawn.cardGuid, and that fa…"
+   }
+  ],
   "moveDoomMarker": [
    {
     "file": "lua/setup.lua",
@@ -4736,7 +4761,7 @@
   "onActAppease": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 431,
+    "line": 477,
     "kind": "function",
     "params": [
      "player",
@@ -4750,7 +4775,7 @@
   "onActBarricade": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 427,
+    "line": 473,
     "kind": "function",
     "params": [
      "player",
@@ -4778,7 +4803,7 @@
   "onActClear": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 438,
+    "line": 484,
     "kind": "function",
     "params": [
      "player",
@@ -4820,7 +4845,7 @@
   "onActDefend": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 336,
+    "line": 382,
     "kind": "function",
     "params": [
      "player",
@@ -4834,7 +4859,7 @@
   "onActEatUncooked": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 345,
+    "line": 391,
     "kind": "function",
     "params": [
      "player",
@@ -4848,7 +4873,7 @@
   "onActEnergyDrink": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 340,
+    "line": 386,
     "kind": "function",
     "params": [
      "player",
@@ -4876,7 +4901,7 @@
   "onActFlee": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 402,
+    "line": 448,
     "kind": "function",
     "params": [
      "player",
@@ -4988,7 +5013,7 @@
   "onActRevive": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 249,
+    "line": 274,
     "kind": "function",
     "params": [
      "player",
@@ -5016,7 +5041,7 @@
   "onActStabilize": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 263,
+    "line": 288,
     "kind": "function",
     "params": [
      "player",
@@ -5058,7 +5083,7 @@
   "onActUseItem": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 358,
+    "line": 404,
     "kind": "function",
     "params": [
      "player",
@@ -5224,7 +5249,7 @@
   "onDownedCancel": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 304,
+    "line": 340,
     "kind": "function",
     "params": [
      "player",
@@ -5238,7 +5263,7 @@
   "onDownedTargetClick": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 275,
+    "line": 300,
     "kind": "function",
     "params": [
      "player",
@@ -5931,7 +5956,7 @@
   "onUseItemCancel": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 396,
+    "line": 442,
     "kind": "function",
     "params": [
      "player",
@@ -5945,7 +5970,7 @@
   "onUseItemOptionClick": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 386,
+    "line": 432,
     "kind": "function",
     "params": [
      "player",
@@ -6226,7 +6251,7 @@
   "placeBossStandee": [
    {
     "file": "lua/effects/dawn_effects.lua",
-    "line": 70,
+    "line": 111,
     "kind": "function",
     "params": [
      "bossName",
@@ -6276,7 +6301,7 @@
   "poolBossStandee": [
    {
     "file": "lua/effects/dawn_effects.lua",
-    "line": 104,
+    "line": 145,
     "kind": "function",
     "params": [
      "bossName"
@@ -6717,7 +6742,7 @@
   "refreshSituationalButtons": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 484,
+    "line": 530,
     "kind": "function",
     "params": [
      "color"
@@ -6949,7 +6974,7 @@
   "revealDawnCard": [
    {
     "file": "lua/day_loop.lua",
-    "line": 400,
+    "line": 427,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6969,7 +6994,7 @@
   "revealFirstDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 387,
+    "line": 414,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6979,7 +7004,7 @@
   "revealLastDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 343,
+    "line": 370,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7023,7 +7048,7 @@
   "reviveCharacter": [
    {
     "file": "lua/tick_victory.lua",
-    "line": 299,
+    "line": 306,
     "kind": "function",
     "params": [
      "reviverColor",
@@ -7291,6 +7316,22 @@
     "doc": ""
    }
   ],
+  "showDawnPickTargets": [
+   {
+    "file": "lua/ui_actionbar_situational.lua",
+    "line": 250,
+    "kind": "function",
+    "params": [
+     "title",
+     "note",
+     "seats",
+     "labelFor",
+     "onPick"
+    ],
+    "arity": 5,
+    "doc": ""
+   }
+  ],
   "showEndOfDaySummary": [
    {
     "file": "lua/ui_controls.lua",
@@ -7344,7 +7385,7 @@
   "showSledTargets": [
    {
     "file": "lua/ui_actionbar_situational.lua",
-    "line": 226,
+    "line": 234,
     "kind": "function",
     "params": [
      "color",

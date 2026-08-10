@@ -327,17 +327,44 @@ end
 local DAWN_REVEAL_POS    = {x = 6.3, y = 1.9, z = 4.9}
 local DAWN_DISCARD_POS   = {x = 9.3, y = 1.9, z = 4.9}
 
-local function discardActiveDawnCard()
-    local guid = gameState.activeDawn and gameState.activeDawn.cardGuid
-    if not guid then return end
-    local card = getObjectFromGUID(guid)
-    if card then
-        -- Instant, not smooth: while the old card glided away, the new
-        -- card could land on it mid-flight and merge into a deck — which
-        -- destroyed the new card's handle and killed the reveal callback.
-        card.setPosition({DAWN_DISCARD_POS.x, DAWN_DISCARD_POS.y + 1, DAWN_DISCARD_POS.z})
-        card.setRotation({0, 180, 0})  -- face up on the pile
+-- Squared radius that counts as "on the TODAY slot". The two slots are 3.0
+-- apart, so 2.0 covers a card that landed off-centre without ever reaching
+-- the discard pile.
+local DAWN_SLOT_R2 = 4
+
+-- Everything on the printed TODAY slot moves to ALREADY PLAYED.
+--
+-- By POSITION, not by a remembered GUID. The old version looked up
+-- activeDawn.cardGuid, and that fails in exactly the case that matters: the
+-- First and Last Dawns are scripted and set no cardGuid at all, so the card
+-- physically sitting on TODAY was never moved, the next day's card landed on
+-- top of it, and TTS merged the two into a Deck. A merge destroys both card
+-- handles, so from then on no GUID could ever move that pile again — it just
+-- grew. A live table had "A Stray Cat Arrives" and "An Old Friend Calls"
+-- stacked on TODAY with ALREADY PLAYED still empty.
+--
+-- Sweeping the spot instead is immune to all of it: a merged Deck sits at the
+-- same place and carries the same PhaseCard tag, so it moves like a card.
+-- PhaseCardDeck (the four draw decks in the under-table library) is excluded
+-- by tag as well as by distance, so a sweep can never eat the deck.
+function moveDawnCardToAlreadyPlayed()
+    local moved = 0
+    for _, obj in ipairs(findAllByTag("PhaseCard")) do
+        pcall(function()
+            if obj.hasTag and obj.hasTag("PhaseCardDeck") then return end
+            local p = obj.getPosition()
+            if p.y < 0 then return end   -- still in the library, under the table
+            local dx, dz = p.x - DAWN_REVEAL_POS.x, p.z - DAWN_REVEAL_POS.z
+            if (dx * dx + dz * dz) >= DAWN_SLOT_R2 then return end
+            -- Instant, not smooth: while the old card glided away, the new
+            -- card could land on it mid-flight and merge into a deck — which
+            -- destroyed the new card's handle and killed the reveal callback.
+            obj.setPosition({DAWN_DISCARD_POS.x, DAWN_DISCARD_POS.y + 1, DAWN_DISCARD_POS.z})
+            obj.setRotation({0, 180, 0})  -- face up on the pile
+            moved = moved + 1
+        end)
     end
+    return moved
 end
 
 function revealLastDawn()
@@ -349,7 +376,7 @@ function revealLastDawn()
             safecall(function() prev.onCleanup() end, "DawnCleanup:" .. gameState.activeDawn.prevId)
         end
     end
-    safecall(discardActiveDawnCard, "DawnDiscard")
+    safecall(moveDawnCardToAlreadyPlayed, "DawnDiscard")
 
     broadcastEvent("phase", "DAWN: THE LAST DAWN")
     broadcastEvent("proc", "The sky is trying to lighten. Survive until it's over.")
@@ -428,7 +455,7 @@ function revealDawnCard()
     end
 
     -- Yesterday's card moves itself to the discard pile first.
-    safecall(discardActiveDawnCard, "DawnDiscard")
+    safecall(moveDawnCardToAlreadyPlayed, "DawnDiscard")
 
     -- Assigned immediately below, read by the callback once the card lands.
     local preflight = nil
@@ -500,11 +527,12 @@ function _dawnCardRevealed(card, preflight)
     broadcastEvent("phase", "DAWN: " .. data.name)
     if data.desc ~= "" then broadcastEvent("proc", data.desc) end
 
+    -- No cardGuid: the card is found by where it sits, not by a handle we
+    -- kept (moveDawnCardToAlreadyPlayed). A merge kills the handle anyway.
     gameState.activeDawn = {
         id = data.name,
         title = data.name,
         description = data.desc,
-        cardGuid = data.guid,
     }
 
     -- Point every camera at the card before its effect fires (I.11): the
