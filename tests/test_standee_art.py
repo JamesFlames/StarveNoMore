@@ -1,13 +1,17 @@
 """The standee cutouts, checked as pixels rather than as intentions.
 
 build_save gives each Figurine_Custom a ColorDiffuse that TTS applies as a
-MULTIPLY over the WHOLE image, so any backdrop left opaque is not neutral — it
-becomes a slab of the character's tint. James's is a strong blue.
+MULTIPLY over the WHOLE image, so a backdrop left opaque is not neutral — it
+becomes a slab of the character's tint. That is why normalize_standee_art.py
+can flood a plain backdrop away, opt-in per character via CUT_BACKGROUND.
 
-The border flood in normalize_standee_art.py only starts at the edges, by
-design, so it cannot reach anything the figure encloses. That left a cream
-wedge between his shins that read as a skirt on the table, and cream slabs
-under both arms.
+The opt-in is a claim about a specific piece of art, and art gets redrawn
+underneath it. James was the one entry until his art changed (2026-08) from a
+figure on cream parchment into a designed card — illustrated scene, scribbled
+border, name banner. Nothing in the pipeline fails loudly when that happens:
+normalize() sees a border that is no longer plain, REFUSES, returns None, and
+the PREVIOUS _standee.png stays on disk. New art in the repo, old art on the
+table, green build. These tests are what makes that state fail.
 """
 import os
 
@@ -15,63 +19,123 @@ import pytest
 from conftest import ROOT
 
 pytest.importorskip("PIL")
+import normalize_standee_art as n  # noqa: E402  (scripts/ on sys.path via conftest)
 from PIL import Image  # noqa: E402
 
 CHARS = os.path.join(ROOT, "art", "characters")
 
-# Probes in output-canvas fractions (the standee is normalised to 512x1024, so
-# these are stable). Measured on the current art.
-TRANSPARENT = [
-    ((0.50, 0.78), "the gap between the legs"),
-]
-OPAQUE = [
-    ((0.50, 0.20), "his face"),
-    ((0.50, 0.45), "his jacket"),
-    ((0.50, 0.62), "his thighs"),
-]
+FACES = [(c, f) for c in n.CHARACTERS for f in n.FACES]
 
 
-def _alpha(img, fx, fy):
-    w, h = img.size
-    return img.getchannel("A").getpixel((int(fx * w), int(fy * h)))
+def _source(char, face):
+    return os.path.join(CHARS, f"{char}_{face}.png")
 
 
-@pytest.fixture(scope="module")
-def james():
-    path = os.path.join(CHARS, "james_front_standee.png")
+def _standee(char, face):
+    return os.path.join(CHARS, f"{char}_{face}_standee.png")
+
+
+def _open(path, char, face):
     if not os.path.isfile(path):
-        pytest.skip("james_front_standee.png not generated")
-    return Image.open(path).convert("RGBA")
+        pytest.skip(f"{char}_{face}: {os.path.basename(path)} not present")
+    return Image.open(path)
 
 
-@pytest.mark.parametrize("probe,label", TRANSPARENT)
-def test_enclosed_backdrop_is_cut(james, probe, label):
-    assert _alpha(james, *probe) == 0, (
-        f"{label} is still opaque — it will render as a slab of James's blue "
-        "tint. Rerun scripts/normalize_standee_art.py")
+def _opaque_fraction(img):
+    if img.mode != "RGBA":
+        return 1.0
+    a = img.getchannel("A")
+    return sum(1 for p in a.get_flattened_data() if p > 0) / float(a.size[0] * a.size[1])
 
 
-@pytest.mark.parametrize("probe,label", OPAQUE)
-def test_the_figure_itself_survives(james, probe, label):
-    """The counterweight, and it is not hypothetical.
+# --------------------------------------------------------------------------
+# The opt-in lists must match the art they make claims about
 
-    The first attempt ran the pocket detection on the FLOODED image at the
-    border flood's own tolerance. "Backdrop-coloured and still opaque" then
-    walked straight through the jacket highlights and the skin — one component
-    covering 18% of the canvas — and cleared his jacket, face and shins while
-    leaving the leg gap exactly as it found it.
+
+@pytest.mark.parametrize("char", sorted(n.CUT_BACKGROUND))
+@pytest.mark.parametrize("face", n.FACES)
+def test_listed_art_actually_has_a_plain_border(char, face):
+    """The failure this module exists for.
+
+    A character listed for background removal whose art is NOT a figure on a
+    plain backdrop makes normalize() refuse and silently keep the old standee.
+    Catch it here, where the message can say what to do, rather than on the
+    table three playtests later.
     """
-    assert _alpha(james, *probe) == 255, (
-        f"{label} was cut away — the pocket pass is eating the figure")
+    img = _open(_source(char, face), char, face)
+    if img.mode == "RGBA" and img.getchannel("A").getextrema()[0] < 255:
+        return  # already cut out upstream; the flood never runs
+    uniform, spread = n._uniform_border(img)
+    assert uniform, (
+        f"{char}_{face} is in CUT_BACKGROUND but its border is not plain "
+        f"(spread {spread} >= {n.UNIFORM_MAX_SPREAD}) — normalize_standee_art.py "
+        f"will REFUSE it and leave the previous standee in place. If the art is "
+        f"now a designed card, remove '{char}' from CUT_BACKGROUND.")
 
 
-def test_the_cutout_keeps_most_of_the_figure(james):
-    """A blunt whole-image check: a cutout that has eaten the character shows
-    up as a collapsed opaque area long before anyone looks at the table."""
-    a = james.getchannel("A")
-    opaque = sum(1 for p in a.get_flattened_data() if p > 0)
-    frac = opaque / float(james.size[0] * james.size[1])
+def test_enclosed_pocket_rule_only_covers_characters_being_cut():
+    """CUT_ENCLOSED_BELOW clears backdrop the border flood could not reach, so
+    it does nothing unless that flood runs at all."""
+    stray = set(n.CUT_ENCLOSED_BELOW) - n.CUT_BACKGROUND
+    assert not stray, (
+        f"{sorted(stray)} in CUT_ENCLOSED_BELOW but not CUT_BACKGROUND — the "
+        "enclosed-pocket pass only runs as part of background removal, so this "
+        "entry has no effect and reads as though it does.")
+
+
+# --------------------------------------------------------------------------
+# Every standee, whichever path produced it
+
+
+@pytest.mark.parametrize("char,face", FACES)
+def test_every_standee_is_the_canvas_build_save_authors_against(char, face):
+    img = _open(_standee(char, face), char, face)
+    assert img.size == (n.OUT_W, n.OUT_H), (
+        f"{char}_{face}_standee is {img.size}, not {(n.OUT_W, n.OUT_H)} — "
+        "Figurine_Custom stretches its image to its own aspect, so an odd "
+        "canvas squashes the figure. Rerun scripts/normalize_standee_art.py")
+
+
+@pytest.mark.parametrize("char,face", FACES)
+def test_standee_is_no_older_than_its_source(char, face):
+    src, out = _source(char, face), _standee(char, face)
+    if not (os.path.isfile(src) and os.path.isfile(out)):
+        pytest.skip(f"{char}_{face}: source or standee absent")
+    assert os.path.getmtime(out) >= os.path.getmtime(src), (
+        f"{char}_{face}.png is newer than its _standee.png — the standee is "
+        "stale and the game is still showing the old art. Rerun "
+        "scripts/normalize_standee_art.py")
+
+
+@pytest.mark.parametrize("char,face", FACES)
+def test_a_designed_card_keeps_its_whole_illustration(char, face):
+    """The counterweight to the cut, and it is not hypothetical.
+
+    An early version of the pocket pass ran on the FLOODED image at the border
+    flood's own tolerance. "Backdrop-coloured and still opaque" walked straight
+    through James's jacket highlights and skin — one component covering 18% of
+    the canvas — and cleared his jacket, face and shins. A designed card that
+    comes back partly transparent has been eaten exactly that way.
+    """
+    if char in n.CUT_BACKGROUND:
+        pytest.skip(f"{char} is a cutout, covered by the cutout tests")
+    src = _open(_source(char, face), char, face)
+    if src.mode == "RGBA" and src.getchannel("A").getextrema()[0] < 255:
+        pytest.skip(f"{char}_{face}: source art is itself transparent")
+    frac = _opaque_fraction(_open(_standee(char, face), char, face))
+    assert frac == 1.0, (
+        f"{frac:.1%} of {char}_{face}_standee is opaque, but the source is a "
+        "designed card with no transparency — something cut into the artwork.")
+
+
+@pytest.mark.parametrize("char", sorted(n.CUT_BACKGROUND))
+@pytest.mark.parametrize("face", n.FACES)
+def test_a_cutout_is_a_figure_and_not_a_slab_or_a_ghost(char, face):
+    """A blunt whole-image check: a cut that has eaten the character, or one
+    that never removed the backdrop, both show up as the opaque area long
+    before anyone looks at the table."""
+    frac = _opaque_fraction(_open(_standee(char, face), char, face))
     assert 0.18 < frac < 0.55, (
-        f"{frac:.0%} of the canvas is opaque — expected a standing figure "
-        "(~1/4 to 1/2). Too little means the cut ate the art; too much means "
-        "the backdrop is still there.")
+        f"{frac:.0%} of {char}_{face}_standee is opaque — expected a standing "
+        "figure (~1/4 to 1/2). Too little means the cut ate the art; too much "
+        "means the backdrop is still there and will render as a slab of tint.")

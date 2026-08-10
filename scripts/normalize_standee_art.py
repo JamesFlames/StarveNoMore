@@ -6,11 +6,16 @@ Two problems it solves, both invisible in the source file:
 
 **The background is multiplied by the standee's tint.** build_save gives each
 `Figurine_Custom` a `ColorDiffuse` from STANDEE_COLORS, and TTS applies it as a
-MULTIPLY over the whole image — not just the plastic holder. James's tint is a
-strong blue (0.12, 0.53, 1.00); over his cream parchment background that lands
-on roughly (29, 127, 220), i.e. a solid blue rectangle with a figure faintly
-visible in it. Cut the background to transparent and the tint only colours the
-holder, which is what it is for.
+MULTIPLY over the whole image — not just the plastic holder. When James's art
+was a figure on cream parchment, his strong blue tint (0.12, 0.53, 1.00) landed
+that backdrop on roughly (29, 127, 220): a solid blue rectangle with a figure
+faintly visible in it. Cut the background to transparent and the tint only
+colours the holder, which is what it is for.
+
+CUT_BACKGROUND is empty as of 2026-08 — every character's art is now a designed
+card, whose border is part of the illustration and is meant to take the tint.
+The machinery is kept for the next figure-on-a-backdrop that arrives; the
+reasoning recorded below is what makes adding one safe.
 
 **The canvas is whatever the generator produced.** Standees are authored at
 512x1024 (2:1). Art arriving at 720x1456 is 0.4945 — close enough to look fine
@@ -50,7 +55,17 @@ FACES = ["front", "back"]
 # Characters whose art is a FIGURE ON A PLAIN BACKDROP, so the backdrop can be
 # flooded away. Everything else is a designed card and is copied through
 # untouched — see the module docstring for why this is a list and not a test.
-CUT_BACKGROUND = {"james"}
+#
+# Currently empty: every character's art is now a designed card. James was the
+# one entry until his art was redrawn (2026-08) from a figure on cream
+# parchment into a full card — illustrated scene, scribbled border, name
+# banner — at which point flooding it would have eaten the artwork. The
+# machinery below stays for the next figure-on-a-backdrop that arrives; adding
+# a name here is all it takes. tests/test_standee_art.py checks that every
+# name listed actually has a plain border, because a listed character whose
+# art is NOT plain makes normalize() refuse and leaves the previous standee in
+# place — new art, no visible change.
+CUT_BACKGROUND = set()
 
 # The canvas every standee ends up on. 2:1 is the shape build_save authors
 # against (Figurine_Custom stretches its image to its own aspect).
@@ -93,8 +108,12 @@ SENTINEL = (255, 0, 255)
 # so the rule is "enclosed backdrop below this fraction of the image". Opt-in
 # per character for the same reason CUT_BACKGROUND is: it is a claim about one
 # piece of art, and it should be reviewable rather than inferred.
-# Guard: tests/test_standee_art.py.
-CUT_ENCLOSED_BELOW = {"james": 0.55}
+#
+# Empty for the same reason CUT_BACKGROUND is, and the measurements above are
+# kept deliberately: they are the worked example of WHY this is a height test
+# and not a colour test, which is the part that would be re-derived wrongly.
+# Only ever meaningful for a character who is also in CUT_BACKGROUND.
+CUT_ENCLOSED_BELOW = {}
 
 # Ignore specks. A fraction of the canvas, not a pixel count, so it means the
 # same thing whatever size the art arrives at.
