@@ -449,6 +449,17 @@ def test_solo_at_three_seats_promises_three():
     assert "Solo needs" not in " ".join(messages(env))
 
 
+def test_solo_at_four_seats_promises_four():
+    """The bug that prompted this: 4 coloured seats taken, toggle still said
+    'runs 3 characters' — the shortfall fix (e447bf5) only covered fewer than
+    3 seats, never more."""
+    env = make_env()
+    begin_solo(env, ["Coco", "James", "Rayman", "Ellie"])
+    assert "runs 4 characters" in solo_label(env)
+    assert "runs 3 characters" not in solo_label(env)
+    assert "Solo needs" not in " ".join(messages(env))
+
+
 def test_starting_solo_short_handed_says_how_many_characters():
     """The last honest moment: the pick queue is built the instant the
     variants panel closes."""

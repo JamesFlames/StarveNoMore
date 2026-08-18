@@ -300,7 +300,15 @@ function onToggleSolo(player, value, id)
                 "The rules half of Solo (hands open, no ghost word-limit, no Dusk secrecy) is on either way.")
         end
     end
-    local onLabel = "Solo: ON\n(one player runs 3 characters — hands open, no ghost word-limit, no Dusk secrecy)"
+    -- Surplus seats seat too: showCharPickForNextPlayer queues one pick per
+    -- seated colour, not per SOLO_SEATS_NEEDED, so 4 or 5 seats taken means a
+    -- 4- or 5-character Solo game. The label said "3" unconditionally here
+    -- even then — the same broken promise commit e447bf5 fixed for the
+    -- shortfall case, just on the other side of the count.
+    local seats = #getActivePlayerColors()
+    local onLabel = "Solo: ON\n(one player runs " .. seats ..
+        " character" .. (seats == 1 and "" or "s") ..
+        " — hands open, no ghost word-limit, no Dusk secrecy)"
     if setupState.solo and short then
         onLabel = "Solo: ON — but only " .. short .. " coloured seat(s) taken, so this is a " ..
                   short .. "-character game.\nHotseat " .. SOLO_SEATS_NEEDED ..

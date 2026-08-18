@@ -672,7 +672,7 @@
   "DIFFICULTY_BLURBS": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 331,
+    "line": 339,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -682,7 +682,7 @@
   "DIFFICULTY_CYCLE": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 330,
+    "line": 338,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1282,7 +1282,7 @@
   "SEAT_COLORS_ALL": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 432,
+    "line": 440,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1674,7 +1674,7 @@
   "WELCOME_PAGES": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1181,
+    "line": 1189,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -2880,7 +2880,7 @@
   "closeWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1259,
+    "line": 1267,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3530,7 +3530,7 @@
   "dumpSetupState": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 492,
+    "line": 500,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3616,7 +3616,7 @@
   "finalizeGuidedSetup": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1139,
+    "line": 1147,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -5135,7 +5135,7 @@
   "onBriefBack": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 827,
+    "line": 835,
     "kind": "function",
     "params": [
      "player",
@@ -5149,7 +5149,7 @@
   "onBriefDismiss": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 848,
+    "line": 856,
     "kind": "function",
     "params": [
      "player",
@@ -5483,7 +5483,7 @@
   "onHostSetupGuided": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1323,
+    "line": 1331,
     "kind": "function",
     "params": [
      "player",
@@ -5620,7 +5620,7 @@
   "onPickChar": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 707,
+    "line": 715,
     "kind": "function",
     "params": [
      "player",
@@ -5746,7 +5746,7 @@
   "onRosterConfirm": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 917,
+    "line": 925,
     "kind": "function",
     "params": [
      "player",
@@ -5760,7 +5760,7 @@
   "onRosterRedo": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 923,
+    "line": 931,
     "kind": "function",
     "params": [
      "player",
@@ -5868,7 +5868,7 @@
   "onToggleDifficulty": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 338,
+    "line": 346,
     "kind": "function",
     "params": [
      "player",
@@ -5994,7 +5994,7 @@
   "onVariantsContinue": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 351,
+    "line": 359,
     "kind": "function",
     "params": [
      "player",
@@ -6022,7 +6022,7 @@
   "onWelcomeBack": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1275,
+    "line": 1283,
     "kind": "function",
     "params": [
      "player",
@@ -6036,7 +6036,7 @@
   "onWelcomeNext": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1264,
+    "line": 1272,
     "kind": "function",
     "params": [
      "player",
@@ -6050,7 +6050,7 @@
   "onWelcomeSkip": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1281,
+    "line": 1289,
     "kind": "function",
     "params": [
      "player",
@@ -7289,7 +7289,7 @@
   "showCharBriefing": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 799,
+    "line": 807,
     "kind": "function",
     "params": [
      "color",
@@ -7302,7 +7302,7 @@
   "showCharPickForNextPlayer": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 514,
+    "line": 522,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7369,7 +7369,7 @@
   "showRosterConfirm": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 893,
+    "line": 901,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7417,7 +7417,7 @@
   "showWelcomeSequence": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1285,
+    "line": 1293,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7993,7 +7993,7 @@
   "welcomeBody": [
    {
     "file": "lua/ui_setup.lua",
-    "line": 1237,
+    "line": 1245,
     "kind": "function",
     "params": [
      "page"
