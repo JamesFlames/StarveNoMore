@@ -234,3 +234,40 @@ function resolveSoftThreat(id, location, name, card)
     end
     broadcastEvent("proc", label .. " is spent — its card goes to the discard pile (NW corner).")
 end
+
+-- Safety net for a Soft card whose auto-discard (above) never ran — the
+-- takeObject callback in drawThreatsAt (night.lua) can miss its landing if
+-- the object handle went bad (two cards merging mid-flight) or a reload cut
+-- the pending animation off mid-flight. Nothing else ever removes a loose
+-- ThreatCard, so a card that slipped through stayed on its tile, unfightable
+-- (Soft cards have 0 HP), festering +1 Doom every Dawn for the rest of the
+-- week — for a threat whose printed effect had already fired or never will.
+--
+-- This does NOT re-run SOFT_THREAT_EFFECTS: there is no record of whether the
+-- original draw's effect already applied, and firing it twice would be worse
+-- than the mess it is cleaning up. It only clears the card off the map, the
+-- same half of the job `resolveSoftThreat` calls "the half that matters
+-- most." Called once per Dawn, before countFesteringThreats (day_loop.lua).
+function sweepStuckSoftThreats()
+    local swept = 0
+    for _, obj in ipairs(findAllByTag("ThreatCard")) do
+        -- Only loose, single cards: a merged Deck is a different, already
+        -- counted mess (countFesteringThreats), and forcing it apart here
+        -- could discard a Hard or Persistent card stacked alongside a Soft
+        -- one.
+        if obj.type == "Card" and not safeHasTag(obj, "ThreatCardDeck") then
+            local ok, tType = pcall(identifyThreatType, obj)
+            if ok and tType == "Soft" then
+                local name = "A leftover Soft threat"
+                pcall(function() name = obj.getNickname() or name end)
+                safecall(function()
+                    obj.setPositionSmooth(Vector(SOFT_DISCARD_POS[1], SOFT_DISCARD_POS[2], SOFT_DISCARD_POS[3]), false, true)
+                    obj.setRotationSmooth({0, 180, 0}, false, true)
+                end, "SoftSweep")
+                broadcastEvent("warn", name .. " should have discarded when it was drawn and never did — clearing it now so it stops costing Doom.")
+                swept = swept + 1
+            end
+        end
+    end
+    return swept
+end

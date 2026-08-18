@@ -2,6 +2,12 @@
 -- The turn engine — beginDayPhase/advanceToNextPlayer/endPlayerTurn/
 -- spendAction and the idle nudge — lives in turns.lua.)
 
+-- Tag stamped on a Haunted character's personal Threat draw (drawThreatsAt,
+-- night.lua) so countFesteringThreats can find and skip it. Design §10.1: "it
+-- never festers, because it was never really there" — it still sits on the
+-- tile until fought or fled like any other card, it just must not tax Doom.
+HAUNTED_THREAT_TAG = "HauntedThreat"
+
 function BeginDay()
     -- TTS's built-in Turns system stays off — this mod runs its own turns.
     pcall(function() if Turns then Turns.enable = false end end)
@@ -60,6 +66,14 @@ function BeginDay()
     gameState.doom = gameState.doom + rate
     moveDoomMarker(gameState.doom)
     broadcastEvent("warn", "Doom advances +" .. rate .. " to " .. gameState.doom .. " / " .. getDoomLimit() .. ".")
+
+    -- Safety net, before festering is counted: a Soft threat is supposed to
+    -- resolve and discard itself the instant drawThreatsAt draws it
+    -- (threat_effects.lua). If that callback ever fails to land — a dead
+    -- object handle, a reload interrupting the pending animation — nothing
+    -- else was ever going to remove the card, and it would fester +1 Doom
+    -- every Dawn for the rest of the week for a threat nobody could fight.
+    safecall(function() sweepStuckSoftThreats() end, "SoftSweep")
 
     -- Festering (Design §15.1): every mess left on the map at Dawn feeds the
     -- Doom track. Ordinary threats +1 each (max +3); bosses are uncapped —
@@ -170,6 +184,12 @@ function BeginDay()
                 " may fight or flee it. Discard it when resolved; it never festers.")
             broadcastEvent("proc", "An ally standing with " .. char.name ..
                 " may pay 1 Sanity to SEE what they see — and then fight it with them (the Witness button).")
+            -- The announcement above used to be the whole implementation —
+            -- nothing ever actually drew the card. HAUNTED_THREAT_TAG marks
+            -- it so countFesteringThreats can honor "it never festers" even
+            -- though the card stays on the tile until fought or fled, exactly
+            -- like an ordinary Hard threat would.
+            safecall(function() drawThreatsAt(char.location, 1, HAUNTED_THREAT_TAG) end, "HauntedDraw")
         end
     end
 
@@ -247,6 +267,7 @@ function countFesteringThreats()
     for _, obj in ipairs(findAllByTag("ThreatCard")) do
         if obj.guid ~= pendingWrongGuid
             and not safeHasTag(obj, "ThreatCardDeck")   -- never the draw pile
+            and not safeHasTag(obj, HAUNTED_THREAT_TAG) -- a haunting, not a mess (§10.1)
             and nearATile(obj, tiles) then
             if obj.type == "Card" then
                 threatCount = threatCount + 1

@@ -170,7 +170,13 @@ function threatsPlacedAt(location)
     return n
 end
 
-function drawThreatsAt(location, count)
+-- `extraTag`, when given, is stamped onto every card this call draws (after
+-- ThreatCard/its id/ThreatType — see the callback below). Haunted (§10.1)
+-- uses it to mark its personal draw "HauntedThreat" so countFesteringThreats
+-- (day_loop.lua) can tell a haunting apart from an ordinary mess on the map:
+-- the design is explicit that a Haunted threat "was never really there," so
+-- it must never charge Doom the way a fled or ignored real one does.
+function drawThreatsAt(location, count, extraTag)
     local threatDeck = getThreatDeck()
     if not threatDeck then return end
     local placed = threatsPlacedAt(location)
@@ -188,6 +194,7 @@ function drawThreatsAt(location, count)
                     -- another threat on the tile mid-flight — touching any
                     -- field then throws "cannot access field of userdata".
                     local ok = pcall(function()
+                        if extraTag then threatCard.addTag(extraTag) end
                         local tName = threatCard.getNickname() or "Unknown Threat"
                         local tDesc = threatCard.getDescription() or ""
                         broadcastEvent("warn", "THREAT at " .. location .. ": " .. tName)

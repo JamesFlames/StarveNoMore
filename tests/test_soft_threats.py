@@ -207,6 +207,59 @@ class TestSoftResolution:
 
 
 # ---------------------------------------------------------------------------
+# sweepStuckSoftThreats: the safety net for a Soft card whose auto-discard
+# never landed (a dead handle from a same-tile merge, a reload cutting off
+# the pending takeObject callback). A live game reached Day 4 with two Soft
+# cards ("The Doorbell Rang", "Food Gone Wrong") still sitting on tiles,
+# festering Doom every Dawn — nothing had ever removed them.
+# ---------------------------------------------------------------------------
+
+
+class TestStuckSoftThreatSweep:
+    def _card(self, env, tid, ttype, pos=(1, 1, 1)):
+        env.execute(
+            '__card = TTS.addObject({tags = {"ThreatCard", "%s", "ThreatType:%s"}, '
+            'type = "Card", nickname = "%s", position = {%g,%g,%g}})'
+            % (tid, ttype, tid, *pos))
+        return env.eval("__card")
+
+    def test_a_stuck_soft_card_is_cleared(self, env):
+        self._card(env, "T_WHISPERS", "Soft")
+        swept = env.globals().sweepStuckSoftThreats()
+        assert swept == 1
+        pos = env.eval("__card.getPosition()")
+        assert pos["x"] < -10, "the stuck Soft card must end up off the map"
+
+    def test_a_hard_threat_is_left_alone(self, env):
+        """Hard and Persistent cards are SUPPOSED to sit on the tile — the
+        sweep must only touch cards that resolve as Soft."""
+        self._card(env, "T_THE_GRUE", "Hard")
+        swept = env.globals().sweepStuckSoftThreats()
+        assert swept == 0
+        assert env.eval("__card.getPosition()")["x"] == 1
+
+    def test_a_merged_deck_is_left_alone(self, env):
+        """A Deck could be hiding a Hard or Persistent card stacked next to
+        the Soft one — forcing it apart here would discard the wrong card."""
+        env.execute(
+            '__deck = TTS.addObject({tags = {"ThreatCard", "T_WHISPERS", "ThreatType:Soft"}, '
+            'type = "Deck", position = {1,1,1}, '
+            'contained = {{nickname="a"}, {nickname="b"}}})')
+        swept = env.globals().sweepStuckSoftThreats()
+        assert swept == 0
+
+    def test_clearing_it_stops_the_fester(self, env):
+        env.eval("TTS.addObject")(py_to_lua(env, {
+            "tags": ["Location:BasketballCourt"], "position": [0, 1, 0]}))
+        self._card(env, "T_WHISPERS", "Soft", pos=(0.5, 1.6, 0.3))
+        threats_before, _ = env.globals().countFesteringThreats()
+        assert threats_before == 1, "test setup: the card should have festered before the sweep"
+        env.globals().sweepStuckSoftThreats()
+        threats_after, _ = env.globals().countFesteringThreats()
+        assert threats_after == 0
+
+
+# ---------------------------------------------------------------------------
 # Placement: two threats at one tile must not become one Deck.
 # ---------------------------------------------------------------------------
 

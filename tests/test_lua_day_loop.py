@@ -807,6 +807,64 @@ class TestFestering:
         threats, _ = env.eval("countFesteringThreats")()
         assert threats == 3, f"ordinary threats cap at 3 per Dawn; got {threats}"
 
+    def test_a_haunted_threat_does_not_fester(self, env):
+        """Design §10.1: a Haunted draw "was never really there" — it must
+        not count toward the Doom-festering tax an ordinary uncleared threat
+        pays, even though it sits on the tile exactly like one until fought
+        or fled."""
+        pl = self._board(env)
+        wx, wz = pl.LOCATION_WORLD["JamesHouse"]
+        haunted_tag = env.eval("HAUNTED_THREAT_TAG")
+        self._threat(env, [wx, 1.61, wz + 0.3], tags=("ThreatCard", haunted_tag))
+        threats, _ = env.eval("countFesteringThreats")()
+        assert threats == 0, "a Haunted threat festered even though it was never really there"
+
+    def test_an_untagged_threat_at_the_same_spot_still_festers(self, env):
+        """Pins the mechanism above: without the tag, the same card counts —
+        so the exemption is doing something, not just always-zero."""
+        pl = self._board(env)
+        wx, wz = pl.LOCATION_WORLD["JamesHouse"]
+        self._threat(env, [wx, 1.61, wz + 0.3])
+        threats, _ = env.eval("countFesteringThreats")()
+        assert threats == 1
+
+
+class TestHauntedThreatDraw:
+    """Design §10.1 (`docs/design/05-stats-turn-structure.md`): a character
+    below 3 Sanity is Haunted, and "at each Dawn, draw 1 Threat card at your
+    location." BeginDay's Haunted loop used to only ANNOUNCE that — nothing
+    ever called drawThreatsAt, so a haunted character never actually got a
+    card to fight or flee."""
+
+    def _place(self, env):
+        add_char(env, "White", "James", location="JamesHouse", sanity=2)
+        addobj = env.eval("TTS.addObject")
+        addobj(py_to_lua(env, {"tags": ["Location:JamesHouse"], "position": [0, 1, 0]}))
+        addobj(py_to_lua(env, {
+            "tags": ["ThreatCardDeck"], "position": [50, 1, 50],
+            "contained": [{"nickname": "The Grue (Charlie)",
+                           "tags": ["ThreatCard", "T_THE_GRUE", "ThreatType:Hard"]}]}))
+        env.execute('gameState.day = 1; gameState.playerCount = 1; '
+                    'gameState.started = true; gameState.turnOrder = {"White"}')
+
+    def test_haunted_actually_draws_a_card(self, env):
+        self._place(env)
+        env.globals().BeginDay()
+        flush(env)
+        said = " ".join(broadcasts(env))
+        assert "THREAT at JamesHouse: The Grue" in said, (
+            "Haunted announced a draw but drawThreatsAt was never called: " + said)
+
+    def test_the_drawn_card_carries_the_no_fester_tag(self, env):
+        self._place(env)
+        env.globals().BeginDay()
+        flush(env)
+        tagged = env.eval(
+            '(function() for _, o in ipairs(TTS.world) do '
+            'if o.hasTag and o.hasTag(HAUNTED_THREAT_TAG) then return true end end '
+            'return false end)()')
+        assert tagged is True, "the drawn card never got HAUNTED_THREAT_TAG"
+
 
 class TestNightIsNotReentrant:
     """The Night is a chain of Wait.time callbacks — one per occupied tile,

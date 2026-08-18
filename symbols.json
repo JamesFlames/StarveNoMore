@@ -422,7 +422,7 @@
   "BeginDay": [
    {
     "file": "lua/day_loop.lua",
-    "line": 5,
+    "line": 11,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -802,7 +802,7 @@
   "GATHERING_FROM_DAY": [
    {
     "file": "lua/night.lua",
-    "line": 241,
+    "line": 248,
     "kind": "value",
     "params": null,
     "arity": null,
@@ -817,6 +817,16 @@
     "params": null,
     "arity": null,
     "doc": ""
+   }
+  ],
+  "HAUNTED_THREAT_TAG": [
+   {
+    "file": "lua/day_loop.lua",
+    "line": 9,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": "Tag stamped on a Haunted character's personal Threat draw (drawThreatsAt, night.lua) so countFesteringThreats can find and skip it. Design §10.1: \"it never fes…"
    }
   ],
   "HEART_SUPPLY_MAX": [
@@ -902,7 +912,7 @@
   "LIGHT_SOURCES": [
    {
     "file": "lua/night.lua",
-    "line": 441,
+    "line": 448,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -1726,7 +1736,7 @@
   "_cardSnapshot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 485,
+    "line": 506,
     "kind": "function",
     "params": [
      "obj"
@@ -1778,7 +1788,7 @@
   "_dawnCardRevealed": [
    {
     "file": "lua/day_loop.lua",
-    "line": 512,
+    "line": 533,
     "kind": "function",
     "params": [
      "card",
@@ -1791,7 +1801,7 @@
   "_findCardAtDawnRevealSpot": [
    {
     "file": "lua/day_loop.lua",
-    "line": 501,
+    "line": 522,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2350,7 +2360,7 @@
   "beginDusk": [
    {
     "file": "lua/day_loop.lua",
-    "line": 552,
+    "line": 573,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2360,7 +2370,7 @@
   "beginNight": [
    {
     "file": "lua/day_loop.lua",
-    "line": 702,
+    "line": 723,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2770,7 +2780,7 @@
   "checkDoomThresholds": [
    {
     "file": "lua/day_loop.lua",
-    "line": 289,
+    "line": 310,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -2792,7 +2802,7 @@
   "checkPlayerHasLight": [
    {
     "file": "lua/night.lua",
-    "line": 481,
+    "line": 488,
     "kind": "function",
     "params": [
      "color"
@@ -3038,7 +3048,7 @@
   "countFesteringThreats": [
    {
     "file": "lua/day_loop.lua",
-    "line": 238,
+    "line": 258,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -3504,14 +3514,15 @@
   "drawThreatsAt": [
    {
     "file": "lua/night.lua",
-    "line": 173,
+    "line": 179,
     "kind": "function",
     "params": [
      "location",
-     "count"
+     "count",
+     "extraTag"
     ],
-    "arity": 2,
-    "doc": ""
+    "arity": 3,
+    "doc": "`extraTag`, when given, is stamped onto every card this call draws (after ThreatCard/its id/ThreatType — see the callback below). Haunted (§10.1) uses it to ma…"
    }
   ],
   "dropBossLoot": [
@@ -4261,7 +4272,7 @@
   "identifyThreatType": [
    {
     "file": "lua/night.lua",
-    "line": 584,
+    "line": 591,
     "kind": "function",
     "params": [
      "card"
@@ -4310,7 +4321,7 @@
   "isBossOnMap": [
    {
     "file": "lua/day_loop.lua",
-    "line": 231,
+    "line": 251,
     "kind": "function",
     "params": [
      "bossTag"
@@ -4545,7 +4556,7 @@
   "moveDawnCardToAlreadyPlayed": [
    {
     "file": "lua/day_loop.lua",
-    "line": 350,
+    "line": 371,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6105,7 +6116,7 @@
   "payLightFuel": [
    {
     "file": "lua/night.lua",
-    "line": 451,
+    "line": 458,
     "kind": "function",
     "params": [
      "color",
@@ -6894,7 +6905,7 @@
   "resolveNightAtLocation": [
    {
     "file": "lua/night.lua",
-    "line": 255,
+    "line": 262,
     "kind": "function",
     "params": [
      "location",
@@ -6917,7 +6928,7 @@
   "resolveSleep": [
    {
     "file": "lua/night.lua",
-    "line": 653,
+    "line": 660,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6942,7 +6953,7 @@
   "resolveStorytelling": [
    {
     "file": "lua/night.lua",
-    "line": 626,
+    "line": 633,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -6984,7 +6995,7 @@
   "revealDawnCard": [
    {
     "file": "lua/day_loop.lua",
-    "line": 427,
+    "line": 448,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7004,7 +7015,7 @@
   "revealFirstDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 414,
+    "line": 435,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7014,7 +7025,7 @@
   "revealLastDawn": [
    {
     "file": "lua/day_loop.lua",
-    "line": 370,
+    "line": 391,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -7637,6 +7648,16 @@
     ],
     "arity": 1,
     "doc": ""
+   }
+  ],
+  "sweepStuckSoftThreats": [
+   {
+    "file": "lua/threat_effects.lua",
+    "line": 251,
+    "kind": "function",
+    "params": [],
+    "arity": 0,
+    "doc": "Safety net for a Soft card whose auto-discard (above) never ran — the takeObject callback in drawThreatsAt (night.lua) can miss its landing if the object handl…"
    }
   ],
   "syncBossHP": [
