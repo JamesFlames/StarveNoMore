@@ -52,7 +52,7 @@ function onActCraft(player, value, id)
     gameState.pendingAction = { type = "craft", color = color }
     safecall(function() _highlightCraftTargets(color) end, "CraftHighlight")
     local n = 0
-    safecall(function() n = _spawnCraftButtons() end, "CraftTargets")
+    safecall(function() n = _spawnCraftButtons(color) end, "CraftTargets")
     if n == 0 then
         gameState.pendingAction = nil
         -- Say which of the several things went wrong. This line used to be a
@@ -65,8 +65,12 @@ function onActCraft(player, value, id)
             color, BROADCAST_COLORS.damage)
         return
     end
+    -- "Green = you can afford it" used to describe a CRAFT button that was
+    -- offered on every card regardless — the tint was the only honest part
+    -- of the picture. _spawnCraftButtons now only offers one where canAfford
+    -- agrees, so a card without a button IS the "you can't afford this" answer.
     _armTargetTimeout()
-    broadcastToColor("Click CRAFT on a Market card (Green = you can afford it). Click Craft again to cancel.", color, BROADCAST_COLORS.proc)
+    broadcastToColor("Click CRAFT on a Market card — only ones you can afford (tinted Green) get a button. Click Craft again to cancel.", color, BROADCAST_COLORS.proc)
 end
 
 function onActCook(player, value, id)
@@ -445,6 +449,45 @@ end
 function onFinishCombat(player, value, id)
     safecall(function() finishCombat() end, "FinishCombat")
     refreshCombatPanel(); refreshPhaseBanner()
+end
+
+-----------------------------------------------------------------------
+-- Fight Result popup — a persistent, click-to-dismiss summary of the fight
+-- that just ended. Playtest: "a pop up should say what the result is of
+-- each fight — I didn't know what had happened afterwards." Combat already
+-- narrates every hit, fumble, defeat and counter through broadcastEvent, but
+-- TTS's own broadcast text fades in a few seconds and the Message Log panel
+-- is easy to not be looking at mid-fight — the same complaint the end-of-day
+-- summaryPanel (ui_controls.lua) exists to answer, with the same fix: stop
+-- fading, wait for a click.
+--
+-- Rather than write a second description of the fight that can drift from
+-- what actually happened, this replays the fight's own gameState.dayLog
+-- entries verbatim, from where beginCombat recorded the fight's start
+-- (ctx.logMark) to wherever it ended (applyThreatDefeat / finishCombat) —
+-- colour-coded the way the Message Log already is.
+-----------------------------------------------------------------------
+local function _hexColor(rgb)
+    return string.format("#%02X%02X%02X",
+        math.floor((rgb[1] or 1) * 255), math.floor((rgb[2] or 1) * 255), math.floor((rgb[3] or 1) * 255))
+end
+
+function showFightResultDialog(logMark)
+    if not UI or not logMark then return end
+    local log = gameState.dayLog or {}
+    if #log <= logMark then return end   -- nothing narrated; never show an empty popup
+    local lines = {}
+    for i = logMark + 1, #log do
+        local e = log[i]
+        local col = (BROADCAST_COLORS[e.category] and _hexColor(BROADCAST_COLORS[e.category])) or "#CCCCCC"
+        table.insert(lines, "<color=" .. col .. ">" .. e.message .. "</color>")
+    end
+    UI.setAttribute("fightResultBody", "text", table.concat(lines, "\n"))
+    UI.show("fightResultDialog")
+end
+
+function onFightResultClose(player, value, id)
+    if UI then UI.hide("fightResultDialog") end
 end
 
 -----------------------------------------------------------------------

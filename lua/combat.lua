@@ -56,8 +56,9 @@ BOSS_LOOT_COUNT = 3
 -- joined, so a group kill deals round-robin from whoever swung first. Falls
 -- back to everyone standing on the boss's tile — a boss can be finished by
 -- something other than a fight (a Signature, a Dawn effect), and the loot
--- still has to land somewhere.
-local function _bossLootRecipients(colors)
+-- still has to land somewhere. Global (not local): treeguard.lua's own
+-- defeat reward shares this exact split, not just phase bosses.
+function lootRecipients(colors)
     local out = {}
     for _, c in ipairs(colors or {}) do
         local ch = gameState.activeChars[c]
@@ -81,7 +82,7 @@ end
 -- answered it. giveResource both credits the owner AND lays the token beside
 -- their board, so the shower still happens, just where it means something.
 function dropBossLoot(bossKey, colors)
-    local winners = _bossLootRecipients(colors)
+    local winners = lootRecipients(colors)
     if #winners == 0 then
         broadcastEvent("warn", "The spoils spill across the tile with nobody standing to take them.")
         return

@@ -58,6 +58,17 @@ class TestPry:
         assert any("3 Wood" in m for m in broadcasts(env))
         assert env.eval('#findAllByTag("ThreatCard")') == 0   # the sealed card is gone
 
+    def test_pry_credits_the_pryer_not_just_the_tile(self, env):
+        """The reward used to spawn 3 loose Wood tokens beside the tile with
+        nobody's gameState.resources ever touched — the same "who does the
+        wood belong to" bug already fixed for boss loot and Treeguard
+        salvage. The pryer is the one who did the work; they get the Wood."""
+        self._world(env, sealed_tag="T_SEALED_SHED")
+        self._give_tool(env)
+        assert env.globals().doPry("White") is True
+        held = lua_to_py(env.globals().getPlayerResources("White"))
+        assert held["Wood"] == 3
+
     def test_pry_the_door_draws_a_market_item(self, env):
         self._world(env, sealed_tag="T_THE_DOOR")
         self._give_tool(env, "Lockpick Set", "M_LOCKPICK")
@@ -440,15 +451,26 @@ class TestGatherAutomation:
         assert sum(self._held(env, "Green").values()) == 0
         assert env.eval("gameState.activeChars.Green.actionsLeft") == 3   # no action spent
 
-    def test_spawn_resource_at_tile_and_treeguard_salvage(self, env):
+    def test_treeguard_salvage_pays_the_fighter(self, env):
+        """treeguardDefeated used to spawn 3 Wood tokens loose at the tile and
+        call it salvaged — the same "nobody actually received it" bug already
+        fixed for the phase bosses (TestBossLoot, test_lua_day_loop.py). The
+        credit belongs in gameState.resources, not in how many tagged tokens
+        happen to be sitting on the table."""
         add_char(env, "Green", "Rayman", location="BadmintonCourt")
-        add = env.eval("TTS.addObject")
-        add(py_to_lua(env, {"tags": ["Location:BadmintonCourt"], "position": [10, 1, -10]}))
-        add(py_to_lua(env, {"tags": ["ResourceBag:Wood"], "position": [60, 1, 60],
-                            "contained": [{"nickname": "Wood", "tags": ["Resource", "Resource:Wood"]}] * 8}))
         env.execute('gameState.treeguard = { active = true, location = "BadmintonCourt" }')
-        env.globals().treeguardDefeated()
-        assert env.eval('#findAllByTag("Resource:Wood")') == 3
+        env.globals().treeguardDefeated(py_to_lua(env, ["Green"]))
+        held = self._held(env, "Green")
+        assert sum(held.values()) == 3
+        assert held["Wood"] == 3
+
+    def test_treeguard_salvage_falls_back_to_whoever_is_standing(self, env):
+        """Mirrors dropBossLoot: a Treeguard finished by something other than
+        a fight still has to pay someone."""
+        add_char(env, "Green", "Rayman", location="BadmintonCourt")
+        env.execute('gameState.treeguard = { active = true, location = "BadmintonCourt" }')
+        env.globals().treeguardDefeated(None)
+        assert self._held(env, "Green")["Wood"] == 3
 
 
 # ---------------------------------------------------------------------------

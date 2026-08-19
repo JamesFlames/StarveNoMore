@@ -573,6 +573,36 @@
 </Panel>
 
 <!-- ================================================================== -->
+<!-- FIGHT RESULT — no auto-dismiss, same reason as summaryPanel below: -->
+<!-- "a pop up should say what happened — I didn't know afterwards."    -->
+<!-- Populated by showFightResultDialog (ui_actionbar_handlers.lua) as  -->
+<!-- a replay of the fight's own Message Log lines, colour-coded the    -->
+<!-- same way.                                                          -->
+<!-- ================================================================== -->
+<Panel id="fightResultDialog"
+       rectAlignment="MiddleCenter"
+       width="560" height="420"
+       color="#0A0A0AF0"
+       outline="#C8505099"
+       outlineSize="2"
+       active="false">
+  <VerticalLayout spacing="8" padding="14 14 14 14"
+                  childForceExpandHeight="false">
+    <Text id="fightResultTitle" fontSize="20" fontStyle="Bold" color="#FFBBBB"
+          text="Fight Result" preferredHeight="28" />
+    <Text id="fightResultBody" fontSize="14" color="#CCCCCC"
+          alignment="UpperLeft"
+          text=""
+          preferredHeight="320" />
+    <Button id="fightResultClose"
+            onClick="onFightResultClose"
+            fontSize="16" color="#461414F2" textColor="#FFDDDD"
+            preferredHeight="36"
+            text="Continue" />
+  </VerticalLayout>
+</Panel>
+
+<!-- ================================================================== -->
 <!-- DUSK SCRAMBLE PANEL — one 1-tile move per character, 1 Hunger      -->
 <!-- Shown during Dusk; hidden when Night begins (Design §11.3)         -->
 <!-- ================================================================== -->

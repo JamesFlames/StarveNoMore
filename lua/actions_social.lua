@@ -437,23 +437,16 @@ function canPry(color)
     return true, tool
 end
 
+-- reward.resources used to spawn loose tokens beside the tile — nobody's
+-- gameState.resources ever changed, so a Sealed Shed's "3 Wood" was a prop
+-- pile the pryer had to notice and manually claim, same bug already fixed
+-- for boss loot (combat.lua, dropBossLoot) and Treeguard salvage
+-- (treeguard.lua). giveResource credits the one player who actually pried
+-- it open AND lays the decorative tokens beside their own board.
 local function _deliverSealedReward(color, reward, locName)
     if reward.resources then
-        local tile = getLocationTile(locName)
-        local pos = tile and tile.getPosition()
-        local i = 0
         for resType, qty in pairs(reward.resources) do
-            local bag = getResourceBag(resType)
-            for _ = 1, qty do
-                i = i + 1
-                if bag and pos then
-                    safecall(function()
-                        bag.takeObject({ position = { pos.x + (i % 3) * 1.2 - 1.2, pos.y + 3, pos.z + 2 },
-                                         rotation = TOKEN_FACE_UP,   -- see _spawnVisualTokens
-                                         smooth = true })
-                    end, "PryLoot")
-                end
-            end
+            safecall(function() giveResource(color, resType, qty) end, "PryLoot")
         end
     end
     if reward.market and getMarketDeck() then

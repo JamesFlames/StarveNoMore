@@ -128,7 +128,7 @@ function applyThreatDefeat(threatName, colors)
     safecall(function() recordKillInChronicle(threatName, colors) end, "Chronicle")
     local bossKey = Audio and Audio.threatNameToBossKey and Audio.threatNameToBossKey(threatName)
     if bossKey then safecall(function() Audio.stopBossLoop(bossKey) end, "Audio") end
-    if bossKey == "treeguard" then safecall(function() treeguardDefeated() end, "Treeguard") end
+    if bossKey == "treeguard" then safecall(function() treeguardDefeated(colors) end, "Treeguard") end
     -- A kill is the moment its achievement should land, not the end of the
     -- week — and both flags and the chronicle are up to date by here.
     safecall(function() checkAchievements("kill") end, "Achievements")
@@ -142,6 +142,9 @@ function applyThreatDefeat(threatName, colors)
             and gameState.activeChars[colors[1]].location
         safecall(function() resolveHardThreatDefeat(killedId, where) end, "DefeatRider")
     end
+    -- Last, so the popup carries every line above it too — the kill, the
+    -- Sanity gain, boss loot/narration if any, the death rider.
+    safecall(function() showFightResultDialog(ctx and ctx.logMark) end, "FightResultPopup")
 end
 
 -- Enemy counter-attack against the live combat, then leave HP as-is.
@@ -284,6 +287,13 @@ end
 function beginCombat(colors, threatData)
     finishCombat()   -- close any dangling fight first (safety)
 
+    -- Where THIS fight's own narration starts in gameState.dayLog — every
+    -- broadcastEvent from here to whichever exit ends the fight is the
+    -- fight, verbatim. showFightResultDialog (below) slices this range
+    -- rather than re-summarizing it by hand, so the popup can never say
+    -- something different from what was actually broadcast.
+    local logMark = #(gameState.dayLog or {})
+
     local participants = {}
     for _, color in ipairs(colors) do
         local c = gameState.activeChars[color]
@@ -386,7 +396,8 @@ function beginCombat(colors, threatData)
     end
 
     gameState.combatContext = { colors = participants, threat = threatData,
-                                threatHP = threatHP, hits = atkResult.hits, open = false }
+                                threatHP = threatHP, hits = atkResult.hits, open = false,
+                                logMark = logMark }
 
     if threatHP <= 0 then
         applyThreatDefeat(threatName, participants)
@@ -403,9 +414,11 @@ function beginCombat(colors, threatData)
         return { defeated = false, remainingHP = threatHP, pressWindow = true }
     end
 
-    -- Complete whiff: no press, the enemy counters now.
-    applyCounterAttack()
-    gameState.combatContext = nil
+    -- Complete whiff: no press, the enemy counters now. Routed through
+    -- finishCombat rather than calling applyCounterAttack + clearing the
+    -- context here directly, so this exit shows the result popup exactly
+    -- like every other way a fight can end.
+    finishCombat()
     return { defeated = false, remainingHP = threatHP }
 end
 
@@ -485,12 +498,16 @@ function pressAttack(color, confirmed)
 end
 
 -- The player stops pressing: the enemy counters and the window closes.
+-- Also the shared exit for "no press, whiff, counter now" (beginCombat) and
+-- "turn ended with a press window still open" (turns.lua endPlayerTurn) —
+-- every non-defeat way a fight can end passes through here once.
 function finishCombat()
     local ctx = gameState.combatContext
     if not ctx then return end
     if ctx.threatHP > 0 then applyCounterAttack() end
     gameState.combatContext = nil
     safecall(function() refreshCombatPanel() end, "CombatPanel")
+    safecall(function() showFightResultDialog(ctx.logMark) end, "FightResultPopup")
 end
 
 -----------------------------------------------------------------------

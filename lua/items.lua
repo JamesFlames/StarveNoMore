@@ -39,12 +39,33 @@ USE_ITEMS = {
                              stats = { sanity = 2 }, key = "sanity" },
     M_SCHOOL_BELL        = { label = "School Bell",         target = "self",
                              doom = -1 },
+
+    -- Starting items (cards_starting.csv) whose printed effect is the same
+    -- single-stat/single-target shape as the Market items above — wired the
+    -- same way. "How do I get Luca to use Pep Talk?" had no answer: there is
+    -- no Use Item verb outside this table, and USE_ITEM_ORDER only ever
+    -- listed Market ids, so a card in your STARTING hand with a mechanical
+    -- effect printed on it was unusable from the moment the game began, not
+    -- just until your first Craft. The rest of the starting single-use set
+    -- (Athletic Tape's heal-or-repair choice, Spare Battery's two different
+    -- jobs, Whistle's reactive trigger, Loud Whistle/Notebook/Pantry Key's
+    -- contextual triggers) needs machinery this verb does not have, same as
+    -- the Market's own UNWIRED list (tests/test_market_wiring.py).
+    S_PEP_TALK           = { label = "Pep Talk",            target = "ally",
+                             stats = { sanity = 2 }, key = "sanity" },
+    S_FIRST_AID_KIT       = { label = "First Aid Kit",       target = "tile",
+                             stats = { health = 4 }, key = "health" },
+    S_HOPEFUL_TEA         = { label = "Hopeful Tea",         target = "tile",
+                             stats = { hunger = 1, sanity = 2 }, key = "sanity" },
+    S_SPORTS_DRINK        = { label = "Sports Drink",        target = "self",
+                             stats = { hunger = 2 } },
 }
 
 -- Stable order, so the dialog never reshuffles between openings.
 USE_ITEM_ORDER = {
     "M_FIRST_AID", "M_BANDAGE", "M_PROTEIN_BAR", "M_ENERGY_BAR",
     "M_HOT_COCOA", "M_SPORTS_DRINK", "M_FRIENDSHIP_BRACELET", "M_SCHOOL_BELL",
+    "S_FIRST_AID_KIT", "S_HOPEFUL_TEA", "S_PEP_TALK", "S_SPORTS_DRINK",
 }
 
 -- "+3 Hunger, +1 Sanity" for a dialog label / broadcast.

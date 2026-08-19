@@ -59,14 +59,38 @@ local function _sleepStandee()
     end
 end
 
--- Called from combat.lua when a threat named "Treeguard" hits 0 HP.
-function treeguardDefeated()
+-- Called from combat_resolve.lua's applyThreatDefeat when a threat named
+-- "Treeguard" hits 0 HP. `colors` is the fighter list applyThreatDefeat
+-- already has on hand — the same shape dropBossLoot (combat.lua) takes.
+--
+-- Used to spawn 3 Wood tokens loose at the tile and call it salvaged: the
+-- exact bug dropBossLoot's own comment documents for the phase bosses
+-- ("nobody received them... physical tokens are decoration, the economy is
+-- gameState.resources"). The Treeguard is a mini-boss on its own code path
+-- and got missed when that fix landed. lootRecipients + giveResource is the
+-- same fix, reused rather than re-solved.
+function treeguardDefeated(colors)
     if not (gameState.treeguard and gameState.treeguard.active) then return end
     gameState.treeguard.active = false
 
-    local where = gameState.treeguard.location or "court"
-    broadcastEvent("gain", "The TREEGUARD splinters and falls. 3 Wood spill out at " .. where .. ".")
-    safecall(function() spawnResourceAtTile(where, "Wood", 3) end, "TreeguardSalvage")
+    local winners = lootRecipients(colors)
+    if #winners == 0 then
+        broadcastEvent("warn", "The TREEGUARD splinters and falls — 3 Wood spill out with nobody standing to take it.")
+    else
+        local haul = {}
+        for i = 1, 3 do
+            local color = winners[((i - 1) % #winners) + 1]
+            safecall(function() giveResource(color, "Wood", 1) end, "TreeguardSalvage")
+            local ch = gameState.activeChars[color]
+            local who = (ch and ch.name) or color
+            haul[who] = (haul[who] or 0) + 1
+        end
+        local parts = {}
+        for who, n in pairs(haul) do table.insert(parts, who .. ": " .. n .. " Wood") end
+        table.sort(parts)   -- pairs() order would reshuffle the line every kill
+        broadcastEvent("gain", "The TREEGUARD splinters and falls — 3 Wood salvaged: " ..
+            table.concat(parts, "  ·  ") .. ".")
+    end
 
     _sleepStandee()
     -- combat.lua already stops the boss audio loop via threatNameToBossKey.

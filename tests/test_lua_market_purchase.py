@@ -263,6 +263,34 @@ def test_a_hidden_shelf_gets_no_craft_button(env):
     assert set(craft_buttons(env)) == {"M_BANDAGE", "M_SHARPENED_SPOON"}
 
 
+def test_an_unaffordable_card_gets_no_craft_button(env):
+    """A CRAFT button used to be offered on every dealt card regardless of
+    whether the crafting player could pay for it — click it and doCraft
+    would just refuse. _highlightCraftTargets already tints each card
+    Green/Yellow by canAfford; the button now agrees with the tint instead
+    of contradicting it."""
+    deal(env, ["M_BANDAGE", "M_FIRST_AID"])   # 1 Cloth  |  1 Cloth + 1 Metal
+    give(env, "White", Cloth=1)                # no Metal — First Aid unaffordable
+    assert env.globals()._spawnCraftButtons("White") == 1
+    assert set(craft_buttons(env)) == {"M_BANDAGE"}
+
+
+def test_with_no_color_every_dealt_card_still_gets_a_button(env):
+    """Callers that don't care who's crafting (tests above, any future
+    non-player-scoped scan) keep the old unfiltered behaviour."""
+    deal(env, ["M_BANDAGE", "M_FIRST_AID"])
+    assert env.globals()._spawnCraftButtons() == 2
+    assert set(craft_buttons(env)) == {"M_BANDAGE", "M_FIRST_AID"}
+
+
+def test_no_affordable_cards_says_so_instead_of_the_generic_reason(env):
+    deal(env, ["M_FIRST_AID"])   # 1 Cloth + 1 Metal
+    give(env, "White", Cloth=1)   # no Metal
+    env.globals().onActCraft(py_to_lua(env, {"color": "White"}), None, "actCraft")
+    said = " ".join(broadcasts(env))
+    assert "affordable right now" in said, said
+
+
 def test_buying_a_hidden_shelf_is_refused_for_free(env):
     deal(env, ["M_BANDAGE", "M_SHARPENED_SPOON", "M_FIRST_AID"])
     env.execute("gameState.day = 1; gameState.marketFaceDown = {[3]=true}")

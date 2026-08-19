@@ -292,7 +292,14 @@ end
 -- display", printed to a player looking straight at five market cards.
 _craftScanProblem = nil
 
-function _spawnCraftButtons()
+-- `color` is the crafting player (gameState.pendingAction.color): the one
+-- whose wallet decides which cards get a CRAFT button at all. A button on a
+-- card nobody at the table could pay for used to be offered anyway — click
+-- it and doCraft would refuse — indistinguishable from a card you CAN
+-- afford until you tried. _highlightCraftTargets already tints each card
+-- Green/Yellow by the same canAfford check; this makes the click target
+-- agree with the tint instead of contradicting it.
+function _spawnCraftButtons(color)
     -- Iterate the CARDS (not the slots) and attach each to its nearest
     -- market slot. Robust to a card that drifted off its slot, and every
     -- handle access is guarded (a card merged/destroyed mid-deal would
@@ -303,7 +310,7 @@ function _spawnCraftButtons()
         _craftScanProblem = "the five Market slots are not on the table"
         return 0
     end
-    local n, seen, failed, hidden = 0, 0, 0, 0
+    local n, seen, failed, hidden, unaffordable = 0, 0, 0, 0, 0
     for _, card in ipairs(findAllByTag("MarketCard")) do
         local ok = safecall(function()
             if card.type ~= "Card" then return end   -- skip the deck itself
@@ -328,6 +335,11 @@ function _spawnCraftButtons()
                     hidden = hidden + 1
                     return
                 end
+                local cardId = _cardIdFromTags(card)
+                if color and cardId and not canAfford(color, cardId) then
+                    unaffordable = unaffordable + 1
+                    return
+                end
                 _craftSlotByGuid[guid] = bestSlot
                 _spawnTargetButton(card, "CRAFT", "onCraftTargetClick",
                     "Craft " .. safeNickname(card) .. " (1 action + resources)",
@@ -346,6 +358,9 @@ function _spawnCraftButtons()
         elseif failed > 0 then
             _craftScanProblem = failed .. " of " .. seen ..
                 " Market card(s) could not be read (see the TTS log for the error)"
+        elseif unaffordable > 0 and unaffordable + hidden == seen then
+            _craftScanProblem = "none of the " .. unaffordable ..
+                " open Market card(s) is affordable right now"
         else
             _craftScanProblem = seen .. " Market card(s) are on the table but none is " ..
                 "near a Market slot — drag them back onto their slots"

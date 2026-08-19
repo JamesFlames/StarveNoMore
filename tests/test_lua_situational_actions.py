@@ -582,6 +582,60 @@ class TestUseItem:
         env.globals().doUseItem("White", "M_SCHOOL_BELL")
         assert env.eval("gameState.doom") == 0
 
+    # -----------------------------------------------------------------
+    # Starting items (cards_starting.csv) — same shape, wired the same way.
+    # "How do I get Luca to use Pep Talk?" had no answer: USE_ITEM_ORDER only
+    # ever listed Market ids, so a card printed with a mechanical effect in a
+    # character's STARTING hand was unusable from turn one, not just until
+    # their first Craft.
+    # -----------------------------------------------------------------
+    def test_pep_talk_reaches_an_ally_not_the_user(self, env):
+        add_char(env, "Red", "Luca", sanity=2, location="EllieLucaHouse")
+        add_char(env, "White", "Coco", sanity=1, location="EllieLucaHouse")
+        self._carry(env, "Red", "S_PEP_TALK")
+        start_day(env)
+
+        assert env.globals().doUseItem("Red", "S_PEP_TALK") is True
+        assert env.eval("gameState.activeChars.White.sanity") == 3   # 1 + 2
+        assert env.eval("gameState.activeChars.Red.sanity") == 2     # not the giver
+
+    def test_pep_talk_refuses_with_nobody_there(self, env):
+        add_char(env, "Red", "Luca", sanity=2)
+        self._carry(env, "Red", "S_PEP_TALK")
+        start_day(env)
+
+        ok, why = env.eval("canUseItem")("Red")
+        assert ok is False and "give it to" in why
+        assert env.globals().findCarriedItem("Red", "S_PEP_TALK", "Pep Talk") is not None
+
+    def test_starting_first_aid_kit_matches_the_market_version(self, env):
+        add_char(env, "White", "Coco", health=7, location="EllieLucaHouse")
+        add_char(env, "Yellow", "Rayman", health=2, location="EllieLucaHouse")
+        self._carry(env, "White", "S_FIRST_AID_KIT")
+        start_day(env)
+
+        env.globals().doUseItem("White", "S_FIRST_AID_KIT")
+        assert env.eval("gameState.activeChars.Yellow.health") == 6   # 2 + 4
+
+    def test_hopeful_tea_moves_both_stats(self, env):
+        add_char(env, "White", "Coco", hunger=1, sanity=1)
+        self._carry(env, "White", "S_HOPEFUL_TEA")
+        start_day(env)
+        env.globals().doUseItem("White", "S_HOPEFUL_TEA")
+        assert env.eval("gameState.activeChars.White.hunger") == 2   # +1
+        assert env.eval("gameState.activeChars.White.sanity") == 3   # +2
+
+    def test_starting_sports_drink_restores_hunger_only(self, env):
+        """The starting Sports Drink prints +2 Hunger only — unlike the
+        Market version, which also carries +1 Sanity. USE_ITEMS must not
+        drift the two together just because they share a name."""
+        add_char(env, "Yellow", "Rayman", hunger=1, sanity=5)
+        self._carry(env, "Yellow", "S_SPORTS_DRINK")
+        start_day(env)
+        env.globals().doUseItem("Yellow", "S_SPORTS_DRINK")
+        assert env.eval("gameState.activeChars.Yellow.hunger") == 3   # +2
+        assert env.eval("gameState.activeChars.Yellow.sanity") == 5   # unchanged
+
     def test_an_item_you_do_not_carry_does_nothing(self, env):
         """The cost is re-checked in doUseItem, not just the precondition —
         the hole Revive guards against and Stabilize used to have."""
