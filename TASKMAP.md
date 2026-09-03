@@ -39,6 +39,7 @@ step — see the **Regenerate** column and [`scripts/CLAUDE.md`](scripts/CLAUDE.
 | Place/move an object on the table (heights, rotations) | `scripts/build_save.py` (`SURFACE_Y`) + read [`docs/tts-runtime.md`](docs/tts-runtime.md) first | `build_save.py` |
 | Change the Message Log / What-now panel | `lua/ui_msglog.lua`, `lua/ui_help.lua`, `xml/msglog.xml` | `generate_symbol_index.py` |
 | Debug a live session / decode a `<Global:N>` error | [`docs/debugging.md`](docs/debugging.md) + `scripts/inspect_save.py` | — |
+| Publish the mod to the Steam Workshop | [`docs/publishing.md`](docs/publishing.md), then `scripts/build_save.py --publish <base-url>` | — |
 | Deploy to TTS for play | `iwanttoplay` (regen+build+test+install+cache purge+launch) | — |
 
 **Always finish with:** `python scripts/check.py`. It runs every generator in the

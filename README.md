@@ -157,9 +157,13 @@ python scripts/build_save.py
    full rulebook in-game; the same page is `PlayerRules.html` in any browser
    (or `http://localhost:8080/PlayerRules.html` while the server runs).
 
-To share a save beyond this machine, host the repo's `art/`, `sounds/` and
-`PlayerRules.html` somewhere public and build with
+To share a save beyond this machine, host the repo's `art/` and `sounds/`
+somewhere public and build with
 `python scripts/build_save.py --publish https://your.host/starvenomore`.
+Steam does **not** host a Workshop mod's images and audio for you — the save
+only carries URLs. The full route to a published Workshop item (hosting
+options and costs, the measured payload, the licence questions to settle
+first) is [`docs/publishing.md`](docs/publishing.md).
 
 ## Design pillars
 
