@@ -12,7 +12,7 @@ AUDIO.AMBIENT_SUBURBAN = {
 
 AUDIO.AMBIENT_VARIED = {
     { url = "http://localhost:8080/sounds/ambient/varied/badland_summer_lp.ogg", duration = 109.77, name = "badland_summer_lp.ogg" },
-    { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds fall night_ds_amb.ogg", duration = 99.08, name = "battlegrounds fall night_ds_amb.ogg" },
+    { url = "http://localhost:8080/sounds/ambient/varied/battlegrounds_fall_night_ds_amb.ogg", duration = 99.08, name = "battlegrounds_fall_night_ds_amb.ogg" },
     { url = "http://localhost:8080/sounds/ambient/varied/cave_lp.ogg", duration = 91.48, name = "cave_lp.ogg" },
     { url = "http://localhost:8080/sounds/ambient/varied/deep_jungle_fall_night.ogg", duration = 112.88, name = "deep_jungle_fall_night.ogg" },
     { url = "http://localhost:8080/sounds/ambient/varied/forest_summer_lp.ogg", duration = 150.80, name = "forest_summer_lp.ogg" },

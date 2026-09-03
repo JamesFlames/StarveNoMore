@@ -1489,6 +1489,26 @@
     "doc": "Starting hands (design §6): each character's personal item deck is dealt into their player's hand. James's two Energy Drinks are resource tokens (his Wired eco…"
    }
   ],
+  "STAT_PANEL_H": [
+   {
+    "file": "lua/ui_actionbar_display.lua",
+    "line": 113,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
+  "STAT_PANEL_H_COLLAPSED": [
+   {
+    "file": "lua/ui_actionbar_display.lua",
+    "line": 113,
+    "kind": "value",
+    "params": null,
+    "arity": null,
+    "doc": ""
+   }
+  ],
   "SUBPHASE_RULES": [
    {
     "file": "lua/ui_rules.lua",

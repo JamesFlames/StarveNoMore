@@ -37,7 +37,13 @@ JSON_PATH = os.path.join(REPO_ROOT, "symbols.json")
 LUACHECKRC_PATH = os.path.join(REPO_ROOT, ".luacheckrc")
 
 FUNC_RE = re.compile(r"^function\s+([A-Za-z_][\w.]*)\s*\(", re.M)
-CONST_RE = re.compile(r"^([A-Za-z_]\w*)\s*=", re.M)
+FUNC_PARAMS_RE = re.compile(r"^function\s+[A-Za-z_][\w.]*\s*\(([^)]*)\)")
+# A global assignment at column 0, INCLUDING Lua's multiple-assignment form
+# (`A, B = 1, 2`). Matching only the single-name shape silently dropped both
+# names of such a line from symbols.json AND from .luacheckrc, so luacheck
+# then reported the bundle's own globals as undefined — four warnings that
+# looked like a lint config problem and were really a parser gap.
+CONST_RE = re.compile(r"^([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s*=[^=]", re.M)
 
 # Globals provided by the TTS engine / the test stub, not the bundle.
 TTS_API = [
@@ -111,20 +117,24 @@ def scan(rel_path):
     out = []
     for idx, line in enumerate(lines):
         lineno = idx + 1
-        m = re.match(r"^function\s+([A-Za-z_][\w.]*)\s*\(", line)
+        m = FUNC_RE.match(line)
         if m:
-            closed = re.match(r"^function\s+[A-Za-z_][\w.]*\s*\(([^)]*)\)", line)
+            closed = FUNC_PARAMS_RE.match(line)
             params = ([p.strip() for p in closed.group(1).split(",") if p.strip()]
                       if closed else None)
             out.append({"line": lineno, "kind": "function", "name": m.group(1),
                         "params": params, "doc": doc_above(lines, idx)})
             continue
-        m = re.match(r"^([A-Za-z_]\w*)\s*=", line)
-        if m and m.group(1) not in ("local",):
-            out.append({"line": lineno,
-                        "kind": "table" if "{" in line else "value",
-                        "name": m.group(1), "params": None,
-                        "doc": doc_above(lines, idx)})
+        m = CONST_RE.match(line)
+        if m:
+            doc = doc_above(lines, idx)
+            kind = "table" if "{" in line else "value"
+            # `A, B = 1, 2` defines both; each gets its own row at this line.
+            for name in (n.strip() for n in m.group(1).split(",")):
+                if name in ("local",):
+                    continue
+                out.append({"line": lineno, "kind": kind, "name": name,
+                            "params": None, "doc": doc})
     return out
 
 

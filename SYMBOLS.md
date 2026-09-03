@@ -767,12 +767,14 @@
 | 496 | table | `SITUATIONAL_ACTIONS` |
 | 530 | function | `refreshSituationalButtons` |
 
-## lua/ui_actionbar_display.lua (14 symbols)
+## lua/ui_actionbar_display.lua (16 symbols)
 
 | line | kind | symbol |
 |---|---|---|
 | 9 | function | `validateActivePlayer` |
 | 54 | function | `refreshActionBar` |
+| 113 | value | `STAT_PANEL_H` |
+| 113 | value | `STAT_PANEL_H_COLLAPSED` |
 | 115 | function | `refreshStatPanelCollapse` |
 | 128 | function | `onStatToggle` |
 | 133 | function | `setActionCubes` |
@@ -1145,6 +1147,8 @@
 | `STARTING_ARRIVAL` | lua/market_data.lua | 132 |
 | `STARTING_RESERVE_DIST` | lua/setup.lua | 176 |
 | `STARTING_ROW_DIST` | lua/setup.lua | 175 |
+| `STAT_PANEL_H` | lua/ui_actionbar_display.lua | 113 |
+| `STAT_PANEL_H_COLLAPSED` | lua/ui_actionbar_display.lua | 113 |
 | `SUBPHASE_RULES` | lua/ui_rules.lua | 11 |
 | `Setup` | lua/setup.lua | 3 |
 | `TABLETOP_Y` | lua/audit.lua | 83 |

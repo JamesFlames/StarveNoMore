@@ -141,6 +141,8 @@ globals = {
     "STARTING_ARRIVAL",
     "STARTING_RESERVE_DIST",
     "STARTING_ROW_DIST",
+    "STAT_PANEL_H",
+    "STAT_PANEL_H_COLLAPSED",
     "SUBPHASE_RULES",
     "Setup",
     "TABLETOP_Y",
