@@ -105,13 +105,13 @@ mirror later if you ever want it (task R4).**
   referenced 171 files into `dist/publish/{art,sounds}/`, and fail loudly on a
   referenced file that doesn't exist. Prevents shipping 274 MB and prevents a
   silent missing-asset hole. Roughly a two-hour job.
-- **H2. Fix the one filename that will break on a real host.**
-  `sounds/ambient/varied/battlegrounds fall night_ds_amb.ogg` has a **space in
-  it**, and the publish build emits it raw:
-  `https://host/sounds/ambient/varied/battlegrounds fall night_ds_amb.ogg`.
-  `http.server` tolerates it locally; a CDN may not. Rename the file to
-  underscores and re-run `generate_audio_manifest.py`. Add a test asserting no
-  asset URL contains a character needing percent-encoding.
+- **H2. ~~Fix the one filename that will break on a real host.~~ DONE.**
+  `sounds/ambient/varied/battlegrounds fall night_ds_amb.ogg` had a space in
+  it and the publish build emitted it raw. Renamed to underscores;
+  `test_publish_build.py::test_publish_urls_need_no_escaping` now asserts
+  every asset URL is RFC 3986 unreserved characters plus `/` and `:`, so the
+  next one fails in `check.py` rather than in the Workshop. Keep new asset
+  filenames to `[A-Za-z0-9-._~]`.
 - **H3. Stand up the bucket.** Cloudflare account → R2 bucket `starvenomore` →
   public access (r2.dev subdomain or a Workers route) → upload
   `dist/publish/` preserving the `art/` and `sounds/` prefixes (`rclone` or
@@ -202,4 +202,4 @@ Done from inside TTS: load `StarveNoMore.publish.json`, then
 ## Order of play
 
 R1 first — it's the only item that can invalidate everything downstream.
-Then H2 (five minutes), H1, H3–H5, B1–B4, R3, then Phase C.
+Then H1, H3–H5, B1–B4, R3, then Phase C. (H2 is already done.)
