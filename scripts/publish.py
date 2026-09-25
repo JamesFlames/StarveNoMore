@@ -117,9 +117,12 @@ def check_release(ref, offline):
                          "the save and the files its URLs serve match:\n" + dirty)
     is_sha = bool(SHA_RE.fullmatch(ref))
     if not is_sha and git("tag", "--list", ref) != ref:
-        raise SystemExit(f"'{ref}' is not a tag (or a full commit SHA). Branches "
-                         "move, so they can't be released. Tag the release:\n"
-                         f"  git tag {ref} && git push origin {ref}")
+        if git("branch", "--all", "--list", ref, f"origin/{ref}"):
+            raise SystemExit(f"'{ref}' is a branch, and branches move — a release "
+                             "needs a tag that never will, e.g.:\n"
+                             "  git tag v1.0 && git push origin v1.0")
+        raise SystemExit(f"'{ref}' is not a tag (or a full commit SHA). Tag the "
+                         f"release:\n  git tag {ref} && git push origin {ref}")
     head = git("rev-parse", "HEAD")
     commit = git("rev-parse", f"{ref}^{{commit}}")
     if commit != head:
