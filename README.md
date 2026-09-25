@@ -8,7 +8,7 @@ A cooperative survival board game for 3–5 players, built as a [Tabletop Simula
 
 ```bash
 pip install pytest lupa Pillow      # lupa runs the real Lua bundle headlessly
-python scripts/check.py             # regenerate → build → test → lint (~26 s)
+python scripts/check.py             # regenerate → build → test → lint (~50 s)
 ```
 
 `check.py` is the whole verification loop in one command; the individual stages
@@ -63,7 +63,7 @@ StarveNoMore/
 ├── scripts/     Build + asset/data generation + balance sim + telemetry analyzer.
 ├── playtest/    Blind-playtest kit: facilitator script, feedback form, sessions/ logs.
 ├── saves/       Built TTS save (+ fixtures/ frozen mid-game save for compat tests).
-├── tests/       pytest suite (~810 tests) — runs the real Lua bundle headlessly,
+├── tests/       pytest suite (~1,400 tests) — runs the real Lua bundle headlessly,
 │                plus XML/color/lint quality gates and publish-build checks.
 └── Archive/     Superseded design / reference docs (frozen, no live links).
 ```
@@ -77,7 +77,7 @@ See [`docs/agents/file-structure.md`](docs/agents/file-structure.md) for the fil
 - **Mid-week texture & dread (batch 3)** — **Night Sounds** (a low growl at Dusk when the top Threat card is Hard — deliberately unexplained), **Dawn Dares** (optional temptations on early-week cards, offered never imposed), the coded **Pry** verb with sealed threats and the always-present **Sealed Basement** destination, and the **Wrongness token** (a face-down unresolved threat the table argues about visiting).
 - **Validation & instrumentation (batch 4)** — session telemetry (setup, per-turn seconds, which designed beats actually fired) with a one-click **Copy Session Log** JSON export, aggregated by `scripts/analyze_sessions.py`; 3-player relief knobs for Rayman pending a table A/B; the blind-playtest facilitator script and feedback form under `playtest/`.
 - **Picture-dominant card faces** — every card is `408×585 px` with a top art region (~65%) and a text panel below. Illustrations are produced by ComfyUI (Flux Dev + a Tim-Burton/Edward-Gorey LoRA), composited by `scripts/generate_card_atlases.py`. See [`docs/agents/comfyui.md`](docs/agents/comfyui.md) for the full pipeline.
-- **Audio** — random suburban-ambient track at Day start chains into varied tracks until Night; per-boss roar loops while a boss is alive; soft chime at Tick; per-character SFX on walk / meet / trade / death. Single-channel via TTS `MusicPlayer`. Sounds under `sounds/`; manifest auto-generated from the filesystem.
+- **Audio** — each Dawn picks one suburban-ambient track (varied pool as fallback) and loops it all day; each Night loops one low drone; per-boss roar loops while a boss is alive; soft chime at Tick, a ping on turn start, per-character SFX on walk / meet / trade / death, distinct hit-landed / hit-taken thuds in combat, and the Night Sounds growl. Single-channel via TTS `MusicPlayer`. Sounds under `sounds/`; manifest auto-generated from the filesystem.
 - **"Always obvious next step" UX** — Phase Banner with dynamic next-action text and a pulsing-outline highlight on whichever XML control should be clicked next; a **day-cycle strip** (Dawn ▸ Day ▸ Dusk ▸ Night ▸ Tick, current step lit); a persistent **"Rules in effect" panel** mirroring every rule currently modifying play (Doom thresholds crossed, ongoing Dawn-card effects, loose bosses, per-character statuses like Haunted / Wired / Loud); an always-visible **character roster** showing every party member's live Health / Hunger / Sanity in their character color (plus live standee tooltips on hover); per-deck What-now hints (sub-phase × character × stats × strategic × location) auto-loaded from `content/help/whatnow_hints.md`; auto-broadcasts on critical events (character down, James-no-Energy-Drink, Dusk-alone-at-court, etc.); per-action target highlights with **click-to-complete buttons** (Move → MOVE HERE on adjacent tiles, Craft → CRAFT on Market cards, Cook → COOK on recipes, plus a Trade partner picker and one-step Undo); Market-card affordability glow (Green = you can craft this, Yellow = you can't yet); automated night light checks (Flashlight/Lantern/Fire Kit in hand or by your board, Campfire covers the whole tile); 45-second idle nudge on Day phase.
 - **Anti-alpha-player guardrails** — private hand zones, soft turn-time signals, ghost-word-limit, reciprocal trades, and an optional **Secret Dusk** commitment (§11.3) that removes the alpha's ability to confirm compliance. Graded honestly in §19.5: two and a half of the original five fronts hold up.
 
@@ -89,16 +89,16 @@ Requires Python 3 with `Pillow`. Card illustrations and board scenes need a loca
 
 | Script | Reads | Writes | Purpose |
 |---|---|---|---|
-| `scripts/build_save.py` | every file listed in `LUA_LOAD_ORDER`, the `XML_LOAD_ORDER` files under `xml/` (hud / setup / dialogs), `art/decks/atlas_manifest.json` | `saves/StarveNoMore.json` + `saves/StarveNoMore.pretty.json` (dev) or `saves/StarveNoMore.publish.json` (`--publish BASE_URL`) | The final assembly step. Concatenates the Lua bundle (53 files today) and the XML into one TTS save JSON, spawns the table objects (board, decks, tokens, player boards, character standees with per-character holder colors, the Sealed Basement, the Player Rules tablet, etc.), reading deck grid dimensions from the atlas manifest (hard-stops if atlases are stale), and pretty-prints a copy for diffing. `--publish` rewrites every `file:///`/`localhost` asset URL to a hosted base and writes a separate shareable save. Run this last after any change to Lua, XML, or auto-generated data tables. |
+| `scripts/build_save.py` | every file listed in `LUA_LOAD_ORDER`, the `XML_LOAD_ORDER` files under `xml/` (hud / setup / dialogs), `art/decks/atlas_manifest.json` | `saves/StarveNoMore.json` + `saves/StarveNoMore.pretty.json` (dev) or `saves/StarveNoMore.publish.json` (`--publish BASE_URL`) | The final assembly step. Concatenates the Lua bundle (the `lua` list in `scripts/load_order.json` — 59 files today) and the XML into one TTS save JSON, spawns the table objects (board, decks, tokens, player boards, character standees with per-character holder colors, the Sealed Basement, the Quick Start notecard, etc.), reading deck grid dimensions from the atlas manifest (hard-stops if atlases are stale), and pretty-prints a copy for diffing. `--publish` rewrites every `file:///`/`localhost` asset URL to a hosted base and writes a separate shareable save. Run this last after any change to Lua, XML, or auto-generated data tables. |
 | `scripts/generate_threat_types.py` | `content/cards_threats.csv` | `lua/threat_types.lua` | Emits `THREAT_TYPE_BY_NAME` (nickname → Hard/Soft/Persistent, used by the Night Sounds dusk peek — a face-down deck only exposes nicknames) and `SEALED_REWARDS` (from the structured `pry_reward` column, consumed by `doPry`). Re-run after editing the threats CSV. |
 | `scripts/generate_recipe_data.py` | `content/cards_recipes.csv` | `lua/recipe_data.lua` | Emits `RECIPE_DATA` from the structured `script` column (`allAtTile=hunger:4+sanity:2\|cookPenalty=health:2\|...`), so the card face text and what `doCook` actually does can never drift apart. Re-run after editing recipes. |
 | `scripts/generate_notebook.py` | `content/notebook/*.md`, `content/help/glossary.md` | `lua/notebook_data.lua` | Converts the player-doc markdown to plain text and emits the in-game Notebook tabs (Quick Start / Full Rules / Characters) and Help-panel Quick Start + Glossary constants. The physical Quick Start notecard in the save is *not* generated from this — it is a deliberately short hand-written summary in `build_save.py`, because the full quickstart (~1900 chars) does not fit on a notecard. |
-| `scripts/generate_player_rules.py` | `content/notebook/*.md`, `content/help/glossary.md` | `PlayerRules.md` + `PlayerRules.html` | The player rulebook, assembled from the same markdown as the Notebook (Quick Start → Full Rules → Characters → Glossary). The HTML is a self-contained styled page: the in-TTS **Player Rules tablet** loads it from `http://localhost:8080/PlayerRules.html` (start `scripts/serve_art.bat`), and the same file opens in any desktop browser. Re-run after editing the notebook/glossary markdown. |
+| `scripts/generate_player_rules.py` | `content/notebook/*.md`, `content/help/glossary.md` | `PlayerRules.md` + `PlayerRules.html` | The player rulebook, assembled from the same markdown as the Notebook (Quick Start → Full Rules → Characters → Glossary). The HTML is a self-contained styled page for any desktop browser; nothing in the save links to it — in TTS the same book is the Help panel's **Rulebook** tab (`lua/ui_help_pages.lua`, kept in step by a cross-ref test). Re-run after editing the notebook/glossary markdown. |
 | `scripts/generate_symbol_index.py` | `lua/*.lua` (in `LUA_LOAD_ORDER` order) | `SYMBOLS.md`, `.luacheckrc` | The Lua bundle's table of contents: every global function/constant with file and line, plus a luacheck config whose globals list is generated from the bundle itself. Re-run after any Lua change (a freshness test enforces it). |
 | `scripts/generate_achievement_data.py` | `content/achievements.csv` | `lua/achievement_data.lua`, `steam/achievements.json` | The achievement roster in both shapes: the in-game table (name, description, category, hidden flag, icon asset name) and a Steamworks-shaped manifest for a future standalone app. The unlock *conditions* are deliberately not generated — they are hand-written predicates in `lua/achievement_rules.lua`, and a test fails if the two lists disagree. See [`docs/achievements.md`](docs/achievements.md). |
 | `scripts/generate_achievement_icons.py` | `content/achievements.csv`, `art/achievements/src/<base>.png` (ComfyUI renders, when present) | `art/achievements/<base>.png` (256px, in-game), `art/achievements/steam/<base>.jpg` + `_gray.jpg` | Square-crops, vignettes and frames each render into the sizes the mod and Steamworks want. With no render present it emits a procedural placeholder in the game's palette instead, so the panel and the test suite stay green before the art exists — and upgrades automatically once the render lands. `--only <id>`, `--force`. |
 | `scripts/analyze_sessions.py` | `playtest/sessions/*.json` (Copy Session Log exports) | console report | Aggregates playtest telemetry into the tables the validation gates need: win rate by difficulty/player count, loss-day histogram, median turn seconds by turn style (the Rotation A/B verdict), and how often the designed beats (presses, Signatures, the Source split, dares) actually fire at real tables. |
-| `scripts/generate_audio_manifest.py` | `sounds/ambient/{suburban,varied}/`, `sounds/creatures/<boss>/`, `sounds/sfx/` | `lua/audio_manifest.lua` | Walks the `sounds/` tree, computes each track's duration (precise for `.wav` via the stdlib `wave` module; estimated from filesize for `.mp3`), and emits a Lua table with `{url, duration, name}` entries grouped under `AUDIO.AMBIENT_SUBURBAN / AMBIENT_VARIED / CREATURES.<boss> / SFX.<key>`. Re-run after adding or removing any sound file. |
+| `scripts/generate_audio_manifest.py` | `sounds/ambient/{suburban,varied,night}/`, `sounds/creatures/<boss>/`, `sounds/sfx/` | `lua/audio_manifest.lua` | Walks the `sounds/` tree, computes each track's duration (exact for `.wav` via the stdlib `wave` module and for `.ogg` from the Ogg stream; `.mp3` via `ffprobe`, else estimated from filesize), and emits a Lua table with `{url, duration, name}` entries grouped under `AUDIO.AMBIENT_SUBURBAN / AMBIENT_VARIED / AMBIENT_NIGHT / CREATURES.<boss> / SFX.<key>`. Re-run after adding or removing any sound file. |
 | `scripts/generate_whatnow_hints.py` | `content/help/whatnow_hints.md` | `lua/whatnow_hints.lua` | Parses the markdown source-of-truth for context-aware hints into a single `WHATNOW_HINTS` Lua table with 15 groups (PreGame, Dawn, Day, Stats, James, Coco, Rayman, Ellie, Luca, Location, Strategic, Dusk, Night, Tick, PostGame). Re-run after editing the markdown. |
 | `scripts/generate_market_data.py` | `content/cards_market.csv`, `content/cards_starting.csv` | `lua/market_data.lua` | Tokenises each Market card's `cost` column ("2 Metal + 1 Wood", "Energy Drink", etc.) into a Lua sub-table — `MARKET_COSTS[<id>] = {Metal=2, Wood=1, ...}` — driving the in-game affordability glow. Also parses "+N Attack die" from both CSVs' effect text into `WEAPON_DICE`, so combat rolls printed weapon bonuses automatically. Body-cost terms (Health, Sanity) are intentionally omitted. Re-run after editing card costs/effects. |
 | `scripts/generate_card_atlases.py` | `content/cards_*.csv` (rows + text), `art/decks/illustrations/<card_id>.png` (one per card if present) | `art/decks/{phase1..4,market,recipe,threat,visitor,trophy,starting}_face.jpg` + `_back.png` (10 face atlases + 10 backs) | Renders every card face as `408×585 px` with a top-art region (`~380 px`, full-bleed illustration cover-cropped from the per-card PNG) and a bottom text panel (title + severity dots + cost + effect, in the deck-specific accent color). Falls back to a flat color rectangle for any missing illustration so partial generations still build. Run after illustrations change or text edits. |
@@ -150,20 +150,21 @@ python scripts/build_save.py
 2. Copy `saves/StarveNoMore.json` to your TTS saves folder
    (`%USERPROFILE%\Documents\My Games\Tabletop Simulator\Saves\` on Windows).
 3. Start the local asset server: `scripts/serve_art.bat` — serves the repo root
-   over `http://localhost:8080` so `/art/...`, `/sounds/...` and
-   `/PlayerRules.html` all resolve.
+   over `http://localhost:8080` so the audio (`/sounds/...`) and the board
+   art the scripts swap in at setup (`/art/...`) resolve. (Object art in the
+   dev save is `file:///`, so it loads without the server.)
 4. In TTS, *Games → Save & Load*, select the save, and click **Setup Game** on the table.
-5. Rules are on the table: the **Player Rules tablet** (bottom-right) shows the
-   full rulebook in-game; the same page is `PlayerRules.html` in any browser
-   (or `http://localhost:8080/PlayerRules.html` while the server runs).
+5. Rules are in the game: the Help panel's first tab, **Rulebook**, is the
+   full player rulebook, and the Quick Start notecard sits on the table. The
+   same book is `PlayerRules.html` / `PlayerRules.md` for a browser.
 
-To share a save beyond this machine, host the repo's `art/` and `sounds/`
-somewhere public and build with
+To share a save beyond this machine, host the `art/` and `sounds/` files the
+save references somewhere public and build with
 `python scripts/build_save.py --publish https://your.host/starvenomore`.
 Steam does **not** host a Workshop mod's images and audio for you — the save
 only carries URLs. The full route to a published Workshop item (hosting
-options and costs, the measured payload, the licence questions to settle
-first) is [`docs/publishing.md`](docs/publishing.md).
+options and costs, the measured payload, the credits still to write) is
+[`docs/publishing.md`](docs/publishing.md).
 
 ## Design pillars
 

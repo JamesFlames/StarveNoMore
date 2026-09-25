@@ -7,8 +7,8 @@ Output: saves/StarveNoMore.json + saves/StarveNoMore.pretty.json
 Publish mode (hosted assets instead of file:/// + localhost):
     python scripts/build_save.py --publish https://your.cdn/starvenomore [--out path]
 Output: saves/StarveNoMore.publish.json (or --out). The dev saves are not
-touched. Upload the repo's art/, sounds/ and PlayerRules.html under the base
-URL so the rewritten links resolve.
+touched. Host the referenced art/ and sounds/ files under the base URL, same
+layout as the repo, so the rewritten links resolve — see docs/publishing.md.
 """
 
 import argparse
@@ -22,7 +22,7 @@ import board_geometry  # shared board image↔world geometry
 _ap = argparse.ArgumentParser(description="Assemble the TTS save JSON.")
 _ap.add_argument("--publish", metavar="BASE_URL", default=None,
                  help="use BASE_URL for every asset instead of file:/// art "
-                      "and http://localhost:8080 sounds/rules; writes a "
+                      "and http://localhost:8080 art/sounds; writes a "
                       "separate publish save")
 _ap.add_argument("--out", default=None,
                  help="output path for the publish save "
@@ -38,7 +38,7 @@ ART_DIR = os.path.join(ROOT, "art")
 
 # ---------------------------------------------------------------------------
 # Asset URL resolution — maps logical names to local file:/// URLs
-# Replace with hosted URLs (imgur/Steam Workshop) for publication
+# (--publish swaps these for <BASE_URL>/art/... — see art() below)
 # ---------------------------------------------------------------------------
 
 ASSET_MAP = {

@@ -7,8 +7,8 @@
 
 | line | kind | symbol |
 |---|---|---|
-| 15 | table | `ASSETS` |
-| 125 | table | `BOARD_ART_URLS` |
+| 17 | table | `ASSETS` |
+| 127 | table | `BOARD_ART_URLS` |
 
 ## lua/helpers.lua (64 symbols)
 
@@ -1009,7 +1009,7 @@
 | `ACTIONS_PER_TURN` | lua/global.lua | 189 |
 | `ACTION_TOOLTIPS` | lua/ui_actionbar_display.lua | 422 |
 | `ACTION_TOOLTIP_DELAY` | lua/ui_actionbar_display.lua | 420 |
-| `ASSETS` | lua/assets.lua | 15 |
+| `ASSETS` | lua/assets.lua | 17 |
 | `AUDIO` | lua/audio_manifest.lua | 6 |
 | `Audio` | lua/audio.lua | 24 |
 | `Audio.playBossLoop` | lua/audio.lua | 251 |
@@ -1029,7 +1029,7 @@
 | `Audio.stopBossLoop` | lua/audio.lua | 261 |
 | `Audio.threatNameToBossKey` | lua/audio.lua | 238 |
 | `BENCH_POSITION` | lua/helpers.lua | 413 |
-| `BOARD_ART_URLS` | lua/assets.lua | 125 |
+| `BOARD_ART_URLS` | lua/assets.lua | 127 |
 | `BOARD_WORLD_SIZE` | lua/audit.lua | 114 |
 | `BOSS_BASE_STATS` | lua/actions_combat.lua | 27 |
 | `BOSS_KILL_NARRATIONS` | lua/combat.lua | 36 |

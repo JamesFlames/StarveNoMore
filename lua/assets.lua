@@ -1,10 +1,12 @@
 -- assets.lua
--- Single source of truth for all image URLs.
--- During local dev: run scripts/serve_art.bat, then set LOCAL_DEV = true.
--- Before publishing: set LOCAL_DEV = false and fill in the LIVE_* strings.
+-- Image URLs the *scripts* load at runtime. Art on the table's objects is
+-- baked into the save by build_save.py (its ASSET_MAP), not read from here.
+-- Today only BOARD_ART_URLS (below) is read — setup swaps the board image to
+-- the chosen path variant and Doom length.
+-- During local dev: run scripts/serve_art.bat (iwanttoplay starts it).
+-- Publishing needs no edit here: build_save.py --publish rewrites _BASE.
 
 -- TTS has no require() — this file is concatenated into the global script.
--- ASSETS is a global table referenced by all other modules.
 
 -- The local dev server (scripts/serve_art.bat) now serves the repo root,
 -- so paths under art/ go via the /art prefix. Sound URLs go through

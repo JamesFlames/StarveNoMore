@@ -57,5 +57,5 @@ Severity is 1–5 on Dawn cards. `cards_recipes.csv` and `resources.csv` share t
 
 - CSV schemas are enforced by `tests/test_csv_schema.py` (required columns,
   unique ids, stat ranges). Card ids are prefixed by deck (`P1_`, `M_`, `T_`, …).
-- `iconography.md` is authoritative for icon meaning; `asset_manifest.md` drives
-  `lua/assets.lua`. Deep reference: [`../docs/agents/`](../docs/agents/README.md).
+- `iconography.md` is authoritative for icon meaning; `asset_manifest.md` maps
+  where each asset's URL is declared. Deep reference: [`../docs/agents/`](../docs/agents/README.md).

@@ -52,7 +52,7 @@ StarveNoMore/
 │   ├── ui_mood.lua             # Phase lighting presets, safety-net confirms, camera nudges
 │   ├── audit.lua               # auditTooltips / auditHintCoverage / auditFirstLoad
 │   ├── selftest.lua            # runSelfTest() — scripted in-TTS smoke test (see Test Suite)
-│   └── assets.lua              # ASSETS table — image URL constants (LOCAL_DEV switch)
+│   └── assets.lua              # Runtime image URLs — BOARD_ART_URLS (board per path × Doom length); --publish rewrites _BASE
 ├── xml/
 │   ├── hud.xml                 # Persistent HUD: banner, cycle strip, host controls, action bar, stats, roster
 │   ├── setup.xml               # Guided setup walkthrough panels + character briefing

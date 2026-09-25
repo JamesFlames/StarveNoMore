@@ -12,8 +12,8 @@ The plan is derived from scripts/generators.json (so it can't drift from the
 manifest): each distinct generator script is run once, in the manifest's order,
 which already lists the lua-data generators before generate_symbol_index.py
 (it reads all of lua/). A generator whose sources are all missing is skipped —
-that lets a fresh clone without the ~955 MB sounds/ tree still build (the
-committed audio_manifest.lua is left untouched) instead of erroring out.
+that lets a checkout without the sounds/ tree (e.g. a sparse clone) still build
+(the committed audio_manifest.lua is left untouched) instead of erroring out.
 
 Usage:
     python scripts/regenerate_all.py            # regenerate everything + build

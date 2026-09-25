@@ -16,7 +16,7 @@ Pipeline (each step gates the next; a failure stops before anything ships):
                  art/sounds otherwise keep showing their OLD version —
                  the classic "board labels don't match the objects" bug.
   6. SERVE       ensure the local asset server is running on :8080
-                 (sounds + the Player Rules tablet need it).
+                 (the sounds and the art Lua swaps in by URL need it).
   7. LAUNCH      Tabletop Simulator via Steam. (--no-launch to skip.)
 
 Run from the repo root:  iwanttoplay  (the .bat wraps this script)
@@ -141,7 +141,7 @@ def ensure_server():
             check_server_trees()
             return
     say("WARNING: asset server did not answer on :8080 — sounds and the "
-        "rules tablet may not load. Is something else using the port?")
+        "board-variant art may not load. Is something else using the port?")
 
 
 def find_tts_saves_dir():

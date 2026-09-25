@@ -7,12 +7,12 @@ the rulebook can never drift from what the game itself says.
 
 Two outputs at the repo root:
   PlayerRules.md    — one concatenated markdown document (GitHub-readable).
-  PlayerRules.html  — a self-contained styled page. Viewable two ways:
-                        * in TTS: the "Player Rules" Tablet object on the
-                          table loads it via the local asset server
-                          (scripts/serve_art.bat → http://localhost:8080/PlayerRules.html);
-                        * in any desktop browser: open the file directly or
-                          hit the same URL.
+  PlayerRules.html  — a self-contained styled page for any desktop browser
+                      (open the file, or http://localhost:8080/PlayerRules.html
+                      while scripts/serve_art.bat runs). Nothing in the save
+                      links to it: in TTS the same book is the Help panel's
+                      Rulebook tab (lua/ui_help_pages.lua). The old in-TTS
+                      Tablet was removed 2026-07.
 
 Run: python scripts/generate_player_rules.py
 """

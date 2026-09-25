@@ -1,88 +1,32 @@
 # Asset Manifest
 
-All visual assets the mod references. Each row gives the asset ID (used in `lua/assets.lua`), the local development path, and the planned final URL.
+Where every image and sound the mod uses is declared, and how its URL is made.
+This file points at the sources of truth instead of copying them: the copied
+table that used to live here drifted into imgur placeholders and file names
+that no longer existed.
 
-**Hosting strategy (Phase C.1):** during development we reference assets via `file:///` URLs from `art/`. Pre-publish, they will be uploaded to Steam Workshop (caching is automatic on `Mod Caching = on`) or, if a CDN is preferred, mirrored to imgur direct links (`https://i.imgur.com/xxxxx.png`). The Lua module `lua/assets.lua` is the single switching point — change URLs there only.
+## Where assets are declared
 
-## Boards and tiles
-
-| Asset ID | Local path | Final URL (placeholder until publish) |
-|---|---|---|
-| `BOARD_MAIN` | `art/board/main_board.png` | https://i.imgur.com/PLACEHOLDER_main.png |
-| `TILE_JAMES` | `art/tiles/james.png` | https://i.imgur.com/PLACEHOLDER_t1.png |
-| `TILE_RAYMAN` | `art/tiles/rayman.png` | https://i.imgur.com/PLACEHOLDER_t2.png |
-| `TILE_ELLIE_LUCA` | `art/tiles/ellie_luca.png` | https://i.imgur.com/PLACEHOLDER_t3.png |
-| `TILE_BASKETBALL` | `art/tiles/basketball.png` | https://i.imgur.com/PLACEHOLDER_t4.png |
-| `TILE_BADMINTON` | `art/tiles/badminton.png` | https://i.imgur.com/PLACEHOLDER_t5.png |
-| `PATH_COMPACT` | `art/board/path_compact.png` | https://i.imgur.com/PLACEHOLDER_pc.png |
-| `PATH_SPRAWL` | `art/board/path_sprawl.png` | https://i.imgur.com/PLACEHOLDER_ps.png |
-| `PATH_LINEAR` | `art/board/path_linear.png` | https://i.imgur.com/PLACEHOLDER_pl.png |
-
-## Character art
-
-| Asset ID | Local path | Final URL |
-|---|---|---|
-| `CHAR_JAMES_FRONT` | `art/characters/james_front.png` | placeholder |
-| `CHAR_JAMES_BACK` | `art/characters/james_back.png` | placeholder |
-| `CHAR_JAMES_GHOST` | `art/characters/james_ghost.png` | placeholder |
-| `BOARD_JAMES` | `art/characters/board_james.png` | placeholder |
-| ... | (similar set for COCO, RAYMAN, ELLIE, LUCA) | placeholder |
-
-## Boss art
-
-| Asset ID | Local path | Final URL |
-|---|---|---|
-| `BOSS_DEERCLOPS_FRONT` | `art/bosses/deerclops_front.png` | placeholder |
-| `BOSS_DEERCLOPS_BACK` | `art/bosses/deerclops_back.png` | placeholder |
-| `BOSS_EYE_FRONT` | `art/bosses/eye_front.png` | placeholder |
-| `BOSS_EYE_BACK` | `art/bosses/eye_back.png` | placeholder |
-| `BOSS_SOURCE_FRONT` | `art/bosses/source_front.png` | placeholder |
-| `BOSS_SOURCE_BACK` | `art/bosses/source_back.png` | placeholder |
-
-## Card atlases
-
-| Asset ID | Local path | Final URL | Grid |
+| What | Declared in | Dev URL | `--publish <base>` URL |
 |---|---|---|---|
-| `DECK_PHASE1_FACE` | `art/decks/phase1_face.jpg` | placeholder | 4x4 |
-| `DECK_PHASE1_BACK` | `art/decks/phase1_back.png` | placeholder | 1x1 |
-| `DECK_PHASE2_FACE` | `art/decks/phase2_face.jpg` | placeholder | 4x4 |
-| `DECK_PHASE2_BACK` | `art/decks/phase2_back.png` | placeholder | 1x1 |
-| `DECK_PHASE3_FACE` | `art/decks/phase3_face.jpg` | placeholder | 4x4 |
-| `DECK_PHASE3_BACK` | `art/decks/phase3_back.png` | placeholder | 1x1 |
-| `DECK_PHASE4_FACE` | `art/decks/phase4_face.jpg` | placeholder | 4x4 |
-| `DECK_PHASE4_BACK` | `art/decks/phase4_back.png` | placeholder | 1x1 |
-| `DECK_MARKET_FACE` | `art/decks/market_face.jpg` | placeholder | 7x8 |
-| `DECK_MARKET_BACK` | `art/decks/market_back.png` | placeholder | 1x1 |
-| `DECK_RECIPE_FACE` | `art/decks/recipe_face.jpg` | placeholder | 5x4 |
-| `DECK_RECIPE_BACK` | `art/decks/recipe_back.png` | placeholder | 1x1 |
-| `DECK_THREAT_FACE` | `art/decks/threat_face.jpg` | placeholder | 6x8 |
-| `DECK_THREAT_BACK` | `art/decks/threat_back.png` | placeholder | 1x1 |
-| `DECK_VISITOR_FACE` | `art/decks/visitor_face.jpg` | placeholder | 3x2 |
-| `DECK_VISITOR_BACK` | `art/decks/visitor_back.png` | placeholder | 1x1 |
-| `DECK_TROPHY_FACE` | `art/decks/trophy_face.jpg` | placeholder | 2x2 |
-| `DECK_TROPHY_BACK` | `art/decks/trophy_back.png` | placeholder | 1x1 |
+| Art on the table's objects — board, tiles, standees, player boards, bosses, deck atlases, tokens, icons, and the achievement icons (also listed as `CustomUIAssets` for the XML UI) | `ASSET_MAP` in `scripts/build_save.py` | `file:///<repo>/art/...` | `<base>/art/...` |
+| Art the scripts swap in at setup — the board image per path variant × Doom length | `BOARD_ART_URLS` in `lua/assets.lua` | `http://localhost:8080/art/...` | `<base>/art/...` |
+| Audio | `lua/audio_manifest.lua` — AUTO-GENERATED from `sounds/` by `scripts/generate_audio_manifest.py` | `http://localhost:8080/sounds/...` | `<base>/sounds/...` |
+| Deck grid sizes | `art/decks/atlas_manifest.json`, written by `scripts/generate_card_atlases.py` | — | — |
 
-## Token / icon images
-
-| Asset ID | Local path |
-|---|---|
-| `ICON_HEALTH` | `art/icons/icon_health.png` |
-| `ICON_HUNGER` | `art/icons/icon_hunger.png` |
-| `ICON_SANITY` | `art/icons/icon_sanity.png` |
-| `ICON_WOOD` ... `ICON_BATTERY` | `art/icons/icon_*.png` |
-| `ICON_MOVE` ... `ICON_CLEANSE` | `art/icons/icon_*.png` |
-| `TOKEN_DOOM` | `art/tokens/doom_marker.png` |
-| `TOKEN_HEART` | `art/tokens/telltale_heart.png` |
-| `TOKEN_RESOURCE_*` | `art/tokens/resource_*.png` |
-| `TOKEN_STAT_MARKER` | `art/tokens/stat_marker.png` |
+The rest of the `ASSETS` table in `lua/assets.lua` is defined but not read by
+any script, so it needs no hosting. The `localhost` URLs need
+`scripts/serve_art.bat` running during local play. Hosting, the measured
+payload and the Workshop upload are in
+[docs/publishing.md](../docs/publishing.md).
 
 ## Card illustrations
 
 One PNG per card row, generated by ComfyUI from the per-card prompt
 (`art_notes` column + per-deck prefix + locked STYLE prefix), then composited
 into the deck face atlases by `scripts/generate_card_atlases.py`. These are
-*inputs* to atlas generation; they are not referenced individually by
-`lua/assets.lua`.
+*inputs* to atlas generation; the save never references them individually, so
+they are not published.
 
 | Asset ID pattern | Local path pattern | Generated by |
 |---|---|---|
@@ -90,46 +34,26 @@ into the deck face atlases by `scripts/generate_card_atlases.py`. These are
 
 Card IDs come from the `id` column of every `content/cards_*.csv` (e.g.
 `P1_QUIET_EVENING`, `M_FLASHLIGHT`, `R_HOT_STEW`, `T_SHADOW_STALKER`,
-`V_COCO_ARRIVES`, `TR_DEERCLOPS`). 187 cards in total at v1 content lock.
+`V_COCO_ARRIVES`, `TR_DEERCLOPS`).
 
 Missing illustrations are not a build error — `generate_card_atlases.py`
 falls back to a flat colored rectangle in the deck's accent color, so partial
 generations still produce a usable atlas.
 
-## Severity legend
-
-| Asset ID | Local path |
-|---|---|
-| `LEGEND_SEVERITY` | `art/legend/severity_legend.png` |
-
-## UI backgrounds
-
-| Asset ID | Local path |
-|---|---|
-| `UI_BG_BANNER` | `art/ui/bg_banner.png` |
-| `UI_BG_HELP_PANEL` | `art/ui/bg_help_panel.png` |
-| `UI_BG_MODAL` | `art/ui/bg_modal.png` |
-| `UI_BG_BOARD_PANEL` | `art/ui/bg_board_panel.png` |
-
 ## Audio
 
-Sounds are served via `scripts/serve_art.bat` (which serves the repo root)
-at `http://localhost:8080/sounds/...`. The `lua/audio_manifest.lua` Lua
-table is auto-generated by `scripts/generate_audio_manifest.py` and is the
-runtime source of truth for the URLs and per-track durations. See
-`docs/agents/audio.md` for behaviour details.
+`lua/audio_manifest.lua` is the runtime source of truth for the URLs and
+per-track durations; behaviour is in `docs/agents/audio.md`.
 
 | Asset path | Purpose |
 |---|---|
-| `sounds/ambient/suburban/*.ogg` | Day-start tracks (random pick once per day) |
-| `sounds/ambient/varied/*.ogg` | Chained ambient tracks until Night |
-| `sounds/creatures/bearger/*.ogg` | Bearger boss roar loop (forward-looking — not yet spawned in code) |
-| `sounds/creatures/deerclops/*.ogg` | Deerclops boss roar loop (P2 boss) |
-| `sounds/creatures/eye_of_terror/*.ogg` | Eye of Terror roar loop (P3 boss) |
-| `sounds/creatures/treeguard/*.ogg` | Treeguard roar loop (forward-looking) |
-| `sounds/sfx/tick_chime.wav` | End-of-day Tick chime (synthesized bell) |
+| `sounds/ambient/suburban/*.ogg` | Day track: one picked each Dawn, looped all day |
+| `sounds/ambient/varied/*.ogg` | Fallback day pool — used only when `suburban/` is empty |
+| `sounds/ambient/night/*.ogg` | Night drones (synthesized): one picked each Night, looped |
+| `sounds/creatures/<boss>/*.ogg` | Roar loop while that boss is alive (`bearger/` has no threat card yet) |
+| `sounds/sfx/*` | One-shots: Tick chime, turn ping, walk / meet / trade / death, hit landed / taken, Night Sounds growl |
 
-## Notes
-
-- Final URLs above are placeholders. Before publishing the mod, art is produced (Phase B), uploaded (Phase C.2), and `lua/assets.lua` is regenerated (Phase C.3).
-- During local development, `lua/assets.lua` defaults to `file:///` URLs pointing into `art/`. The `LOCAL_DEV` flag in `lua/assets.lua` controls this.
+Provenance: the ambient pools and the creature clips are Klei's, from
+*Don't Starve* (see [docs/publishing.md](../docs/publishing.md), task R1). The
+night drones and the chime, ping, hit and growl SFX are synthesized by this
+repo's scripts.

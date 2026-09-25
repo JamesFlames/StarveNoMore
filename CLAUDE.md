@@ -3,7 +3,7 @@
 **For any task:** (1) find the file via [`TASKMAP.md`](TASKMAP.md) or
 `python scripts/sym.py NAME` (symbol → `file:line` + signature + call sites),
 (2) open only that file, (3) run **`python scripts/check.py`** before you finish
-— it regenerates, rebuilds, tests and lints in one command (~22 s).
+— it regenerates, rebuilds, tests and lints in one command (~50 s).
 
 **Touching anything that talks to Tabletop Simulator?** Read the two TTS
 docs FIRST — they are lists of engine behaviours that already burned us:
@@ -65,7 +65,7 @@ Dependencies (`pytest lupa Pillow`) install automatically via the committed
 
 - `python scripts/regenerate_all.py` — every generator, then the build.
 - `python scripts/build_save.py` — assemble `saves/StarveNoMore.json`.
-- `python -m pytest tests` — ~810 tests, ~20 s.
+- `python -m pytest tests` — ~1,400 tests, ~45 s.
 - `python scripts/check.py --fast` — skip regenerate/build, test + lint only.
 
 The canonical description of the pipeline lives in

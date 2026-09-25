@@ -46,20 +46,24 @@ Verified working on the current tree: 172 URLs rewritten, zero `file:///`,
 zero `localhost`, committed dev saves untouched.
 
 What that means: **the build side of publishing is not the work.** The work is
-picking a host, getting 171 files onto it, and everything in "Before you press
+picking a host, getting 186 files onto it, and everything in "Before you press
 upload" below.
 
 ## The payload
 
 | | Files | Size |
 |---|---|---|
-| Art (`art/`, referenced by the save) | 87 | 35.9 MB |
+| Art on the table's objects (`ASSET_MAP` in `build_save.py`) | 87 | 35.9 MB |
+| Art the scripts swap in at setup (the 15 board variants in `BOARD_ART_URLS`, `lua/assets.lua`) | 15 | 7.4 MB |
 | Sound (`sounds/`, all of it) | 84 | 18.8 MB |
-| **Total a first-time player downloads** | **171** | **54.7 MB** |
+| **Total to host** | **186** | **62.1 MB** |
 
-`art/` on disk is 274 MB; only 35.9 MB of it is actually reachable from the
-save (the rest is sources, variants and ComfyUI output). **Upload the
-referenced set, not the folder** — see task H1.
+A player fetches only the board variant their setup picks, so a first load is
+a little under the total. `art/` on disk is 274 MB; only 43.3 MB of it is
+reachable from the save (the rest is sources and ComfyUI output). The other 65
+entries in `lua/assets.lua` (tiles, standees, decks, tokens) are defined but
+never read by any script — they don't need hosting. **Upload the referenced
+set, not the folder** — see task H1.
 
 Everything is already inside TTS's stated limits: no image exceeds 4096×4096
 (largest is `art/decks/threat_face.jpg` at 3264×4095), all art is PNG/JPG in
@@ -71,24 +75,24 @@ task H1 is worth doing anyway for load time.
 
 | Option | Cost (NZD) | Stable paths? | Verdict |
 |---|---|---|---|
-| **TTS Steam Cloud** | $0, 100 GB, permanent | ✗ — each upload returns an opaque `steamusercontent.com` hash | Durable and free, but 171 hand-copied URLs and the build stops being reproducible |
+| **TTS Steam Cloud** | $0, 100 GB, permanent | ✗ — each upload returns an opaque `steamusercontent.com` hash | Durable and free, but 186 hand-copied URLs and the build stops being reproducible |
 | **Cloudflare R2** | $0 (free tier: 10 GB storage, **zero egress**) | ✓ — you choose the paths | **Recommended** |
 | **GitHub Pages** | $0 | ✓ | Works, but Pages is documented as a site host, not an asset CDN; a soft-limit warning on a published mod is a bad day |
 | **Imgur / random image hosts** | $0 | ✗ | The classic dead-TTS-mod cause. No. |
 
-R2 free tier is 10 GB-month of storage with no egress charge, against a 54.7 MB
-payload — this mod costs **NZD $0.00/month** and would stay free past ~180×
+R2 free tier is 10 GB-month of storage with no egress charge, against a 62.1 MB
+payload — this mod costs **NZD $0.00/month** and would stay free past ~160×
 its current size. Even paid, R2 Standard is US$0.015/GB-month ≈ **NZD
 $0.025/GB-month** (at ~1.69 NZD/USD, Sept 2026), so the whole mod is about
-**NZD $0.0014/month** if the free tier ever vanished. A custom domain is
+**NZD $0.0016/month** if the free tier ever vanished. A custom domain is
 optional (~NZD $20–30/yr); the default `r2.dev` or a Workers route is fine.
 
 Why not Steam Cloud as primary, despite being the "official" answer: its URLs
 are unguessable per-file hashes, so `--publish <base>` cannot generate them.
-You would need a checked-in `asset_name → steamusercontent URL` map, 171
+You would need a checked-in `asset_name → steamusercontent URL` map, 186
 manual copy-pastes to populate it, and another round every time art
-regenerates. That trades this repo's whole "rebuild it from source in 22
-seconds" property for a saved NZD $0.00. The Cloud Manager's **Upload All**
+regenerates. That trades this repo's whole "rebuild it from source in under a
+minute" property for a saved NZD $0.00. The Cloud Manager's **Upload All**
 button doesn't rescue this either — it only migrates files TTS has *currently
 loaded*, and this mod loads board variants, scenario art and boss audio lazily,
 so a single pass would miss most of the payload.
@@ -101,8 +105,9 @@ mirror later if you ever want it (task R4).**
 ### Phase H — host the assets
 
 - **H1. Build a publish asset bundle.** New `scripts/collect_publish_assets.py`:
-  parse the same `ASSET_MAP` + `lua/assets.lua` the build uses, copy exactly the
-  referenced 171 files into `dist/publish/{art,sounds}/`, and fail loudly on a
+  parse the same `ASSET_MAP`, `BOARD_ART_URLS` (the only `lua/assets.lua` table
+  a script reads) and `lua/audio_manifest.lua` the build uses, copy exactly the
+  referenced 186 files into `dist/publish/{art,sounds}/`, and fail loudly on a
   referenced file that doesn't exist. Prevents shipping 274 MB and prevents a
   silent missing-asset hole. Roughly a two-hour job.
 - **H2. ~~Fix the one filename that will break on a real host.~~ DONE.**
@@ -119,7 +124,7 @@ mirror later if you ever want it (task R4).**
 - **H4. Set cache headers.** Long `Cache-Control` (these files are immutable in
   practice) so repeat loads are cheap. TTS's own Mod Caching already keeps
   downloaded assets locally between sessions, so this mostly helps first loads.
-- **H5. Smoke-test the URLs.** Script it: `HEAD` all 171, assert 200 and a
+- **H5. Smoke-test the URLs.** Script it: `HEAD` all 186, assert 200 and a
   sane `Content-Type`. A 403 on one board variant is invisible until the one
   player who picks that scenario complains.
 
@@ -133,7 +138,7 @@ mirror later if you ever want it (task R4).**
   A full 7-day game: every board variant, every scenario, at least one boss
   (audio only loads when a boss arrives), the Rulebook, the achievements panel.
 - **B3. Time the cold load** and write the number into the Workshop description.
-  55 MB over a domestic NZ connection is not instant and players blame the mod,
+  ~60 MB over a domestic NZ connection is not instant and players blame the mod,
   not their line, when a table sits half-drawn.
 - **B4. Wire it into `check.py`** or a `scripts/publish.py` one-shot that does
   H1 → B1 → H5 in order, so releasing is one command like everything else here.
@@ -155,31 +160,33 @@ Done from inside TTS: load `StarveNoMore.publish.json`, then
   back; record it in the repo.
 - **C5. Record the ID and the base URL** in `README.md` so future updates go to
   the same item via `Update Workshop` rather than creating a duplicate.
+- **C6. Updating.** A Lua/XML-only change: rebuild against the same base, load,
+  `Upload → Workshop Upload → Update Workshop`. Changed art or audio: upload
+  it under a **new** base (`…/v2`) and rebuild — TTS caches every asset by URL
+  (the reason `iwanttoplay` purges its cache), so a file replaced in place
+  never reaches players who already have it. Keep the old base up; saves in
+  progress still point at it.
 
 ### Phase R — before you press upload (do these first)
 
-- **R1. Audio provenance — the real blocker.** `sounds/` is full of files named
-  `dontstarve_dlc003_amb_temperate_interior_city_day.ogg`,
-  `hamlet_amb_cave_st_lp.ogg`, `bearger_*`, `deerclops_*`. Those are Klei
-  assets from *Don't Starve*. A private table is one thing; a public Workshop
-  item redistributing another studio's audio is a DMCA target and a real risk
-  of losing the item. Klei is famously relaxed about fan work, but "relaxed"
-  is not a licence. Decide deliberately:
-  (a) ask Klei for written permission, (b) replace the ripped tracks with
-  CC0/CC-BY audio (freesound.org, Kenney) or generated ambience — the manifest
-  is auto-generated, so swapping files is cheap, or (c) publish
-  friends-only/unlisted and skip the question. The synthesized SFX
-  (`scripts/generate_hit_sfx.py`, the drones, the chime) are already yours and
-  are not affected.
+- **R1. Audio provenance — settled (2026-09).** The ambient pools and the
+  creature clips in `sounds/` are Klei assets from *Don't Starve*
+  (`dontstarve_dlc003_…`, `hamlet_amb_…`, `bearger_*`, `deerclops_*`, the
+  Treeguard's `Leif_*`, the Eye of Terror's `Tentacle_*`). Klei was emailed
+  about this use and raised no objection, so the audio stays. Keep that email
+  as the record, and credit Klei for the audio in the Workshop description and
+  `CREDITS.md` (R3). The synthesized SFX (`scripts/generate_hit_sfx.py`, the
+  drones, the chime) are this repo's own.
 - **R2. Names and likenesses.** Bearger, Deerclops, Treeguard and Charlie are
-  Klei's creature names; the same call as R1 applies to text and art, and
-  renaming is cheaper than re-recording. Also worth a thought: the characters
+  Klei's creature names, and the boss art depicts them. The R1 email was
+  about the audio; decide whether it covers these too, or ask the same
+  question about names and art. Also worth a thought: the characters
   are named after real people — fine, but it's a public item now.
 - **R3. Credits and licence.** Add a `CREDITS.md` (art provenance, including
   which pieces are ComfyUI-generated, audio sources, the DST/Hogwarts
   Battle/Catan/Cthulhu Wars design debts already noted in `README.md`) and a
   `LICENSE` for the code. The repo currently has neither.
-- **R4. Optional durability mirror.** Once live and stable, also push the 171
+- **R4. Optional durability mirror.** Once live and stable, also push the 186
   files through the TTS Cloud Manager and keep the URL map in
   `content/cloud_urls.json`. Costs nothing, and if R2 ever goes away you can
   rebuild against Steam Cloud without re-uploading under pressure.
@@ -194,12 +201,11 @@ Done from inside TTS: load `StarveNoMore.publish.json`, then
   it; the *Copy my code* button is the migration path). Say so in the
   description or you'll get bug reports.
 - **`PlayerRules.html` does not need hosting.** Nothing in the save links to it
-  — the whole rulebook is in-game via `lua/ui_help_pages.lua`. The docstring in
-  `build_save.py` that says to upload it is stale.
+  — the whole rulebook is in-game via `lua/ui_help_pages.lua`.
 - **No DLC dependency.** The mod uses only base TTS features, so anyone who
   owns Tabletop Simulator can subscribe.
 
 ## Order of play
 
-R1 first — it's the only item that can invalidate everything downstream.
-Then H1, H3–H5, B1–B4, R3, then Phase C. (H2 is already done.)
+R1 is settled and H2 is done. Next: decide R2, then H1, H3–H5, B1–B4, R3,
+then Phase C.

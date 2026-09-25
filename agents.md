@@ -98,7 +98,7 @@ plain-text provenance notes.)
 ### content/ — in-game text and asset specs (loaded into the mod at build/runtime)
 
 - [content/iconography.md](content/iconography.md) — full icon vocabulary (stats, resources, actions, keywords) and the 5-tier severity-dot ladder. Authoritative for icon meaning.
-- [content/asset_manifest.md](content/asset_manifest.md) — every asset's ID, local path, and planned URL. Drives `lua/assets.lua`.
+- [content/asset_manifest.md](content/asset_manifest.md) — where each image/sound URL is declared; audio provenance.
 - [content/notebook/quickstart.md](content/notebook/quickstart.md) — 1-page summary shown in the in-game Notebook.
 - [content/notebook/full_rules.md](content/notebook/full_rules.md) — abridged rulebook for the Notebook.
 - [content/notebook/character_reference.md](content/notebook/character_reference.md) — perks/constraints for all 5 characters.

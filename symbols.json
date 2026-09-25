@@ -104,7 +104,7 @@
   "ASSETS": [
    {
     "file": "lua/assets.lua",
-    "line": 15,
+    "line": 17,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -312,7 +312,7 @@
   "BOARD_ART_URLS": [
    {
     "file": "lua/assets.lua",
-    "line": 125,
+    "line": 127,
     "kind": "table",
     "params": null,
     "arity": null,

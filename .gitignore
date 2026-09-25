@@ -6,9 +6,8 @@
 Thumbs.db
 .DS_Store
 
-# Local sound assets (~955MB — too large for git; keep on disk only)
-# Auto-discovered by scripts/generate_audio_manifest.py at build time
-# sounds/
+# sounds/ is COMMITTED (~19 MB of OGG/WAV). Keep new audio compressed —
+# tests/test_media_budget.py fails on any file over 4 MB or any WAV ambient track.
 
 # Python build cache
 __pycache__/
