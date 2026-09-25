@@ -63,7 +63,7 @@ Per [HowToCreateGamesInTabletopSimulator.md §11](../../Archive/HowToCreateGames
 
 ### 18.5 Asset hosting
 
-All custom assets (card faces, board images, location tiles, standee art, audio) must be hosted on a stable HTTPS source. A Workshop upload does **not** do this: it stores only the save and a thumbnail, and every player's TTS fetches each asset URL itself (then caches it by URL, so a file must never change behind a published URL — publish changed art under a new base). The dev save's `file:///` and `localhost` URLs work only on the build machine; `build_save.py --publish <base>` rewrites them all, including the ones inside the Lua bundle. Host choice, payload and upload steps: [docs/publishing.md](../publishing.md).
+All custom assets (card faces, board images, location tiles, standee art, audio) must be hosted on a stable HTTPS source. A Workshop upload does **not** do this: it stores only the save and a thumbnail, and every player's TTS fetches each asset URL itself (then caches it by URL, so a file must never change behind a published URL — changed art ships under a new release tag). The dev save's `file:///` and `localhost` URLs work only on the build machine; `scripts/publish.py <tag>` rebuilds with every one of them — including the ones inside the Lua bundle — pointing at this public repo on GitHub at that tag. Payload and upload steps: [docs/publishing.md](../publishing.md).
 
 ### 18.6 Tagging convention
 

@@ -36,7 +36,6 @@ COMFYUI_OUTPUT_DIR = r"c:\Users\GGPC\Documents\ComfyUI\output"
 CATEGORY_DIRS = {
     "snm_card_":  os.path.join(REPO_ROOT, "art", "decks", "illustrations"),
     "snm_loc_":   os.path.join(REPO_ROOT, "art", "tiles"),
-    "snm_path_":  os.path.join(REPO_ROOT, "art", "board"),
     "snm_boss_":  os.path.join(REPO_ROOT, "art", "bosses"),
     "snm_ach_":   os.path.join(REPO_ROOT, "art", "achievements", "src"),
 }
@@ -54,11 +53,19 @@ CATEGORY_DIRS = {
 # and `--force` skips that check — so name them explicitly instead of trusting
 # file timestamps. The courts are NOT hero art: they are generated, and
 # art/tiles/basketballcourt.png is byte-identical to its ComfyUI original.
+#
+# Retired renders: these bosses were removed from art/ in 2026-09 because no
+# card or object uses them, but their renders are still in ComfyUI's output
+# directory and would be copied straight back. (The snm_path_ renders need no
+# entry — that prefix no longer has a route, so they are skipped as unknown.)
 SKIP_PREFIXES = (
     "snm_char_",
     "snm_loc_jameshome",
     "snm_loc_raymanhome",
     "snm_loc_ellielucahome",
+    "snm_boss_hound",
+    "snm_boss_spider_queen",
+    "snm_boss_bearger",
 )
 
 # ComfyUI's SaveImage tail: "<prefix>_<5-digit>_.png"

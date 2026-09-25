@@ -124,11 +124,11 @@ def test_a_long_clip_is_watched(env):
 
 
 def test_a_short_clip_is_not_watched(env):
-    """A bearger roar is under 4s. The watchdog fires at 6s, by which point a
-    perfectly good clip has ENDED — and a finished MusicPlayer reports the
-    same "Stop" a failed load does, so watching short clips would strike every
-    boss sound for the crime of playing correctly."""
-    env.globals().Audio.playBossLoop("bearger")
+    """Every treeguard clip is under 3s. The watchdog fires at 6s, by which
+    point a perfectly good clip has ENDED — and a finished MusicPlayer reports
+    the same "Stop" a failed load does, so watching short clips would strike
+    every boss sound for the crime of playing correctly."""
+    env.globals().Audio.playBossLoop("treeguard")
     assert env.eval("Audio.state.watchHandle") is None
     assert played(env) == 1, "the roar itself must still play"
 

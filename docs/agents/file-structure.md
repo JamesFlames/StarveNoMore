@@ -78,12 +78,12 @@ StarveNoMore/
 │       ├── character_briefings.md  # Source of truth for CHAR_BRIEFINGS (setup popup)
 │       └── whatnow_hints.md    # Source of truth for WHATNOW_HINTS
 ├── art/
-│   ├── board/  tiles/  characters/  bosses/  decks/  icons/  ui/  legend/  tokens/
+│   ├── board/  tiles/  characters/  bosses/  decks/  achievements/  legend/  tokens/
 │   └── decks/illustrations/    # Per-card art from ComfyUI (sync target)
 ├── sounds/
-│   ├── ambient/{suburban,varied}/   # Day-music tracks
-│   ├── creatures/{bearger,deerclops,eye_of_terror,treeguard}/   # Boss roar libraries
-│   └── sfx/tick_chime.wav      # Synthesized two-note bell
+│   ├── ambient/{suburban,night}/    # Day tracks + synthesized night drones
+│   ├── creatures/{deerclops,eye_of_terror,treeguard}/   # Boss roar libraries
+│   └── sfx/                    # One-shots: chime, turn ping, hits, character SFX, growl
 ├── playtest/                   # Blind-playtest protocol (batch 4 W4): facilitator_script.md + feedback_form.md
 │   └── sessions/               # Committed Copy-Session-Log exports; aggregate with scripts/analyze_sessions.py
 ├── saves/                      # Built TTS save JSON (StarveNoMore.json + .pretty.json)

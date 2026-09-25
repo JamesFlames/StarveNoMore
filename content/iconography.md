@@ -6,9 +6,12 @@ Visual vocabulary used across cards, board, sliders, and UI panels. Each icon mu
 
 | Icon | Symbol | File ID | Notes |
 |---|---|---|---|
-| ❤ Health | filled heart | `icon_health.png` | Red. Cardiac silhouette. |
-| 🍴 Hunger | crossed fork & knife | `icon_hunger.png` | Warm orange. |
-| 🧠 Sanity | abstract brain spiral | `icon_sanity.png` | Cool purple/teal. |
+| ❤ Health | filled heart | — | Red. Cardiac silhouette. |
+| 🍴 Hunger | crossed fork & knife | — | Warm orange. |
+| 🧠 Sanity | abstract brain spiral | — | Cool purple/teal. |
+
+The standalone `icon_<stat>.png` files were removed in 2026-09 — nothing loaded
+them — and `scripts/generate_assets.py` no longer writes them.
 
 ## Resources
 

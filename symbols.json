@@ -104,7 +104,7 @@
   "ASSETS": [
    {
     "file": "lua/assets.lua",
-    "line": 17,
+    "line": 18,
     "kind": "table",
     "params": null,
     "arity": null,
@@ -134,19 +134,19 @@
   "Audio.playBossLoop": [
    {
     "file": "lua/audio.lua",
-    "line": 251,
+    "line": 247,
     "kind": "function",
     "params": [
      "boss_name"
     ],
     "arity": 1,
-    "doc": "Called when a boss appears. boss_name must match a key in AUDIO.CREATURES (e.g. \"bearger\", \"deerclops\", \"eye_of_terror\", \"treeguard\"). If the boss has no audio…"
+    "doc": "Called when a boss appears. boss_name must match a key in AUDIO.CREATURES (e.g. \"deerclops\", \"eye_of_terror\", \"treeguard\"). If the boss has no audio (e.g. \"the…"
    }
   ],
   "Audio.playChime": [
    {
     "file": "lua/audio.lua",
-    "line": 299,
+    "line": 295,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -156,7 +156,7 @@
   "Audio.playDeath": [
    {
     "file": "lua/audio.lua",
-    "line": 304,
+    "line": 300,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -166,7 +166,7 @@
   "Audio.playGrowl": [
    {
     "file": "lua/audio.lua",
-    "line": 305,
+    "line": 301,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -176,7 +176,7 @@
   "Audio.playHitLand": [
    {
     "file": "lua/audio.lua",
-    "line": 312,
+    "line": 308,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -186,7 +186,7 @@
   "Audio.playHitTaken": [
    {
     "file": "lua/audio.lua",
-    "line": 313,
+    "line": 309,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -196,7 +196,7 @@
   "Audio.playMeet": [
    {
     "file": "lua/audio.lua",
-    "line": 303,
+    "line": 299,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -206,7 +206,7 @@
   "Audio.playSFX": [
    {
     "file": "lua/audio.lua",
-    "line": 276,
+    "line": 272,
     "kind": "function",
     "params": [
      "key"
@@ -218,7 +218,7 @@
   "Audio.playTradeChat": [
    {
     "file": "lua/audio.lua",
-    "line": 302,
+    "line": 298,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -228,7 +228,7 @@
   "Audio.playTurnPing": [
    {
     "file": "lua/audio.lua",
-    "line": 300,
+    "line": 296,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -238,7 +238,7 @@
   "Audio.playWalk": [
    {
     "file": "lua/audio.lua",
-    "line": 301,
+    "line": 297,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -248,7 +248,7 @@
   "Audio.startDayAmbience": [
    {
     "file": "lua/audio.lua",
-    "line": 207,
+    "line": 204,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -258,7 +258,7 @@
   "Audio.startNightAmbience": [
    {
     "file": "lua/audio.lua",
-    "line": 217,
+    "line": 214,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -268,7 +268,7 @@
   "Audio.stopAmbience": [
    {
     "file": "lua/audio.lua",
-    "line": 226,
+    "line": 223,
     "kind": "function",
     "params": [],
     "arity": 0,
@@ -278,7 +278,7 @@
   "Audio.stopBossLoop": [
    {
     "file": "lua/audio.lua",
-    "line": 261,
+    "line": 257,
     "kind": "function",
     "params": [
      "boss_name"
@@ -290,7 +290,7 @@
   "Audio.threatNameToBossKey": [
    {
     "file": "lua/audio.lua",
-    "line": 238,
+    "line": 235,
     "kind": "function",
     "params": [
      "name"
@@ -312,7 +312,7 @@
   "BOARD_ART_URLS": [
    {
     "file": "lua/assets.lua",
-    "line": 127,
+    "line": 47,
     "kind": "table",
     "params": null,
     "arity": null,

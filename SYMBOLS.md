@@ -7,8 +7,8 @@
 
 | line | kind | symbol |
 |---|---|---|
-| 17 | table | `ASSETS` |
-| 127 | table | `BOARD_ART_URLS` |
+| 18 | table | `ASSETS` |
+| 47 | table | `BOARD_ART_URLS` |
 
 ## lua/helpers.lua (64 symbols)
 
@@ -137,22 +137,22 @@
 | line | kind | symbol |
 |---|---|---|
 | 24 | table | `Audio` |
-| 207 | function | `Audio.startDayAmbience` |
-| 217 | function | `Audio.startNightAmbience` |
-| 226 | function | `Audio.stopAmbience` |
-| 238 | function | `Audio.threatNameToBossKey` |
-| 251 | function | `Audio.playBossLoop` |
-| 261 | function | `Audio.stopBossLoop` |
-| 276 | function | `Audio.playSFX` |
-| 299 | function | `Audio.playChime` |
-| 300 | function | `Audio.playTurnPing` |
-| 301 | function | `Audio.playWalk` |
-| 302 | function | `Audio.playTradeChat` |
-| 303 | function | `Audio.playMeet` |
-| 304 | function | `Audio.playDeath` |
-| 305 | function | `Audio.playGrowl` |
-| 312 | function | `Audio.playHitLand` |
-| 313 | function | `Audio.playHitTaken` |
+| 204 | function | `Audio.startDayAmbience` |
+| 214 | function | `Audio.startNightAmbience` |
+| 223 | function | `Audio.stopAmbience` |
+| 235 | function | `Audio.threatNameToBossKey` |
+| 247 | function | `Audio.playBossLoop` |
+| 257 | function | `Audio.stopBossLoop` |
+| 272 | function | `Audio.playSFX` |
+| 295 | function | `Audio.playChime` |
+| 296 | function | `Audio.playTurnPing` |
+| 297 | function | `Audio.playWalk` |
+| 298 | function | `Audio.playTradeChat` |
+| 299 | function | `Audio.playMeet` |
+| 300 | function | `Audio.playDeath` |
+| 301 | function | `Audio.playGrowl` |
+| 308 | function | `Audio.playHitLand` |
+| 309 | function | `Audio.playHitTaken` |
 
 ## lua/whatnow_hints.lua (1 symbols)
 
@@ -1009,27 +1009,27 @@
 | `ACTIONS_PER_TURN` | lua/global.lua | 189 |
 | `ACTION_TOOLTIPS` | lua/ui_actionbar_display.lua | 422 |
 | `ACTION_TOOLTIP_DELAY` | lua/ui_actionbar_display.lua | 420 |
-| `ASSETS` | lua/assets.lua | 17 |
+| `ASSETS` | lua/assets.lua | 18 |
 | `AUDIO` | lua/audio_manifest.lua | 6 |
 | `Audio` | lua/audio.lua | 24 |
-| `Audio.playBossLoop` | lua/audio.lua | 251 |
-| `Audio.playChime` | lua/audio.lua | 299 |
-| `Audio.playDeath` | lua/audio.lua | 304 |
-| `Audio.playGrowl` | lua/audio.lua | 305 |
-| `Audio.playHitLand` | lua/audio.lua | 312 |
-| `Audio.playHitTaken` | lua/audio.lua | 313 |
-| `Audio.playMeet` | lua/audio.lua | 303 |
-| `Audio.playSFX` | lua/audio.lua | 276 |
-| `Audio.playTradeChat` | lua/audio.lua | 302 |
-| `Audio.playTurnPing` | lua/audio.lua | 300 |
-| `Audio.playWalk` | lua/audio.lua | 301 |
-| `Audio.startDayAmbience` | lua/audio.lua | 207 |
-| `Audio.startNightAmbience` | lua/audio.lua | 217 |
-| `Audio.stopAmbience` | lua/audio.lua | 226 |
-| `Audio.stopBossLoop` | lua/audio.lua | 261 |
-| `Audio.threatNameToBossKey` | lua/audio.lua | 238 |
+| `Audio.playBossLoop` | lua/audio.lua | 247 |
+| `Audio.playChime` | lua/audio.lua | 295 |
+| `Audio.playDeath` | lua/audio.lua | 300 |
+| `Audio.playGrowl` | lua/audio.lua | 301 |
+| `Audio.playHitLand` | lua/audio.lua | 308 |
+| `Audio.playHitTaken` | lua/audio.lua | 309 |
+| `Audio.playMeet` | lua/audio.lua | 299 |
+| `Audio.playSFX` | lua/audio.lua | 272 |
+| `Audio.playTradeChat` | lua/audio.lua | 298 |
+| `Audio.playTurnPing` | lua/audio.lua | 296 |
+| `Audio.playWalk` | lua/audio.lua | 297 |
+| `Audio.startDayAmbience` | lua/audio.lua | 204 |
+| `Audio.startNightAmbience` | lua/audio.lua | 214 |
+| `Audio.stopAmbience` | lua/audio.lua | 223 |
+| `Audio.stopBossLoop` | lua/audio.lua | 257 |
+| `Audio.threatNameToBossKey` | lua/audio.lua | 235 |
 | `BENCH_POSITION` | lua/helpers.lua | 413 |
-| `BOARD_ART_URLS` | lua/assets.lua | 127 |
+| `BOARD_ART_URLS` | lua/assets.lua | 47 |
 | `BOARD_WORLD_SIZE` | lua/audit.lua | 114 |
 | `BOSS_BASE_STATS` | lua/actions_combat.lua | 27 |
 | `BOSS_KILL_NARRATIONS` | lua/combat.lua | 36 |

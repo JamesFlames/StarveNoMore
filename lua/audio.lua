@@ -2,8 +2,8 @@
 -- Game audio for Starve No More.
 --
 -- Behaviour:
---   - Each Dawn picks ONE ambient track (suburban pool, varied pool as a
---     fallback) and loops it until the day ends. Playtest: a mid-day track
+--   - Each Dawn picks ONE ambient track (sounds/ambient/suburban/) and loops
+--     it until the day ends. Playtest: a mid-day track
 --     change read as "did something just happen?" — repetition is the
 --     cozy baseline, and a new day gets a new track.
 --   - Night picks ONE low drone (sounds/ambient/night/) and loops it the
@@ -17,7 +17,7 @@
 -- Constraints:
 --   TTS has only one global MusicPlayer, so chimes and boss roars briefly
 --   take it over from the ambient track. After a one-shot, ambient resumes
---   from the appropriate phase (suburban or varied).
+--   from the appropriate phase (the day's track, or the night drone).
 --
 -- Depends on `AUDIO` table from audio_manifest.lua (auto-generated).
 
@@ -141,13 +141,10 @@ local function _scheduleNext(fn, delay)
     Audio.state.nextHandle = Wait.time(fn, delay)
 end
 
--- Day-ambience pool: suburban tracks, or the varied pool if none exist.
+-- Day-ambience pool: the suburban tracks.
 local function _dayPool()
     local pool = {}
     for _, c in ipairs(AUDIO.AMBIENT_SUBURBAN or {}) do pool[#pool + 1] = c end
-    if #pool == 0 then
-        for _, c in ipairs(AUDIO.AMBIENT_VARIED or {}) do pool[#pool + 1] = c end
-    end
     return pool
 end
 
@@ -240,13 +237,12 @@ function Audio.threatNameToBossKey(name)
     local lower = string.lower(name)
     if string.find(lower, "deerclops")  then return "deerclops" end
     if string.find(lower, "eye of terror") or string.find(lower, "eye_of_terror") then return "eye_of_terror" end
-    if string.find(lower, "bearger")   then return "bearger" end
     if string.find(lower, "treeguard") then return "treeguard" end
     return nil
 end
 
 -- Called when a boss appears. boss_name must match a key in AUDIO.CREATURES
--- (e.g. "bearger", "deerclops", "eye_of_terror", "treeguard"). If the boss
+-- (e.g. "deerclops", "eye_of_terror", "treeguard"). If the boss
 -- has no audio (e.g. "the_source"), this is a no-op so ambient continues.
 function Audio.playBossLoop(boss_name)
     if not boss_name then return end

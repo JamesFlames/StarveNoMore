@@ -262,16 +262,9 @@ ASSETS = [
          "bench, shuttlecocks scattered like small bones across the ground, "
          + CREEPY_MOOD)),
 
-    # ---- Path decoration variants (1024x1024) ----
-    ("snm_path_ring", 1024, 1024,
-     "top-down view of a suburban cul-de-sac neighborhood arranged in a ring shape, "
-     "five houses connected by winding paths forming a circle, streetlights and hedges, "
-     "board game path overlay with faint grid lines, " + STYLE),
-
-    ("snm_path_star", 1024, 1024,
-     "top-down view of a suburban neighborhood paths arranged in a star pattern, "
-     "five locations at star points connected by paths through a central crossroads, "
-     "streetlights and fences along walkways, board game path overlay, " + STYLE),
+    # ---- Path decoration variants ----
+    # Removed 2026-09: the snm_path_ring/star scenes were never used by the
+    # save — the path boards are drawn by generate_assets.py. Nothing to queue.
 
     # ---- Character standees ----
     # Character standee art (snm_char_*) is HAND-DRAWN by the project owner —
@@ -300,25 +293,13 @@ ASSETS = [
      "barely visible silhouette with glowing white eyes, "
      "wisps of shadow extending like claws, pure darkness incarnate, " + STYLE),
 
-    ("snm_boss_hound", 512, 1024,
-     "dark shadowy hellhound, skeletal features visible through matted fur, "
-     "glowing red eyes, bared fangs dripping shadow, low aggressive stance, "
-     "smoke trailing from body, " + STYLE),
-
-    ("snm_boss_spider_queen", 512, 1024,
-     "enormous spider queen monster, bloated abdomen, many gleaming eyes, "
-     "legs like gnarled tree branches, web strands trailing, "
-     "crown-like formation of chitin on head, " + STYLE),
-
     ("snm_boss_treeguard", 512, 1024,
      "living tree monster, Treeguard, massive trunk body with branch-arms, "
      "angry knothole face with glowing amber eyes, roots for legs, "
      "leaves falling as it moves, towering and ancient, " + STYLE),
 
-    ("snm_boss_bearger", 512, 1024,
-     "massive bear-badger hybrid monster, Bearger, enormously fat and powerful, "
-     "tiny angry eyes, huge claws, standing upright and roaring, "
-     "ground shaking beneath its weight, fur matted and dark, " + STYLE),
+    # Hound, Spider Queen and Bearger standees were removed 2026-09: no card
+    # or object uses them. Add a prompt back with the card that needs it.
 ]
 
 

@@ -95,6 +95,10 @@ tile is cropped to a circle; a standee's whole image is multiplied by its
   `lua/<file>:<line>`). See [`../docs/debugging.md`](../docs/debugging.md).
 - `iwanttoplay.py` — regen → build → test → install save → **purge this
   mod's stale TTS asset cache** → asset server → launch TTS.
+- `publish.py <tag>` — the Workshop build: assets served from this repo on
+  GitHub at the release tag, every referenced file checked as committed and
+  every URL checked live; `--install` copies it into TTS. Full route:
+  [`../docs/publishing.md`](../docs/publishing.md).
 
 ## Conventions
 

@@ -12,7 +12,7 @@ Lua bundle are in [test-suite.md](test-suite.md).
 - **`test_cross_refs.py`** — cross-artifact drift: every Dawn card has a `DAWN_EFFECTS` entry (and no orphans), every `ongoingDawnEffects` flag has an `EFFECT_RULES` label, atlas grids hold every card **and** match `NumWidth/NumHeight` in build_save.py, hardcoded card ids in Lua exist in the CSVs, `MARKET_COSTS` covers the Market deck, every asset/sound URL resolves to a file on disk, `TOOLTIP_DATA` keys are real save tags, starting-hand decks match `cards_starting.csv`, and the standee slot constants in build_save.py mirror `helpers.lua`.
 - **`test_generated_freshness.py`** — reruns the generators and fails if any generated `lua/*.lua` is stale (always restores the committed bytes).
 - **`test_build_output.py`** — rebuilds the save, validates the JSON, and fails if `saves/StarveNoMore.json` is stale relative to the sources (restores committed bytes; run `python scripts/build_save.py` to fix).
-- **`test_publish_build.py`** — a `--publish` build contains no `file:///` or `localhost` URL anywhere and never touches the committed dev save.
+- **`test_publish_build.py`** — a `--publish` build contains no `file:///` or `localhost` URL anywhere, needs no URL escaping, never touches the committed dev save, and references only files git tracks (the assets are served from the repo at a release tag — `scripts/publish.py`).
 - **`test_media_budget.py`** — asset sizes stay inside the budget a Steam Workshop upload can carry.
 
 ## The Lua bundle, statically

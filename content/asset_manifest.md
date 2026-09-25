@@ -9,13 +9,13 @@ that no longer existed.
 
 | What | Declared in | Dev URL | `--publish <base>` URL |
 |---|---|---|---|
-| Art on the table's objects — board, tiles, standees, player boards, bosses, deck atlases, tokens, icons, and the achievement icons (also listed as `CustomUIAssets` for the XML UI) | `ASSET_MAP` in `scripts/build_save.py` | `file:///<repo>/art/...` | `<base>/art/...` |
+| Art on the table's objects — board, tiles, standees, player boards, bosses, deck atlases, tokens, the severity legend, and the achievement icons (also listed as `CustomUIAssets` for the XML UI) | `ASSET_MAP` in `scripts/build_save.py` | `file:///<repo>/art/...` | `<base>/art/...` |
 | Art the scripts swap in at setup — the board image per path variant × Doom length | `BOARD_ART_URLS` in `lua/assets.lua` | `http://localhost:8080/art/...` | `<base>/art/...` |
 | Audio | `lua/audio_manifest.lua` — AUTO-GENERATED from `sounds/` by `scripts/generate_audio_manifest.py` | `http://localhost:8080/sounds/...` | `<base>/sounds/...` |
 | Deck grid sizes | `art/decks/atlas_manifest.json`, written by `scripts/generate_card_atlases.py` | — | — |
 
-The rest of the `ASSETS` table in `lua/assets.lua` is defined but not read by
-any script, so it needs no hosting. The `localhost` URLs need
+`<base>` is the release's GitHub URL, which `scripts/publish.py <tag>` builds
+(`https://raw.githubusercontent.com/<owner>/<repo>/<tag>`). The `localhost` URLs need
 `scripts/serve_art.bat` running during local play. Hosting, the measured
 payload and the Workshop upload are in
 [docs/publishing.md](../docs/publishing.md).
@@ -48,12 +48,11 @@ per-track durations; behaviour is in `docs/agents/audio.md`.
 | Asset path | Purpose |
 |---|---|
 | `sounds/ambient/suburban/*.ogg` | Day track: one picked each Dawn, looped all day |
-| `sounds/ambient/varied/*.ogg` | Fallback day pool — used only when `suburban/` is empty |
 | `sounds/ambient/night/*.ogg` | Night drones (synthesized): one picked each Night, looped |
-| `sounds/creatures/<boss>/*.ogg` | Roar loop while that boss is alive (`bearger/` has no threat card yet) |
+| `sounds/creatures/<boss>/*.ogg` | Roar loop while that boss is alive |
 | `sounds/sfx/*` | One-shots: Tick chime, turn ping, walk / meet / trade / death, hit landed / taken, Night Sounds growl |
 
-Provenance: the ambient pools and the creature clips are Klei's, from
+Provenance: the day tracks and the creature clips are Klei's, from
 *Don't Starve* (see [docs/publishing.md](../docs/publishing.md), task R1). The
 night drones and the chime, ping, hit and growl SFX are synthesized by this
 repo's scripts.

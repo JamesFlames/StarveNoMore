@@ -31,4 +31,4 @@ How the mod is assembled: the build pipeline, the single Lua namespace, and the 
 - `scripts/normalize_standee_art.py` — Derives `art/characters/<name>_standee.png`: cuts the backdrop to transparent (opt-in per character via `CUT_BACKGROUND`) and fits every figure to a common 512×1024. **`ASSET_MAP` points at the `_standee` files.** Why both exist: [`derived-art.md`](derived-art.md).
 - `scripts/simulate_balance.py` — Monte Carlo balance probe (policies × rulesets; `--rules old` for pre-fix comparison, `--trace` for a day-by-day log). Standalone; not part of the build.
 - Card data CSVs: `content/cards_phase1.csv` … `cards_phase4.csv`, plus `cards_market.csv`, `cards_recipes.csv`, `cards_threats.csv`, `cards_visitors.csv`, `cards_trophies.csv`, `cards_scenarios.csv`, and `locations.csv`, `resources.csv`, `tooltips.csv`
-- Output images: `art/decks/`, `art/decks/illustrations/`, `art/tokens/`, `art/icons/`, `art/board/`, `art/characters/`, `art/legend/`, `art/tiles/`, `art/bosses/`, `art/ui/`
+- Output images: `art/decks/`, `art/decks/illustrations/`, `art/tokens/`, `art/board/`, `art/characters/`, `art/legend/`, `art/tiles/`, `art/bosses/`, `art/achievements/`

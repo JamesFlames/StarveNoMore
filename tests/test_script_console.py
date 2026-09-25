@@ -39,6 +39,7 @@ SAFE_INVOCATIONS = [
     pytest.param(["regenerate_all.py", "--help"], id="regenerate_all --help"),
     pytest.param(["check.py", "--help"], id="check --help"),
     pytest.param(["sym.py", "--help"], id="sym --help"),
+    pytest.param(["publish.py", "--help"], id="publish --help"),
     pytest.param(["sym.py", "-q", "beginNight"], id="sym beginNight"),
 ]
 

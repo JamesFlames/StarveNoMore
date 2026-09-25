@@ -78,7 +78,6 @@ the scripts:
 | Prefix | Maps to | Sync destination |
 |---|---|---|
 | `snm_loc_<base>`  | Location tile scenes (1024×1024) | `art/tiles/<base>.png` |
-| `snm_path_<base>` | Path-edge variants (1024×1024)   | `art/board/<base>.png` |
 | `snm_char_<base>`, `snm_loc_{james,rayman,ellieluca}home` | **Hero art — never auto-generate.** | The `art/` copy is authoritative; generator and sync both skip these prefixes, so drop art in by hand. The build loads the derived file, so run `normalize_standee_art.py` / `normalize_tile_art.py` after. |
 | `snm_boss_<base>` | Boss / creature standees (512×1024) | `art/bosses/<base>.png` |
 | `snm_card_<id>`   | Card illustrations (1024×1024)   | `art/decks/illustrations/<id>.png` |

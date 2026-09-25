@@ -13,5 +13,9 @@ Thumbs.db
 __pycache__/
 *.pyc
 
+# The Workshop build: scripts/publish.py rebuilds it for each release tag,
+# and the copy that matters is the one uploaded to the Workshop.
+saves/StarveNoMore.publish.json
+
 # Single-card preview extracts produced by ad-hoc cropping
 art/decks/_test_*.png

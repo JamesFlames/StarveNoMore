@@ -1,7 +1,6 @@
 """
 Generate non-card art assets for Starve No More:
   - 6 resource tokens (256x256)
-  - 3 stat marker tokens (256x256)
   - Doom marker (256x256)
   - Telltale Heart token (256x256)
   - Sanity d8 texture (256x256)
@@ -10,7 +9,7 @@ Generate non-card art assets for Starve No More:
   - Main board with doom track (4096x4096)
 
 Run: python scripts/generate_assets.py
-Output: art/tokens/, art/icons/, art/legend/, art/characters/, art/board/
+Output: art/tokens/, art/legend/, art/characters/, art/board/
 """
 
 import math
@@ -25,7 +24,6 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Output dirs
 DIRS = {
     "tokens": os.path.join(ROOT, "art", "tokens"),
-    "icons":  os.path.join(ROOT, "art", "icons"),
     "legend": os.path.join(ROOT, "art", "legend"),
     "chars":  os.path.join(ROOT, "art", "characters"),
     "board":  os.path.join(ROOT, "art", "board"),
@@ -362,52 +360,6 @@ def generate_resource_token(name, color, symbol):
     # player boards, which lost their pre-rotation for the same reason.
     img.save(os.path.join(DIRS["tokens"], f"resource_{name}.png"))
     return img
-
-# ---------------------------------------------------------------------------
-# STAT MARKER TOKENS (3 x 256x256)
-# ---------------------------------------------------------------------------
-def generate_stat_tokens():
-    stats = [
-        ("health", PAL["red"],    "heart"),
-        ("hunger", PAL["orange"], "fork"),
-        ("sanity", PAL["teal"],   "spiral"),
-    ]
-    for name, color, shape in stats:
-        size = 256
-        img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-
-        draw_circle(draw, 128, 128, 120, fill=PAL["bg"], outline=color, width=5)
-
-        if shape == "heart":
-            draw_heart(draw, 128, 115, 48, color)
-        elif shape == "fork":
-            # Fork and knife crossed
-            # Fork (left)
-            draw.line([100, 80, 100, 155], fill=color, width=5)
-            draw.line([100, 80, 100, 100], fill=color, width=3)
-            draw.line([90, 80, 90, 100], fill=color, width=3)
-            draw.line([110, 80, 110, 100], fill=color, width=3)
-            # Knife (right)
-            draw.line([155, 80, 155, 155], fill=color, width=5)
-            draw.polygon([(148, 80), (162, 80), (155, 110)], fill=color)
-        elif shape == "spiral":
-            # Abstract brain spiral
-            for i in range(0, 720, 5):
-                t = math.radians(i)
-                r = 10 + i * 0.06
-                x = 128 + r * math.cos(t)
-                y = 118 + r * math.sin(t)
-                draw_circle(draw, int(x), int(y), 2, fill=color)
-
-        label = name.upper()
-        centered_text(draw, 128, 200, label, FONT_SM, color)
-
-        # Upright like the rest of the token art (see generate_resource_token).
-        # Nothing spawns these three as objects today — they are only URLs in
-        # lua/assets.lua — and upright is what a UI <Image> would want anyway.
-        img.save(os.path.join(DIRS["icons"], f"icon_{name}.png"))
-        print(f"  Stat token: icon_{name}.png")
 
 # ---------------------------------------------------------------------------
 # DOOM MARKER (256x256)
@@ -1041,9 +993,6 @@ def main():
         generate_resource_token(name, color, symbol)
         print(f"  Resource token: resource_{name}.png")
 
-    print("\nGenerating stat tokens...")
-    generate_stat_tokens()
-
     print("\nGenerating doom marker...")
     generate_doom_marker()
 
@@ -1071,7 +1020,6 @@ def main():
 
     print("\n=== DONE ===")
     print(f"Tokens:  {DIRS['tokens']}")
-    print(f"Icons:   {DIRS['icons']}")
     print(f"Legend:  {DIRS['legend']}")
     print(f"Boards:  {DIRS['chars']}")
     print(f"Board:   {DIRS['board']}")

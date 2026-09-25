@@ -6,8 +6,8 @@ Day-to-day conventions for making a change here.
 
 ## To build the TTS save:
 ```bash
-python scripts/build_save.py                                   # dev save (file:/// art, localhost sounds/rules)
-python scripts/build_save.py --publish https://your.cdn/snm    # shareable save, hosted URLs only
+python scripts/build_save.py                  # dev save (file:/// art, localhost sounds + board art)
+python scripts/publish.py v1.0                # Workshop save, assets from GitHub at tag v1.0 (docs/publishing.md)
 ```
 
 ## To regenerate card atlases:

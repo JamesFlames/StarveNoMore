@@ -91,10 +91,6 @@ ASSET_MAP = {
     "doom_marker":         "tokens/doom_marker.png",
     "telltale_heart":      "tokens/telltale_heart.png",
     "sanity_d8":           "tokens/sanity_d8.png",
-    # Stat icons
-    "icon_health":         "icons/icon_health.png",
-    "icon_hunger":         "icons/icon_hunger.png",
-    "icon_sanity":         "icons/icon_sanity.png",
     # Severity legend
     "severity_legend":     "legend/severity_legend.png",
     # Character standees — the _standee variants (scripts/normalize_standee_art.py)
